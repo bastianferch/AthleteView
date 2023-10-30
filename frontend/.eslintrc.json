@@ -1,0 +1,160 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json",
+          "e2e/tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "app",
+            "style": "camelCase"
+          }
+        ],
+        "@typescript-eslint/consistent-type-definitions": "error",
+        "@typescript-eslint/explicit-member-accessibility": [
+          "off",
+          {
+            "accessibility": "explicit"
+          }
+        ],
+        "arrow-parens": ["error", "always"],
+        "arrow-spacing": "error",
+        "@typescript-eslint/indent": ["error", 2, { "SwitchCase": 1 }],
+        "brace-style": ["error", "1tbs"],
+        "no-else-return": ["error", { "allowElseIf": false }],
+        "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/member-ordering": [
+          "error",
+          {
+            "default": [
+              "field",
+              "constructor",
+              "public-method",
+              "private-method"
+            ]
+          }
+        ],
+        "rest-spread-spacing": ["error", "never"],
+        "no-useless-computed-key": "error",
+        "no-confusing-arrow": "error",
+        "no-console": ["error", { "allow": ["warn", "error"] }],
+        "spaced-comment": ["error", "always"],
+        "no-whitespace-before-property": "error",
+        "no-unneeded-ternary": "error",
+        "no-trailing-spaces": "error",
+        "no-nested-ternary": "error",
+        "no-multiple-empty-lines": "error",
+        "no-lonely-if": "warn",
+        "eol-last": "error",
+        "comma-dangle": ["error", "always-multiline"],
+        "array-bracket-newline": ["error", "consistent"],
+        "no-duplicate-imports": [
+          "error",
+          {
+            "includeExports": true
+          }
+        ],
+
+        "no-template-curly-in-string": "error",
+        "block-scoped-var": "error",
+        "curly": ["error", "multi-line"],
+        "eqeqeq": "error",
+        "no-implicit-coercion": "error",
+        "no-lone-blocks": "error",
+        "no-multi-spaces": "error",
+        "no-new": "error",
+        "no-new-func": "error",
+        "no-new-wrappers": "error",
+        "no-return-await": "error",
+        "no-self-compare": "error",
+        "no-sequences": "error",
+        "no-throw-literal": "error",
+        "no-unused-expressions": "error",
+        "no-useless-call": "error",
+        "no-useless-concat": "error",
+        "no-useless-return": "error",
+        "prefer-promise-reject-errors": "error",
+        "radix": "error",
+        "no-undefined": "off",
+        "key-spacing": "error",
+        "keyword-spacing": ["error", {"before": true, "after": true}],
+        "new-parens": "error",
+        "no-tabs": [
+          "error",
+          {
+            "allowIndentationTabs": true
+          }
+        ],
+        "no-new-object": "error",
+        "space-before-blocks": "error",
+        "space-before-function-paren": [
+          "error",
+          {
+            "anonymous": "always",
+            "named": "never",
+            "asyncArrow": "always"
+          }
+        ],
+        "space-in-parens": "error",
+        "space-infix-ops": "error",
+        "space-unary-ops": "error",
+        "switch-colon-spacing": "error",
+        "prefer-arrow-callback": "warn",
+        "@typescript-eslint/func-call-spacing": ["error", "never"],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-useless-constructor": "error",
+        "object-curly-newline": "error",
+        "object-curly-spacing": [
+          "error",
+          "always"
+        ],
+        "semi-spacing": "error",
+        "import/order": "off",
+        "no-underscore-dangle": "off",
+        "lines-between-class-members": ["error", "always", {"exceptAfterSingleLine": true}],
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": "error"
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:@angular-eslint/template/accessibility"
+      ],
+      "rules": {}
+    }
+  ]
+}

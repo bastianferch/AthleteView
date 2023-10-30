@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/athlete_view
+    username: postgres
+    password: iamadminiamadminiamadmin
+  jpa:
+    hibernate:
+      ddl-auto: create
+
