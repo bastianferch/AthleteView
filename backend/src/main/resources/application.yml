@@ -8,3 +8,7 @@ spring:
     hibernate:
       ddl-auto: create
 
+security:
+  jwt:
+    token:
+      secret-key: very-very-secret-key-oh-yes-you-can-trust-me-i-know-hehe

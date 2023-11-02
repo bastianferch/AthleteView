@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="performLogin()">
+  <div class="width-100 centered-column-container">
+    <div class="main-container">
+      <h2>Login</h2>
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput placeholder="president@zuckerberg.com" required formControlName="email">
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="form.controls['email'].errors?.['required']">Field is required</mat-error>
+        <mat-error *ngIf="form.controls['email'].errors?.['invalidEmailPassword']">Wrong email or password</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Enter your password</mat-label>
+        <input matInput [type]="hide ? 'password' : 'text'" required formControlName="password">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide" type="button">
+          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.controls['password'].errors">Field is required</mat-error>
+      </mat-form-field>
+      <div class="">
+        <button
+          class="login-button stroked"
+          mat-stroked-button
+          color="accent"
+          type="submit">LOGIN
+        </button>
+      </div>
+      <div>
+        If you have no account, click <a [routerLink]="'/registration'">here</a> to register.
+      </div>
+    </div>
+  </div>
+</form>
