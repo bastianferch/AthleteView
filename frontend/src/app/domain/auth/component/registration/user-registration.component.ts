@@ -26,7 +26,7 @@ export class UserRegistrationComponent implements OnInit {
 
   performRegistration() {
     this.loginService.register(this.form.value as RegisterDTO).subscribe({ next: () => {
-      this.router.navigate(['/login'])
+      this.router.navigate(['/auth/login'])
     },
     error: () => this.form.controls.email.setErrors({ 'taken': 'oof' }) })
   }
