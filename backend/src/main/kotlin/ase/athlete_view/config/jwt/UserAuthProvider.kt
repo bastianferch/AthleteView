@@ -25,6 +25,7 @@ class UserAuthProvider(
         val validity = Date(now.time + 3600000)
         return JWT.create()
             .withSubject(dto.email)
+            .withClaim("id", dto.id)
             .withIssuedAt(now)
             .withExpiresAt(validity)
             .withClaim("name", dto.name)
@@ -35,7 +36,7 @@ class UserAuthProvider(
         var algorithm = Algorithm.HMAC256(secretKey);
         var verifier = JWT.require(algorithm).build()
         var decoded = verifier.verify(token)
-        var user = UserDto(null, decoded.subject, decoded.getClaim("name").asString(), null, token)
+        var user = UserDto(decoded.getClaim("id").asLong(), decoded.subject, decoded.getClaim("name").asString(), null, token)
         return UsernamePasswordAuthenticationToken(user, null, ArrayList())
     }
 }

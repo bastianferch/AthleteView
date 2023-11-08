@@ -12,6 +12,13 @@
   align-items: center;
 }
 
+.flex-end-row-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 
 .vertical-container {
   display: flex;

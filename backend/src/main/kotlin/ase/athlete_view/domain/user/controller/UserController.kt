@@ -13,7 +13,7 @@ class UserController (private val userService: UserService){
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/test-authorized")
-    fun example(@RequestBody user: LoginDTO): String {
+    fun example(): String {
         return "You did it!"
     }
 

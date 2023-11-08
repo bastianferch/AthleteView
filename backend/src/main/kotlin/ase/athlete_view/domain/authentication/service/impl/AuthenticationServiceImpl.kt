@@ -24,6 +24,11 @@ class AuthenticationServiceImpl(
         return this.userService.save(user)
     }
 
+    override fun createJwtToken(id: Long): String {
+        val user = this.userMapper.toDTO(this.userService.getById(id))
+        return this.userAuthProvider.createToken(user);
+    }
+
     override fun authenticateUser(loginDTO: LoginDTO): UserDto {
         try {
             val user = this.userService.getByEmail(loginDTO.email)

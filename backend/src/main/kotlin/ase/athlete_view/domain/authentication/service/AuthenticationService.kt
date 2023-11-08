@@ -6,5 +6,6 @@ import ase.athlete_view.domain.user.pojo.entity.User
 
 interface AuthenticationService {
     fun registerUser(user: User): User;
+    fun createJwtToken(id: Long): String
     fun authenticateUser(loginDTO: LoginDTO): UserDto;
 }

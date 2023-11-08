@@ -19,7 +19,16 @@ export class LoginComponent implements OnInit {
 
   constructor(private loginService: AuthService,
     private fb: FormBuilder,
-    private router: Router) {
+    private router: Router,
+    private authService: AuthService) {
+  }
+
+  ngOnInit(): void {
+    this.authService.setAuthToken(null);
+    this.form = this.fb.group({
+      email: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
+      password: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
+    });
   }
 
   async performLogin() {
@@ -31,13 +40,6 @@ export class LoginComponent implements OnInit {
         this.form.controls.email.setErrors({ 'invalidEmailPassword': 'oof' })
       },
     })
-  }
-
-  ngOnInit(): void {
-    this.form = this.fb.group({
-      email: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
-      password: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
-    });
   }
 
 }

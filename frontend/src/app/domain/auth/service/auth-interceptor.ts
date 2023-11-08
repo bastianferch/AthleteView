@@ -11,8 +11,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const authUri = this.urlService.getBackendUrl() + '/auth';
-
+    const authUri = this.urlService.getBackendUrl() + 'auth';
     // Do not intercept authentication requests
     if (req.url.startsWith(authUri)) {
       return next.handle(req);
