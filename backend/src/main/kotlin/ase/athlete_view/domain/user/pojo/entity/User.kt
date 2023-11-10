@@ -8,13 +8,13 @@ import jakarta.persistence.*
 abstract class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long?,
+    open var id: Long?,
 
     @Column(unique = true)
-    var email: String,
+    open var email: String,
 
-    var name: String,
-    var password: String,
-    var country: String,
-    var zip: String,
+    open var name: String,
+    open var password: String,
+    open var country: String,
+    open var zip: String,
 )
