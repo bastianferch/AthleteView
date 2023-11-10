@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainComponent } from '../../component/main.component';
-import { RouterOutlet } from "@angular/router";
+import { RouterLink, RouterOutlet } from "@angular/router";
 import { SharedModule } from "../../../../config/module/SharedModule";
 
 
@@ -13,6 +13,7 @@ import { SharedModule } from "../../../../config/module/SharedModule";
     CommonModule,
     RouterOutlet,
     SharedModule,
+    RouterLink,
   ],
   exports: [
     MainComponent,
