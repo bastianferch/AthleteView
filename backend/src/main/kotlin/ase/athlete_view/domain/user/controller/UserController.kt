@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("api/user")
 class UserController (private val userService: UserService){
 

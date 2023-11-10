@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { authGuard } from "./domain/config/auth.guard";
+import { authGuard } from "./config/auth.guard";
 
 const routes: Routes = [
   { path: '', canActivate: [authGuard],
