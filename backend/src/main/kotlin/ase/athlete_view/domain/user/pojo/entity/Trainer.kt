@@ -6,13 +6,12 @@ import jakarta.persistence.Entity
 @Entity
 @DiscriminatorValue("trainer")
 class Trainer(
-    override var id: Long?,
-    override var email: String,
-
-    override var name: String,
-    override var password: String,
-    override var country: String,
-    override var zip: String,
+    id: Long?,
+    email: String,
+    name: String,
+    password: String,
+    country: String,
+    zip: String,
 
 ) : User(
     id, email, name, password, country, zip

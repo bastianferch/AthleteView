@@ -33,8 +33,7 @@ class AuthenticationServiceImpl(
         try {
             val user = this.userService.getByEmail(loginDTO.email)
             // ToDo: use Bcrtypt to store and check hashes.
-            // ToDo: the password is not taken from the super().
-            if ((user as User).password != loginDTO.password) {
+            if (user.password != loginDTO.password) {
                 this.throwBadCredentialsException()
             }
             val dto = this.userMapper.toDTO(user)
