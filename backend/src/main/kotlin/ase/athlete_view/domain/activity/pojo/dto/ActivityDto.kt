@@ -1,12 +1,7 @@
-package ase.athlete_view.domain.activity.pojo.entity
+package ase.athlete_view.domain.activity.pojo.dto
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.Document
-
-@Document("activity_data")
-class Activity(
-    @Id
-    private var id: String?,
+class ActivityDto(
+    private var id: String? = null,
     private var accuracy: Int,
     private var averageBpm: Int,
     private var maxBpm: Int,
@@ -16,6 +11,6 @@ class Activity(
     private var avgPower: Int,
     private var maxPower: Int,
     private var load: Int,
-    private var fatigue: Int,
+    private var fatigue: Int
 ) {
 }
