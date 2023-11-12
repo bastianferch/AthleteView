@@ -11,6 +11,7 @@ class ActivityDto(
     private var avgPower: Int,
     private var maxPower: Int,
     private var load: Int,
-    private var fatigue: Int
+    private var fatigue: Int,
+    private var fitData: String
 ) {
 }

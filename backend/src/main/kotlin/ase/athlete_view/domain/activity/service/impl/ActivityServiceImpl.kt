@@ -1,11 +1,12 @@
 package ase.athlete_view.domain.activity.service.impl
 
 import ase.athlete_view.domain.activity.persistence.ActivityRepository
+import ase.athlete_view.domain.activity.persistence.FitDataRepository
+import ase.athlete_view.domain.activity.pojo.dto.FitData
 import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.util.FitParser
 import lombok.AllArgsConstructor
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -13,7 +14,8 @@ import org.springframework.web.multipart.MultipartFile
 @AllArgsConstructor
 class ActivityServiceImpl(
     val fitParser: FitParser,
-//    @Autowired val activityRepo: ActivityRepository
+    val activityRepo: ActivityRepository,
+    val fitFileRepo: FitDataRepository
 ): ActivityService {
     override fun importActivity(files: List<MultipartFile>) {
         println("================== PROCESSING FILES ==================")
@@ -34,16 +36,16 @@ class ActivityServiceImpl(
 
             // record mesg probably interesting
             for (d in data.recordMesgs) {
-                val hr = d.heartRate
-                val dist = d.distance
+                val hr = d.heartRate ?: 0
+                val dist = d.distance ?: 0.0f
                 val spd = d.speed
                 val time = d.timestamp
-                val power = d.power
+                val power = d.power ?: 0
                 val vspd = d.verticalSpeed
                 val lat = d.positionLat
                 val long = d.positionLong
-                val cal = d.calories
-                val cadence = d.cadence
+                val cal = d.calories ?: 0
+                val cadence = d.cadence ?: 0
 
                 if (hr > hrMax) {
                     hrMax = hr
@@ -60,12 +62,13 @@ class ActivityServiceImpl(
                 cadenceSum += cadence
             }
 
-            var totalElems = data.recordMesgs.size
-            var avgBpm = hrSum / totalElems
-            var avgPower = powerSum / totalElems
-            var avgCadence = cadenceSum / totalElems
+            val totalElems = data.recordMesgs.size
+            val avgBpm = hrSum / totalElems
+            val avgPower = powerSum / totalElems
+            val avgCadence = cadenceSum / totalElems
 
-            var activity = Activity(
+            val fitId: String = fitFileRepo.saveFitData(item)
+            val activity = Activity(
                 null,
                 0,
                 avgBpm,
@@ -76,14 +79,19 @@ class ActivityServiceImpl(
                 avgPower,
                 powerMax,
                 0,
-                1
+                1,
+                fitId
             )
 
-//            var respData = activityRepo.insert(activity)
+            val respData = activityRepo.save(activity)
             println("Saving activity success.")
-//            println(respData)
+            println(respData)
         }
 
         println("================== PROCESSING COMPLETE ==================")
+    }
+
+    override fun getActivity(id: String): FitData? {
+        return fitFileRepo.getFitData(id)
     }
 }
