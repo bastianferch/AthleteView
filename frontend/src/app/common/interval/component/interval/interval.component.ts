@@ -1,9 +1,9 @@
 import {
   ChangeDetectionStrategy,
-  Component,
+  Component, EventEmitter,
   Input,
   OnChanges,
-  OnInit,
+  OnInit, Output,
 } from '@angular/core';
 import { Step } from "../../dto/Step";
 import { Interval } from "../../dto/Interval";
@@ -20,6 +20,7 @@ export class IntervalComponent implements OnInit, OnChanges {
   @Input() activityType: string; // TODO should be some Enum
   @Input() interval: Interval; // TODO
   @Input() allIDs: number[];
+  @Output() deleteInterval: EventEmitter<number> = new EventEmitter();
   // @Output() changeInterval: EventEmitter<any> = new EventEmitter(); // TODO
 
   // keeps track of the IDs of the other (nested) drag&drop lists, so they can be connected.
@@ -35,7 +36,7 @@ export class IntervalComponent implements OnInit, OnChanges {
       // this is necessary to trigger change detection in the sub-intervals
       this.interval.steps = this.interval.steps.map((v) => Object.assign({}, v))
     }
-    this.interval = Object.assign({}, this.interval)
+    this.interval = Object.assign({}, this.interval);
     this.resetIdArray();
   }
 
@@ -52,6 +53,18 @@ export class IntervalComponent implements OnInit, OnChanges {
         event.currentIndex,
       );
     }
+  }
+
+  onDeleteInterval() {
+    this.deleteInterval.emit(this.interval.id);
+  }
+
+  handleDeleteInterval(deleteId: number) {
+    /* if (!this.isStep() && this.getIntervalArray().filter((i) => i.id === deleteId).length !== 0) {
+      this.interval.steps = this.getIntervalArray().filter((i) => i.id !== deleteId).map((_) => _);
+    }*/
+    // propagate to the higher levels
+    this.deleteInterval.emit(deleteId);
   }
 
   // converts allIDs to strings and assigns the result to allDragNDropIDs.

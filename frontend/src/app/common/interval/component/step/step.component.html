@@ -1,7 +1,14 @@
 <mat-card class="step">
-  <mat-card-header><mat-card-title>{{step.type}}</mat-card-title></mat-card-header>
-  <mat-card-content>
-    {{step.type}}
-    {{step.type}}
+  <mat-card-header class="step-header">
+    <mat-card-title>{{step.type}}</mat-card-title>
+    <div>
+      <button mat-stroked-button color="primary" (click)="onEditStep()">Edit</button>
+      <button mat-stroked-button color="warn" (click)="onDeleteStep()">Del</button>
+    </div>
+  </mat-card-header>
+  <mat-card-content class="step-content">
+    <p>{{step.duration_distance}}{{step.duration_distance_unit}}</p>
+    <p>{{step.target_type}}: {{step.target_from}}-{{step.target_to}}</p>
+    <p>{{step.note}}</p>
   </mat-card-content>
 </mat-card>

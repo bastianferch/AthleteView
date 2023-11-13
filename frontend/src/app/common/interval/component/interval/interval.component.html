@@ -12,9 +12,10 @@
 <!--if the interval repeats more than once, render a card around it-->
 <ng-container *ngIf="interval.repeat !== 1">
   <mat-card class="interval-card">
-    <mat-card-header>
-      repeats: {{interval.repeat}}
-    </mat-card-header>
+    <div class="interval-header">
+      <div>repeats: {{interval.repeat}}</div>
+      <button mat-stroked-button color="warn" (click)="onDeleteInterval()">Del</button>
+    </div>
     <mat-card-content class="interval-card">
       <ng-container *ngTemplateOutlet="templ" />
     </mat-card-content>
@@ -24,7 +25,7 @@
 <ng-template #templ>
   <!--if it is a step, display it-->
   <div *ngIf="isStep()">
-    <app-step [step]="getStep()"></app-step>
+    <app-step [step]="getStep()" (deleteStep)="onDeleteInterval()"></app-step>
   </div>
 
   <!--if it is an interval array, loop over the intervals-->
@@ -40,7 +41,12 @@
 
     <div class="interval-list-item interval" *ngFor="let i of getIntervalArray()" [cdkDragData]="i" cdkDrag>
       <div class="custom-placeholder" *cdkDragPlaceholder></div>
-      <app-interval [allIDs]="allIDs" [interval]="i" [editable]="editable" [activityType]="activityType" />
+      <app-interval
+        [allIDs]="allIDs"
+        [interval]="i"
+        [editable]="editable"
+        [activityType]="activityType"
+        (deleteInterval)="handleDeleteInterval($event)"/>
     </div>
   </div>
 

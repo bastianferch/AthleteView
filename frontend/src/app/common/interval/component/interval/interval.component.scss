@@ -6,6 +6,13 @@
 .interval-card {
   padding-bottom: 0 !important;
   background-color: gray; /*just for testing*/
+
+  .interval-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px 20px;
+  }
 }
 
 .interval-list {

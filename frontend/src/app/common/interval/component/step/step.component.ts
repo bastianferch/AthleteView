@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Step } from "../../dto/Step";
 
 @Component({
@@ -8,5 +8,13 @@ import { Step } from "../../dto/Step";
 })
 export class StepComponent {
   @Input() step: Step;
+  @Output() deleteStep: EventEmitter<any> = new EventEmitter();
 
+  onDeleteStep() {
+    this.deleteStep.emit();
+  }
+
+  onEditStep() {
+    console.log("edit step")
+  }
 }

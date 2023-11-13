@@ -19,6 +19,7 @@ export class IntervalContainerComponent implements OnInit {
 
   currentId = 0;
   allIds: number[] = [];
+  intervalIDs: number[] = [];
 
   // TODO test intervals
   interval: Interval = {
@@ -69,16 +70,48 @@ export class IntervalContainerComponent implements OnInit {
     ],
   }
 
-  newId() {
+  handleDeleteInterval(id: number) {
+    this.deleteIntervalWithId(id, this.interval);
+    this.interval = Object.assign({}, this.interval);
+  }
+
+  deleteIntervalWithId(id: number, i: Interval) {
+    if (Array.isArray(i.steps)) {
+      for (const step of i.steps) {
+        if (step.id === id) {
+          // if this is the right interval, delete all sub-intervals first
+          if (Array.isArray(step.steps)) {
+            for (const s of step.steps) {
+              this.deleteIntervalWithId(s.id, step);
+            }
+          }
+          // now remove step from this interval
+          i.steps = i.steps.filter((interv) => interv.id !== id);
+          this.allIds = this.allIds.filter((j) => j !== id);
+          this.intervalIDs = this.intervalIDs.filter((j) => j !== id);
+          return;
+        }
+        this.deleteIntervalWithId(id, step);
+      }
+    }
+  }
+
+  newId(i: Interval) {
     const result = this.currentId;
-    this.currentId++;
     this.allIds.push(result);
+    this.currentId++;
+
+    // if i is an interval with other intervals as children
+    if (Array.isArray(i?.steps)) {
+      this.intervalIDs.push(result);
+    }
+
     return result;
   }
 
   addIdToInterval(i: Interval) {
+    i.id = this.newId(i);
     if (Array.isArray(i.steps)) {
-      i.id = this.newId();
       for (const subI of i.steps) {
         this.addIdToInterval(subI);
       }
@@ -95,7 +128,9 @@ export class IntervalContainerComponent implements OnInit {
     console.log("add interval");
     // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
     if (Array.isArray(this.interval.steps)) {
-      this.interval.steps.push({ repeat: 2, steps: [], id: this.newId() })
+      const i: Interval = { repeat: 2, steps: [] }
+      this.addIdToInterval(i);
+      this.interval.steps.push(i)
       // to trigger change detection
       this.interval = Object.assign({}, this.interval);
     }
@@ -106,7 +141,7 @@ export class IntervalContainerComponent implements OnInit {
     console.log("add step")
     // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
     if (Array.isArray(this.interval.steps)) {
-      this.interval.steps.push({ repeat: 1, steps: {
+      const i: Interval = { repeat: 1, steps: {
         type: "run",
         duration_type: "distance",
         duration_distance: 1,
@@ -115,10 +150,16 @@ export class IntervalContainerComponent implements OnInit {
         target_from: 170,
         target_to: 175,
         note: "run note",
-      } })
+      } }
+      this.addIdToInterval(i);
+      this.interval.steps.push(i)
       // to trigger change detection
       this.interval = Object.assign({}, this.interval);
     }
+  }
+
+  logInterval() {
+    console.log(this.interval)
   }
 
 }
