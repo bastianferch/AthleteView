@@ -1,0 +1,49 @@
+<div>
+
+  <!-- for debugging purposes -->
+  <!--own ID: {{interval.id}}
+  all IDs {{allDragNDropIDs}}-->
+
+<!--if the interval repeats only once-->
+<ng-container *ngIf="interval.repeat === 1">
+  <ng-container *ngTemplateOutlet="templ" />
+</ng-container>
+
+<!--if the interval repeats more than once, render a card around it-->
+<ng-container *ngIf="interval.repeat !== 1">
+  <mat-card class="interval-card">
+    <mat-card-header>
+      repeats: {{interval.repeat}}
+    </mat-card-header>
+    <mat-card-content class="interval-card">
+      <ng-container *ngTemplateOutlet="templ" />
+    </mat-card-content>
+  </mat-card>
+</ng-container>
+
+<ng-template #templ>
+  <!--if it is a step, display it-->
+  <div *ngIf="isStep()">
+    <app-step [step]="getStep()"></app-step>
+  </div>
+
+  <!--if it is an interval array, loop over the intervals-->
+  <!--this is a drag n drop list. it is connected to all other interval lists-->
+  <div
+    *ngIf="!isStep()"
+    cdkDropList
+    id="{{interval.id}}"
+    [cdkDropListData]="getIntervalArray()"
+    [cdkDropListConnectedTo]="allDragNDropIDs"
+    class="interval-list"
+    (cdkDropListDropped)="drop($event)" >
+
+    <div class="interval-list-item interval" *ngFor="let i of getIntervalArray()" [cdkDragData]="i" cdkDrag>
+      <div class="custom-placeholder" *cdkDragPlaceholder></div>
+      <app-interval [allIDs]="allIDs" [interval]="i" [editable]="editable" [activityType]="activityType" />
+    </div>
+  </div>
+
+</ng-template>
+
+</div>

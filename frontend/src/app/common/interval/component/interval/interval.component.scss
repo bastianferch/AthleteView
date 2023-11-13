@@ -1,0 +1,31 @@
+.interval {
+  margin: 5px;
+  padding: 5px;
+}
+
+.interval-card {
+  padding-bottom: 0 !important;
+  background-color: gray; /*just for testing*/
+}
+
+.interval-list {
+  min-height: 60px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+}
+
+/*just for testing*/
+.custom-placeholder {
+  height: 2px;
+  padding: 0;
+  margin: 0 3%;
+  background-color: black;
+}
+
+// makes the other items slide out of the way when a dragged item hovers over them
+.interval-list.cdk-drop-list-dragging .interval:not(.cdk-drag-placeholder) {
+  transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+}
