@@ -7,6 +7,7 @@ import { MatCardModule } from "@angular/material/card";
 import { NgForOf, NgIf, NgTemplateOutlet } from "@angular/common";
 import { StepComponent } from "./component/step/step.component";
 import { CdkDrag, CdkDragPlaceholder, CdkDropList } from "@angular/cdk/drag-drop";
+import { MatDialogModule } from "@angular/material/dialog";
 
 const routes: Routes = [
   { path: '', component: IntervalContainerComponent },
@@ -15,7 +16,7 @@ const routes: Routes = [
 // TODO this module is only here for testing the interval component. remove later.
 @NgModule({
   declarations: [IntervalContainerComponent, IntervalComponent, StepComponent],
-  imports: [RouterModule.forChild(routes), MatButtonModule, MatCardModule, NgForOf, NgIf, NgTemplateOutlet, CdkDropList, CdkDrag, CdkDragPlaceholder],
+  imports: [MatDialogModule, RouterModule.forChild(routes), MatButtonModule, MatCardModule, NgForOf, NgIf, NgTemplateOutlet, CdkDropList, CdkDrag, CdkDragPlaceholder],
   exports: [RouterModule, IntervalContainerComponent],
 })
 export class IntervalModule {}

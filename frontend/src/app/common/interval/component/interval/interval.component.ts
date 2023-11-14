@@ -21,7 +21,7 @@ export class IntervalComponent implements OnInit, OnChanges {
   @Input() interval: Interval; // TODO
   @Input() allIDs: number[];
   @Output() deleteInterval: EventEmitter<number> = new EventEmitter();
-  // @Output() changeInterval: EventEmitter<any> = new EventEmitter(); // TODO
+  @Output() changeInterval: EventEmitter<Interval> = new EventEmitter();
 
   // keeps track of the IDs of the other (nested) drag&drop lists, so they can be connected.
   allDragNDropIDs: string[] = [];
@@ -59,12 +59,25 @@ export class IntervalComponent implements OnInit, OnChanges {
     this.deleteInterval.emit(this.interval.id);
   }
 
+  // TODO html event handler
+  onChangeStep(newStep: Step) {
+    const newInterval: Interval = Object.assign({}, this.interval);
+    newInterval.steps = newStep;
+    this.changeInterval.emit(newInterval);
+  }
+
   handleDeleteInterval(deleteId: number) {
-    /* if (!this.isStep() && this.getIntervalArray().filter((i) => i.id === deleteId).length !== 0) {
-      this.interval.steps = this.getIntervalArray().filter((i) => i.id !== deleteId).map((_) => _);
-    }*/
     // propagate to the higher levels
     this.deleteInterval.emit(deleteId);
+  }
+
+  handleChangeInterval(changedInterval: Interval) {
+    const newInterval: Interval = Object.assign({}, this.interval);
+    if (Array.isArray(newInterval.steps)) {
+      newInterval.steps = newInterval.steps.map((subInterval) =>
+        (subInterval.id === changedInterval.id ? changedInterval : subInterval));
+    }
+    this.changeInterval.emit(newInterval);
   }
 
   // converts allIDs to strings and assigns the result to allDragNDropIDs.

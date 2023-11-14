@@ -1,11 +1,13 @@
 <h1>Intervals</h1>
 <div class="interval-container">
   <app-interval
+    class="intervals"
     [allIDs]="intervalIDs"
     [interval]="interval"
     [editable]="editable"
     [activityType]="activityType"
-    (deleteInterval)="handleDeleteInterval($event)"/>
+    (deleteInterval)="handleDeleteInterval($event)"
+    (changeInterval)="handleChangeInterval($event)" />
 </div>
 
 <button mat-stroked-button color="primary" (click)="addInterval()">Add Interval</button>

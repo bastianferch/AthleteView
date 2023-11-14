@@ -1,0 +1,85 @@
+<h1 mat-dialog-title>Edit Step</h1>
+<div mat-dialog-content class="dialog-container">
+  <div class="settings-container">
+    <h1>Details</h1>
+    <mat-form-field>
+      <mat-label>Type</mat-label>
+      <mat-select [(ngModel)]="stepCopy.type">
+        <mat-option *ngFor="let stepType of stepTypes" [value]="stepType">
+          {{stepType}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <h1>Duration</h1>
+    <mat-form-field>
+      <mat-label>Type</mat-label>
+      <mat-select [(ngModel)]="stepCopy.duration_type">
+        <mat-option [value]="undefined">
+          none
+        </mat-option>
+        <mat-option *ngFor="let durationType of durationTypes" [value]="durationType">
+          {{durationType}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="split-field" *ngIf="showDurationSettings()">
+      <mat-form-field class="small">
+        <mat-label>Distance</mat-label>
+        <input matInput type="number" [(ngModel)]="stepCopy.duration_distance">
+      </mat-form-field>
+
+      <mat-form-field class="small">
+        <mat-select [(ngModel)]="stepCopy.duration_distance_unit">
+          <mat-option *ngFor="let unit of distanceUnits" [value]="unit">
+            {{unit}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <h1>Intensity Target</h1>
+    <mat-form-field>
+      <mat-label>Type</mat-label>
+      <mat-select [(ngModel)]="stepCopy.target_type">
+        <mat-option [value]="undefined">
+          none
+        </mat-option>
+        <mat-option *ngFor="let targetType of targetTypes" [value]="targetType">
+          {{targetType}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="split-field" *ngIf="showIntensitySettings()">
+      <mat-form-field class="small">
+        <input matInput type="number" [(ngModel)]="stepCopy.target_from">
+      </mat-form-field>
+
+      <p> to </p>
+
+      <mat-form-field class="small">
+        <input matInput type="number" [(ngModel)]="stepCopy.target_to">
+      </mat-form-field>
+
+      <!--TODO get appropriate text here-->
+      <p> spm </p>
+    </div>
+
+
+
+  </div>
+
+  <div class="note-container">
+    <h1>Note</h1>
+    <mat-form-field class="note">
+      <textarea matInput [(ngModel)]="stepCopy.note" cdkTextareaAutosize></textarea>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <!--closes the dialog with the mutated object as result-->
+  <button mat-button color="primary" (click)="prepareResult()" [mat-dialog-close]="stepCopy">Save</button>
+</div>

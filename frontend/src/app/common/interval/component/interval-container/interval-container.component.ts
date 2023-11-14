@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Interval } from "../../dto/Interval";
+import { StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
 
 @Component({
   selector: 'app-interval-container',
@@ -28,8 +29,8 @@ export class IntervalContainerComponent implements OnInit {
       {
         repeat: 1,
         steps: {
-          type: "warm up",
-          duration_type: "lap button press",
+          type: StepType.WARMUP,
+          duration_type: StepDurationType.LAPBUTTON,
           note: "warm up note",
         },
       },
@@ -39,11 +40,11 @@ export class IntervalContainerComponent implements OnInit {
           {
             repeat: 1,
             steps: {
-              type: "run",
-              duration_type: "distance",
+              type: StepType.RUN,
+              duration_type: StepDurationType.DISTANCE,
               duration_distance: 1,
-              duration_distance_unit: "km",
-              target_type: "cadence",
+              duration_distance_unit: StepDurationDistanceUnit.KM,
+              target_type: StepTargetType.CADENCE,
               target_from: 170,
               target_to: 175,
               note: "run note",
@@ -52,8 +53,8 @@ export class IntervalContainerComponent implements OnInit {
           {
             repeat: 1,
             steps: {
-              type: "recovery",
-              duration_type: "lap button press",
+              type: StepType.RECOVERY,
+              duration_type: StepDurationType.LAPBUTTON,
               note: "recovery note",
             },
           },
@@ -62,8 +63,8 @@ export class IntervalContainerComponent implements OnInit {
       {
         repeat: 1,
         steps: {
-          type: "cool down",
-          duration_type: "lap button press",
+          type: StepType.COOLDOWN,
+          duration_type: StepDurationType.LAPBUTTON,
           note: "cool down note",
         },
       },
@@ -73,6 +74,10 @@ export class IntervalContainerComponent implements OnInit {
   handleDeleteInterval(id: number) {
     this.deleteIntervalWithId(id, this.interval);
     this.interval = Object.assign({}, this.interval);
+  }
+
+  handleChangeInterval(newInterval: Interval) {
+    this.interval = Object.assign({}, newInterval);
   }
 
   deleteIntervalWithId(id: number, i: Interval) {
@@ -125,7 +130,6 @@ export class IntervalContainerComponent implements OnInit {
 
   addInterval() {
     // eslint-disable-next-line no-console
-    console.log("add interval");
     // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
     if (Array.isArray(this.interval.steps)) {
       const i: Interval = { repeat: 2, steps: [] }
@@ -138,15 +142,14 @@ export class IntervalContainerComponent implements OnInit {
 
   addStep() {
     // eslint-disable-next-line no-console
-    console.log("add step")
     // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
     if (Array.isArray(this.interval.steps)) {
       const i: Interval = { repeat: 1, steps: {
-        type: "run",
-        duration_type: "distance",
+        type: StepType.RUN,
+        duration_type: StepDurationType.DISTANCE,
         duration_distance: 1,
-        duration_distance_unit: "km",
-        target_type: "cadence",
+        duration_distance_unit: StepDurationDistanceUnit.KM,
+        target_type: StepTargetType.CADENCE,
         target_from: 170,
         target_to: 175,
         note: "run note",
