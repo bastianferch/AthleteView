@@ -53,12 +53,20 @@
     (cdkDropListDropped)="drop($event)" >
 
     <div class="interval-list-item interval" *ngFor="let i of getIntervalArray()" [cdkDragData]="i" cdkDrag>
+
+      <div class="drag-handle-container">
+        <div class="drag-handle" cdkDragHandle><mat-icon matSuffix>drag_indicator</mat-icon></div>
+      </div>
+
       <div class="custom-placeholder" *cdkDragPlaceholder></div>
       <app-interval
         [allIDs]="allIDs"
         [interval]="i"
+        [rootInterval]="rootInterval"
         [editable]="editable"
         [activityType]="activityType"
+        [level]="level + 1"
+        [maxNesting]="maxNesting"
         (deleteInterval)="handleDeleteInterval($event)"
         (changeInterval)="handleChangeInterval($event)"/>
     </div>
@@ -73,8 +81,11 @@
       <app-interval
         [allIDs]="allIDs"
         [interval]="i"
+        [rootInterval]="rootInterval"
         [editable]="editable"
         [activityType]="activityType"
+        [level]="level + 1"
+        [maxNesting]="maxNesting"
         (deleteInterval)="handleDeleteInterval($event)"
         (changeInterval)="handleChangeInterval($event)"/>
     </div>

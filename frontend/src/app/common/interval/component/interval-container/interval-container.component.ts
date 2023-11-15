@@ -17,6 +17,7 @@ export class IntervalContainerComponent implements OnInit {
   // TODO replace these by @Input statements
   editable = true;
   activityType: StepType = StepType.RUN;
+  maxNesting = 2;
 
   // local state
   currentId = 0;

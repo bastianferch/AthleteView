@@ -4,11 +4,14 @@
     class="intervals"
     [allIDs]="intervalIDs"
     [interval]="interval"
+    [rootInterval]="interval"
     [editable]="editable"
     [topLevelInterval]="true"
     [activityType]="activityType"
+    [level]="0"
+    [maxNesting]="maxNesting"
     (deleteInterval)="handleDeleteInterval($event)"
-    (changeInterval)="handleChangeInterval($event)" />
+    (changeInterval)="handleChangeInterval($event)"/>
 </div>
 
 <div *ngIf="editable">

@@ -28,8 +28,11 @@ export class IntervalComponent implements OnInit, OnChanges {
   @Input() editable: boolean;
   @Input() topLevelInterval?: boolean;
   @Input() activityType: string; // TODO should be some Enum
-  @Input() interval: Interval; // TODO
+  @Input() interval: Interval;
+  @Input() rootInterval: Interval;
   @Input() allIDs: number[];
+  @Input() level: number;
+  @Input() maxNesting: number;
   @Output() deleteInterval: EventEmitter<number> = new EventEmitter();
   @Output() changeInterval: EventEmitter<Interval> = new EventEmitter();
 
@@ -65,9 +68,25 @@ export class IntervalComponent implements OnInit, OnChanges {
     });
   }
 
-
   // reorder array when we drop within the same interval, transfer item when we drag items into other intervals.
   drop(event: CdkDragDrop<Interval[], Interval[]>): void {
+    // cant drag an interval into the 2nd level
+    if (this.level >= this.maxNesting && Array.isArray(event.item.data.steps)) {
+      return;
+    }
+
+    // cant drag anything into the 3rd level
+    if (this.level > this.maxNesting) {
+      return;
+    }
+
+    // cant pre-nest items and then drag them into another interval if the overall level would be > 2
+    const containerMaxLevel = this.getMaxLevel(event.item.data.id)
+    if (this.level + containerMaxLevel - 1 > this.maxNesting) {
+      // TODO notify user that max nesting limit is reached
+      return;
+    }
+
     if (event.container === event.previousContainer) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -78,6 +97,34 @@ export class IntervalComponent implements OnInit, OnChanges {
         event.currentIndex,
       );
     }
+  }
+
+  // get the depth of an interval with id
+  getMaxLevel(id: number) {
+
+    const getIntervalWithId = (intId: number, int: Interval): Interval => {
+      if (int.id === intId) return int;
+      if (Array.isArray(int.steps)) {
+        for (const step of int.steps) {
+          const temp = getIntervalWithId(intId, step);
+          if (temp !== null) return temp;
+        }
+      }
+      return null;
+    }
+
+    const getNumberOfLevels = (currentInterval: Interval, currentLevel: number): number => {
+      if (Array.isArray(currentInterval.steps)) {
+        let max = 1;
+        for (const step of currentInterval.steps) {
+          const temp = getNumberOfLevels(step, currentLevel + 1);
+          if (temp > max) max = temp;
+        }
+        return currentLevel + max
+      }
+      return currentLevel - 1;
+    }
+    return getNumberOfLevels(getIntervalWithId(id, this.rootInterval), 1);
   }
 
   onDeleteInterval() {
