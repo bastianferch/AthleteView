@@ -1,13 +1,4 @@
-.step {
-  padding: 5px;
-
-  .step-header {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .step-content {
-    display: flex;
-    justify-content: space-around;
-  }
+.step-content {
+  display: flex;
+  justify-content: space-around;
 }

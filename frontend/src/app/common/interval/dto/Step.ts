@@ -30,4 +30,5 @@ export enum StepDurationDistanceUnit {
 
 export enum StepTargetType {
   CADENCE = "cadence",
+  HEARTRATE = "heartrate",
 }

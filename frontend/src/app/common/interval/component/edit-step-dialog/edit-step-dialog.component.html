@@ -63,12 +63,8 @@
         <input matInput type="number" [(ngModel)]="stepCopy.target_to">
       </mat-form-field>
 
-      <!--TODO get appropriate text here-->
-      <p> spm </p>
+      <p> {{service.getUnitForTargetType(stepCopy.target_type)}} </p>
     </div>
-
-
-
   </div>
 
   <div class="note-container">
@@ -78,7 +74,8 @@
     </mat-form-field>
   </div>
 </div>
-<div mat-dialog-actions>
+<mat-divider></mat-divider>
+<div mat-dialog-actions class="footer">
   <button mat-button (click)="onNoClick()">Cancel</button>
   <!--closes the dialog with the mutated object as result-->
   <button mat-button color="primary" (click)="prepareResult()" [mat-dialog-close]="stepCopy">Save</button>

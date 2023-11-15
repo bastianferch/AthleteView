@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Interval } from "../../dto/Interval";
-import { StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
+import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
 
 @Component({
   selector: 'app-interval-container',
@@ -11,13 +11,14 @@ export class IntervalContainerComponent implements OnInit {
 
   // @Input() editable: boolean;
   // @Input() activityType: string; // TODO should be some Enum
-  // @Input() interval: any; // TODO should have a type. Wait for Basti to declare type for this.
-  // @Output() changeInterval: EventEmitter<any> = new EventEmitter();
+  @Input() inputInterval: Interval;
+  @Output() changeInterval: EventEmitter<Interval> = new EventEmitter();
 
   // TODO replace these by @Input statements
   editable = true;
-  activityType = "running";
+  activityType: StepType = StepType.RUN;
 
+  // local state
   currentId = 0;
   allIds: number[] = [];
   intervalIDs: number[] = [];
@@ -40,7 +41,7 @@ export class IntervalContainerComponent implements OnInit {
           {
             repeat: 1,
             steps: {
-              type: StepType.RUN,
+              type: this.activityType,
               duration_type: StepDurationType.DISTANCE,
               duration_distance: 1,
               duration_distance_unit: StepDurationDistanceUnit.KM,
@@ -71,13 +72,20 @@ export class IntervalContainerComponent implements OnInit {
     ],
   }
 
+  // everytime the interval changes, emit the new interval
+  onIntervalUpdated() {
+    this.changeInterval.emit(this.interval);
+  }
+
   handleDeleteInterval(id: number) {
     this.deleteIntervalWithId(id, this.interval);
     this.interval = Object.assign({}, this.interval);
+    this.onIntervalUpdated();
   }
 
   handleChangeInterval(newInterval: Interval) {
     this.interval = Object.assign({}, newInterval);
+    this.onIntervalUpdated()
   }
 
   deleteIntervalWithId(id: number, i: Interval) {
@@ -124,41 +132,52 @@ export class IntervalContainerComponent implements OnInit {
   }
 
   ngOnInit() {
+    // if there is an input interval, replace the placeholder interval
+    if (this.inputInterval) {
+      this.interval = Object.assign({}, this.inputInterval);
+    }
     this.addIdToInterval(this.interval);
   }
 
 
-  addInterval() {
-    // eslint-disable-next-line no-console
-    // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
+  addInterval(newInterval?: Interval) {
+
+    if (!newInterval) {
+      newInterval = { repeat: 2, steps: [] }
+    }
+    // if this interval already has an array of children, push to it
     if (Array.isArray(this.interval.steps)) {
-      const i: Interval = { repeat: 2, steps: [] }
-      this.addIdToInterval(i);
-      this.interval.steps.push(i)
+      this.addIdToInterval(newInterval);
+      this.interval.steps.push(newInterval)
       // to trigger change detection
       this.interval = Object.assign({}, this.interval);
+    } else {
+      // if interval.steps is a single step element, first replace it by an interval, then push to this interval
+      const tempStep: Step = this.interval.steps;
+      // the new root interval contains the old step and the newly added interval
+      const newRootInterval: Interval = {
+        repeat: 1,
+        steps: [
+          {
+            repeat: 1,
+            steps: tempStep,
+          },
+          newInterval,
+        ],
+      }
+      this.addIdToInterval(newRootInterval);
+      this.interval = Object.assign({}, newRootInterval);
     }
+    this.onIntervalUpdated();
   }
 
   addStep() {
-    // eslint-disable-next-line no-console
-    // TODO if interval.steps is a single step element, first replace it by an interval, then push to this interval
-    if (Array.isArray(this.interval.steps)) {
-      const i: Interval = { repeat: 1, steps: {
-        type: StepType.RUN,
-        duration_type: StepDurationType.DISTANCE,
-        duration_distance: 1,
-        duration_distance_unit: StepDurationDistanceUnit.KM,
-        target_type: StepTargetType.CADENCE,
-        target_from: 170,
-        target_to: 175,
-        note: "run note",
-      } }
-      this.addIdToInterval(i);
-      this.interval.steps.push(i)
-      // to trigger change detection
-      this.interval = Object.assign({}, this.interval);
-    }
+    // new step to be added
+    const i: Interval = { repeat: 1, steps: {
+      type: this.activityType,
+      duration_type: StepDurationType.LAPBUTTON,
+    } }
+    this.addInterval(i);
   }
 
   logInterval() {

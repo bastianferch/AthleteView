@@ -7,12 +7,14 @@ import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf } from "@angular/common";
+import { MatDividerModule } from "@angular/material/divider";
+import { IntervalService } from "../../service/interval.service";
 
 @Component({
   selector: 'app-edit-step-dialog',
   templateUrl: './edit-step-dialog.component.html',
   styleUrls: ['./edit-step-dialog.component.scss'],
-  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatSelectModule, NgForOf, NgIf],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatSelectModule, NgForOf, NgIf, MatDividerModule],
   standalone: true,
 })
 export class EditStepDialogComponent implements OnInit {
@@ -27,6 +29,7 @@ export class EditStepDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<EditStepDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Step,
+    protected service: IntervalService,
   ) {}
 
   // copy the object aso the original object is not mutated
