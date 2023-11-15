@@ -9,9 +9,32 @@
 
   <mat-card class="inner-card">
     <mat-card-content class="step-content">
-      <p>{{step.duration_distance}}{{step.duration_distance_unit}}</p>
-      <p>{{step.target_from}}-{{step.target_to}} {{service.getUnitForTargetType(step.target_type)}}</p>
-      <p>{{step.note}}</p>
+
+      <div class="step-content-left">
+        <div class="step-info">
+          <p>
+            <b *ngIf="step.duration_type === StepDurationType.LAPBUTTON">{{step.duration_type}}</b>
+            <b *ngIf="step.duration_type !== StepDurationType.LAPBUTTON">
+              {{step.duration_distance}} {{step.duration_distance_unit}}
+            </b>
+          </p>
+          <p>Duration</p>
+        </div>
+
+        <div class="step-info" *ngIf="step.target_from || step.target_to">
+          <p>
+            <b *ngIf="step.target_from">{{step.target_from}}</b><b *ngIf="step.target_from && step.target_to"> - </b><b *ngIf="step.target_to">{{step.target_to}}</b> <b> {{service.getUnitForTargetType(step.target_type)}}</b>
+          </p>
+          <p>Intensity Target</p>
+        </div>
+      </div>
+
+
+      <div class="step-note" *ngIf="step.note && step.note !== ''">
+        <div>
+          <p title="{{step.note}}"><i>{{step.note}}</i></p>
+        </div>
+      </div>
     </mat-card-content>
   </mat-card>
 </mat-card>

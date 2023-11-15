@@ -1,4 +1,35 @@
 .step-content {
   display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+
+  p {
+    text-align: center;
+    margin: 0 0 2px;
+  }
+}
+
+.step-content-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.step-info {
+  width: 110px;
+  height: 40px;
+}
+
+.step-note {
+  min-width: 110px;
+  max-width: 50%;
+  height: 40px;
+
+  p {
+    text-align: center;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

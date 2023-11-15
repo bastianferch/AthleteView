@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Step } from "../../dto/Step";
+import { Step, StepDurationType } from "../../dto/Step";
 import { EditStepDialogComponent } from "../edit-step-dialog/edit-step-dialog.component";
 import { MatDialog } from "@angular/material/dialog"
 import { IntervalService } from "../../service/interval.service";
@@ -14,6 +14,8 @@ export class StepComponent {
   @Output() deleteStep: EventEmitter<any> = new EventEmitter();
   @Output() changeStep: EventEmitter<Step> = new EventEmitter();
 
+  // so the html can see the type
+  protected readonly StepDurationType = StepDurationType;
   constructor(public dialog: MatDialog, protected service: IntervalService) {
   }
 
@@ -36,4 +38,5 @@ export class StepComponent {
   onEditStep() {
     this.openDialog();
   }
+
 }

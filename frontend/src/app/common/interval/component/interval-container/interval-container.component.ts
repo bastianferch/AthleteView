@@ -23,7 +23,7 @@ export class IntervalContainerComponent implements OnInit {
   allIds: number[] = [];
   intervalIDs: number[] = [];
 
-  // TODO test intervals
+  // standard interval
   interval: Interval = {
     repeat: 1,
     steps: [
@@ -32,7 +32,6 @@ export class IntervalContainerComponent implements OnInit {
         steps: {
           type: StepType.WARMUP,
           duration_type: StepDurationType.LAPBUTTON,
-          note: "warm up note",
         },
       },
       {
@@ -48,7 +47,7 @@ export class IntervalContainerComponent implements OnInit {
               target_type: StepTargetType.CADENCE,
               target_from: 170,
               target_to: 175,
-              note: "run note",
+              note: "example note",
             },
           },
           {
@@ -56,7 +55,6 @@ export class IntervalContainerComponent implements OnInit {
             steps: {
               type: StepType.RECOVERY,
               duration_type: StepDurationType.LAPBUTTON,
-              note: "recovery note",
             },
           },
         ],
@@ -66,7 +64,6 @@ export class IntervalContainerComponent implements OnInit {
         steps: {
           type: StepType.COOLDOWN,
           duration_type: StepDurationType.LAPBUTTON,
-          note: "cool down note",
         },
       },
     ],
