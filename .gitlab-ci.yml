@@ -45,7 +45,10 @@ build-image:
 
 deploy:
   stage: deploy
-  script: |
-    curl -H 'X-DeployToken: '$DEPLOY_TOKEN -H 'Content-type: application/json' -vf -XPUT --data '{"image": "'$CI_PROJECT_PATH'", "tag": "'$CI_PIPELINE_ID'"}' https://reset.inso.tuwien.ac.at/api/dockerDeployment
+  image: bitnami/kubectl
+  script:
+    - sed -i 's/:latest/:'$CI_PIPELINE_ID'/g' kubernetes.yaml
+    - cat kubernetes.yaml
+    - kubectl apply -f kubernetes.yaml
   only:
     - staging
