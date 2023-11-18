@@ -23,9 +23,9 @@ class AuthenticationController(
     @PostMapping("/registration")
     fun registration(@RequestBody registrationDto: RegistrationDTO): UserDto {
         logger.info { "POST USER REGISTRATION $registrationDto" }
-
-        val savedUser = this.authenticationService.registerUser(this.userMapper.toEntity(registrationDto))
-        return userMapper.toDTO(savedUser)
+        throw NotImplementedError("not yet implemented")
+//        val savedUser = this.authenticationService.registerUser(this.userMapper.toEntity(registrationDto))
+//        return userMapper.toDTO(savedUser)
     }
 
     @ResponseStatus(HttpStatus.OK)

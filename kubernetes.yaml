@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 23ws-ase-pr-qse-05
+  namespace: 23ws-ase-pr-qse-05
+spec:
+  selector:
+    matchLabels:
+      app: 23ws-ase-pr-qse-05
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: 23ws-ase-pr-qse-05
+    spec:
+      containers:
+        - name: 23ws-ase-pr-qse-05-backend-container
+          image: registry.reset.inso-w.at/2023ws-ase-pr-group/23ws-ase-pr-qse-05:latest
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "10m"
+              ephemeral-storage: "100Mi"
+            limits:
+              memory: "280Mi"
+              cpu: "500m"
+              ephemeral-storage: "100Mi"
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /health
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /health
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: /health
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 120
+          lifecycle:
+            preStop:
+              httpGet:
+                port: 8080
+                path: /health/prepareShutdown
+      imagePullSecrets:
+        - name: secret-dockercfg
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s-23ws-ase-pr-qse-05-service
+  namespace: 23ws-ase-pr-qse-05
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: 23ws-ase-pr-qse-05
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "23ws-ase-pr-qse-05-ingress"
+  namespace: 23ws-ase-pr-qse-05
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: "23ws-ase-pr-qse-05.apps.student.inso-w.at"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: s-23ws-ase-pr-qse-05-service
+                port:
+                  number: 8080
