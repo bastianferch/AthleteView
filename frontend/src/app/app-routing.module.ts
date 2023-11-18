@@ -1,17 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UserInfoComponent } from "./domain/user/component/user-info/user-info.component";
-import { LoginComponent } from "./domain/auth/component/login/login.component";
-import { authGuard } from "./domain/config/auth.guard";
-import { UserRegistrationComponent } from "./domain/auth/component/registration/user-registration.component";
+import { authGuard } from "./config/auth.guard";
 
-// ToDo make it lazy.
-// ToDo add extra modules.
-// ToDo change auth guard.
 const routes: Routes = [
-  { path: '', canActivate: [authGuard], component: UserInfoComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'registration', component: UserRegistrationComponent },
+  { path: '', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/home/module/home.module').then((m) => m.HomeModule) },
+  { path: 'activities', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/activities/module/activities.module').then((m) => m.ActivitiesModule) },
+  { path: 'calendar', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },
+  { path: 'auth',
+    loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule) },
 ];
 
 @NgModule({

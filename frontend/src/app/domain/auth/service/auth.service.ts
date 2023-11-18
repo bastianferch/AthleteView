@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable, tap } from "rxjs";
 import { Router } from "@angular/router";
-import { UrlService } from "../../config/service/UrlService";
+import { UrlService } from "../../../config/service/UrlService";
 import { LoginDTO } from "../dto/LoginDTO";
 import { RegisterDTO } from "../dto/RegisterDTO";
 import { User } from "../../user/dto/User";
@@ -23,14 +23,20 @@ export class AuthService {
     return localStorage.getItem(JWT_TOKEN_NAME);
   }
 
+  // ToDo: make a BehaviorSubject from it.
   isLoggedIn(): boolean {
-    return Boolean(this.getAuthToken());
+    const token = this.getAuthToken();
+    return token && token !== 'null';
+  }
+
+  logout(): void {
+    this.setAuthToken(null);
   }
 
   login(body: LoginDTO): Observable<User> {
     return this.http.post<User>(this.url + 'login', body, { withCredentials: true }).pipe(
       tap((user) => {
-        this.updateCurrentUserSession(user)
+        this.setAuthToken(user.token)
       }),
     );
   }
@@ -39,12 +45,8 @@ export class AuthService {
     return this.http.post<User>(this.url + 'registration', body, { withCredentials: true });
   }
 
-  private updateCurrentUserSession(user: User) {
-    console.log(user)
-    if (!user) {
-      return
-    }
-    localStorage.setItem(JWT_TOKEN_NAME, user.token);
+  setAuthToken(token: string) {
+    localStorage.setItem(JWT_TOKEN_NAME, token);
   }
 
 }

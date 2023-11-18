@@ -5,4 +5,5 @@ import ase.athlete_view.domain.user.pojo.entity.User
 interface UserService {
     fun save(user: User): User
     fun getByEmail(string: String): User
+    fun getById(id: Long): User
 }
