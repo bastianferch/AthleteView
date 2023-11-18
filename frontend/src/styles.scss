@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 /* You can add global styles to this file, and also import other style files */
 @import "src/app/style/center";
 @import "src/app/style/whitespace";
@@ -53,12 +54,44 @@ footer {
   max-width: 100%;
 }
 
+.width-32 {
+  width: 32%;
+}
+
+.max-width-32 {
+  max-width: 32%;
+}
+
+.width-65 {
+  width: 65%;
+}
+
+.max-width-65 {
+  max-width: 65%;
+}
+
+.width-49 {
+  width: 49%;
+}
+
+.max-width-49 {
+  max-width: 49%;
+}
+
 .width-fit-content {
   width: fit-content;
 }
 
 .height-2 {
   height: 2rem;
+}
+
+.mg-0p5 {
+  margin: 0.5rem;
+}
+
+.mg-0p275 {
+  margin: 0.275rem;
 }
 
 .pd-0p5 {
@@ -79,4 +112,13 @@ footer {
 
 .mat-mdc-button:not(:disabled) {
   color: #ffffff;
+}
+
+// for smaller form fields
+.dense-1 {
+  @include mat.all-component-densities(-1);
+}
+
+.dense-2 {
+  @include mat.all-component-densities(-2);
 }

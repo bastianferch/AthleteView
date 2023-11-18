@@ -1,21 +1,23 @@
-<h1>Intervals</h1>
-<div class="interval-container">
-  <app-interval
-    class="intervals"
-    [allIDs]="intervalIDs"
-    [interval]="interval"
-    [rootInterval]="interval"
-    [editable]="editable"
-    [topLevelInterval]="true"
-    [activityType]="activityType"
-    [level]="0"
-    [maxNesting]="maxNesting"
-    (deleteInterval)="handleDeleteInterval($event)"
-    (changeInterval)="handleChangeInterval($event)"/>
-</div>
+<div>
+  <h1>Intervals</h1>
+  <div class="interval-container">
+    <app-interval
+      class="intervals"
+      [allIDs]="intervalIDs"
+      [interval]="interval"
+      [rootInterval]="interval"
+      [editable]="editable"
+      [topLevelInterval]="true"
+      [activityType]="activityType"
+      [level]="0"
+      [maxNesting]="maxNesting"
+      (deleteInterval)="handleDeleteInterval($event)"
+      (changeInterval)="handleChangeInterval($event)"/>
+  </div>
 
-<div *ngIf="editable">
-  <button mat-stroked-button color="primary" (click)="addInterval()">Add Interval</button>
-  <button mat-stroked-button color="primary" (click)="addStep()">Add Step</button>
-  <button mat-stroked-button color="primary" (click)="logInterval()">Log Interval</button>
+  <div *ngIf="editable">
+    <button mat-stroked-button color="primary" (click)="addInterval()">Add Interval</button>
+    <button mat-stroked-button color="primary" (click)="addStep()">Add Step</button>
+    <button mat-stroked-button color="primary" (click)="logInterval()">Log Interval</button>
+  </div>
 </div>
