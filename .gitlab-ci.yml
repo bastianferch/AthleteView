@@ -6,6 +6,7 @@ cache:
 
 variables:
   GIT_STRATEGY: "clone"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
 
 stages:
   - test
