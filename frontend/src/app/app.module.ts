@@ -7,6 +7,7 @@ import { httpInterceptorProviders } from "./domain/auth/service/auth-interceptor
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MainModule } from "./domain/main/module/main/main.module";
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { MainModule } from "./domain/main/module/main/main.module";
     AppRoutingModule,
     HttpClientModule,
     MainModule,
+    MatSnackBarModule,
   ],
   exports: [],
   providers: [httpInterceptorProviders],

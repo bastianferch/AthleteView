@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ActivityType, PlannedActivity } from '../../../../common/dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
+import { SnackbarService } from '../../../../common/service/snackbar.service';
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -39,7 +40,7 @@ export class CreateEditViewActivityComponent implements OnInit {
     }
   }
 
-  constructor(private route: ActivatedRoute, private activityService: ActivityService) {
+  constructor(private route: ActivatedRoute, private activityService: ActivityService, private snackbarService: SnackbarService) {
   }
 
   ngOnInit(): void {
@@ -51,8 +52,10 @@ export class CreateEditViewActivityComponent implements OnInit {
   save(): void {
 
     if (this.mode === ActivityCreateEditViewMode.create) {
-
-      this.activityService.createPlannedActivity(this.plannedActivity);
+      this.activityService.createPlannedActivity(this.plannedActivity).subscribe({
+        next: () => this.snackbarService.openSnackBar("Activity successfully created ") ,
+        error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
+      });
     } else if (this.mode === ActivityCreateEditViewMode.edit) {
       this.activityService.editPlannedActivity(this.plannedActivity);
     }
