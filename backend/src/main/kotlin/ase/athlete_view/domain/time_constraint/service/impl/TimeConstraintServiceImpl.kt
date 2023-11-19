@@ -11,6 +11,7 @@ import ase.athlete_view.domain.time_constraint.pojo.entity.DailyTimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.WeeklyTimeConstraint
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,6 +22,8 @@ class TimeConstraintServiceImpl(
     private val weeklyTimeConstraintRepository: WeeklyTimeConstraintRepository,
     private val dailyTimeConstraintRepository: DailyTimeConstraintRepository
 ): TimeConstraintService {
+
+    private val logger = KotlinLogging.logger {}
 
     override fun save(timeConstraint: TimeConstraintDto): TimeConstraintDto {
         validate(timeConstraint.toEntity())
@@ -47,6 +50,7 @@ class TimeConstraintServiceImpl(
     override fun getAll(): List<TimeConstraintDto> {
         val list: List<TimeConstraint> =
             weeklyTimeConstraintRepository.findAll() + dailyTimeConstraintRepository.findAll()
+        logger.info { "retrieved ${list.size} items: $list" }
         return list.map { timeConstraints ->  timeConstraints.toDto() }
     }
 
@@ -58,7 +62,7 @@ class TimeConstraintServiceImpl(
 
     override fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime): List<WeeklyTimeConstraintDto> {
         val list: List<WeeklyTimeConstraint> = weeklyTimeConstraintRepository.findAll() +
-                dailyTimeConstraintRepository.findByStartTimeLessThanEqualEndTimeGreaterThanEqual(startTime, endTime)
+                dailyTimeConstraintRepository.findAllByStartTimeLessThanEqualAndEndTimeGreaterThanEqual(startTime, endTime)
                 .map { daily -> daily.toWeekly()}
         return list.map { constraint -> constraint.toDto()}
     }

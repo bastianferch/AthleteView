@@ -1,6 +1,8 @@
 package ase.athlete_view.domain.time_constraint.controller
 
+import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
+import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.WeeklyTimeConstraint
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
@@ -21,17 +23,35 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     private val logger = KotlinLogging.logger {}
 
-    @PostMapping
+    @PostMapping("/dailies")
     @ResponseStatus(HttpStatus.CREATED)
-    fun post(@RequestBody constraint: TimeConstraintDto): TimeConstraintDto {
+    fun postDaily(@RequestBody constraint: DailyTimeConstraintDto): TimeConstraintDto {
+
+        logger.info { "POST time constraint $constraint" }
+
+        return (timeConstraintService.save(constraint))
+    }
+
+    @PostMapping("/weeklies")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun postWeekly(@RequestBody constraint: WeeklyTimeConstraintDto): TimeConstraintDto {
+
+        logger.info { "POST time constraint $constraint" }
 
         return (timeConstraintService.save(constraint))
     }
 
     @GetMapping
-    fun getWeeklies(@RequestParam type: String): List<TimeConstraintDto>{
+    fun getConstraints(@RequestParam(defaultValue = "") type: String): List<TimeConstraintDto>{
 
-        logger.info { type }
-        return timeConstraintService.getWeeklies()
+        logger.info { "GET Constraints" }
+
+        if (type == "weekly")
+            return timeConstraintService.getWeeklies()
+        return if (type == "daily")
+            timeConstraintService.getDailies()
+        else
+            timeConstraintService.getAll()
     }
+
 }
