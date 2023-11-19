@@ -1,4 +1,4 @@
-import { PlannedActivity } from '../../../common/dto/PlannedActivity';
+import { convertToPlannedActivitySplit, PlannedActivity, PlannedActivitySplit } from '../../../common/dto/PlannedActivity';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -20,11 +20,11 @@ export class ActivityService {
     this.plannedActivityBaseUri = this.activityBaseUri + '/planned';
   }
 
-  createPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivity> {
-    return this.httpClient.post<PlannedActivity>(this.plannedActivityBaseUri, plannedActivity);
+  createPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivitySplit> {
+    return this.httpClient.post<PlannedActivitySplit>(this.plannedActivityBaseUri, convertToPlannedActivitySplit(plannedActivity));
   }
 
-  editPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivity> {
-    return this.httpClient.put<PlannedActivity>(this.plannedActivityBaseUri, plannedActivity);
+  editPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivitySplit> {
+    return this.httpClient.put<PlannedActivitySplit>(this.plannedActivityBaseUri, convertToPlannedActivitySplit(plannedActivity));
   }
 }

@@ -20,10 +20,8 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   public activityTypes = Object.values(ActivityType);
 
-  value = 'Test';
-
   plannedActivity: PlannedActivity = {
-    interval: undefined, template: false, type: undefined, with_trainer: false, note: undefined, date: undefined,
+    id: undefined, interval: undefined, template: false, type: undefined, with_trainer: false, note: undefined, date: undefined,
   }
 
   mode: ActivityCreateEditViewMode;
