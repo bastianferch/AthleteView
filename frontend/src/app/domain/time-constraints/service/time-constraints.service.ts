@@ -1,6 +1,6 @@
 import { WeeklyTimeConstraint, DailyTimeConstraint } from '../../../common/dto/TimeConstraint';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UrlService } from '../../../config/service/UrlService';
 
@@ -26,8 +26,11 @@ export class TimeConstraintService {
     return this.httpClient.post<DailyTimeConstraint>(this.timeConstraintBaseUri + "/dailies", constraint);
   }
 
-  getConstraints(): Observable<any> {
-    return this.httpClient.get<any>(this.timeConstraintBaseUri);
+  getConstraints(type?: string, from?: string): Observable<any> {
+    let params = new HttpParams()
+    if (type) params.append("type", type)
+    if (from) params.append("from", from)
+    return this.httpClient.get<any>(this.timeConstraintBaseUri, {params});
   }
 
 }

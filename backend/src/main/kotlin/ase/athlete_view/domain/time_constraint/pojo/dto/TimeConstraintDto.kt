@@ -6,9 +6,9 @@ import ase.athlete_view.domain.user.pojo.entity.User
 open class TimeConstraintDto (
     val id: Long?,
     val isBlacklist: Boolean,
-    val user: User
+    var user: User?
 ) {
     open fun toEntity(): TimeConstraint{
-        return TimeConstraint(id, isBlacklist, user)
+        return TimeConstraint(id, isBlacklist, user!!)
     }
 }

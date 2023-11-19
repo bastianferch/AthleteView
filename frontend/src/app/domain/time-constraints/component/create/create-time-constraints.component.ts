@@ -20,9 +20,6 @@ export class CreateTimeConstraintsComponent implements OnInit {
   weekly: boolean
   weekdays: any
 
-  //TODO remove
-  testUser: any = {"id":1,"email":"a@a","name":"test name v57","password":"a","country":"Austria","zip":"1050","dob":[2023,11,19],"height":1.8,"weight":1.0}
-
   ngOnInit(): void {
 
     this.date = new Date()
@@ -56,7 +53,6 @@ export class CreateTimeConstraintsComponent implements OnInit {
 
   setDate(val: any) {
     this.date = new Date(val.value)
-    console.log(this.date)
   }
 
 
@@ -65,7 +61,7 @@ export class CreateTimeConstraintsComponent implements OnInit {
     if (this.startTime < this.endTime) {
       if(this.weekly) {
         for (let day of this.weekdays) {
-          let weeklyConstraint: WeeklyTimeConstraint = {isBlacklist: this.isBlacklist, user: this.testUser,
+          let weeklyConstraint: WeeklyTimeConstraint = {isBlacklist: this.isBlacklist,
                                                         constraint: {weekday:day, startTime: this.startTime, endTime: this.endTime}}
           this.constraintService.createWeeklyConstraint(weeklyConstraint).subscribe(next => {
             console.log(next)
@@ -73,7 +69,7 @@ export class CreateTimeConstraintsComponent implements OnInit {
         }
       }
       else {
-        let dailyConstraint: DailyTimeConstraint = {isBlacklist: this.isBlacklist, user: this.testUser,
+        let dailyConstraint: DailyTimeConstraint = {isBlacklist: this.isBlacklist,
                                                     startTime: this.makeDate(new Date(this.date), this.startTime), endTime: this.makeDate(new Date(this.date), this.endTime)}
         this.constraintService.createDailyConstraint(dailyConstraint).subscribe(next => {
           console.log(next)

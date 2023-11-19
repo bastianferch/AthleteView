@@ -3,24 +3,21 @@ package ase.athlete_view.domain.time_constraint.service
 import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
+import ase.athlete_view.domain.user.pojo.dto.UserDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TimeConstraintService {
 
-    fun save(timeConstraint: TimeConstraintDto): TimeConstraintDto
+    fun save(timeConstraint: TimeConstraintDto, userDto: UserDto): TimeConstraintDto
 
-    fun edit(timeConstraint: TimeConstraintDto): TimeConstraintDto
+    fun edit(timeConstraint: TimeConstraintDto, userDto: UserDto): TimeConstraintDto
 
-    fun delete(timeConstraintDto: TimeConstraintDto)
+    fun delete(timeConstraint: TimeConstraintDto, userDto: UserDto)
 
-    fun getWeeklies(): List<TimeConstraintDto>
+    fun getAll(userDto: UserDto, type: String, from:String): List<TimeConstraintDto>
 
-    fun getDailies(): List<TimeConstraintDto>
+    fun getAllAsDailies(startOfWeek: LocalDate, userDto: UserDto): List<DailyTimeConstraintDto>
 
-    fun getAll(): List<TimeConstraintDto>
-
-    fun getAllAsDailies(startOfWeek: LocalDate): List<DailyTimeConstraintDto>
-
-    fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime): List<WeeklyTimeConstraintDto>
+    fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime, userDto: UserDto): List<WeeklyTimeConstraintDto>
 }
