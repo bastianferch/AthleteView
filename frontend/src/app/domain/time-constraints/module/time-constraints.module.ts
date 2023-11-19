@@ -12,6 +12,9 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { NgIf } from '@angular/common';
 import { MatChipsModule, MatChipOption } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
+import { CalendarModule } from 'angular-calendar';
+import { DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 
 
@@ -35,7 +38,11 @@ const routes: Routes = [
     MatButtonToggleModule,
     NgIf,
     MatChipsModule,
-    MatButtonModule
+    MatButtonModule,
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory,
+    }),
   ],
   exports: [RouterModule],
 })

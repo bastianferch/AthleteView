@@ -18,6 +18,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class TimeConstraintServiceImpl(
@@ -46,30 +47,35 @@ class TimeConstraintServiceImpl(
         timeConstraintRepository.delete(timeConstraint.toEntity())
     }
 
-    //override fun getWeeklies(): List<TimeConstraintDto> {
-    //    return weeklyTimeConstraintRepository.findByUser(user).map { constraint -> constraint.toDto() }
-    //}
-//
-    //override fun getDailies(): List<TimeConstraintDto> {
-    //    return dailyTimeConstraintRepository.findByUser(user).map { constraint -> constraint.toDto() }
-    //}
-
     override fun getAll(userDto: UserDto, type: String, from: String): List<TimeConstraintDto> {
         val user = userService.getById(userDto.id!!)
+        var weeklies: List<TimeConstraint>
+        var dailies: List<TimeConstraint>
         val list: List<TimeConstraint>
+        val date: LocalDateTime
 
         if (from == "") {
-            list = weeklyTimeConstraintRepository.findByUser(user) + dailyTimeConstraintRepository.findByUser(user)
+            date = LocalDateTime.now()
+            weeklies = weeklyTimeConstraintRepository.findByUser(user)
+            dailies = dailyTimeConstraintRepository.findByUser(user)
         } else {
-            val date = LocalDateTime.parse(from)
-            list = weeklyTimeConstraintRepository.findByUser(user) +
-                    dailyTimeConstraintRepository.findByUserAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                        user,
-                        date,
-                        date.plusDays(7)
-                    )
+            date = LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
+            weeklies = weeklyTimeConstraintRepository.findByUser(user)
+            dailies = dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
+                user,
+                date,
+                date.plusDays(7)
+            )
         }
 
+        if (type == "daily") {
+            weeklies = weeklies.map { weekly -> weekly.toDaily(LocalDate.from(date)) }
+        }
+        if (type == "weekly") {
+            dailies = dailies.map { daily -> daily.toWeekly()}
+        }
+
+        list = weeklies + dailies
         return list.map { timeConstraints ->  timeConstraints.toDto() }
     }
 
@@ -83,7 +89,7 @@ class TimeConstraintServiceImpl(
     override fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime, userDto: UserDto): List<WeeklyTimeConstraintDto> {
         val user = userService.getById(userDto.id!!)
         val list: List<WeeklyTimeConstraint> = weeklyTimeConstraintRepository.findByUser(user) +
-                dailyTimeConstraintRepository.findByUserAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(userService.getById(userDto.id!!), startTime, endTime)
+                dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(userService.getById(userDto.id!!), startTime, endTime)
                 .map { daily -> daily.toWeekly()}
         return list.map { constraint -> constraint.toDto()}
     }

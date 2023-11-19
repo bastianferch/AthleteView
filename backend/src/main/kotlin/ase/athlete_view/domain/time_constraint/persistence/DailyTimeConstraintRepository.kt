@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Repository
 interface DailyTimeConstraintRepository: JpaRepository<DailyTimeConstraint, Long> {
 
-    fun findByUserAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(user: User, startTime: LocalDateTime, endTime: LocalDateTime): List<DailyTimeConstraint>
+    fun findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(user: User, startTime: LocalDateTime, endTime: LocalDateTime): List<DailyTimeConstraint>
 
     fun findByUser(user: User): List<DailyTimeConstraint>
 }

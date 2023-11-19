@@ -28,8 +28,8 @@ export class TimeConstraintService {
 
   getConstraints(type?: string, from?: string): Observable<any> {
     let params = new HttpParams()
-    if (type) params.append("type", type)
-    if (from) params.append("from", from)
+    if (type) params = params.append("type", type)
+    if (from) params = params.append("from", from)
     return this.httpClient.get<any>(this.timeConstraintBaseUri, {params});
   }
 
