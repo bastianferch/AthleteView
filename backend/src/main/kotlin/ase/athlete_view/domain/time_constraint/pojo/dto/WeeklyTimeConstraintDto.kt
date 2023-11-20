@@ -9,11 +9,12 @@ class WeeklyTimeConstraintDto (
 
     id: Long?,
     isBlacklist: Boolean,
+    title: String,
     user: User?,
     val constraint: TimeFrame
 
-): TimeConstraintDto(id, isBlacklist, user) {
+): TimeConstraintDto(id, isBlacklist, title, user) {
     override fun toEntity(): TimeConstraint {
-        return WeeklyTimeConstraint(id, isBlacklist, user!!, constraint)
+        return WeeklyTimeConstraint(id, isBlacklist, title, user!!, constraint)
     }
 }

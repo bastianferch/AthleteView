@@ -9,12 +9,13 @@ class DailyTimeConstraintDto (
 
     id: Long?,
     isBlacklist: Boolean,
+    title: String,
     user: User?,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime
 
-): TimeConstraintDto(id, isBlacklist, user) {
+): TimeConstraintDto(id, isBlacklist, title, user) {
     override fun toEntity(): TimeConstraint {
-        return DailyTimeConstraint(id, isBlacklist, user!!, startTime, endTime)
+        return DailyTimeConstraint(id, isBlacklist, title, user!!, startTime, endTime)
     }
 }

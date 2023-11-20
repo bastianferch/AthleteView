@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CreateTimeConstraintsComponent } from '../component/create/create-time-constraints.component';
 import { TimeConstraintsComponent } from '../component/time-constraints.component';
 import { RouterModule, Routes } from "@angular/router";
@@ -43,6 +44,8 @@ const routes: Routes = [
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
+    FormsModule,
+    ReactiveFormsModule,
   ],
   exports: [RouterModule],
 })

@@ -1,47 +1,57 @@
 <div class="create-time-constraints-container">
   <p class="mat-headline-3 margin-top">New Time Constraint</p>
+
   <mat-button-toggle-group #blacklistToggle="matButtonToggleGroup" name="blacklist" aria-label="Blacklist Whitelist" [value]="isBlacklist" (change)="setBlacklist(blacklistToggle.value)">
     <mat-button-toggle [value]="false">I have time</mat-button-toggle>
     <mat-button-toggle [value]="true">I don't have time</mat-button-toggle>
   </mat-button-toggle-group>
 
-  <mat-form-field>
-    <mat-label>Start time</mat-label>
-    <input matInput type="time" [ngxTimepicker]="start" [format]="24" [value]="startTime">
-    <ngx-material-timepicker-toggle matSuffix [for]="start"></ngx-material-timepicker-toggle>
-    <ngx-material-timepicker #start (timeChanged)="setStartTime($event)"></ngx-material-timepicker>
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>End time</mat-label>
-    <input matInput type="time" [ngxTimepicker]="end" [format]="24" [value]="endTime">
-    <ngx-material-timepicker-toggle matSuffix [for]="end"></ngx-material-timepicker-toggle>
-    <ngx-material-timepicker #end (timeChanged)="setEndTime($event)"></ngx-material-timepicker>
-  </mat-form-field>
+  <form>
+    <mat-form-field>
+      <mat-label>Title</mat-label>
+      <input matInput placeholder="Title" [(ngModel)]="title" name="title">
+    </mat-form-field>
 
-  <mat-button-toggle-group #weeklyToggle="matButtonToggleGroup" name="weekly" aria-label="Single Weekly" [value]="weekly" (change)="setWeekly(weeklyToggle.value)">
-    <mat-button-toggle [value]="false">One Time</mat-button-toggle>
-    <mat-button-toggle [value]="true">Recurring</mat-button-toggle>
-  </mat-button-toggle-group>
 
-  <mat-form-field *ngIf="!weekly">
-    <mat-label>Date</mat-label>
-    <input matInput [matDatepicker]="date" [value]="date" (dateChange)="setDate($event)">
-    <mat-datepicker-toggle matIconSuffix [for]="date"></mat-datepicker-toggle>
-    <mat-datepicker #date></mat-datepicker>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Start time</mat-label>
+      <input matInput type="time" [ngxTimepicker]="start" [format]="24" [value]="startTime">
+      <ngx-material-timepicker-toggle matSuffix [for]="start"></ngx-material-timepicker-toggle>
+      <ngx-material-timepicker #start (timeChanged)="setStartTime($event)"></ngx-material-timepicker>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>End time</mat-label>
+      <input matInput type="time" [ngxTimepicker]="end" [format]="24" [value]="endTime">
+      <ngx-material-timepicker-toggle matSuffix [for]="end"></ngx-material-timepicker-toggle>
+      <ngx-material-timepicker #end (timeChanged)="setEndTime($event)"></ngx-material-timepicker>
+    </mat-form-field>
 
-  <div>
-    <mat-hint *ngIf="weekly">Repeat on:</mat-hint>
-  </div>
-  <mat-chip-listbox #days aria-label="Weekday selection" *ngIf="weekly" multiple (change)="setWeekdays(days.value)">
-    <mat-chip-option value="MONDAY">M</mat-chip-option>
-    <mat-chip-option value="TUESDAY">T</mat-chip-option>
-    <mat-chip-option value="WEDNESDAY">W</mat-chip-option>
-    <mat-chip-option value="THURSDAY">T</mat-chip-option>
-    <mat-chip-option value="FRIDAY">F</mat-chip-option>
-    <mat-chip-option value="SATURDAY">S</mat-chip-option>
-    <mat-chip-option value="SUNDAY">S</mat-chip-option>
-  </mat-chip-listbox>
+    <mat-button-toggle-group #weeklyToggle="matButtonToggleGroup" name="weekly" aria-label="Single Weekly" [value]="weekly" (change)="setWeekly(weeklyToggle.value)">
+      <mat-button-toggle [value]="false">One Time</mat-button-toggle>
+      <mat-button-toggle [value]="true">Recurring</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field *ngIf="!weekly">
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="date" [value]="date" (dateChange)="setDate($event)">
+      <mat-datepicker-toggle matIconSuffix [for]="date"></mat-datepicker-toggle>
+      <mat-datepicker #date></mat-datepicker>
+    </mat-form-field>
+
+    <div>
+      <mat-hint *ngIf="weekly">Repeat on:</mat-hint>
+    </div>
+    <mat-chip-listbox #days aria-label="Weekday selection" *ngIf="weekly" multiple (change)="setWeekdays(days.value)">
+      <mat-chip-option value="MONDAY">M</mat-chip-option>
+      <mat-chip-option value="TUESDAY">T</mat-chip-option>
+      <mat-chip-option value="WEDNESDAY">W</mat-chip-option>
+      <mat-chip-option value="THURSDAY">T</mat-chip-option>
+      <mat-chip-option value="FRIDAY">F</mat-chip-option>
+      <mat-chip-option value="SATURDAY">S</mat-chip-option>
+      <mat-chip-option value="SUNDAY">S</mat-chip-option>
+    </mat-chip-listbox>
+
+  </form>
 
   <button mat-raised-button color="primary" (click)="saveConstraint()">Save</button>
 

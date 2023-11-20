@@ -14,10 +14,12 @@ open class TimeConstraint(
         open val id: Long?,
         open val isBlacklist: Boolean,
 
+        open val title: String,
+
         @ManyToOne
         open val user: User
 ) {
         open fun toDto(): TimeConstraintDto{
-                return TimeConstraintDto(id, isBlacklist, user)
+                return TimeConstraintDto(id, isBlacklist, title, user)
         }
 }

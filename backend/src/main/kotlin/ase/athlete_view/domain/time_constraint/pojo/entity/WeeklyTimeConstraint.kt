@@ -14,19 +14,20 @@ class WeeklyTimeConstraint (
 
         id: Long?,
         isBlacklist: Boolean,
+        title: String,
         user: User,
 
         @Embedded
         var constraint: TimeFrame
 
-): TimeConstraint(id, isBlacklist, user) {
+): TimeConstraint(id, isBlacklist, title, user) {
         override fun toDto(): WeeklyTimeConstraintDto {
-                return WeeklyTimeConstraintDto(id, isBlacklist, user, constraint)
+                return WeeklyTimeConstraintDto(id, isBlacklist, title, user, constraint)
         }
         fun toDaily(startOfWeek: LocalDate): DailyTimeConstraint {
 
-                val date = startOfWeek.plusDays(((startOfWeek.dayOfWeek.value - constraint.weekday.value +7) % 7).toLong())
-                return DailyTimeConstraint(id, isBlacklist, user, LocalDateTime.of(date, constraint.startTime), LocalDateTime.of(date, constraint.endTime))
+                val date = startOfWeek.plusDays(((constraint.weekday.value - startOfWeek.dayOfWeek.value + 7) % 7).toLong())
+                return DailyTimeConstraint(id, isBlacklist, title, user, LocalDateTime.of(date, constraint.startTime), LocalDateTime.of(date, constraint.endTime))
         }
 }
 

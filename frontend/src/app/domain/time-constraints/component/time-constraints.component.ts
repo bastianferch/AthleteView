@@ -23,7 +23,7 @@ export class TimeConstraintsComponent implements OnInit {
         for (let constraint of next) {
           let start = this.parseDate(constraint.startTime)
           let end = this.parseDate(constraint.endTime)
-          let event: CalendarEvent = {start: start, end: end, title: "",
+          let event: CalendarEvent = {start: start, end: end, title: constraint.title,
                                        //TODO define Colors
                                        color: {"primary": "#e3bc08", "secondary": "#FDF1BA"} }
           eventList.push(event)

@@ -1,6 +1,7 @@
 export interface WeeklyTimeConstraint {
     id?: number,
     isBlacklist: boolean,
+    title: string,
     user?: any,
     constraint: TimeFrame
 }
@@ -8,6 +9,7 @@ export interface WeeklyTimeConstraint {
 export interface DailyTimeConstraint {
   id?: number,
   isBlacklist: boolean,
+  title: string,
   user?: any,
   startTime: Date,
   endTime: Date

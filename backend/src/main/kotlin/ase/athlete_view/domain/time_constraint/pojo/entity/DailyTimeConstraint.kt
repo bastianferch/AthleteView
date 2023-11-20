@@ -14,18 +14,19 @@ class DailyTimeConstraint (
 
         id: Long?,
         isBlacklist: Boolean,
+        title: String,
         user: User,
 
         var startTime: LocalDateTime,
         var endTime: LocalDateTime
 
-): TimeConstraint(id, isBlacklist, user) {
+): TimeConstraint(id, isBlacklist, title, user) {
         override fun toDto(): DailyTimeConstraintDto {
-                return DailyTimeConstraintDto(id, isBlacklist, user, startTime, endTime)
+                return DailyTimeConstraintDto(id, isBlacklist, title, user, startTime, endTime)
         }
 
         fun toWeekly(): WeeklyTimeConstraint {
-                return WeeklyTimeConstraint(id, isBlacklist, user, TimeFrame(startTime.dayOfWeek, startTime.toLocalTime(), endTime.toLocalTime()))
+                return WeeklyTimeConstraint(id, isBlacklist, title, user, TimeFrame(startTime.dayOfWeek, startTime.toLocalTime(), endTime.toLocalTime()))
         }
 }
 

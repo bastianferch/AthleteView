@@ -32,8 +32,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @ResponseStatus(HttpStatus.CREATED)
     fun postDaily(@RequestBody constraint: DailyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
 
-        logger.info { "POST time constraint $constraint" }
-
+        logger.info { "POST time constraint by ${userDto.name}" }
         return (timeConstraintService.save(constraint, userDto))
     }
 
@@ -41,8 +40,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @ResponseStatus(HttpStatus.CREATED)
     fun postWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
 
-        logger.info { "POST time constraint $constraint" }
-
+        logger.info { "POST time constraint by ${userDto.name}" }
         return (timeConstraintService.save(constraint, userDto))
     }
 
