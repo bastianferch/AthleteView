@@ -2,7 +2,7 @@
   <p class="mat-headline-3 margin-top">New Time Constraint</p>
 
   <mat-button-toggle-group #blacklistToggle="matButtonToggleGroup" name="blacklist" aria-label="Blacklist Whitelist" [value]="isBlacklist" (change)="setBlacklist(blacklistToggle.value)">
-    <mat-button-toggle [value]="false">I have time</mat-button-toggle>
+    <mat-button-toggle [value]="false">I have time to train</mat-button-toggle>
     <mat-button-toggle [value]="true">I don't have time</mat-button-toggle>
   </mat-button-toggle-group>
 

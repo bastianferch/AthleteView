@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { WeeklyTimeConstraint, DailyTimeConstraint } from '../../../../common/dto/TimeConstraint';
 import { TimeConstraintService } from '../../service/time-constraints.service';
+import { Output, EventEmitter } from '@angular/core';
 
 
 @Component({
@@ -20,6 +21,8 @@ export class CreateTimeConstraintsComponent implements OnInit {
   isBlacklist: boolean
   weekly: boolean
   weekdays: any
+
+  @Output() newConstraint = new EventEmitter<any>();
 
   ngOnInit(): void {
     this.setUpInputs()
@@ -70,6 +73,7 @@ export class CreateTimeConstraintsComponent implements OnInit {
                                                         constraint: {weekday:day, startTime: this.startTime, endTime: this.endTime}}
           this.constraintService.createWeeklyConstraint(weeklyConstraint).subscribe(next => {
             console.log(next)
+            this.newConstraint.emit()
             this.setUpInputs()
           })
         }
@@ -79,6 +83,7 @@ export class CreateTimeConstraintsComponent implements OnInit {
                                                     startTime: this.makeDate(new Date(this.date), this.startTime), endTime: this.makeDate(new Date(this.date), this.endTime)}
         this.constraintService.createDailyConstraint(dailyConstraint).subscribe(next => {
           console.log(next)
+          this.newConstraint.emit()
           this.setUpInputs()
         })
       }

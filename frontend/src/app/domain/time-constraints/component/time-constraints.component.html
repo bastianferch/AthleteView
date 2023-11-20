@@ -1,10 +1,16 @@
 <div class="time-constraints-container">
   <div class="calendar-container">
+    <mat-chip-listbox #days aria-label="Show Constraints" multiple (change)="setChoice(days.value)">
+      <mat-chip-option value="white">Show training times</mat-chip-option>
+      <mat-chip-option value="black" selected>Show conflicts</mat-chip-option>
+    </mat-chip-listbox>
     <mwl-calendar-week-view
       [viewDate]="viewDate"
       [events]="events"
+      [hourSegments]="1"
+      [hourDuration]="60"
       [refresh]="refresh">
     </mwl-calendar-week-view>
   </div>
-  <app-create-time-constraints></app-create-time-constraints>
+  <app-create-time-constraints (newConstraint)="getEvents()"></app-create-time-constraints>
 </div>
