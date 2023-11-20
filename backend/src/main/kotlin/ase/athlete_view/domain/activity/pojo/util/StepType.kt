@@ -1,7 +1,7 @@
 package ase.athlete_view.domain.activity.pojo.util
 
 enum class StepType {
-    RUN,
+    ACTIVE,
     RECOVERY,
     WARMUP,
     COOLDOWN

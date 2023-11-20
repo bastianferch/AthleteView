@@ -21,12 +21,11 @@ export interface PlannedActivitySplit {
 }
 
 export enum ActivityType {
-  SWIM = 'Swim',
-  RUN = 'Run',
-  BIKE = 'Bike',
-  STRENGTH = 'Strength',
-  ROW = 'Row',
-  CROSSCOUNTRY = 'Cross-Country'
+  SWIM = 'SWIM',
+  RUN = 'RUN',
+  BIKE = 'BIKE',
+  ROW = 'ROW',
+  CROSSCOUNTRYSKIING = 'Cross-Country Skiing'
 }
 
 export function convertToPlannedActivitySplit(plannedActivity: PlannedActivity): PlannedActivitySplit {

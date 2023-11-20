@@ -8,8 +8,8 @@ import ase.athlete_view.domain.activity.pojo.util.StepType
 
 class StepDTO(
     val id: Long?,
-    val type: StepType,
-    val durationType: StepDurationType,
+    val type: StepType?,
+    val durationType: StepDurationType?,
     val durationDistance: Int?,
     val durationDistanceUnit: StepDurationDistanceUnit?,
     val targetType: StepTargetType?,
@@ -17,7 +17,7 @@ class StepDTO(
     val targetTo: Int?,
     val note: String?
 ) {
-    fun toEntity(): Step {
-        return Step(id, type, durationType, durationDistance, durationDistanceUnit, targetType, targetFrom, targetTo, note)
+    fun toEntity(): Step { // TODO change type
+        return Step(id, StepType.COOLDOWN, StepDurationType.DISTANCE, durationDistance, durationDistanceUnit, targetType, targetFrom, targetTo, note)
     }
 }

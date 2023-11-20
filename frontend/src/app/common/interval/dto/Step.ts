@@ -13,23 +13,23 @@ export interface Step {
 
 
 export enum StepType {
-  RUN = "run",
-  RECOVERY = "recovery",
-  WARMUP = "warm up",
-  COOLDOWN = "cool down",
+  ACTIVE = "ACTIVE",
+  RECOVERY = "RECOVERY",
+  WARMUP = "WARMUP",
+  COOLDOWN = "COOLDOWN",
 }
 
 export enum StepDurationType {
-  DISTANCE = "distance",
-  LAPBUTTON = "lap button press",
+  DISTANCE = "DISTANCE",
+  LAPBUTTON = "LAPBUTTON",
 }
 
 
 export enum StepDurationDistanceUnit {
-  KM = "km",
+  KM = "KM",
 }
 
 export enum StepTargetType {
-  CADENCE = "cadence",
-  HEARTRATE = "heartrate",
+  CADENCE = "CADENCE",
+  HEARTRATE = "HEARTRATE",
 }
