@@ -16,15 +16,15 @@ export class ActivityService {
 
   constructor(private httpClient: HttpClient, private urlService: UrlService) {
     const backendUrl = this.urlService.getBackendUrl();
-    this.activityBaseUri = backendUrl + '/activity';
+    this.activityBaseUri = backendUrl + 'activity';
     this.plannedActivityBaseUri = this.activityBaseUri + '/planned';
   }
 
-  createPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivitySplit> {
-    return this.httpClient.post<PlannedActivitySplit>(this.plannedActivityBaseUri, convertToPlannedActivitySplit(plannedActivity));
+  createPlannedActivity(plannedActivity: PlannedActivitySplit): Observable<PlannedActivitySplit> {
+    return this.httpClient.post<PlannedActivitySplit>(this.plannedActivityBaseUri, plannedActivity);
   }
 
-  editPlannedActivity(plannedActivity: PlannedActivity): Observable<PlannedActivitySplit> {
-    return this.httpClient.put<PlannedActivitySplit>(this.plannedActivityBaseUri, convertToPlannedActivitySplit(plannedActivity));
+  editPlannedActivity(plannedActivity: PlannedActivitySplit): Observable<PlannedActivitySplit> {
+    return this.httpClient.put<PlannedActivitySplit>(this.plannedActivityBaseUri, plannedActivity);
   }
 }

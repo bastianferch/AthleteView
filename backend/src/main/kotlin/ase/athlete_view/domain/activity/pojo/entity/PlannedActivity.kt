@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.pojo.entity
 
+import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -17,7 +18,7 @@ class PlannedActivity(
     val type: ActivityType,
 
     @OneToOne
-    val interval: Interval,
+    val interval: Interval?,
 
     val withTrainer: Boolean,
 
@@ -26,4 +27,8 @@ class PlannedActivity(
     val note: String?,
 
     val date: Date?
-)
+){
+    fun toDTO():PlannedActivityDTO{
+        return PlannedActivityDTO(id,type, interval?.toDTO(),withTrainer,template,note,date)
+    }
+}

@@ -13,17 +13,17 @@
       <div class="step-content-left">
         <div class="step-info">
           <p>
-            <b *ngIf="step.duration_type === StepDurationType.LAPBUTTON">{{step.duration_type}}</b>
-            <b *ngIf="step.duration_type !== StepDurationType.LAPBUTTON">
-              {{step.duration_distance}} {{step.duration_distance_unit}}
+            <b *ngIf="step.durationType === StepDurationType.LAPBUTTON">{{step.durationType}}</b>
+            <b *ngIf="step.durationType !== StepDurationType.LAPBUTTON">
+              {{step.durationDistance}} {{step.durationDistanceUnit}}
             </b>
           </p>
           <p>Duration</p>
         </div>
 
-        <div class="step-info" *ngIf="step.target_from || step.target_to">
+        <div class="step-info" *ngIf="step.targetFrom || step.targetTo">
           <p>
-            <b *ngIf="step.target_from">{{step.target_from}}</b><b *ngIf="step.target_from && step.target_to"> - </b><b *ngIf="step.target_to">{{step.target_to}}</b> <b> {{service.getUnitForTargetType(step.target_type)}}</b>
+            <b *ngIf="step.targetFrom">{{step.targetFrom}}</b><b *ngIf="step.targetFrom && step.targetTo"> - </b><b *ngIf="step.targetTo">{{step.targetTo}}</b> <b> {{service.getUnitForTargetType(step.targetType)}}</b>
           </p>
           <p>Intensity Target</p>
         </div>

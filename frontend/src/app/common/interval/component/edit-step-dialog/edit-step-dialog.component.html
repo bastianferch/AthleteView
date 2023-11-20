@@ -14,7 +14,7 @@
     <h1>Duration</h1>
     <mat-form-field>
       <mat-label>Type</mat-label>
-      <mat-select [(ngModel)]="stepCopy.duration_type">
+      <mat-select [(ngModel)]="stepCopy.durationType">
         <mat-option [value]="undefined">
           none
         </mat-option>
@@ -27,11 +27,11 @@
     <div class="split-field" *ngIf="showDurationSettings()">
       <mat-form-field class="small">
         <mat-label>Distance</mat-label>
-        <input matInput type="number" [(ngModel)]="stepCopy.duration_distance">
+        <input matInput type="number" [(ngModel)]="stepCopy.durationDistance">
       </mat-form-field>
 
       <mat-form-field class="small">
-        <mat-select [(ngModel)]="stepCopy.duration_distance_unit">
+        <mat-select [(ngModel)]="stepCopy.durationDistanceUnit">
           <mat-option *ngFor="let unit of distanceUnits" [value]="unit">
             {{unit}}
           </mat-option>
@@ -42,7 +42,7 @@
     <h1>Intensity Target</h1>
     <mat-form-field>
       <mat-label>Type</mat-label>
-      <mat-select [(ngModel)]="stepCopy.target_type">
+      <mat-select [(ngModel)]="stepCopy.targetType">
         <mat-option [value]="undefined">
           none
         </mat-option>
@@ -54,16 +54,16 @@
 
     <div class="split-field" *ngIf="showIntensitySettings()">
       <mat-form-field class="small">
-        <input matInput type="number" [(ngModel)]="stepCopy.target_from">
+        <input matInput type="number" [(ngModel)]="stepCopy.targetFrom">
       </mat-form-field>
 
       <p> to </p>
 
       <mat-form-field class="small">
-        <input matInput type="number" [(ngModel)]="stepCopy.target_to">
+        <input matInput type="number" [(ngModel)]="stepCopy.targetTo">
       </mat-form-field>
 
-      <p> {{service.getUnitForTargetType(stepCopy.target_type)}} </p>
+      <p> {{service.getUnitForTargetType(stepCopy.targetType)}} </p>
     </div>
   </div>
 

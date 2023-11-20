@@ -44,22 +44,22 @@ export class EditStepDialogComponent implements OnInit {
 
   prepareResult() {
     if (!this.showDurationSettings()) {
-      this.stepCopy.duration_distance = undefined;
-      this.stepCopy.duration_distance_unit = undefined;
+      this.stepCopy.durationDistance = undefined;
+      this.stepCopy.durationDistanceUnit = undefined;
     }
 
     if (!this.showIntensitySettings()) {
-      this.stepCopy.target_from = undefined;
-      this.stepCopy.target_to = undefined;
+      this.stepCopy.targetFrom = undefined;
+      this.stepCopy.targetTo = undefined;
     }
   }
 
   showDurationSettings() {
-    return !(this.stepCopy.duration_type === StepDurationType.LAPBUTTON) && !(this.stepCopy.duration_type === undefined);
+    return !(this.stepCopy.durationType === StepDurationType.LAPBUTTON) && !(this.stepCopy.durationType === undefined);
   }
 
   showIntensitySettings() {
-    return !(this.stepCopy.target_type === undefined);
+    return !(this.stepCopy.targetType === undefined);
   }
 
 }

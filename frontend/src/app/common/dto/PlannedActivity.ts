@@ -4,7 +4,7 @@ export interface PlannedActivity {
   id: number;
   type: ActivityType;
   interval: Interval;
-  with_trainer: boolean;
+  withTrainer: boolean;
   template: boolean;
   note?: string;
   date?: Date;
@@ -14,7 +14,7 @@ export interface PlannedActivitySplit {
   id: number;
   type: ActivityType;
   interval: IntervalSplit;
-  with_trainer: boolean;
+  withTrainer: boolean;
   template: boolean;
   note?: string;
   date?: Date;
@@ -34,7 +34,7 @@ export function convertToPlannedActivitySplit(plannedActivity: PlannedActivity):
     id: plannedActivity.id,
     type: plannedActivity.type,
     interval: convertToIntervalSplit(plannedActivity.interval),
-    with_trainer: plannedActivity.with_trainer,
+    withTrainer: plannedActivity.withTrainer,
     template: plannedActivity.template,
     note: plannedActivity.note,
     date: plannedActivity.date,

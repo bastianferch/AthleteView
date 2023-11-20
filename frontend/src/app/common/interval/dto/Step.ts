@@ -1,12 +1,13 @@
 // TODO this should be somewhere else
 export interface Step {
+  id:number;
   type: StepType;
-  duration_type: StepDurationType;
-  duration_distance?: number;
-  duration_distance_unit?: StepDurationDistanceUnit;
-  target_type?: StepTargetType;
-  target_from?: number;
-  target_to?: number;
+  durationType: StepDurationType;
+  durationDistance?: number;
+  durationDistanceUnit?: StepDurationDistanceUnit;
+  targetType?: StepTargetType;
+  targetFrom?: number;
+  targetTo?: number;
   note?: string;
 }
 

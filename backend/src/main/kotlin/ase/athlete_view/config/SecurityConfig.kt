@@ -30,6 +30,8 @@ class SecurityConfig(private val userAuthProvider: UserAuthProvider, private val
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("api/health").permitAll()
                     .requestMatchers("api/health/**").permitAll()
+                    .requestMatchers("api/activity/**").permitAll()
+                    .requestMatchers("api/activity/").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

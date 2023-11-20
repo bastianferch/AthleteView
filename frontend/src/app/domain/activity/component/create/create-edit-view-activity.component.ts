@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ActivityType, PlannedActivity } from '../../../../common/dto/PlannedActivity';
+import { ActivityType, convertToPlannedActivitySplit, PlannedActivity } from '../../../../common/dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
@@ -22,7 +22,7 @@ export class CreateEditViewActivityComponent implements OnInit {
   public activityTypes = Object.values(ActivityType);
 
   plannedActivity: PlannedActivity = {
-    id: undefined, interval: undefined, template: false, type: undefined, with_trainer: false, note: undefined, date: undefined,
+    id: null, interval: undefined, template: false, type: null, withTrainer: false, note: "", date: null,
   }
 
   mode: ActivityCreateEditViewMode;
@@ -50,15 +50,21 @@ export class CreateEditViewActivityComponent implements OnInit {
   }
 
   save(): void {
-
-    if (this.mode === ActivityCreateEditViewMode.create) {
-      this.activityService.createPlannedActivity(this.plannedActivity).subscribe({
-        next: () => this.snackbarService.openSnackBar("Activity successfully created ") ,
-        error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
-      });
-    } else if (this.mode === ActivityCreateEditViewMode.edit) {
-      this.activityService.editPlannedActivity(this.plannedActivity);
+    const planned = convertToPlannedActivitySplit(this.plannedActivity);
+    if (planned !== undefined) {
+      if (this.mode === ActivityCreateEditViewMode.create) {
+        this.activityService.createPlannedActivity(planned).subscribe({
+          next: () => this.snackbarService.openSnackBar("Activity successfully created ") ,
+          error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
+        });
+      } else if (this.mode === ActivityCreateEditViewMode.edit) {
+        this.activityService.editPlannedActivity(planned);
+      }
+    } else {
+      this.snackbarService.openSnackBar("Activity creation failed \n Check all input fields")
     }
+
+
   }
 
   handleChange(interval: Interval) {

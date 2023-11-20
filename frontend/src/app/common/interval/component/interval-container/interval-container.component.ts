@@ -31,8 +31,9 @@ export class IntervalContainerComponent implements OnInit {
       {
         repeat: 1,
         steps: {
+          id: null,
           type: StepType.WARMUP,
-          duration_type: StepDurationType.LAPBUTTON,
+          durationType: StepDurationType.LAPBUTTON,
         },
       },
       {
@@ -41,21 +42,23 @@ export class IntervalContainerComponent implements OnInit {
           {
             repeat: 1,
             steps: {
+              id: null,
               type: this.activityType,
-              duration_type: StepDurationType.DISTANCE,
-              duration_distance: 1,
-              duration_distance_unit: StepDurationDistanceUnit.KM,
-              target_type: StepTargetType.CADENCE,
-              target_from: 170,
-              target_to: 175,
+              durationType: StepDurationType.DISTANCE,
+              durationDistance: 1,
+              durationDistanceUnit: StepDurationDistanceUnit.KM,
+              targetType: StepTargetType.CADENCE,
+              targetFrom: 170,
+              targetTo: 175,
               note: "example note",
             },
           },
           {
             repeat: 1,
             steps: {
+              id: null,
               type: StepType.RECOVERY,
-              duration_type: StepDurationType.LAPBUTTON,
+              durationType: StepDurationType.LAPBUTTON,
             },
           },
         ],
@@ -63,8 +66,9 @@ export class IntervalContainerComponent implements OnInit {
       {
         repeat: 1,
         steps: {
+          id: null,
           type: StepType.COOLDOWN,
-          duration_type: StepDurationType.LAPBUTTON,
+          durationType: StepDurationType.LAPBUTTON,
         },
       },
     ],
@@ -171,9 +175,10 @@ export class IntervalContainerComponent implements OnInit {
 
   addStep() {
     // new step to be added
-    const i: Interval = { repeat: 1, steps: {
+    const i: Interval = { id: null, repeat: 1, steps: {
+      id: null,
       type: this.activityType,
-      duration_type: StepDurationType.LAPBUTTON,
+      durationType: StepDurationType.LAPBUTTON,
     } }
     this.addInterval(i);
   }

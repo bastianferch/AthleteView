@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.pojo.entity
 
+import ase.athlete_view.domain.activity.pojo.dto.StepDTO
 import ase.athlete_view.domain.activity.pojo.util.StepDurationDistanceUnit
 import ase.athlete_view.domain.activity.pojo.util.StepDurationType
 import ase.athlete_view.domain.activity.pojo.util.StepTargetType
@@ -22,4 +23,19 @@ class Step(
     val targetFrom: Int?,
     val targetTo: Int?,
     val note: String?
-)
+) {
+    fun toDTO(): StepDTO {
+        return StepDTO(
+            id,
+            type,
+            durationType,
+            durationDistance,
+            durationDistanceUnit,
+            targetType,
+            targetFrom,
+            targetTo,
+            note
+        )
+
+    }
+}
