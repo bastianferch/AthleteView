@@ -2,64 +2,64 @@
 <div mat-dialog-content class="dialog-container">
   <div class="settings-container">
     <h1>Details</h1>
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
       <mat-select [(ngModel)]="stepCopy.type">
         <mat-option *ngFor="let stepType of stepTypes" [value]="stepType">
-          {{stepType}}
+          {{stepType === StepType.ACTIVE ? activityMapper.get(data[1]) : stepNameMapper.get(stepType)}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <h1>Duration</h1>
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
       <mat-select [(ngModel)]="stepCopy.durationType">
         <mat-option [value]="undefined">
           none
         </mat-option>
         <mat-option *ngFor="let durationType of durationTypes" [value]="durationType">
-          {{durationType}}
+          {{stepDurationMapper.get(durationType)}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <div class="split-field" *ngIf="showDurationSettings()">
-      <mat-form-field class="small">
+      <mat-form-field appearance="outline" class="small">
         <mat-label>Distance</mat-label>
         <input matInput type="number" [(ngModel)]="stepCopy.durationDistance">
       </mat-form-field>
 
-      <mat-form-field class="small">
+      <mat-form-field appearance="outline" class="small">
         <mat-select [(ngModel)]="stepCopy.durationDistanceUnit">
           <mat-option *ngFor="let unit of distanceUnits" [value]="unit">
-            {{unit}}
+            {{stepDurationDistanceUnitMapper.get(unit)}}
           </mat-option>
         </mat-select>
       </mat-form-field>
     </div>
 
     <h1>Intensity Target</h1>
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
       <mat-select [(ngModel)]="stepCopy.targetType">
         <mat-option [value]="undefined">
           none
         </mat-option>
         <mat-option *ngFor="let targetType of targetTypes" [value]="targetType">
-          {{targetType}}
+          {{stepTargetMapper.get(targetType)}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <div class="split-field" *ngIf="showIntensitySettings()">
-      <mat-form-field class="small">
+      <mat-form-field appearance="outline" class="small">
         <input matInput type="number" [(ngModel)]="stepCopy.targetFrom">
       </mat-form-field>
 
       <p> to </p>
 
-      <mat-form-field class="small">
+      <mat-form-field appearance="outline" class="small">
         <input matInput type="number" [(ngModel)]="stepCopy.targetTo">
       </mat-form-field>
 
@@ -69,7 +69,7 @@
 
   <div class="note-container">
     <h1>Note</h1>
-    <mat-form-field class="note">
+    <mat-form-field appearance="outline" class="note">
       <textarea matInput [(ngModel)]="stepCopy.note" cdkTextareaAutosize></textarea>
     </mat-form-field>
   </div>

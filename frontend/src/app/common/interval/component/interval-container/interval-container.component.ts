@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Interval } from "../../dto/Interval";
 import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
+import { ActivityType } from "../../../dto/PlannedActivity";
 
 @Component({
   selector: 'app-interval-container',
@@ -9,15 +10,11 @@ import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepT
 })
 export class IntervalContainerComponent implements OnInit {
 
-  // @Input() editable: boolean;
-  // @Input() activityType: string; // TODO should be some Enum
+  @Input() editable = false;
+  @Input() activityType: ActivityType;
+  @Input() maxNesting = 2;
   @Input() inputInterval: Interval;
   @Output() changeInterval: EventEmitter<Interval> = new EventEmitter();
-
-  // TODO replace these by @Input statements
-  editable = true;
-  activityType: StepType = StepType.ACTIVE;
-  maxNesting = 2;
 
   // local state
   currentId = 0;
@@ -43,7 +40,7 @@ export class IntervalContainerComponent implements OnInit {
             repeat: 1,
             steps: {
               id: null,
-              type: this.activityType,
+              type: StepType.ACTIVE,
               durationType: StepDurationType.DISTANCE,
               durationDistance: 1,
               durationDistanceUnit: StepDurationDistanceUnit.KM,
@@ -139,6 +136,8 @@ export class IntervalContainerComponent implements OnInit {
       this.interval = Object.assign({}, this.inputInterval);
     }
     this.addIdToInterval(this.interval);
+    // emit the default or given interval right away
+    this.changeInterval.emit(this.interval);
   }
 
 
@@ -177,13 +176,14 @@ export class IntervalContainerComponent implements OnInit {
     // new step to be added
     const i: Interval = { id: null, repeat: 1, steps: {
       id: null,
-      type: this.activityType,
+      type: StepType.ACTIVE,
       durationType: StepDurationType.LAPBUTTON,
     } }
     this.addInterval(i);
   }
 
   logInterval() {
+    // eslint-disable-next-line no-console
     console.log(this.interval)
   }
 

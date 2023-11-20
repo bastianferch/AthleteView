@@ -1,6 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
-import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
+import {
+  Step,
+  StepDurationDistanceUnit, StepDurationDistanceUnitMapper, StepDurationMapper,
+  StepDurationType,
+  StepNameMapper, StepTargetMapper,
+  StepTargetType,
+  StepType,
+} from "../../dto/Step";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { FormsModule } from "@angular/forms";
@@ -9,6 +16,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
 import { IntervalService } from "../../service/interval.service";
+import { ActivityNameMapper, ActivityType } from "../../../dto/PlannedActivity";
 
 @Component({
   selector: 'app-edit-step-dialog',
@@ -18,7 +26,6 @@ import { IntervalService } from "../../service/interval.service";
   standalone: true,
 })
 export class EditStepDialogComponent implements OnInit {
-
   stepCopy: Step;
 
   public stepTypes = Object.values(StepType);
@@ -26,20 +33,35 @@ export class EditStepDialogComponent implements OnInit {
   public distanceUnits = Object.values(StepDurationDistanceUnit);
   public targetTypes = Object.values(StepTargetType);
 
+  protected readonly StepType = StepType;
+
+  protected activityMapper;
+  protected stepNameMapper;
+  protected stepDurationMapper;
+  protected stepDurationDistanceUnitMapper;
+  protected stepTargetMapper;
+
+
   constructor(
     public dialogRef: MatDialogRef<EditStepDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Step,
+    @Inject(MAT_DIALOG_DATA) public data: [Step, ActivityType],
     protected service: IntervalService,
-  ) {}
+  ) {
+    this.activityMapper = ActivityNameMapper;
+    this.stepNameMapper = StepNameMapper;
+    this.stepDurationMapper = StepDurationMapper;
+    this.stepDurationDistanceUnitMapper = StepDurationDistanceUnitMapper;
+    this.stepTargetMapper = StepTargetMapper;
+  }
 
   // copy the object aso the original object is not mutated
   ngOnInit(): void {
-    this.stepCopy = Object.assign({}, this.data);
+    this.stepCopy = Object.assign({}, this.data[0]);
   }
 
   // closes the dialog with result == undefined, so no changes are performed
   onNoClick(): void {
-    this.dialogRef.close(this.data);
+    this.dialogRef.close(this.data[0]);
   }
 
   prepareResult() {

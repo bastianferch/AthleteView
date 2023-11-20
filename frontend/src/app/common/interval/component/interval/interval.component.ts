@@ -17,6 +17,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf, NgStyle } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
+import { ActivityType } from "../../../dto/PlannedActivity";
 
 @Component({
   selector: 'app-interval',
@@ -27,7 +28,7 @@ import { MatDividerModule } from "@angular/material/divider";
 export class IntervalComponent implements OnInit, OnChanges {
   @Input() editable: boolean;
   @Input() topLevelInterval?: boolean;
-  @Input() activityType: string; // TODO should be some Enum
+  @Input() activityType: ActivityType;
   @Input() interval: Interval;
   @Input() rootInterval: Interval;
   @Input() allIDs: number[];
@@ -193,7 +194,7 @@ export class IntervalComponent implements OnInit, OnChanges {
   template: `
     <h1 mat-dialog-title>Edit Interval</h1>
     <div mat-dialog-content>
-      <mat-form-field>
+      <mat-form-field appearance="outline">
         <mat-label>Repeats</mat-label>
         <input matInput type="number" [(ngModel)]="intervalCopy.repeat">
       </mat-form-field>

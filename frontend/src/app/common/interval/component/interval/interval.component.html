@@ -36,6 +36,7 @@
     <app-step
       [step]="getStep()"
       [editable]="editable"
+      [activityType]="activityType"
       (deleteStep)="onDeleteInterval()"
       (changeStep)="onChangeStep($event)" />
   </div>

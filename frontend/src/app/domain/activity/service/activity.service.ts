@@ -21,6 +21,7 @@ export class ActivityService {
   }
 
   createPlannedActivity(plannedActivity: PlannedActivitySplit): Observable<PlannedActivitySplit> {
+    console.log(this.plannedActivityBaseUri, plannedActivity)
     return this.httpClient.post<PlannedActivitySplit>(this.plannedActivityBaseUri, plannedActivity);
   }
 

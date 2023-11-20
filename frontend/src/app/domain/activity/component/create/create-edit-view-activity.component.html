@@ -20,7 +20,7 @@
 </div>
 <div style="display:flex; justify-content: space-between">
   <div class="width-65">
-    <app-interval-container (changeInterval)="handleChange($event)" ></app-interval-container>
+    <app-interval-container (changeInterval)="handleChange($event)" [editable]="true" [activityType]="plannedActivity.type"></app-interval-container>
   </div>
   <div class="width-32">
     <div class="note-container">

@@ -1,6 +1,8 @@
 <mat-card class="outer-card" [ngStyle]="{'background-color': service.getColor(step.type)}">
   <mat-card-header class="card-header">
-    <mat-card-title class="title">{{step.type}}</mat-card-title>
+    <mat-card-title class="title">
+      {{step.type === StepType.ACTIVE ? activityMapper.get(activityType) : stepNameMapper.get(step.type)}}
+    </mat-card-title>
     <div *ngIf="editable">
       <button mat-icon-button matSuffix (click)="onEditStep()" type="button" class="icon-button"><mat-icon class="icon">edit</mat-icon></button>
       <button mat-icon-button matSuffix (click)="onDeleteStep()" type="button" class="icon-button"><mat-icon class="icon">delete</mat-icon></button>
@@ -13,9 +15,9 @@
       <div class="step-content-left">
         <div class="step-info">
           <p>
-            <b *ngIf="step.durationType === StepDurationType.LAPBUTTON">{{step.durationType}}</b>
+            <b *ngIf="step.durationType === StepDurationType.LAPBUTTON">{{stepDurationMapper.get(step.durationType)}}</b>
             <b *ngIf="step.durationType !== StepDurationType.LAPBUTTON">
-              {{step.durationDistance}} {{step.durationDistanceUnit}}
+              {{step.durationDistance}} {{stepDurationDistanceUnitMapper.get(step.durationDistanceUnit)}}
             </b>
           </p>
           <p>Duration</p>

@@ -25,8 +25,16 @@ export enum ActivityType {
   RUN = 'RUN',
   BIKE = 'BIKE',
   ROW = 'ROW',
-  CROSSCOUNTRYSKIING = 'Cross-Country Skiing'
+  CROSSCOUNTRYSKIING = 'CROSSCOUNTRYSKIING'
 }
+
+export const ActivityNameMapper = new Map<ActivityType, string>([
+  [ActivityType.SWIM, 'Swim'],
+  [ActivityType.RUN, 'Run'],
+  [ActivityType.BIKE, 'Bike'],
+  [ActivityType.ROW, 'Row'],
+  [ActivityType.CROSSCOUNTRYSKIING, 'Cross-country Skiing'],
+]);
 
 export function convertToPlannedActivitySplit(plannedActivity: PlannedActivity): PlannedActivitySplit {
   return {
