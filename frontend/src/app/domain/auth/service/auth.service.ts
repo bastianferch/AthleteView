@@ -31,12 +31,14 @@ export class AuthService {
 
   logout(): void {
     this.setAuthToken(null);
+    localStorage.removeItem(USER_ID_TOKEN_NAME);
   }
 
   login(body: LoginDTO): Observable<User> {
     return this.http.post<User>(this.url + 'login', body, { withCredentials: true }).pipe(
       tap((user) => {
         this.setAuthToken(user.token)
+        this.setUserIDToken(user.id)
       }),
     );
   }
@@ -49,6 +51,10 @@ export class AuthService {
     localStorage.setItem(JWT_TOKEN_NAME, token);
   }
 
+  private setUserIDToken(id: number) {
+    localStorage.setItem(USER_ID_TOKEN_NAME, id.toString());
+  }
 }
 
 export const JWT_TOKEN_NAME = 'auth_token'
+export const USER_ID_TOKEN_NAME = 'user_id'

@@ -41,4 +41,12 @@ class GlobalExceptionHandler {
         logger.warn {"Bad Credentials exception: ${ex.message}"}
         return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
     }
+
+    @ExceptionHandler(BadCredentialsException::class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ResponseBody
+    fun handleForbidden(ex: BadCredentialsException): ExceptionResponseDTO {
+        logger.warn {"Invalid request: ${ex.message}"}
+        return ExceptionResponseDTO(HttpStatus.FORBIDDEN, ex.message)
+    }
 }

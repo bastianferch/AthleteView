@@ -1,4 +1,4 @@
-import { convertToPlannedActivitySplit, PlannedActivity, PlannedActivitySplit } from '../../../common/dto/PlannedActivity';
+import { convertToPlannedActivitySplit, PlannedActivity, PlannedActivitySplit } from '../component/dto/PlannedActivity';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';

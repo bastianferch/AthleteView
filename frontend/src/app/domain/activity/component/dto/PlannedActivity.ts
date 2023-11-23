@@ -1,4 +1,6 @@
-import { convertToIntervalSplit, Interval, IntervalSplit } from '../interval/dto/Interval';
+import { convertToIntervalSplit, Interval, IntervalSplit } from '../../../../common/interval/dto/Interval';
+import { Athlete } from "../../../user/dto/Athlete";
+import { User } from "../../../user/dto/User";
 
 export interface PlannedActivity {
   id: number;
@@ -8,6 +10,8 @@ export interface PlannedActivity {
   template: boolean;
   note?: string;
   date?: Date;
+  createdBy: User;
+  createdFor?: Athlete;
 }
 
 export interface PlannedActivitySplit {
@@ -18,6 +22,8 @@ export interface PlannedActivitySplit {
   template: boolean;
   note?: string;
   date?: Date;
+  createdBy: User;
+  createdFor?: Athlete;
 }
 
 export enum ActivityType {
@@ -45,5 +51,7 @@ export function convertToPlannedActivitySplit(plannedActivity: PlannedActivity):
     template: plannedActivity.template,
     note: plannedActivity.note,
     date: plannedActivity.date,
+    createdBy: plannedActivity.createdBy,
+    createdFor: plannedActivity.createdFor,
   };
 }

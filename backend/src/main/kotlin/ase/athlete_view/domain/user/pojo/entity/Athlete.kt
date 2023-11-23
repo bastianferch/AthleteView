@@ -1,5 +1,7 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
+import ase.athlete_view.domain.user.pojo.dto.UserDto
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.time.LocalDate
@@ -19,4 +21,26 @@ class Athlete(
     var weight: Float
 ) : User(
     id, email, name, password, country, zip
-)
+) {
+    override fun toUserDto(): UserDto {
+        return UserDto(
+            id,
+            name,
+            email,
+            null,
+            null)
+    }
+
+    fun toAthleteDto(): AthleteDTO? {
+        return AthleteDTO(
+            id,
+            email,
+            name,
+            country,
+            zip,
+            dob,
+            height,
+            weight
+        )
+    }
+}

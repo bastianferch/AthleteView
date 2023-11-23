@@ -17,7 +17,11 @@ class StepDTO(
     val targetTo: Int?,
     val note: String?
 ) {
-    fun toEntity(): Step { // TODO change type
-        return Step(id, StepType.COOLDOWN, StepDurationType.DISTANCE, durationDistance, durationDistanceUnit, targetType, targetFrom, targetTo, note)
+    fun toEntity(): Step {
+        return Step(id, type, durationType, durationDistance, durationDistanceUnit, targetType, targetFrom, targetTo, note)
+    }
+
+    override fun toString(): String {
+        return "StepDTO(id=$id, type=$type, durationType=$durationType, durationDistance=$durationDistance, durationDistanceUnit=$durationDistanceUnit, targetType=$targetType, targetFrom=$targetFrom, targetTo=$targetTo, note=$note)"
     }
 }

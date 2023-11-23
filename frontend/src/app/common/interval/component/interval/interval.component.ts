@@ -17,7 +17,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf, NgStyle } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
-import { ActivityType } from "../../../dto/PlannedActivity";
+import { ActivityType } from "../../../../domain/activity/component/dto/PlannedActivity";
 
 @Component({
   selector: 'app-interval',

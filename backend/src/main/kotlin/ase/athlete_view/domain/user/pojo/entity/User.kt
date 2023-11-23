@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.user.pojo.dto.UserDto
 import jakarta.persistence.*
 
 @Entity
@@ -17,4 +18,7 @@ abstract class User(
     open var password: String,
     open var country: String,
     open var zip: String,
-)
+) {
+    abstract fun toUserDto(): UserDto
+
+}

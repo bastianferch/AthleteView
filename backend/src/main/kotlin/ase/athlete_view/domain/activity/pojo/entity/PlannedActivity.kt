@@ -2,11 +2,9 @@ package ase.athlete_view.domain.activity.pojo.entity
 
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.User
+import jakarta.persistence.*
 import java.util.*
 
 @Entity
@@ -18,7 +16,7 @@ class PlannedActivity(
     val type: ActivityType,
 
     @OneToOne
-    val interval: Interval?,
+    val interval: Interval,
 
     val withTrainer: Boolean,
 
@@ -26,9 +24,16 @@ class PlannedActivity(
 
     val note: String?,
 
-    val date: Date?
-){
-    fun toDTO():PlannedActivityDTO{
-        return PlannedActivityDTO(id,type, interval?.toDTO(),withTrainer,template,note,date)
+    val date: Date?,
+
+    @ManyToOne
+    val createdBy: User,
+
+    @ManyToOne
+    val createdFor: Athlete?
+) {
+    fun toDTO(): PlannedActivityDTO {
+        return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
+            createdBy.toUserDto(), createdFor?.toAthleteDto())
     }
 }

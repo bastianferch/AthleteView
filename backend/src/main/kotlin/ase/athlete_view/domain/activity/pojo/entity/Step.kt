@@ -15,8 +15,8 @@ class Step(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
-    val type: StepType,
-    val durationType: StepDurationType,
+    val type: StepType?,
+    val durationType: StepDurationType?,
     val durationDistance: Int?,
     val durationDistanceUnit: StepDurationDistanceUnit?,
     val targetType: StepTargetType?,

@@ -15,6 +15,10 @@ class IntervalDTO(
     fun <E> List<E>.toEntityList(): List<Interval> {
         return intervals?.map { it.toEntity() } ?: emptyList()
     }
+
+    override fun toString(): String {
+        return "IntervalDTO(id=$id, repeat=$repeat, intervals=$intervals, step=$step)"
+    }
 }
 
 

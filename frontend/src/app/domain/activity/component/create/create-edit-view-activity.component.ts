@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ActivityType, convertToPlannedActivitySplit, PlannedActivity } from '../../../../common/dto/PlannedActivity';
+import { ActivityType, convertToPlannedActivitySplit, PlannedActivity } from '../dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
+import { User } from "../../../user/dto/User";
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -21,8 +22,19 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   public activityTypes = Object.values(ActivityType);
 
+  currentUser: User = new User();
+
+
   plannedActivity: PlannedActivity = {
-    id: null, interval: undefined, template: false, type: ActivityType.RUN, withTrainer: false, note: "", date: null,
+    id: null,
+    interval: undefined,
+    template: false,
+    type: ActivityType.RUN,
+    withTrainer: false,
+    note: "",
+    date: null,
+    createdBy: null,
+    createdFor: null,
   }
 
   mode: ActivityCreateEditViewMode;
@@ -47,6 +59,7 @@ export class CreateEditViewActivityComponent implements OnInit {
     this.route.data.subscribe((data) => {
       this.mode = data['mode'];
     });
+    this.setUser();
   }
 
   save(): void {
@@ -54,7 +67,7 @@ export class CreateEditViewActivityComponent implements OnInit {
     if (planned !== undefined) {
       if (this.mode === ActivityCreateEditViewMode.create) {
         this.activityService.createPlannedActivity(planned).subscribe({
-          next: () => this.snackbarService.openSnackBar("Activity successfully created ") ,
+          next: () => this.snackbarService.openSnackBar("Activity successfully created "),
           error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
         });
       } else if (this.mode === ActivityCreateEditViewMode.edit) {
@@ -69,5 +82,13 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   handleChange(interval: Interval) {
     this.plannedActivity.interval = interval;
+  }
+
+  private setUser() {
+    this.currentUser.id = parseInt(localStorage.getItem("user_id"), 10);
+    this.currentUser.name = "";
+    this.currentUser.email = "";
+    this.plannedActivity.createdBy = this.currentUser;
+
   }
 }

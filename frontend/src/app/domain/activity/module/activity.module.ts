@@ -19,8 +19,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 
 const routes: Routes = [
   { path: '', component: ActivityComponent },
+  { path: 'create', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.create } },
   { path: ':id', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.details } },
-  { path: ':id/create', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.create } },
   { path: ':id/edit', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.edit } },
 ];
 

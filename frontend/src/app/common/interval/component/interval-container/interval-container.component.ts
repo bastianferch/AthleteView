@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Interval } from "../../dto/Interval";
 import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
-import { ActivityType } from "../../../dto/PlannedActivity";
+import { ActivityType } from "../../../../domain/activity/component/dto/PlannedActivity";
 
 @Component({
   selector: 'app-interval-container',
