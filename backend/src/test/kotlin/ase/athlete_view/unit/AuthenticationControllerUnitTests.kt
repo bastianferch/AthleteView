@@ -8,6 +8,7 @@ import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.pojo.dto.UserDto
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -35,6 +36,9 @@ class AuthenticationControllerUnitTests {
     @Autowired
     private lateinit var webContext: WebApplicationContext
 
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
     @MockkBean
     lateinit var authService: AuthenticationService
 
@@ -60,14 +64,14 @@ class AuthenticationControllerUnitTests {
         val user = UserDto(1, "a@b.com", "Max Mustermann", "musterpassword", "sampletokendefinvalid")
         val login = LoginDTO("a@b.com", "musterpassword")
 
-
         every { authService.authenticateUser(any<LoginDTO>()) } returns user
 
         mockMvc.perform(
-            post("/api/auth/login").with(csrf())
+            post("/api/auth/login")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
-                .content(login.toJsonString())
+                .content(objectMapper.writeValueAsString(login))
         )
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))

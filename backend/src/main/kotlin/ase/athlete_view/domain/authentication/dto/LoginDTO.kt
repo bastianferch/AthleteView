@@ -6,10 +6,6 @@ class LoginDTO(
     val email: String,
     val password: String,
 ) {
-    fun toJsonString(): String {
-        return "{ \"email\": \"${email}\", \"password\": \"${password}\"}"
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true

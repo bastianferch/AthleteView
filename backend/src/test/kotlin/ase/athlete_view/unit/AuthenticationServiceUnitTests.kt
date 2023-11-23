@@ -6,6 +6,7 @@ import ase.athlete_view.domain.user.service.UserService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,6 +30,6 @@ class AuthenticationServiceUnitTests {
 
         val usrData = userService.getByEmail("a@b.com")
         verify { userRepo.findByEmail("a@b.com") }
-        assert(usrData == user)
+        assertEquals(usrData, user)
     }
 }
