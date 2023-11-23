@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -29,6 +30,7 @@ import org.springframework.web.context.WebApplicationContext
 
 @WebMvcTest(controllers = [AuthenticationController::class])
 @ContextConfiguration(classes = [SecurityConfig::class, AthleteViewApplication::class])
+@ActiveProfiles("test")
 class AuthenticationControllerUnitTests {
     @Autowired
     private lateinit var webContext: WebApplicationContext
@@ -46,7 +48,7 @@ class AuthenticationControllerUnitTests {
     private lateinit var mockMvc: MockMvc
 
     @BeforeEach
-    fun setup() {
+    fun mvcSetup() {
         this.mockMvc = MockMvcBuilders
             .webAppContextSetup(this.webContext)
             .apply<DefaultMockMvcBuilder?>(springSecurity())
