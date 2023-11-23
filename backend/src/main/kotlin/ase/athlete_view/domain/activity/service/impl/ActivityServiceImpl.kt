@@ -10,7 +10,6 @@ import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
 import ase.athlete_view.domain.user.pojo.dto.UserDto
 import org.springframework.stereotype.Service
-import java.security.Principal
 
 @Service
 class ActivityServiceImpl(private val plannedActivityRepo: PlannedActivityRepository,

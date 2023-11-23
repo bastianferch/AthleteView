@@ -1,8 +1,8 @@
-import { convertToPlannedActivitySplit, PlannedActivity, PlannedActivitySplit } from '../component/dto/PlannedActivity';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { UrlService } from '../../../config/service/UrlService';
+import {PlannedActivitySplit} from '../component/dto/PlannedActivity';
+import {Observable} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {UrlService} from '../../../config/service/UrlService';
 
 @Injectable({
   providedIn: 'root',
