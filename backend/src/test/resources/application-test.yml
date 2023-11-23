@@ -1,7 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:mydb;MODE=LEGACY;TIME ZONE=UTC
+    url: jdbc:h2:mem:athlete_view_testdb;MODE=LEGACY;TIME ZONE=UTC
+    username: sa
+    password:
   jpa:
     properties:
       hibernate:
