@@ -6,6 +6,7 @@ cache:
 
 variables:
   GIT_STRATEGY: "clone"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
 
 stages:
   - test
@@ -35,7 +36,7 @@ build-image:
   stage: build
   script:
     - mkdir -p backend/src/main/resources/static/
-    - cp -rv frontend/dist/sepm-group-phase/* backend/src/main/resources/static/
+    - cp -rv frontend/dist/athlete-view/* backend/src/main/resources/static/
     - cd backend
     - mvn -B clean install -DskipTests
     - mvn -B jib:build -Djib.to.image=registry.reset.inso-w.at/$CI_PROJECT_PATH -Djib.to.tags=$CI_PIPELINE_ID -Djib.to.auth.username=$CI_REGISTRY_USER -Djib.to.auth.password=$CI_REGISTRY_PASSWORD
@@ -44,7 +45,10 @@ build-image:
 
 deploy:
   stage: deploy
-  script: |
-    curl -H 'X-DeployToken: '$DEPLOY_TOKEN -H 'Content-type: application/json' -vf -XPUT --data '{"image": "'$CI_PROJECT_PATH'", "tag": "'$CI_PIPELINE_ID'"}' https://reset.inso.tuwien.ac.at/api/dockerDeployment
+  image: bitnami/kubectl
+  script:
+    - sed -i 's/:latest/:'$CI_PIPELINE_ID'/g' kubernetes.yaml
+    - cat kubernetes.yaml
+    - kubectl apply -f kubernetes.yaml
   only:
     - staging

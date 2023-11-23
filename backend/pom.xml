@@ -208,6 +208,27 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.1.4</version>
+				<configuration>
+					<from>
+						<image>registry.reset.inso-w.at/pub/docker/eclipse-temurin:17</image>
+					</from>
+					<container>
+						<ports>
+							<port>8080</port>
+							<port>8081</port>
+						</ports>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+						<jvmFlags>
+<!--							<jvmFlag>-Dspring.profiles.active=qa</jvmFlag>-->
+							<jvmFlag>-Xmx128m</jvmFlag>
+						</jvmFlags>
+					</container>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
