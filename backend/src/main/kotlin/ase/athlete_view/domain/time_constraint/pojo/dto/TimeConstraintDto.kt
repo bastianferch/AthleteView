@@ -12,4 +12,8 @@ open class TimeConstraintDto (
     open fun toEntity(): TimeConstraint{
         return TimeConstraint(id, isBlacklist, title, user!!)
     }
+
+    override fun toString(): String {
+        return super.toString()
+    }
 }

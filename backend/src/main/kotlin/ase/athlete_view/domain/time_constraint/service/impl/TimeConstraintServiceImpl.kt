@@ -42,17 +42,20 @@ class TimeConstraintServiceImpl(
         return (timeConstraintRepository.save(timeConstraint.toEntity())).toDto()
     }
 
-    override fun delete(timeConstraint: TimeConstraintDto, userDto: UserDto) {
-        timeConstraint.user = userService.getById(userDto.id!!)
-        timeConstraintRepository.delete(timeConstraint.toEntity())
+    override fun delete(timeConstraintId: Long, userDto: UserDto) {
+        val constraint = timeConstraintRepository.findById(timeConstraintId)
+        if (constraint.get().user.id != userDto.id)
+            throw ValidationException("Cannot delete time constraint from different user")
+        timeConstraintRepository.deleteById(timeConstraintId)
     }
 
-    override fun getAll(userDto: UserDto, type: String, from: String): List<TimeConstraintDto> {
+    override fun getAll(userDto: UserDto, type: String, from: String, until: String): List<TimeConstraintDto> {
         val user = userService.getById(userDto.id!!)
         var weeklies: List<TimeConstraint>
         var dailies: List<TimeConstraint>
         val list: List<TimeConstraint>
         val date: LocalDateTime
+        val endTime: LocalDateTime
 
         if (from == "") {
             date = LocalDateTime.now()
@@ -60,11 +63,12 @@ class TimeConstraintServiceImpl(
             dailies = dailyTimeConstraintRepository.findByUser(user)
         } else {
             date = LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
+            endTime = if (until == "") date.plusDays(7) else LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
             weeklies = weeklyTimeConstraintRepository.findByUser(user)
             dailies = dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
                 user,
                 date,
-                date.plusDays(7)
+                endTime
             )
         }
 

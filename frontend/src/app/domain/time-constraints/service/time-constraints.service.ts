@@ -1,4 +1,4 @@
-import { WeeklyTimeConstraint, DailyTimeConstraint } from '../../../common/dto/TimeConstraint';
+import { TimeConstraint } from '../../../common/dto/TimeConstraint';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -18,19 +18,23 @@ export class TimeConstraintService {
     this.timeConstraintBaseUri = backendUrl + 'constraints';
   }
 
-  createWeeklyConstraint(constraint: WeeklyTimeConstraint): Observable<WeeklyTimeConstraint> {
-    return this.httpClient.post<WeeklyTimeConstraint>(this.timeConstraintBaseUri + "/weeklies", constraint);
+  createWeeklyConstraint(constraint: TimeConstraint): Observable<TimeConstraint> {
+    return this.httpClient.post<TimeConstraint>(this.timeConstraintBaseUri + "/weeklies", constraint);
   }
 
-  createDailyConstraint(constraint: DailyTimeConstraint): Observable<DailyTimeConstraint> {
-    return this.httpClient.post<DailyTimeConstraint>(this.timeConstraintBaseUri + "/dailies", constraint);
+  createDailyConstraint(constraint: TimeConstraint): Observable<TimeConstraint> {
+    return this.httpClient.post<TimeConstraint>(this.timeConstraintBaseUri + "/dailies", constraint);
   }
 
-  getConstraints(type?: string, from?: string): Observable<any> {
+  getConstraints(type?: string, from?: string): Observable<TimeConstraint[]> {
     let params = new HttpParams()
     if (type) params = params.append("type", type)
     if (from) params = params.append("from", from)
     return this.httpClient.get<any>(this.timeConstraintBaseUri, {params});
+  }
+
+  delete(id: number) {
+    return this.httpClient.delete(this.timeConstraintBaseUri + "/" + id);
   }
 
 }

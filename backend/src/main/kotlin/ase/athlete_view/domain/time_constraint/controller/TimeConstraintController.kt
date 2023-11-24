@@ -8,7 +8,9 @@ import ase.athlete_view.domain.user.pojo.dto.UserDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -40,12 +42,18 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @GetMapping
     fun getConstraints(@RequestParam(defaultValue = "") type: String,
                        @AuthenticationPrincipal userDto: UserDto,
-                       @RequestParam(defaultValue = "") from: String
+                       @RequestParam(defaultValue = "") from: String,
+                       @RequestParam(defaultValue = "") until: String
                        ): List<TimeConstraintDto> {
 
         logger.info { "GET Constraints" }
-        return timeConstraintService.getAll(userDto, type, from)
+        return timeConstraintService.getAll(userDto, type, from, until)
 
+    }
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto) {
+        timeConstraintService.delete(id, userDto)
     }
 
 }

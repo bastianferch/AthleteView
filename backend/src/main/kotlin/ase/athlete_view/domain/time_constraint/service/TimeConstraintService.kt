@@ -13,9 +13,9 @@ interface TimeConstraintService {
 
     fun edit(timeConstraint: TimeConstraintDto, userDto: UserDto): TimeConstraintDto
 
-    fun delete(timeConstraint: TimeConstraintDto, userDto: UserDto)
+    fun delete(timeConstraintId: Long, userDto: UserDto)
 
-    fun getAll(userDto: UserDto, type: String, from:String): List<TimeConstraintDto>
+    fun getAll(userDto: UserDto, type: String, from:String, until:String): List<TimeConstraintDto>
 
     fun getAllAsDailies(startOfWeek: LocalDate, userDto: UserDto): List<DailyTimeConstraintDto>
 

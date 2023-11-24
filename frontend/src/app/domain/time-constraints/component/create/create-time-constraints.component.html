@@ -1,7 +1,7 @@
 <div class="create-time-constraints-container">
-  <p class="mat-headline-3 margin-top">New Time Constraint</p>
+  <p class="mat-headline-3 margin-top">Create Time Constraint</p>
 
-  <mat-button-toggle-group #blacklistToggle="matButtonToggleGroup" name="blacklist" aria-label="Blacklist Whitelist" [value]="isBlacklist" (change)="setBlacklist(blacklistToggle.value)">
+  <mat-button-toggle-group #blacklistToggle="matButtonToggleGroup" name="blacklist" aria-label="Blacklist Whitelist" [value]="constraint.isBlacklist" (change)="setBlacklist(blacklistToggle.value)">
     <mat-button-toggle [value]="false">I have time to train</mat-button-toggle>
     <mat-button-toggle [value]="true">I don't have time</mat-button-toggle>
   </mat-button-toggle-group>
@@ -9,7 +9,7 @@
   <form>
     <mat-form-field>
       <mat-label>Title</mat-label>
-      <input matInput placeholder="Title" [(ngModel)]="title" name="title">
+      <input matInput placeholder="Title" [(ngModel)]="constraint.title" name="title">
     </mat-form-field>
 
 
@@ -17,13 +17,13 @@
       <mat-label>Start time</mat-label>
       <input matInput type="time" [ngxTimepicker]="start" [format]="24" [value]="startTime">
       <ngx-material-timepicker-toggle matSuffix [for]="start"></ngx-material-timepicker-toggle>
-      <ngx-material-timepicker #start (timeChanged)="setStartTime($event)"></ngx-material-timepicker>
+      <ngx-material-timepicker #start (timeChanged)="setStartTime($event)" [minutesGap]="5"></ngx-material-timepicker>
     </mat-form-field>
     <mat-form-field>
       <mat-label>End time</mat-label>
       <input matInput type="time" [ngxTimepicker]="end" [format]="24" [value]="endTime">
       <ngx-material-timepicker-toggle matSuffix [for]="end"></ngx-material-timepicker-toggle>
-      <ngx-material-timepicker #end (timeChanged)="setEndTime($event)"></ngx-material-timepicker>
+      <ngx-material-timepicker #end (timeChanged)="setEndTime($event)" [minutesGap]="5"></ngx-material-timepicker>
     </mat-form-field>
 
     <mat-button-toggle-group #weeklyToggle="matButtonToggleGroup" name="weekly" aria-label="Single Weekly" [value]="weekly" (change)="setWeekly(weeklyToggle.value)">
