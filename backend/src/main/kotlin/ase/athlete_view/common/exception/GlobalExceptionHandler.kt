@@ -1,5 +1,6 @@
 package ase.athlete_view.common.exception
 
+import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -42,10 +43,10 @@ class GlobalExceptionHandler {
         return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
     }
 
-    @ExceptionHandler(BadCredentialsException::class)
+    @ExceptionHandler(ForbiddenException::class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ResponseBody
-    fun handleForbidden(ex: BadCredentialsException): ExceptionResponseDTO {
+    fun handleForbidden(ex: ForbiddenException): ExceptionResponseDTO {
         logger.warn {"Invalid request: ${ex.message}"}
         return ExceptionResponseDTO(HttpStatus.FORBIDDEN, ex.message)
     }

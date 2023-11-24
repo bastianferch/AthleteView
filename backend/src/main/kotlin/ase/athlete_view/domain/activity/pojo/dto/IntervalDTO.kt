@@ -3,13 +3,17 @@ package ase.athlete_view.domain.activity.pojo.dto
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 
 class IntervalDTO(
-    var id: Int? = null,
+    var id: Long? = null,
     var repeat: Int,
     var intervals: List<IntervalDTO>? = null,
     var step: StepDTO? = null
-){
+) {
     fun toEntity(): Interval {
-        return Interval(id, repeat, intervals?.toEntityList(), step?.toEntity())
+        if (intervals?.isNotEmpty() == true) {
+            return Interval(id, repeat, intervals?.toEntityList(), null)
+        } else {
+            return Interval(id, repeat, null, step?.toEntity())
+        }
     }
 
     fun <E> List<E>.toEntityList(): List<Interval> {

@@ -1,11 +1,11 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { authGuard } from "./config/auth.guard";
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {authGuard} from "./config/auth.guard";
 
 const routes: Routes = [
   { path: '', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/home/module/home.module').then((m) => m.HomeModule) },
-  { path: 'activity', // TODO add authGuard
+  { path: 'activity', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/activity/module/activity.module').then((m) => m.ActivityModule) },
   { path: 'calendar', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },

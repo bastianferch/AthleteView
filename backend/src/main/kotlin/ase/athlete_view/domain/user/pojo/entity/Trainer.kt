@@ -13,6 +13,10 @@ class Trainer(
     country: String,
     zip: String,
 
-) : User(
+    ) : User(
     id, email, name, password, country, zip
-)
+) {
+    override fun toString(): String {
+        return "Trainer(id=$id, email='$email', name='$name', country='$country', zip='$zip')"
+    }
+}

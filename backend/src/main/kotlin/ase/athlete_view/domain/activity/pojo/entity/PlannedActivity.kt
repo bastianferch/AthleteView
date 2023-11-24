@@ -5,7 +5,7 @@ import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
-import java.util.*
+import java.time.LocalDate
 
 @Entity
 class PlannedActivity(
@@ -24,7 +24,7 @@ class PlannedActivity(
 
     val note: String?,
 
-    val date: Date?,
+    val date: LocalDate?,
 
     @ManyToOne
     val createdBy: User,
@@ -35,5 +35,9 @@ class PlannedActivity(
     fun toDTO(): PlannedActivityDTO {
         return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
             createdBy.toUserDto(), createdFor?.toAthleteDto())
+    }
+
+    override fun toString(): String {
+        return "PlannedActivity(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=$createdBy, createdFor=$createdFor)"
     }
 }

@@ -7,7 +7,7 @@ import jakarta.persistence.*
 class Interval(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int?,
+    val id: Long?,
 
     val repeat: Int,
 
@@ -23,6 +23,10 @@ class Interval(
 
     fun <E> List<E>.toDTOList(): List<IntervalDTO>? {
         return intervals?.map { it.toDTO() }
+    }
+
+    override fun toString(): String {
+        return "Interval(id=$id, repeat=$repeat, intervals=$intervals, step=$step)"
     }
 }
 

@@ -7,8 +7,7 @@ import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
-import java.util.*
-import kotlin.collections.ArrayList
+import java.time.LocalDate
 
 @Service
 @Validated
@@ -36,7 +35,7 @@ class ActivityValidator {
             }
         }
         if (plannedActivity.date != null) {
-            if (plannedActivity.date.before(Date())) {
+            if (plannedActivity.date.isBefore(LocalDate.now())) {
                 validationErrors.add("Date and time must be in the future")
             }
         }
@@ -97,7 +96,7 @@ class ActivityValidator {
             if (step.targetFrom < 0) {
                 validationErrors.add("Target from must be greater than 0")
             }
-            if (step.targetTo != null) {
+            if (step.targetTo == null) {
                 validationErrors.add("Target to must be set if target from is set")
             }
             if (step.targetTo != null) {
@@ -110,10 +109,10 @@ class ActivityValidator {
             if (step.targetTo < 0) {
                 validationErrors.add("Target to must be greater than 0")
             }
-            if (step.targetFrom != null) {
+            if (step.targetFrom == null) {
                 validationErrors.add("Target from must be set if target to is set")
             }
-            if (step.targetType != null) {
+            if (step.targetType == null) {
                 validationErrors.add("Target type must be set if target to is set")
             }
         }

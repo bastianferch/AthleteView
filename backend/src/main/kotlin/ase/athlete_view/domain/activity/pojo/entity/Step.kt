@@ -36,6 +36,9 @@ class Step(
             targetTo,
             note
         )
+    }
 
+    override fun toString(): String{
+        return "Step(id=$id, type=$type, durationType=$durationType, durationDistance=$durationDistance, durationDistanceUnit=$durationDistanceUnit, targetType=$targetType, targetFrom=$targetFrom, targetTo=$targetTo, note=$note)"
     }
 }

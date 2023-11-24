@@ -5,7 +5,7 @@ import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 
 import ase.athlete_view.domain.user.pojo.dto.UserDto
-import java.util.*
+import java.time.LocalDate
 
 class PlannedActivityDTO(
     var id: Long? = null,
@@ -14,7 +14,7 @@ class PlannedActivityDTO(
     var withTrainer: Boolean = false,
     var template: Boolean = false,
     var note: String? = null,
-    var date: Date? = null,
+    var date: LocalDate? = null,
     var createdBy: UserDto,
     var createdFor: AthleteDTO?
 
@@ -24,6 +24,6 @@ class PlannedActivityDTO(
     }
 
     override fun toString(): String {
-        return "PlannedActivityDTO(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=$createdBy, createdFor=$createdFor)"
+        return "PlannedActivityDTO(id=$id, type=$type, \n interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=$createdBy, createdFor=$createdFor)"
     }
 }
