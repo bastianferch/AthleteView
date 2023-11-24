@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { Router } from "@angular/router";
 import { UrlService } from "../../../config/service/UrlService";
 import { LoginDTO } from "../dto/LoginDTO";

@@ -1,0 +1,54 @@
+image: registry.reset.inso-w.at/pub/docker/mvn-non-root-17
+
+cache:
+  paths:
+    - .m2
+
+variables:
+  GIT_STRATEGY: "clone"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
+
+stages:
+  - test
+  - build
+  - deploy
+
+test-backend:
+  stage: test
+  script:
+    - cd backend
+    - mvn -B clean install
+
+test-frontend:
+  stage: test
+  image: node:lts
+  script:
+    - cd frontend
+    - npm install
+    - npm run lint
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist
+    expire_in: 1 hour
+
+build-image:
+  stage: build
+  script:
+    - mkdir -p backend/src/main/resources/static/
+    - cp -rv frontend/dist/athlete-view/* backend/src/main/resources/static/
+    - cd backend
+    - mvn -B clean install -DskipTests
+    - mvn -B jib:build -Djib.to.image=registry.reset.inso-w.at/$CI_PROJECT_PATH -Djib.to.tags=$CI_PIPELINE_ID -Djib.to.auth.username=$CI_REGISTRY_USER -Djib.to.auth.password=$CI_REGISTRY_PASSWORD
+  only:
+    - staging
+
+deploy:
+  stage: deploy
+  image: bitnami/kubectl
+  script:
+    - sed -i 's/:latest/:'$CI_PIPELINE_ID'/g' kubernetes.yaml
+    - cat kubernetes.yaml
+    - kubectl apply -f kubernetes.yaml
+  only:
+    - staging
