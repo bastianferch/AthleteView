@@ -1,11 +1,11 @@
 export interface TimeConstraint {
-    id?: number,
-    isBlacklist: boolean,
-    title: string,
-    user?: any,
-    constraint?: TimeFrame,
-    startTime?: Date,
-    endTime?: Date
+  id?: number,
+  isBlacklist: boolean,
+  title: string,
+  user?: any,
+  constraint?: TimeFrame,
+  startTime?: Date,
+  endTime?: Date
 }
 
 export interface TimeFrame {

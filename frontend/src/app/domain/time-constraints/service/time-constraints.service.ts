@@ -30,7 +30,7 @@ export class TimeConstraintService {
     let params = new HttpParams()
     if (type) params = params.append("type", type)
     if (from) params = params.append("from", from)
-    return this.httpClient.get<any>(this.timeConstraintBaseUri, {params});
+    return this.httpClient.get<any>(this.timeConstraintBaseUri, { params });
   }
 
   delete(id: number) {

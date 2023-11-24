@@ -11,12 +11,10 @@ import { MatInputModule } from '@angular/material/input';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { NgIf } from '@angular/common';
-import { MatChipsModule, MatChipOption } from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
-import { CalendarModule } from 'angular-calendar';
-import { DateAdapter } from 'angular-calendar';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-
 
 
 const routes: Routes = [
@@ -26,7 +24,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     TimeConstraintsComponent,
-    CreateTimeConstraintsComponent
+    CreateTimeConstraintsComponent,
   ],
   imports: [
     RouterModule.forChild(routes),

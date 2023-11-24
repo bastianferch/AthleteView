@@ -1,21 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { TimeConstraint } from '../../../../common/dto/TimeConstraint';
 import { TimeConstraintService } from '../../service/time-constraints.service';
-import { Output, EventEmitter, Input } from '@angular/core';
 
 
 @Component({
   selector: 'app-create-time-constraints',
   templateUrl: './create-time-constraints.component.html',
-  styleUrls: ['./create-time-constraints.component.scss']
+  styleUrls: ['./create-time-constraints.component.scss'],
 })
 export class CreateTimeConstraintsComponent implements OnInit {
 
-  constructor(private constraintService: TimeConstraintService) {
-  }
-
-  @Input() constraint: TimeConstraint = {title: "", isBlacklist: true}
-  @Input() deledit: boolean = false
+  @Input() constraint: TimeConstraint = { title: "", isBlacklist: true }
+  @Input() deledit = false
   startTime: string
   endTime: string
   date: Date
@@ -23,6 +19,8 @@ export class CreateTimeConstraintsComponent implements OnInit {
   weekdays: any
 
   @Output() newConstraint = new EventEmitter<any>();
+
+  constructor(private constraintService: TimeConstraintService) {}
 
   ngOnInit(): void {
     this.setUpInputs()
@@ -35,9 +33,9 @@ export class CreateTimeConstraintsComponent implements OnInit {
     this.endTime = "12:00"
 
     this.weekly = false
-    this.weekdays=[]
+    this.weekdays = []
 
-    this.constraint = {title: "", isBlacklist: true}
+    this.constraint = { title: "", isBlacklist: true }
   }
 
   setBlacklist(val: boolean) {
@@ -67,21 +65,18 @@ export class CreateTimeConstraintsComponent implements OnInit {
 
   saveConstraint() {
     if (this.startTime < this.endTime) {
-      if(this.weekly) {
-        for (let day of this.weekdays) {
-          this.constraint.constraint = {weekday:day, startTime: this.startTime, endTime: this.endTime}
-          this.constraintService.createWeeklyConstraint(this.constraint).subscribe(next => {
-            console.log(next)
+      if (this.weekly) {
+        for (const day of this.weekdays) {
+          this.constraint.constraint = { weekday: day, startTime: this.startTime, endTime: this.endTime }
+          this.constraintService.createWeeklyConstraint(this.constraint).subscribe(() => {
             this.newConstraint.emit()
             this.setUpInputs()
           })
         }
-      }
-      else {
+      } else {
         this.constraint.startTime = this.makeDate(new Date(this.date), this.startTime)
         this.constraint.endTime = this.makeDate(new Date(this.date), this.endTime)
-        this.constraintService.createDailyConstraint(this.constraint).subscribe(next => {
-          console.log(next)
+        this.constraintService.createDailyConstraint(this.constraint).subscribe(() => {
           this.newConstraint.emit()
           this.setUpInputs()
         })
@@ -93,8 +88,8 @@ export class CreateTimeConstraintsComponent implements OnInit {
   }
 
   makeDate(day: Date, time: string): Date {
-    day.setHours(parseInt(time.split(":")[0])  - (new Date().getTimezoneOffset() / 60))
-    day.setMinutes(parseInt(time.split(":")[1]))
+    day.setHours(Number(time.split(":")[0]) - (new Date().getTimezoneOffset() / 60))
+    day.setMinutes(Number(time.split(":")[1]))
     day.setSeconds(0)
     return day
   }
