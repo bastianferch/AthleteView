@@ -53,6 +53,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto) {
+        logger.info { "DELETE time constraint with id $id by ${userDto.name}"}
         timeConstraintService.delete(id, userDto)
     }
 

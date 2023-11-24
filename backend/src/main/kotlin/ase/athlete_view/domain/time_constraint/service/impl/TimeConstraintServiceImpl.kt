@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.time_constraint.service.impl
 
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.time_constraint.persistence.DailyTimeConstraintRepository
 import ase.athlete_view.domain.time_constraint.persistence.TimeConstraintRepository
@@ -13,8 +14,8 @@ import ase.athlete_view.domain.time_constraint.pojo.entity.WeeklyTimeConstraint
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.user.pojo.dto.UserDto
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -43,8 +44,8 @@ class TimeConstraintServiceImpl(
     }
 
     override fun delete(timeConstraintId: Long, userDto: UserDto) {
-        val constraint = timeConstraintRepository.findById(timeConstraintId)
-        if (constraint.get().user.id != userDto.id)
+        val constraint = timeConstraintRepository.findByIdOrNull(timeConstraintId) ?: throw NotFoundException("Could not find constraint by given id")
+        if (constraint.user.id != userDto.id)
             throw ValidationException("Cannot delete time constraint from different user")
         timeConstraintRepository.deleteById(timeConstraintId)
     }
