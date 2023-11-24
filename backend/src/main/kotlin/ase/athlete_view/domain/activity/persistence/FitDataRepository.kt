@@ -3,6 +3,7 @@ package ase.athlete_view.domain.activity.persistence
 import ase.athlete_view.domain.activity.pojo.dto.FitData
 import com.mongodb.client.gridfs.model.GridFSFile
 import org.bson.types.ObjectId
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.gridfs.GridFsOperations
@@ -12,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile
 
 @Repository
 class FitDataRepository(
+    @Autowired
     private val gridFsTemplate: GridFsTemplate,
+    @Autowired
     private val gridFsOperations: GridFsOperations
 ) {
     fun saveFitData(data: MultipartFile): String {

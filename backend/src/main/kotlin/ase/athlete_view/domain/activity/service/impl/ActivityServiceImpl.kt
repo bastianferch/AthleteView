@@ -6,6 +6,7 @@ import ase.athlete_view.domain.activity.pojo.dto.FitData
 import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.util.FitParser
+import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.AllArgsConstructor
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -17,13 +18,11 @@ class ActivityServiceImpl(
     val activityRepo: ActivityRepository,
     val fitFileRepo: FitDataRepository
 ): ActivityService {
-    override fun importActivity(files: List<MultipartFile>) {
-        println("================== PROCESSING FILES ==================")
-        println("Total files found: " + files.size)
+    private val logger = KotlinLogging.logger {}
 
+    override fun importActivity(files: List<MultipartFile>) {
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
-            println("Data found: ")
 
             var powerSum = 0
             var hrSum = 0
@@ -84,14 +83,7 @@ class ActivityServiceImpl(
             )
 
             val respData = activityRepo.save(activity)
-            println("Saving activity success.")
-            println(respData)
+            logger.info { respData.toString() }
         }
-
-        println("================== PROCESSING COMPLETE ==================")
-    }
-
-    override fun getActivity(id: String): FitData? {
-        return fitFileRepo.getFitData(id)
     }
 }
