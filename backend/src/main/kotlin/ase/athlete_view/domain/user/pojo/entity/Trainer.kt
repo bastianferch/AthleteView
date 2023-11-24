@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.user.pojo.entity
 
-import ase.athlete_view.domain.user.pojo.dto.UserDto
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 
@@ -16,13 +15,4 @@ class Trainer(
 
 ) : User(
     id, email, name, password, country, zip
-) {
-    override fun toUserDto(): UserDto {
-        return UserDto(
-            id,
-            name,
-            email,
-            null,
-            null)
-    }
-}
+)

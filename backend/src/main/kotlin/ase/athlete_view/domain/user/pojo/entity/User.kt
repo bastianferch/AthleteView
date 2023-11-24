@@ -19,6 +19,12 @@ open class User(
     open var country: String,
     open var zip: String,
 ) {
-    abstract fun toUserDto(): UserDto
-
+    open fun toUserDto(): UserDto {
+        return UserDto(
+            id,
+            name,
+            email,
+            null,
+            null)
+    }
 }
