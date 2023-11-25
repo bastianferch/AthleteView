@@ -6,8 +6,8 @@ import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.service.AuthenticationService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.util.DefaultEntityCreatorUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -49,6 +49,7 @@ class AuthenticationControllerUnitTests {
     @MockkBean
     lateinit var authProvider: UserAuthProvider
 
+    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @BeforeEach
@@ -61,8 +62,8 @@ class AuthenticationControllerUnitTests {
 
     @Test
     fun givenExistingUser_LoginReturnsOk() {
-        val user = UserDto(1, "a@b.com", "Max Mustermann", "musterpassword", "sampletokendefinvalid")
-        val login = LoginDTO("a@b.com", "musterpassword")
+        val user = DefaultEntityCreatorUtil().getUserDto()
+        val login = DefaultEntityCreatorUtil().getLoginDto()
 
         every { authService.authenticateUser(any<LoginDTO>()) } returns user
 

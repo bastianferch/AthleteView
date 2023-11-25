@@ -1,8 +1,8 @@
 package ase.athlete_view.unit
 
 import ase.athlete_view.domain.user.persistence.UserRepository
-import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
+import ase.athlete_view.util.DefaultEntityCreatorUtil
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -22,10 +22,9 @@ class AuthenticationServiceUnitTests {
     @Autowired
     private lateinit var userService: UserService
 
-    private val user = User(1, "a@b.com", "Max Mustermann", "musterpassword", "sampletokendefinvalid", "1337")
-
     @Test
     fun testUserRepo() {
+        val user = DefaultEntityCreatorUtil().getUser()
         every { userRepo.findByEmail("a@b.com") } returns user
 
         val usrData = userService.getByEmail("a@b.com")

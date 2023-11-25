@@ -1,16 +1,19 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
-import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.DefaultEntityCreatorUtil
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -21,22 +24,26 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AuthenticationControllerIntegrationTests: TestBase() {
     @Autowired
     private lateinit var restTemplate: MockMvc
 
     @Autowired
-    private lateinit var ur: UserRepository
-
-    @Autowired
     private lateinit var objectMapper: ObjectMapper
+
+    @BeforeEach
+    fun setupUser() {
+        super.createDefaultUserInDb()
+    }
 
     @Test
     fun loginWithCorrectCredentials_ShouldReturnOk() {
-        val login = LoginDTO("a@s.com", "asdf")
+        val login = DefaultEntityCreatorUtil().getLoginDto()
+
         restTemplate.perform(
             post("/api/auth/login")
-                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
                 .content(objectMapper.writeValueAsString(login))
