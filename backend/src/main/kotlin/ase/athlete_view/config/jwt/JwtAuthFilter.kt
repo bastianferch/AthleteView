@@ -21,14 +21,18 @@ class JwtAuthFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        log.info { "Entered JWT Section" }
         val header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        log.info { "Header value is '$header'"}
         if (header == null) {
+            logger.info { "Header not found..." }
             filterChain.doFilter(request, response)
             return;
         }
         val tokenParts = header.split(" ")
         if (tokenParts.size == 2 && "Bearer" == tokenParts[0]) {
             try {
+                log.info { "Attempting to authenticate" }
                 val auth = userAuthProvider.validateToken(tokenParts[1])
                 SecurityContextHolder.getContext().authentication = auth
                 // in this context we know, that the token is legit and not expired.

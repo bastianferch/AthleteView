@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 // TODO: Fix Repo
 @Repository
 interface ActivityRepository: JpaRepository<Activity, String> {
-    fun save(activity: Activity)
+    fun save(activity: Activity): Activity
 }

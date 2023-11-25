@@ -20,4 +20,7 @@ class Activity(
     private var fatigue: Int,
     private var fitData: String?,
 ) {
+    override fun toString(): String {
+        return "Activity(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, load=$load, fatigue=$fatigue, fitData=$fitData)"
+    }
 }
