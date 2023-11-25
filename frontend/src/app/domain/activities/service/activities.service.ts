@@ -12,10 +12,12 @@ export class ActivityService {
     private urlService: UrlService
   ) { }
 
-  importFitActivity(data: any) {
-    var url = this.urlService.getBackendUrl() + 'activity/import';
+  importFitActivity(data: File[]) {
+    var url = this.urlService.getBackendUrl() + 'activity/import'
     const formData = new FormData()
-    formData.append("files", data)
-    return this.httpClient.post(url, formData);
+    for (let item of data) {
+      formData.append("files", item)
+    }
+    return this.httpClient.post(url, formData)
   }
 }

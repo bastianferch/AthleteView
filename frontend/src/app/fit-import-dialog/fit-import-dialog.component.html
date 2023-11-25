@@ -1,13 +1,13 @@
 <h1 mat-dialog-title>Import .fit file</h1>
 <div mat-dialog-content class="dialog-content">
   <button mat-raised-button (click)="fileInput.click()" cdkFocusInitial>Choose File</button>
-  <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file">
+  <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file" multiple>
   <hr/>
   <ul>
-      <li *ngFor="let item of files;">item found</li>
+      <li *ngFor="let item of files;">{{item.name}}</li>
   </ul>
 </div>
 <div mat-dialog-actions class="dialog-footer">
   <button mat-button color="warn" (click)="handleCancel()">Cancel</button>
-  <button mat-button color="primary" [mat-dialog-close]="data.animal">Upload</button>
+  <button mat-button color="primary" [mat-dialog-close]="files">Upload</button>
 </div>

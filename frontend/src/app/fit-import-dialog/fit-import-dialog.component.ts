@@ -10,21 +10,21 @@ export class FitImportDialogComponent {
   constructor(public dialogRef: MatDialogRef<FitImportDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-  files: String[] = []
+  files: File[] = []
 
   // workaround for <input type='file'>
   onFileSelected(event: any): void {
     if (event.target.files[0] != null) {
-      this.files.push(event.target.files[0])
+      for (let item of event.target.files) {
+        let exists = this.files.filter(x => x.name == item.name)
+        if (exists.length == 0) {
+          this.files.push(item)
+        }
+      }
     }
-    console.log(`found total of ${this.files.length} files!`)
   }
 
   handleCancel(): void {
     this.dialogRef.close();
-  }
-
-  handleUpload(data: any) {
-    console.log('totally doing stuff')
   }
 }
