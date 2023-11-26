@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
-abstract class User(
+open class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long?,
