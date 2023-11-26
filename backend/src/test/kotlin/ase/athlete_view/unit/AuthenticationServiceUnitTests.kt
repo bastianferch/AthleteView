@@ -2,7 +2,7 @@ package ase.athlete_view.unit
 
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.util.DefaultEntityCreatorUtil
+import ase.athlete_view.util.UserCreator
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -24,11 +24,16 @@ class AuthenticationServiceUnitTests {
 
     @Test
     fun testUserRepo() {
-        val user = DefaultEntityCreatorUtil().getUser()
-        every { userRepo.findByEmail("a@b.com") } returns user
+        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getUser()
 
         val usrData = userService.getByEmail("a@b.com")
         verify(exactly = 1) { userRepo.findByEmail("a@b.com") }
-        assertThat(usrData).isEqualTo(user)
+
+        assertThat(usrData.id).isEqualTo(UserCreator.DEFAULT_USER_ID)
+        assertThat(usrData.email).isEqualTo(UserCreator.DEFAULT_USER_EMAIL)
+        assertThat(usrData.password).isEqualTo(UserCreator.DEFAULT_USER_PASSWORD)
+        assertThat(usrData.zip).isEqualTo(UserCreator.DEFAULT_USER_ZIP)
+        assertThat(usrData.country).isEqualTo(UserCreator.DEFAULT_USER_COUNTRY)
+        assertThat(usrData.name).isEqualTo(UserCreator.DEFAULT_USER_NAME)
     }
 }

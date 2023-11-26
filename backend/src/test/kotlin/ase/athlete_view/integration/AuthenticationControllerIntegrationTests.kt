@@ -1,11 +1,9 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
-import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.util.TestBase
-import ase.athlete_view.util.DefaultEntityCreatorUtil
+import ase.athlete_view.util.UserCreator
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +37,7 @@ class AuthenticationControllerIntegrationTests: TestBase() {
 
     @Test
     fun loginWithCorrectCredentials_ShouldReturnOk() {
-        val login = DefaultEntityCreatorUtil().getLoginDto()
+        val login = UserCreator.getLoginDto()
 
         restTemplate.perform(
             post("/api/auth/login")

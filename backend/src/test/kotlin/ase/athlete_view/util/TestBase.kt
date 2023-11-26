@@ -41,6 +41,6 @@ class TestBase {
     }
 
     protected fun createDefaultUserInDb() {
-        ur.save(DefaultEntityCreatorUtil().getUser())
+        ur.save(UserCreator.getUser())
     }
 }

@@ -7,7 +7,7 @@ import ase.athlete_view.domain.authentication.controller.AuthenticationControlle
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
-import ase.athlete_view.util.DefaultEntityCreatorUtil
+import ase.athlete_view.util.UserCreator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -62,11 +62,9 @@ class AuthenticationControllerUnitTests {
 
     @Test
     fun givenExistingUser_LoginReturnsOk() {
-        val user = DefaultEntityCreatorUtil().getUserDto()
-        val login = DefaultEntityCreatorUtil().getLoginDto()
+        every { authService.authenticateUser(any<LoginDTO>()) } returns UserCreator.getUserDto()
 
-        every { authService.authenticateUser(any<LoginDTO>()) } returns user
-
+        val login = UserCreator.getLoginDto()
         mockMvc.perform(
             post("/api/auth/login")
                 .with(csrf())
@@ -77,6 +75,7 @@ class AuthenticationControllerUnitTests {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(1))
+
         verify(exactly = 1) { authService.authenticateUser(login) }
     }
 }
