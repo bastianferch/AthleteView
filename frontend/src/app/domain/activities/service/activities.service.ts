@@ -4,18 +4,18 @@ import { UrlService } from "src/app/config/service/UrlService";
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActivityService {
   constructor(
     private httpClient: HttpClient,
-    private urlService: UrlService
+    private urlService: UrlService,
   ) { }
 
   importFitActivity(data: File[]) {
-    var url = this.urlService.getBackendUrl() + 'activity/import'
+    const url = this.urlService.getBackendUrl() + 'activity/import'
     const formData = new FormData()
-    for (let item of data) {
+    for (const item of data) {
       formData.append("files", item)
     }
     return this.httpClient.post(url, formData)

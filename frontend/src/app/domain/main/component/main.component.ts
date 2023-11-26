@@ -16,26 +16,29 @@ export class MainComponent {
     private dialog: MatDialog,
     private activityService: ActivityService) {
   }
+
   logout(): void {
     this.authService.logout()
     this.router.navigate(['/auth/login'])
   }
 
   openImportDialog(): void {
-    let dialogRef = this.dialog.open(FitImportDialogComponent, {
+    const dialogRef = this.dialog.open(FitImportDialogComponent, {
       width: "30%",
-      data: {}
+      data: {},
     });
 
     dialogRef.afterClosed().subscribe((files) => {
       if (files.length > 0) {
-        // TODO: notification service
         this.activityService.importFitActivity(files).subscribe({
           next: (data) => {
-            console.log("HTTP Call success! Data returned:")
-            console.log(data)
+            // console.log("HTTP Call success! Data returned:")
+            console.warn(data)
+
+            // TODO: notification service
+
           },
-          error: (err) => console.error
+          error: (err) => console.error(err),
         })
       }
     });
