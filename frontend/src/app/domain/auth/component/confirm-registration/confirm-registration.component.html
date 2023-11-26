@@ -1,0 +1,22 @@
+<div class="width-100 centered-column-container">
+  <div class="main-container">
+    <div *ngIf="success">
+      <h1 class="success-header">Awesome!</h1>
+      <mat-divider></mat-divider>
+      <div class="whitespace-tiny"></div>
+      <p>You successfully confirmed your account.</p>
+      <p>Now let's get this party started.</p>
+    </div>
+
+    <div *ngIf="isError">
+      <h1 class="failure-header">Dangit!</h1>
+      <mat-divider></mat-divider>
+      <div class="whitespace-tiny"></div>
+      <p> Confirming your mail didn't go as planned.</p>
+      <p>Let's try this one more time, shall we?</p>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="whitespace-tiny"></div>
+    <p>You'll be right back home in {{secondsLeft}} seconds.</p>
+  </div>
+</div>

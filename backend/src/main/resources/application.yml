@@ -7,8 +7,28 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+  mail:
+    host: mail.gmx.net
+    username: athlete.view@gmx.at
+    password: fjsdokfasojksfaojlsafjlkfsa
+    port: 587
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            protocols: TLSv1.2
 
 security:
   jwt:
     token:
       secret-key: very-very-secret-key-oh-yes-you-can-trust-me-i-know-hehe
+
+app:
+  scheduling:
+    enable: true
