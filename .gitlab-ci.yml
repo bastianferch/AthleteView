@@ -17,6 +17,8 @@ test-backend:
   stage: test
   services:
     - docker:dind
+  before_script:
+    - docker info
   script:
     - cd backend
     - mvn -B clean install
