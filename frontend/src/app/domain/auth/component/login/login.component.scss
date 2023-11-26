@@ -1,3 +1,10 @@
+@import "/src/app/style/color-palette";
+
 .forgot-password-container {
   margin-top: 2em;
+}
+
+#confirm-div{
+  background: $mat-accent-v1;
+  margin-bottom: 1rem;
 }

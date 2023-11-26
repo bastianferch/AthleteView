@@ -2,22 +2,36 @@
   <div class="width-100 centered-column-container">
     <div class="main-container">
       <h2>Login</h2>
-      <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input matInput placeholder="president@zuckerberg.com" required formControlName="email">
-        <mat-icon matSuffix>email</mat-icon>
-        <mat-error *ngIf="form.controls['email'].errors?.['required']">Field is required</mat-error>
-        <mat-error *ngIf="form.controls['email'].errors?.['invalidEmailPassword']">Wrong email or password</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Enter your password</mat-label>
-        <input matInput [type]="hide ? 'password' : 'text'" required formControlName="password">
-        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="hide" type="button">
-          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+      <div id="confirm-div" class="column-space-between pd-0p5 br-0p5" *ngIf="!isAccountActivated">
+        <span> Please confirm your account via email. </span>
+        <span> Send new email?
+          <button
+            class="stroked"
+            mat-stroked-button
+            color="accent"
+            (click)="sendConfirmLink()">
+            Send
         </button>
-        <mat-error *ngIf="form.controls['password'].errors">Field is required</mat-error>
-      </mat-form-field>
+        </span>
+      </div>
+      <div class="centered-column-container">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="president@zuckerberg.com" required formControlName="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="form.controls['email'].errors?.['required']">Field is required</mat-error>
+          <mat-error *ngIf="form.controls['email'].errors?.['invalidEmailPassword']">Wrong email or password</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Enter your password</mat-label>
+          <input matInput [type]="hide ? 'password' : 'text'" required formControlName="password">
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                  [attr.aria-pressed]="hide" type="button">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.controls['password'].errors">Field is required</mat-error>
+        </mat-form-field>
+      </div>
       <div class="">
         <button
           class="login-button stroked"
@@ -28,6 +42,9 @@
       </div>
       <div>
         If you have no account, click <a [routerLink]="'/auth/registration'">here</a> to register.
+      </div>
+      <div>
+        Forgot password, click <a [routerLink]="'/auth/email-recovery'">here</a> to reset.
       </div>
     </div>
   </div>

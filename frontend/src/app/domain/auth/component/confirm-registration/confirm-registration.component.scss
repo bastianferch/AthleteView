@@ -1,0 +1,16 @@
+@import "/src/app/style/color-palette";
+.success-header {
+  color: $mat-accent;
+}
+
+.failure-header {
+  color: $mat-warn;
+}
+
+.vertical-container {
+  padding-left: 10vw;
+}
+
+.absolute-bottom-container {
+  color: $muted;
+}
