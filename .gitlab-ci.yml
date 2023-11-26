@@ -16,7 +16,9 @@ stages:
 test-backend:
   stage: test
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: docker
+      command: ["dockerd"]
   before_script:
     - docker info
   script:
