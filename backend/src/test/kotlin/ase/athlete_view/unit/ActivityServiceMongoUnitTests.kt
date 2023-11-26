@@ -6,16 +6,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.test.context.ActiveProfiles
-import util.ContainerizedMongoTest
+import util.mongo.ContainerizedMongoTest
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.absolute
 
-//@SpringBootTest
-//@ActiveProfiles("test")
 @ContainerizedMongoTest
 class ActivityServiceMongoUnitTests {
     @Autowired

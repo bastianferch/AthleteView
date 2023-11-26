@@ -3,7 +3,6 @@ package ase.athlete_view.integration
 import ase.athlete_view.AthleteViewApplication
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
@@ -15,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import util.ContainerizedMongoTest
+import util.mongo.ContainerizedMongoTest
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.absolute
