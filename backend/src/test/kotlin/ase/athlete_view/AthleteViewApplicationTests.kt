@@ -1,10 +1,11 @@
 package ase.athlete_view
 
 import org.junit.jupiter.api.Test
-import util.mongo.ContainerizedMongoTest
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 
-//@SpringBootTest
-@ContainerizedMongoTest
+@SpringBootTest
+@ActiveProfiles("test")
 class AthleteViewApplicationTests {
 	@Test
 	fun contextLoads() {

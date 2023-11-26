@@ -1,6 +1,19 @@
 <section class="centered-column-container">
   <div class="main-container centered-row-container">
-    <form [formGroup]="form" (ngSubmit)="performRegistration()">
+    <form [formGroup]="form" (ngSubmit)="performRegistration()" class="centered-column-container">
+      <mat-radio-group
+        class="pd-0p5"
+        [ngModel]="userType"
+        (ngModelChange)="updateUserType($event)"
+        [ngModelOptions]="{standalone: true}">
+        <ng-container *ngFor="let type of ['athlete', 'trainer']">
+          <mat-radio-button
+            [value]="type">
+            {{type}}
+          </mat-radio-button>
+        </ng-container>
+      </mat-radio-group>
+
       <mat-form-field>
         <mat-label>Email</mat-label>
         <input matInput placeholder="hawara@oida.at" required formControlName="email">
@@ -14,27 +27,70 @@
 
       <mat-form-field>
         <mat-label>Enter your password</mat-label>
-        <input matInput [type]="hide ? 'password' : 'text'" required formControlName="password">
-        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="hide" type="button">
-          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" required formControlName="password">
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hidePassword" type="button">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
-        <mat-error *ngIf="form.controls['password'].errors">Field is required</mat-error>
+        <mat-error *ngIf="form.controls['password'].errors?.['required']">Field is required</mat-error>
+        <mat-error *ngIf="form.controls['password'].errors?.['minlength']">At least 8 characters</mat-error>
+        <mat-error *ngIf="form.controls['password'].errors?.['maxlength']">Maximum 255 characters</mat-error>
       </mat-form-field>
 
       <mat-form-field>
-        <mat-label>First name</mat-label>
+        <mat-label>Name</mat-label>
         <input matInput type="text" placeholder="John" required formControlName="name">
-        <mat-icon matSuffix>account_circle</mat-icon>
+        <mat-error *ngIf="form.controls.name.errors?.['maxlength']">Maximum 255 characters</mat-error>
       </mat-form-field>
+
+      <div class="centered-row-container column-gap-1 width-20">
+        <mat-form-field>
+          <mat-label>Country</mat-label>
+          <input matInput type="text" placeholder="Austria" formControlName="country">
+          <mat-error *ngIf="form.controls.country.errors?.['maxlength']">Maximum 255 characters</mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-10">
+          <mat-label>Zip</mat-label>
+          <input matInput type="text" placeholder="Austria" formControlName="zip">
+          <mat-error *ngIf="form.controls.zip.errors?.['maxlength']">Maximum 255 characters</mat-error>
+        </mat-form-field>
+      </div>
+
+      <ng-container *ngIf="userType === 'athlete'">
+        <mat-form-field class="">
+          <input required matInput [matDatepicker]="picker" [placeholder]="'Date of birth*'" formControlName="dob">
+          <mat-hint>DD/MM/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="form.controls.dob.errors?.['old']">User has to be at least 16 years old.</mat-error>
+          <mat-error *ngIf="form.controls.dob.errors?.['invalid_dob']">Date not valid.</mat-error>
+        </mat-form-field>
+
+        <div class="centered-row-container column-gap-1">
+          <mat-form-field class="width-9">
+            <mat-label>Height (m)</mat-label>
+            <input matInput type="number" formControlName="height" [step]="0.1">
+            <mat-error *ngIf="form.controls.height.errors?.['positive']">Height > 0</mat-error>
+            <mat-error *ngIf="form.controls.height.errors?.['max']">Height is too high</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="width-9">
+            <mat-label>Weight (kg)</mat-label>
+            <input matInput type="number" formControlName="weight">
+            <mat-error *ngIf="form.controls.weight.errors?.['positive']">Weight > 0</mat-error>
+            <mat-error *ngIf="form.controls.height.errors?.['max']">Weight is too high</mat-error>
+          </mat-form-field>
+        </div>
+      </ng-container>
 
       <div class="centered-container">
         <div>
-          <mat-checkbox (click)="acceptedTerms = !acceptedTerms" color="">I agree to the&nbsp;</mat-checkbox>
-          <a style="display: inline-block; transform: translateY(-3.15px)" target="_blank"
-             href="https://www.whatsapp.com/legal/?lang=de"><u>terms and conditions</u></a>
+          <mat-checkbox
+            (change)="acceptedTerms = !acceptedTerms">I agree to the
+            <button mat-stroked-button color="primary" type="button" (click)="openLegalDialog()">terms and conditions*
+            </button>
+          </mat-checkbox>
         </div>
-
         <div class="whitespace-tiny"></div>
 
         <!-- REGISTER BUTTON -->
