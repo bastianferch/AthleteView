@@ -4,10 +4,6 @@ cache:
   paths:
     - .m2
 
-services:
-  - name: docker:dind
-    command: ["--tls=false"]
-
 variables:
   GIT_STRATEGY: "clone"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2"
@@ -25,6 +21,8 @@ stages:
 
 test-backend:
   stage: test
+  services:
+    - name: docker:dind
   script:
     - cd backend
     - mvn -B clean install
