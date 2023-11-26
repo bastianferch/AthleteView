@@ -15,17 +15,19 @@ class UserCreator {
         const val DEFAULT_USER_COUNTRY: String  = "Austria"
 
         fun getUserDto(): UserDto {
-            return UserDto(DEFAULT_USER_ID, DEFAULT_USER_NAME,
-                DEFAULT_USER_EMAIL, DEFAULT_USER_PASSWORD, DEFAULT_TOKEN_VALUE)
+            return UserDto(id = DEFAULT_USER_ID, name = DEFAULT_USER_NAME,
+                email = DEFAULT_USER_EMAIL, password = DEFAULT_USER_PASSWORD,
+                token = DEFAULT_TOKEN_VALUE)
         }
 
         fun getUser(): User {
-            return User(DEFAULT_USER_ID, DEFAULT_USER_EMAIL,
-                DEFAULT_USER_NAME, DEFAULT_USER_PASSWORD, DEFAULT_USER_COUNTRY, DEFAULT_USER_ZIP)
+            return User(id = DEFAULT_USER_ID, email = DEFAULT_USER_EMAIL,
+                name = DEFAULT_USER_NAME, password = DEFAULT_USER_PASSWORD,
+                country = DEFAULT_USER_COUNTRY, zip = DEFAULT_USER_ZIP)
         }
 
         fun getLoginDto(): LoginDTO {
-            return LoginDTO(DEFAULT_USER_EMAIL, DEFAULT_USER_PASSWORD)
+            return LoginDTO(email = DEFAULT_USER_EMAIL, password = DEFAULT_USER_PASSWORD)
         }
     }
 }

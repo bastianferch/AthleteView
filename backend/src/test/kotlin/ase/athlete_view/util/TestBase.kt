@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
@@ -24,6 +25,7 @@ class TestBase {
     private lateinit var ur: UserRepository
 
     private val logger = KotlinLogging.logger {}
+    private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @BeforeEach
     fun setupDb() {
@@ -41,6 +43,9 @@ class TestBase {
     }
 
     protected fun createDefaultUserInDb() {
-        ur.save(UserCreator.getUser())
+        val user = UserCreator.getUser()
+        user.password = encoder.encode(user.password)
+        user.isConfirmed = true
+        ur.save(user)
     }
 }
