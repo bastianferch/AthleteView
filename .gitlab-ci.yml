@@ -22,7 +22,7 @@ stages:
 test-backend:
   stage: test
   services:
-    - name: docker:dind
+    - name: docker:latest
   script:
     - cd backend
     - mvn -B clean install
