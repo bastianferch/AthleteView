@@ -4,9 +4,19 @@ cache:
   paths:
     - .m2
 
+services:
+  - name: docker:dind
+    command: ["--tls=false"]
+
 variables:
   GIT_STRATEGY: "clone"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2"
+  # Instruct Testcontainers to use the daemon of DinD, use port 2375 for non-tls connections.
+  DOCKER_HOST: "tcp://docker:2375"
+  # Instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  # Improve performance with overlayfs.
+  DOCKER_DRIVER: overlay2
 
 stages:
   - test
@@ -15,12 +25,6 @@ stages:
 
 test-backend:
   stage: test
-  services:
-    - name: docker:dind
-      alias: docker
-      command: ["dockerd"]
-  before_script:
-    - docker info
   script:
     - cd backend
     - mvn -B clean install
