@@ -141,6 +141,13 @@ export class IntervalContainerComponent implements OnInit {
   }
 
 
+  // TODO look for better workaround and look how to edit injected data
+  manuallyLoadInterval(interval:Interval) {
+    if (this.interval !== undefined) {
+      this.interval = Object.assign({}, interval);
+    }
+  }
+
   addInterval(newInterval?: Interval) {
 
     if (!newInterval) {

@@ -8,7 +8,7 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
-class PlannedActivity(
+data class PlannedActivity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
@@ -16,7 +16,7 @@ class PlannedActivity(
     val type: ActivityType,
 
     @OneToOne
-    val interval: Interval,
+    var interval: Interval,
 
     val withTrainer: Boolean,
 

@@ -15,14 +15,14 @@ class Step(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
-    val type: StepType?,
-    val durationType: StepDurationType?,
-    val durationDistance: Int?,
-    val durationDistanceUnit: StepDurationDistanceUnit?,
-    val targetType: StepTargetType?,
-    val targetFrom: Int?,
-    val targetTo: Int?,
-    val note: String?
+    var type: StepType?,
+    var durationType: StepDurationType?,
+    var durationDistance: Int?,
+    var durationDistanceUnit: StepDurationDistanceUnit?,
+    var targetType: StepTargetType?,
+    var targetFrom: Int?,
+    var targetTo: Int?,
+    var note: String?
 ) {
     fun toDTO(): StepDTO {
         return StepDTO(

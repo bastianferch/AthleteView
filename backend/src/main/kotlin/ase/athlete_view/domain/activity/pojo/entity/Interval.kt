@@ -4,18 +4,19 @@ import ase.athlete_view.domain.activity.pojo.dto.IntervalDTO
 import jakarta.persistence.*
 
 @Entity
+@Table(name = "ActivityInterval")
 class Interval(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
 
-    val repeat: Int,
+    var repeat: Int,
 
     @OneToMany
-    val intervals: List<Interval>?,
+    var intervals: List<Interval>?,
 
     @OneToOne
-    val step: Step?
+    var step: Step?
 ) {
     fun toDTO(): IntervalDTO {
         return IntervalDTO(id, repeat, intervals?.toDTOList(), step?.toDTO())

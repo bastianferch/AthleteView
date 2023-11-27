@@ -15,6 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from "@angular/material/icon";
 
 
 const routes: Routes = [
@@ -26,7 +27,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [ActivityComponent, CreateEditViewActivityComponent],
-  imports: [RouterModule.forChild(routes), IntervalModule, MatFormFieldModule, MatSelectModule, NgForOf, FormsModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatDatepickerModule, MatNativeDateModule, NgIf, ReactiveFormsModule],
+  imports: [RouterModule.forChild(routes), IntervalModule, MatFormFieldModule, MatSelectModule, NgForOf, FormsModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatDatepickerModule, MatNativeDateModule, NgIf, ReactiveFormsModule, MatIconModule],
   exports: [RouterModule],
 })
 export class ActivityModule {

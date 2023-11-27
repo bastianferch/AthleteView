@@ -1,5 +1,6 @@
 package ase.athlete_view.unit.activity
 
+import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
@@ -11,14 +12,16 @@ import ase.athlete_view.domain.user.pojo.entity.Trainer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.time.LocalDate
 
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ActivityServiceUnitTests {
 
 
@@ -29,85 +32,32 @@ class ActivityServiceUnitTests {
     private lateinit var activityService: ActivityService
 
     private var athlete = Athlete(
-        id = null,
-        email = "athlete@example.com",
-        name = "Athlete Name",
-        password = "athletepassword",
-        country = "Athlete Country",
-        zip = "54321",
-        dob = LocalDate.of(1990, 5, 15), // Date of birth (YYYY, MM, DD)
-        height = 175.5, // Height in centimeters or any suitable unit
-        weight = 70.5f // Weight in kilograms or any suitable unit
+        null, "athlete@example.com", "Athlete Name", "athletepassword",
+        "Athlete Country", "54321", LocalDate.of(1990, 5, 15), 175.5, 70.5f
     )
 
-    private var trainer = Trainer(
-        id = null,
-        email = "test@example.com",
-        name = "John Doe",
-        password = "secretpassword",
-        country = "CountryName",
-        zip = "12345"
-    )
+    private var trainer = Trainer(null, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345")
 
     // Create a test object for Step class
-    private val step = Step(
-        id = null,
-        type = StepType.ACTIVE,
-        durationType = StepDurationType.DISTANCE,
-        durationDistance = 30,
-        durationDistanceUnit = StepDurationDistanceUnit.KM,
-        targetType = StepTargetType.CADENCE,
-        targetFrom = 100,
-        targetTo = 200,
-        note = "Sample step note"
-    )
+    private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+        StepTargetType.CADENCE, 100, 200, "Sample step note")
 
 
     // Create a test object for Interval class
+    val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval( null, 1, null, step)), null)), null)
 
-    val wrapperInterval = Interval(
-        id = null,
-        repeat = 1,
-        intervals = listOf(
-            Interval(
-                id = null,
-                repeat = 2,
-                intervals = listOf(
-                    Interval(
-                        id = null,
-                        repeat = 1,
-                        intervals = null,
-                        step = step
-                    )
-                ),
-                step = null
-            )
-        ),
-        step = null
-    )
-
-    // Create a test object for PlannedActivity class
-    val plannedActivity = PlannedActivity(
-        id = null,
-        type = ActivityType.RUN,
-        interval = wrapperInterval,
-        withTrainer = false,
-        template = false,
-        note = "Sample planned activity",
-        date = LocalDate.now().plusDays(5),
-        createdBy = trainer,
-        createdFor = null,
-    )
+    val plannedActivity = PlannedActivity(null, ActivityType.RUN, interval, false, false,
+        "Sample planned activity", LocalDate.now().plusDays(5), trainer, null,)
 
     @BeforeEach
     fun setup() {
-        athlete = this.userRepo.save(athlete)
-        userRepo.save(trainer)
+        athlete = userRepo.save(athlete)
+        trainer = userRepo.save(trainer)
     }
-    //should work
+
     @Test
     fun createValidPlannedActivity_ShouldReturnCategory() {
-        val newPlannedActivity = activityService.createPlannedActivity(plannedActivity, trainer.toUserDto())
+        val newPlannedActivity = activityService.createPlannedActivity(plannedActivity)
         assertAll(
             { assert(newPlannedActivity.id != null) },
             { assert(newPlannedActivity.type == plannedActivity.type) },
@@ -120,6 +70,16 @@ class ActivityServiceUnitTests {
             { assert(newPlannedActivity.createdFor == plannedActivity.createdFor) }
         )
     }
+
+    @Test
+    fun createPlannedActivityWithInvalidType_ShouldThrowValidationException() {
+        val invalidPlannedActivity = plannedActivity.copy(date= LocalDate.now().minusDays(5))
+        assertThrows<ValidationException> {
+            activityService.createPlannedActivity(invalidPlannedActivity)
+        }
+
+    }
+
 
 
 }

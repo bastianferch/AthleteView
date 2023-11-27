@@ -1,6 +1,7 @@
 package ase.athlete_view.domain.activity.service.validator
 
 import ase.athlete_view.common.exception.entity.ForbiddenException
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
@@ -14,17 +15,9 @@ import java.time.LocalDate
 class ActivityValidator {
 
 
-    fun validatePlannedActivity(plannedActivity: PlannedActivity, principalID: Long?) {
+    fun validateNewPlannedActivity(plannedActivity: PlannedActivity) {
         val validationErrors: MutableList<String> = ArrayList()
 
-
-        if (principalID == null) {
-            throw(ForbiddenException("You are not logged in"))
-        }
-
-        if (plannedActivity.createdBy.id != principalID) {
-            throw(ForbiddenException("Your ID does not match the ID of the creator of the activity"))
-        }
 
         if (plannedActivity.template) {
             if (plannedActivity.date != null) {
@@ -41,15 +34,26 @@ class ActivityValidator {
         }
 
         if (plannedActivity.interval.intervals?.isNotEmpty() == true) {
-            getDepth(plannedActivity.interval.intervals, 0)
-            plannedActivity.interval.intervals.forEach { validateInterval(it, validationErrors) }
+            getDepth(plannedActivity.interval.intervals!!, 0)
+            plannedActivity.interval.intervals!!.forEach { validateInterval(it, validationErrors) }
         }
         if (plannedActivity.interval.step != null) {
-            validateStep(plannedActivity.interval.step, validationErrors)
+            validateStep(plannedActivity.interval.step!!, validationErrors)
         }
         if (validationErrors.isNotEmpty()) {
             throw ValidationException("Validation of planned Activity failed $validationErrors")
         }
+    }
+
+    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity){
+        if(plannedActivity.createdBy.id != oldPlannedActivity.createdBy.id){
+            throw ForbiddenException("You are not allowed to change the creator of the planned activity")
+        }
+        if(plannedActivity.id != oldPlannedActivity.id){
+            throw NotFoundException("Planned Activity not found")
+        }
+
+        validateNewPlannedActivity(plannedActivity)
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
@@ -93,20 +97,20 @@ class ActivityValidator {
             }
         }
         if (step.targetFrom != null) {
-            if (step.targetFrom < 0) {
+            if (step.targetFrom!! < 0) {
                 validationErrors.add("Target from must be greater than 0")
             }
             if (step.targetTo == null) {
                 validationErrors.add("Target to must be set if target from is set")
             }
             if (step.targetTo != null) {
-                if (step.targetFrom > step.targetTo) {
+                if (step.targetFrom!! > step.targetTo!!) {
                     validationErrors.add("Target from must be smaller than target to")
                 }
             }
         }
         if (step.targetTo != null) {
-            if (step.targetTo < 0) {
+            if (step.targetTo!! < 0) {
                 validationErrors.add("Target to must be greater than 0")
             }
             if (step.targetFrom == null) {
@@ -125,7 +129,7 @@ class ActivityValidator {
         }
         intervals.forEach {
             if (it.intervals?.isNotEmpty() == true) {
-                getDepth(it.intervals, i + 1)
+                getDepth(it.intervals!!, i + 1)
             }
         }
     }

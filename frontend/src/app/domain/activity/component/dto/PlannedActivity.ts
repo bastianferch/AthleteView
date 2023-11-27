@@ -1,4 +1,9 @@
-import { convertToIntervalSplit, Interval, IntervalSplit } from '../../../../common/interval/dto/Interval';
+import {
+  convertToInterval,
+  convertToIntervalSplit,
+  Interval,
+  IntervalSplit,
+} from '../../../../common/interval/dto/Interval';
 import { Athlete } from "../../../user/dto/Athlete";
 import { User } from "../../../user/dto/User";
 
@@ -47,6 +52,20 @@ export function convertToPlannedActivitySplit(plannedActivity: PlannedActivity):
     id: plannedActivity.id,
     type: plannedActivity.type,
     interval: convertToIntervalSplit(plannedActivity.interval),
+    withTrainer: plannedActivity.withTrainer,
+    template: plannedActivity.template,
+    note: plannedActivity.note,
+    date: plannedActivity.date,
+    createdBy: plannedActivity.createdBy,
+    createdFor: plannedActivity.createdFor,
+  };
+}
+
+export function convertToPlannedActivity(plannedActivity: PlannedActivitySplit): PlannedActivity {
+  return {
+    id: plannedActivity.id,
+    type: plannedActivity.type,
+    interval: convertToInterval(plannedActivity.interval),
     withTrainer: plannedActivity.withTrainer,
     template: plannedActivity.template,
     note: plannedActivity.note,
