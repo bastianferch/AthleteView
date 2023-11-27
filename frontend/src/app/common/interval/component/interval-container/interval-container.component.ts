@@ -145,6 +145,7 @@ export class IntervalContainerComponent implements OnInit {
   manuallyLoadInterval(interval:Interval) {
     if (this.interval !== undefined) {
       this.interval = Object.assign({}, interval);
+      this.addIdToInterval(this.interval);
     }
   }
 

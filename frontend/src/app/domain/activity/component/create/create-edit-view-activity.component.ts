@@ -1,19 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  ActivityNameMapper,
-  ActivityType,
-  convertToPlannedActivity,
-  convertToPlannedActivitySplit,
-  PlannedActivity,
-} from '../dto/PlannedActivity';
+import { ActivityNameMapper, ActivityType, convertToPlannedActivity, convertToPlannedActivitySplit, PlannedActivity } from '../dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
 import { User } from "../../../user/dto/User";
-import {
-  IntervalContainerComponent,
-} from "../../../../common/interval/component/interval-container/interval-container.component";
+import { IntervalContainerComponent } from "../../../../common/interval/component/interval-container/interval-container.component";
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -82,6 +74,7 @@ export class CreateEditViewActivityComponent implements OnInit {
     this.setUser();
   }
 
+  // TODO add routing after save (after other components are done)
   save(): void {
     const planned = convertToPlannedActivitySplit(this.plannedActivity);
     if (planned !== undefined) {
