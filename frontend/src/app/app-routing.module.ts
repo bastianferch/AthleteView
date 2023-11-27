@@ -6,7 +6,7 @@ import { LegalInformationComponent } from "./domain/user/component/legal-informa
 const routes: Routes = [
   { path: '', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/home/module/home.module').then((m) => m.HomeModule) },
-  { path: 'activity', canActivate: [authGuard],
+  { path: 'activity', canActivate: [authGuard], // TODO bugfix for not redirecting to login page
     loadChildren: () => import('src/app/domain/activity/module/activity.module').then((m) => m.ActivityModule) },
   { path: 'calendar', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },

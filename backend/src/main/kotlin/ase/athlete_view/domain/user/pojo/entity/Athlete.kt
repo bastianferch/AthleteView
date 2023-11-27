@@ -38,7 +38,8 @@ class Athlete(
             zip,
             dob,
             height,
-            weight
+            weight,
+            trainer?.toDto()
         )
     }
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ActivityNameMapper, ActivityType, convertToPlannedActivity, convertToPlannedActivitySplit, PlannedActivity } from '../dto/PlannedActivity';
+import { ActivityNameMapper, ActivityType, convertToPlannedActivity, convertToPlannedActivitySplit, PlannedActivity } from '../../dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';

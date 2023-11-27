@@ -3,9 +3,9 @@ import {
   convertToIntervalSplit,
   Interval,
   IntervalSplit,
-} from '../../../../common/interval/dto/Interval';
-import { Athlete } from "../../../user/dto/Athlete";
-import { User } from "../../../user/dto/User";
+} from '../../../common/interval/dto/Interval';
+import { Athlete } from "../../user/dto/Athlete";
+import { User } from "../../user/dto/User";
 
 export interface PlannedActivity {
   id: number;

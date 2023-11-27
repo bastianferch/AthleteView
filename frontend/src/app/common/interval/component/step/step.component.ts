@@ -9,7 +9,7 @@ import {
 import { EditStepDialogComponent } from "../edit-step-dialog/edit-step-dialog.component";
 import { MatDialog } from "@angular/material/dialog"
 import { IntervalService } from "../../service/interval.service";
-import { ActivityNameMapper, ActivityType } from "../../../../domain/activity/component/dto/PlannedActivity";
+import { ActivityNameMapper, ActivityType } from "../../../../domain/activity/dto/PlannedActivity";
 @Component({
   selector: 'app-step',
   templateUrl: './step.component.html',

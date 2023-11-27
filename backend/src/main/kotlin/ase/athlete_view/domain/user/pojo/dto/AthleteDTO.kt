@@ -7,11 +7,12 @@ class AthleteDTO (
     var id: Long?,
     var email: String,
     var name: String,
-    var country: String,
-    var zip: String,
+    var country: String?,
+    var zip: String?,
     var dob: LocalDate,
-    var height: Double,
-    var weight: Float
+    var height: Int,
+    var weight: Int,
+    var trainer: TrainerDTO?
 ){
     fun toEntity(): Athlete {
         return Athlete(
@@ -23,7 +24,8 @@ class AthleteDTO (
             zip,
             dob,
             height,
-            weight
+            weight,
+            trainer?.toEntity()
         )
     }
 }

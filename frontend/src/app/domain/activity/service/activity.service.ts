@@ -1,4 +1,4 @@
-import { PlannedActivitySplit } from '../component/dto/PlannedActivity';
+import { PlannedActivitySplit } from '../dto/PlannedActivity';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';

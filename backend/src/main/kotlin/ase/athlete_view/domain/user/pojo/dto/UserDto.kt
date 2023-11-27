@@ -11,7 +11,7 @@ class UserDto(
     var token: String?,
 ) {
     fun toEntity(): User {
-        return Trainer(id, email, name, "", "", "")
+        return Trainer(id, email, name, "", "", "","")
     }
 
     override fun toString(): String {

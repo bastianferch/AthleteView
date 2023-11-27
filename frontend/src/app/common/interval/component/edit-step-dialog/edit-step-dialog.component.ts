@@ -16,7 +16,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
 import { IntervalService } from "../../service/interval.service";
-import { ActivityNameMapper, ActivityType } from "../../../../domain/activity/component/dto/PlannedActivity";
+import { ActivityNameMapper, ActivityType } from "../../../../domain/activity/dto/PlannedActivity";
 
 @Component({
   selector: 'app-edit-step-dialog',
