@@ -16,8 +16,9 @@ open class User(
 
     open var name: String,
     open var password: String,
-    open var country: String,
-    open var zip: String,
+    open var country: String?,
+    open var zip: String?,
+    var isConfirmed: Boolean = false
 ) {
     open fun toUserDto(): UserDto {
         return UserDto(

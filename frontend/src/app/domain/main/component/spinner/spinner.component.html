@@ -1,0 +1,29 @@
+<div *ngIf="isActive"
+     style="position: inherit"
+     [ngSwitch]="type"
+     class="spinner-container centered-row-container">
+  <!-- eslint-disable -->
+  <div (click)="changeType()" class="spinner-wrapper">
+    <svg *ngSwitchCase="'ring-rounded'" class="spinner-ring-rounded" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+    </svg>
+
+    <div *ngSwitchCase="'ring'" class="spinner-ring">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <div *ngSwitchCase="'ripple'" class="spinner-ripple">
+      <div></div>
+      <div></div>
+    </div>
+
+    <div *ngSwitchCase="'stripes'" class="spinner-stripes">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>

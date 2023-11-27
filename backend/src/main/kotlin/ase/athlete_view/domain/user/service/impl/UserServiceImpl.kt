@@ -4,15 +4,20 @@ import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
-import lombok.RequiredArgsConstructor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-@RequiredArgsConstructor
 class UserServiceImpl(private val userRepository: UserRepository) : UserService {
+    @Transactional
     override fun save(user: User): User {
-        return this.userRepository.save(user);
+        return this.userRepository.save(user)
+    }
+
+    @Transactional
+    override fun saveAll(users: List<User>): List<User> {
+        return this.userRepository.saveAll(users)
     }
 
     override fun getByEmail(string: String): User {

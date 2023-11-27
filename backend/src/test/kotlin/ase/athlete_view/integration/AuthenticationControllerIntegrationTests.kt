@@ -1,36 +1,54 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
-import ase.athlete_view.domain.authentication.dto.LoginDTO
-import ase.athlete_view.domain.user.pojo.dto.UserDto
 import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.UserCreator
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 
 @SpringBootTest(
     classes = [AthleteViewApplication::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AuthenticationControllerIntegrationTests: TestBase() {
     @Autowired
-    private lateinit var restTemplate: TestRestTemplate
+    private lateinit var restTemplate: MockMvc
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
+    @BeforeEach
+    fun setupUser() {
+        super.createDefaultUserInDb()
+    }
 
     @Test
     fun loginWithCorrectCredentials_ShouldReturnOk() {
-        val login = LoginDTO("a@s.com", "asdf")
-        val result = restTemplate.postForEntity("/api/auth/login", login, UserDto::class.java)
+        val login = UserCreator.getLoginDto()
 
-        assert(result != null)
-        assert(HttpStatus.OK == result?.statusCode)
-        assert(result?.hasBody() == true)
-        val dto = result?.body
-        assert(dto?.email == "a@s.com")
-        assert(dto?.password == "asdf")
-        assert(dto?.token != null)
-        assert(dto?.id != null)
+        restTemplate.perform(
+            post("/api/auth/login")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(login))
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isNotEmpty)
     }
 }
