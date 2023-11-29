@@ -21,40 +21,49 @@
     </button>
   </div>
 </div>
-<div class="bottom-container">
-  <div class="width-65 interval-container">
-    <app-interval-container (changeInterval)="handleChange($event)" [editable]="mode!==ActivityCreateEditViewMode.details"
-                            [activityType]="plannedActivity.type" [inputInterval]="plannedActivity.interval"></app-interval-container>
+
+<fieldset [disabled]="mode===ActivityCreateEditViewMode.details">
+  <div class="bottom-container">
+    <div class="width-65 interval-container">
+      <app-interval-container (changeInterval)="handleChange($event)" [editable]="mode!==ActivityCreateEditViewMode.details"
+                              [activityType]="plannedActivity.type" [inputInterval]="plannedActivity.interval"></app-interval-container>
+    </div>
+    <div class="width-32 side-container">
+      <div class="note-container">
+        <h1>Note</h1>
+        <mat-form-field class="note" appearance="outline">
+          <textarea matInput [(ngModel)]="plannedActivity.note" style="height: 150px; max-height: 250px"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="checkbox-container">
+        <mat-form-field class="dense-2" appearance="outline" style="width:9rem">
+          <a>Template?
+            <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" name="template"></mat-checkbox>
+            <input matInput style="width:0 !important"></a>
+        </mat-form-field>
+        <mat-form-field class="dense-2" appearance="outline" style="width:10rem">
+          <a>With Trainer?
+            <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.withTrainer"></mat-checkbox>
+            <input matInput style="width:0 !important"></a>
+        </mat-form-field>
+      </div>
+      <div *ngIf="!plannedActivity.template">
+        <mat-form-field appearance="outline">
+          <mat-label>Choose a training date and time</mat-label>
+          <input matInput type="datetime-local" [(ngModel)]="plannedActivity.date" placeholder="">
+        </mat-form-field>
+      </div>
+    </div>
   </div>
-  <div class="width-32 side-container">
-    <div class="note-container">
-      <h1>Note</h1>
-      <mat-form-field class="note" appearance="outline">
-        <textarea matInput [(ngModel)]="plannedActivity.note" style="height: 150px; max-height: 250px"></textarea>
-      </mat-form-field>
-    </div>
-    <div class="checkbox-container">
-      <mat-form-field class="dense-2" appearance="outline" style="width:9rem">
-        <a>Template?
-          <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" name="template"></mat-checkbox>
-          <input matInput style="width:0 !important"></a>
-      </mat-form-field>
-      <mat-form-field class="dense-2" appearance="outline" style="width:10rem">
-        <a>With Trainer?
-          <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.withTrainer"></mat-checkbox>
-          <input matInput style="width:0 !important"></a>
-      </mat-form-field>
-    </div>
-    <div *ngIf="!plannedActivity.template">
-      <mat-form-field appearance="outline">
-        <mat-label>Choose a training date and time</mat-label>
-        <input matInput type="datetime-local" [(ngModel)]="plannedActivity.date" placeholder="">
-      </mat-form-field>
-    </div>
-  </div>
-</div>
-<div style="display: flex; justify-content: flex-end; width: 100%">
-  <button mat-flat-button color="primary" class="mg-0p275" (click)="save()">Save Workout</button>
-  <button mat-stroked-button color="primary" class="mg-0p275">Cancel</button>
+</fieldset>
+
+
+<div
+  *ngIf="mode === ActivityCreateEditViewMode.edit || mode === ActivityCreateEditViewMode.create"
+  style="display: flex; justify-content: flex-end; width: 100%">
+  <button mat-flat-button color="primary" class="mg-0p275" (click)="save()">
+    Save Workout
+  </button>
+  <button mat-stroked-button color="primary" class="mg-0p275" (click)="redirectBack()">Cancel</button>
 </div>
 

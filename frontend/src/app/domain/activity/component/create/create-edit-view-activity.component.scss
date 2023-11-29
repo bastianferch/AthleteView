@@ -21,6 +21,12 @@
   min-width: 300px;
 }
 
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 @media screen and (max-width: 900px) {
   .interval-container{
     width: 100%;

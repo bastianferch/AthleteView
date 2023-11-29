@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ActivityNameMapper, ActivityType, convertToPlannedActivity, convertToPlannedActivitySplit, PlannedActivity } from '../../dto/PlannedActivity';
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
 import { User } from "../../../user/dto/User";
 import { IntervalContainerComponent } from "../../../../common/interval/component/interval-container/interval-container.component";
+import { Location } from '@angular/common';
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -56,7 +57,13 @@ export class CreateEditViewActivityComponent implements OnInit {
     }
   }
 
-  constructor(private route: ActivatedRoute, private activityService: ActivityService, private snackbarService: SnackbarService, private changeDetector: ChangeDetectorRef) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private activityService: ActivityService,
+    private snackbarService: SnackbarService,
+    private changeDetector: ChangeDetectorRef,
+    private location: Location) {
     this.activityMapper = ActivityNameMapper;
   }
 
@@ -76,11 +83,22 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   // TODO add routing after save (after other components are done)
   save(): void {
-    const planned = convertToPlannedActivitySplit(this.plannedActivity);
+    let planned = convertToPlannedActivitySplit(this.plannedActivity);
+    planned = this.activityService.postProcessActivity(planned);
+
+    const isValid = this.activityService.validateActivity(planned)
+    if (!isValid) {
+      return;
+    }
+
     if (planned !== undefined) {
       if (this.mode === ActivityCreateEditViewMode.create) {
         this.activityService.createPlannedActivity(planned).subscribe({
-          next: () => this.snackbarService.openSnackBar("Activity successfully created "),
+          next: (savedActivity) => {
+            this.snackbarService.openSnackBar("Activity successfully created ")
+            // redirect to the newly created activity
+            this.redirectToActivity(savedActivity.id);
+          },
           error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
         });
       } else if (this.mode === ActivityCreateEditViewMode.edit) {
@@ -98,7 +116,21 @@ export class CreateEditViewActivityComponent implements OnInit {
     this.plannedActivity.interval = interval;
   }
 
+  redirectBack() {
+    // TODO check if we want to navigate somewhere else
+    //  and maybe do some cleanup?
+    this.location.back();
+    // this.router.navigateByUrl("/");
+  }
+
+  redirectToActivity(id: number) {
+    // TODO check if we want to navigate somewhere else
+    //  and maybe do some cleanup?
+    this.router.navigateByUrl(`/activity/${id}`);
+  }
+
   private setUser() {
+    // TODO security risk. Users can just edit this in the local storage
     this.currentUser.id = parseInt(localStorage.getItem("user_id"), 10);
     this.currentUser.name = "";
     this.currentUser.email = "";
