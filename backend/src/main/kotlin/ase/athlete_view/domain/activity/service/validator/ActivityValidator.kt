@@ -6,6 +6,7 @@ import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import java.time.LocalDate
@@ -13,6 +14,7 @@ import java.time.LocalDate
 @Service
 @Validated
 class ActivityValidator {
+    val log = KotlinLogging.logger {}
 
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity) {
@@ -35,6 +37,7 @@ class ActivityValidator {
 
         if (plannedActivity.interval.intervals?.isNotEmpty() == true) {
             getDepth(plannedActivity.interval.intervals!!, 0)
+            validateInterval(plannedActivity.interval, validationErrors)
             plannedActivity.interval.intervals!!.forEach { validateInterval(it, validationErrors) }
         }
         if (plannedActivity.interval.step != null) {
@@ -45,11 +48,11 @@ class ActivityValidator {
         }
     }
 
-    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity){
-        if(plannedActivity.createdBy.id != oldPlannedActivity.createdBy.id){
+    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity) {
+        if (plannedActivity.createdBy.id != oldPlannedActivity.createdBy.id) {
             throw ForbiddenException("You are not allowed to change the creator of the planned activity")
         }
-        if(plannedActivity.id != oldPlannedActivity.id){
+        if (plannedActivity.id != oldPlannedActivity.id) {
             throw NotFoundException("Planned Activity not found")
         }
 
@@ -57,8 +60,11 @@ class ActivityValidator {
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
-        if (interval.step != null && interval.intervals?.isNotEmpty() == true) {
-            validationErrors.add("Step and intervals cannot be set at the same time")
+        log.info("Validating interval $interval") // TODO remove
+        if (interval.intervals != null) {
+            if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
+                validationErrors.add("Step and intervals cannot be set at the same time")
+            }
         }
     }
 

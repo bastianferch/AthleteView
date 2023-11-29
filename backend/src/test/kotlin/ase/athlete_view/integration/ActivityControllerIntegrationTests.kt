@@ -1,6 +1,7 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
+import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
@@ -8,9 +9,13 @@ import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.UserCreator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -25,11 +30,12 @@ import java.time.LocalDate
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ActivityControllerIntegrationTests: TestBase(){
+
+    val log =   KotlinLogging.logger {}
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
 
 
-    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345")
 
 
     // Create a test object for Step class
@@ -42,8 +48,13 @@ class ActivityControllerIntegrationTests: TestBase(){
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
         null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDate.now().plusDays(5), trainer, null,
+        "Sample planned activity", LocalDate.now().plusDays(5), UserCreator.getTrainer(), null,
     )
+
+    @BeforeEach
+    fun setupUser() {
+        super.createDefaultTrainerAthleteRelationInDb()
+    }
 
     @Test
     @WithMockUser(value="asdf")

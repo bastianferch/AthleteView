@@ -12,6 +12,7 @@ import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
 import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -63,8 +64,9 @@ class ActivityControllerUnitTests {
 
     private lateinit var mockMvc: MockMvc
 
-    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345")
+    private var athlete = Athlete(1, "athelte@example.com", "Athlete Doe", "athletepassword","CountryName", "12345",LocalDate.now().minusYears(20),150,70000,null)
 
+    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345","", listOf(athlete))
 
     // Create a test object for Step class
     private val step = Step(
