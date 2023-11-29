@@ -4,7 +4,6 @@ import { ActivityNameMapper, ActivityType, convertToPlannedActivity, convertToPl
 import { Interval } from '../../../../common/interval/dto/Interval';
 import { ActivityService } from '../../service/activity.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
-import { User } from "../../../user/dto/User";
 import { IntervalContainerComponent } from "../../../../common/interval/component/interval-container/interval-container.component";
 import { Location } from '@angular/common';
 import { HttpStatusCode } from "@angular/common/http";
@@ -27,21 +26,8 @@ export class CreateEditViewActivityComponent implements OnInit {
   protected readonly ActivityCreateEditViewMode = ActivityCreateEditViewMode;
   public activityTypes = Object.values(ActivityType);
 
-  currentUser: User = new User();
-
-
   protected activityMapper
-  plannedActivity: PlannedActivity = {
-    id: null,
-    interval: undefined,
-    template: false,
-    type: ActivityType.RUN,
-    withTrainer: false,
-    note: "",
-    date: null,
-    createdBy: null,
-    createdFor: null,
-  }
+  plannedActivity: PlannedActivity = undefined;
 
   mode: ActivityCreateEditViewMode;
 
@@ -57,8 +43,6 @@ export class CreateEditViewActivityComponent implements OnInit {
         return '?';
     }
   }
-
-  protected isError = false;
 
   constructor(
     private router: Router,
@@ -81,14 +65,25 @@ export class CreateEditViewActivityComponent implements OnInit {
         },
         (error) => {
           if (error.status === HttpStatusCode.NotFound) {
-            // TODO redirect to notfound page
-            //  for now, just display string
-            this.isError = true;
+            this.snackbarService.openSnackBar("Activity not found.")
+            this.redirectToHome();
           }
         });
+      } else {
+        // if this is the create screen, initialize the activity with a default one.
+        this.plannedActivity = {
+          id: null,
+          interval: undefined,
+          template: false,
+          type: ActivityType.RUN,
+          withTrainer: false,
+          note: "",
+          date: null,
+          createdBy: null, // stays. Will be ignored by the backend anyway
+          createdFor: null,
+        }
       }
     });
-    this.setUser();
   }
 
   // TODO add routing after save (after other components are done)
@@ -109,12 +104,14 @@ export class CreateEditViewActivityComponent implements OnInit {
             // redirect to the newly created activity
             this.redirectToActivity(savedActivity.id);
           },
-          error: (err) => this.snackbarService.openSnackBar("Activity creation failed with " + err.message),
+          error: (err) => {
+            this.snackbarService.openSnackBar("Activity creation failed with " + err?.error?.message)
+          },
         });
       } else if (this.mode === ActivityCreateEditViewMode.edit) {
         this.activityService.editPlannedActivity(planned).subscribe({
           next: () => this.snackbarService.openSnackBar("Activity successfully edited "),
-          error: (err) => this.snackbarService.openSnackBar("Activity edit failed with " + err.message),
+          error: (err) => this.snackbarService.openSnackBar("Activity edit failed with " + err?.error?.message),
         })
       }
     } else {
@@ -130,23 +127,15 @@ export class CreateEditViewActivityComponent implements OnInit {
     // TODO check if we want to navigate somewhere else
     //  and maybe do some cleanup?
     this.location.back();
-    // this.router.navigateByUrl("/");
   }
 
   redirectToActivity(id: number) {
     // TODO check if we want to navigate somewhere else
     //  and maybe do some cleanup?
-    this.router.navigateByUrl(`/activity/${id}`);
+    this.router.navigateByUrl(`/activity/${id}`).then();
   }
 
-  private setUser() {
-    // TODO security risk. Users can just edit this in the local storage
-    this.currentUser.id = parseInt(localStorage.getItem("user_id"), 10);
-    this.currentUser.name = "";
-    this.currentUser.email = "";
-    this.plannedActivity.createdBy = this.currentUser;
-
+  redirectToHome() {
+    this.router.navigateByUrl("/").then();
   }
-
-
 }

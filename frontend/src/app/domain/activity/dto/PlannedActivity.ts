@@ -27,7 +27,7 @@ export interface PlannedActivitySplit {
   template: boolean;
   note?: string;
   date?: Date;
-  createdBy: User;
+  createdBy?: User;
   createdFor?: Athlete;
 }
 

@@ -42,7 +42,9 @@ import { ErrorInterceptor } from "./config/error-interceptor";
     MatDialogModule,
     SharedModule,
   ],
-  exports: [],
+  exports: [
+    SpinnerComponent,
+  ],
   providers: [httpInterceptorProviders,
     { provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { dateFormat: 'shortDate' } },
     { provide: HTTP_INTERCEPTORS, useClass: LoadInterceptor, multi: true },

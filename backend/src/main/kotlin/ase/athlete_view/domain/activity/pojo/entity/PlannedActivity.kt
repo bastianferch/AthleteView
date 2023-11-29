@@ -27,14 +27,14 @@ data class PlannedActivity(
     val date: LocalDate?,
 
     @ManyToOne
-    val createdBy: User,
+    var createdBy: User?,
 
     @ManyToOne
     val createdFor: Athlete?
 ) {
     fun toDTO(): PlannedActivityDTO {
         return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
-            createdBy.toUserDto(), createdFor?.toAthleteDto())
+            createdBy?.toUserDto(), createdFor?.toAthleteDto())
     }
 
     override fun toString(): String {

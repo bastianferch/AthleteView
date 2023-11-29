@@ -42,6 +42,8 @@ class JwtAuthFilter(
     }
 
     private fun updateJwtHeader(userId: Long, response: HttpServletResponse) {
+        // otherwise, the front end http interceptors cannot read the new token
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "authorization")
         response.setHeader(HttpHeaders.AUTHORIZATION, this.authenticationService.createJwtToken(userId))
     }
 }

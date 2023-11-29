@@ -2,7 +2,10 @@ package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.user.pojo.dto.UserDto
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RequestMapping("api/activity")
@@ -12,35 +15,62 @@ class ActivityController(private val activityService: ActivityService) {
     private val logger = KotlinLogging.logger {}
 
     @PostMapping("/planned")
-    fun createPlannedActivity(@RequestBody plannedActivityDTO: PlannedActivityDTO): PlannedActivityDTO {
+    fun createPlannedActivity(
+        authentication: Authentication,
+        @RequestBody plannedActivityDTO: PlannedActivityDTO
+    ): PlannedActivityDTO {
         logger.info { "POST PLANNED ACTIVITY $plannedActivityDTO" }
 
-        //TODO this endpoint should get the logged in user via the `Authentication` object!
-        // Otherwise we have to rely on user-provided data for which user the activity is created.
-
-        // TODO if this endpoint is called from an athlete, the activity can only be created for themselves
-        //  if user is a trainer, the activity can only be created for athletes they train
-
-        return this.activityService.createPlannedActivity(plannedActivityDTO.toEntity()).toDTO()
+        val userId = (authentication.principal as UserDto).id
+        if (userId != null) {
+            return this.activityService.createPlannedActivity(plannedActivityDTO.toEntity(), userId).toDTO()
+        }
+        // TODO is this the right thing to throw here?
+        throw BadCredentialsException("")
     }
 
 
     @GetMapping("/planned/{id}")
-    fun getPlannedActivity(@PathVariable id: Long): PlannedActivityDTO {
+    fun getPlannedActivity(
+        authentication: Authentication,
+        @PathVariable id: Long
+    ): PlannedActivityDTO {
         logger.info { "GET PLANNED ACTIVITY $id" }
 
-        //TODO this endpoint should get the logged in user via the `Authentication` object!
-        //  otherwise, every user can see every activity of other users
+        val userId = (authentication.principal as UserDto).id
+        if (userId != null) {
+            return this.activityService.getPlannedActivity(id, userId).toDTO()
+        }
+        // TODO is this the right thing to throw here?
+        throw BadCredentialsException("")
+    }
 
-        return this.activityService.getPlannedActivity(id).toDTO()
+    @GetMapping("/planned/")
+    fun getAllPlannedActivities(authentication: Authentication): List<PlannedActivityDTO> {
+        logger.info { "GET ALL PLANNED ACTIVITIES" }
+
+        val userId = (authentication.principal as UserDto).id
+        if (userId != null) {
+            return this.activityService.getAllPlannedActivities(userId).map { it.toDTO() }
+        }
+        // TODO is this the right thing to throw here?
+        throw BadCredentialsException("")
     }
 
     @PutMapping("/planned/{id}")
-    fun updatePlannedActivity(@PathVariable id: Long, @RequestBody plannedActivityDTO: PlannedActivityDTO): PlannedActivityDTO {
+    fun updatePlannedActivity(
+        authentication: Authentication,
+        @PathVariable id: Long,
+        @RequestBody plannedActivityDTO: PlannedActivityDTO
+    ): PlannedActivityDTO {
         logger.info { "PUT PLANNED ACTIVITY $plannedActivityDTO" }
 
-        // TODO again check who requests this!
+        val userId = (authentication.principal as UserDto).id
+        if (userId != null) {
+            return this.activityService.updatePlannedActivity(id, plannedActivityDTO.toEntity(), userId).toDTO()
+        }
+        // TODO is this the right thing to throw here?
+        throw BadCredentialsException("")
 
-        return this.activityService.updatePlannedActivity(id, plannedActivityDTO.toEntity()).toDTO()
     }
 }

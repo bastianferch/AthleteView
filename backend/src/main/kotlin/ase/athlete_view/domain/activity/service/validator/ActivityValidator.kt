@@ -7,6 +7,9 @@ import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import io.github.oshai.kotlinlogging.KotlinLogging
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.domain.user.pojo.entity.User
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import java.time.LocalDate
@@ -17,9 +20,30 @@ class ActivityValidator {
     val log = KotlinLogging.logger {}
 
 
-    fun validateNewPlannedActivity(plannedActivity: PlannedActivity) {
+    fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
         val validationErrors: MutableList<String> = ArrayList()
 
+        if (user is Athlete) {
+            if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
+                validationErrors.add("Athletes can only create Activities for themselves")
+            }
+            if (plannedActivity.withTrainer == true) {
+                validationErrors.add("Athletes cannot create activities with trainer presence")
+            }
+        }
+
+        if (user is Trainer && !plannedActivity.template) {
+            var isForAthleteOfTrainer = false;
+            for (athlete in user.athletes) {
+                if (plannedActivity.createdFor == athlete) {
+                    isForAthleteOfTrainer = true;
+                    break;
+                }
+            }
+            if (!isForAthleteOfTrainer) {
+                validationErrors.add("Trainers can only create Activities for their Athletes or templates")
+            }
+        }
 
         if (plannedActivity.template) {
             if (plannedActivity.date != null) {
@@ -48,15 +72,34 @@ class ActivityValidator {
         }
     }
 
-    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity) {
-        if (plannedActivity.createdBy.id != oldPlannedActivity.createdBy.id) {
-            throw ForbiddenException("You are not allowed to change the creator of the planned activity")
+    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User){
+
+        // check if the user is allowed to update this activity
+        if (user is Athlete) {
+            // if the logged-in user is an Athlete, they can only edit their own activities
+            if (user.activities.none { it.id == oldPlannedActivity.id }) {
+                throw ValidationException("Athletes can only edit their own  Activities")
+            }
+        } else if (user is Trainer) {
+            val isOwnTemplate = user.activities.any { it.id == oldPlannedActivity.id }
+            var isForAthleteOfTrainer = false;
+            for (athlete in user.athletes) {
+                if (athlete.activities.any { it.id == oldPlannedActivity.id }) {
+                    isForAthleteOfTrainer = true
+                }
+            }
+            if (!isOwnTemplate && !isForAthleteOfTrainer) {
+                throw ValidationException("Trainers can only edit Activities of their Athletes and their own templates")
+            }
+        } else {
+            throw ValidationException("Only Trainers and Athletes can edit Activities")
         }
-        if (plannedActivity.id != oldPlannedActivity.id) {
+
+        if(plannedActivity.id != oldPlannedActivity.id){
             throw NotFoundException("Planned Activity not found")
         }
 
-        validateNewPlannedActivity(plannedActivity)
+        validateNewPlannedActivity(plannedActivity, user)
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {

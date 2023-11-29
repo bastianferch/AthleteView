@@ -1,13 +1,4 @@
-<!--TODO replace this by a proper error page-->
-<div *ngIf="isError">
-  <p>Activity not found!</p>
-  <button mat-flat-button color="primary" routerLink="/" (click)="isError = false">
-    <mat-icon>home</mat-icon>
-    <span>Back Home</span>
-  </button>
-</div>
-
-<div *ngIf="!isError">
+<div *ngIf="plannedActivity !== undefined">
   <div class="row-space-between">
     <div>
       <p class="mat-headline-3 margin-bot"> {{heading}}</p>

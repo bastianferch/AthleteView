@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.user.pojo.dto.UserDto
 import jakarta.persistence.*
 
@@ -18,7 +19,10 @@ open class User(
     open var password: String,
     open var country: String?,
     open var zip: String?,
-    var isConfirmed: Boolean = false
+    var isConfirmed: Boolean = false,
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
+    var activities: List<PlannedActivity> = listOf()
 ) {
     open fun toUserDto(): UserDto {
         return UserDto(

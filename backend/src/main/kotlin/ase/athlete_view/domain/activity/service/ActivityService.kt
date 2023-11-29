@@ -3,10 +3,12 @@ package ase.athlete_view.domain.activity.service
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 
 interface ActivityService {
-    fun createPlannedActivity(plannedActivity: PlannedActivity): PlannedActivity
+    fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity
 
-    fun getPlannedActivity(id: Long): PlannedActivity
+    fun getPlannedActivity(id: Long, userId: Long): PlannedActivity
 
-    fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity): PlannedActivity
+    fun getAllPlannedActivities(userId: Long): List<PlannedActivity>
+
+    fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity
 
 }
