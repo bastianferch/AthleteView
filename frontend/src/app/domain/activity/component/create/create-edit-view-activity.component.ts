@@ -7,6 +7,7 @@ import { SnackbarService } from '../../../../common/service/snackbar.service';
 import { User } from "../../../user/dto/User";
 import { IntervalContainerComponent } from "../../../../common/interval/component/interval-container/interval-container.component";
 import { Location } from '@angular/common';
+import { HttpStatusCode } from "@angular/common/http";
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -57,6 +58,8 @@ export class CreateEditViewActivityComponent implements OnInit {
     }
   }
 
+  protected isError = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -75,6 +78,13 @@ export class CreateEditViewActivityComponent implements OnInit {
         this.activityService.getPlannedActivity(this.route.snapshot.params['id']).subscribe((activity) => {
           this.plannedActivity = convertToPlannedActivity(activity);
           this.intervalComponent.manuallyLoadInterval(this.plannedActivity.interval);
+        },
+        (error) => {
+          if (error.status === HttpStatusCode.NotFound) {
+            // TODO redirect to notfound page
+            //  for now, just display string
+            this.isError = true;
+          }
         });
       }
     });

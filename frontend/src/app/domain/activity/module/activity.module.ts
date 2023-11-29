@@ -21,7 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 const routes: Routes = [
   { path: '', component: ActivityComponent },
   { path: 'create', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.create } },
-  { path: ':id', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.details } }, // TODO when navigating to non-existent activity, a default one is shown. ERROR PAGE! And why can I edit stuff in the view component?
+  { path: ':id', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.details } },
   { path: ':id/edit', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.edit } },
 ];
 
