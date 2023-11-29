@@ -9,6 +9,8 @@ import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.UserCreator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -22,7 +24,7 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ActivityServiceUnitTests {
+class ActivityServiceUnitTests: TestBase(){
 
 
     @Autowired
@@ -31,12 +33,7 @@ class ActivityServiceUnitTests {
     @Autowired
     private lateinit var activityService: ActivityService
 
-    private var athlete = Athlete(
-        null, "athlete@example.com", "Athlete Name", "athletepassword",
-        "Athlete Country", "54321", LocalDate.of(1990, 5, 15), 175.5, 70.5f
-    )
 
-    private var trainer = Trainer(null, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345")
 
     // Create a test object for Step class
     private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
@@ -47,12 +44,11 @@ class ActivityServiceUnitTests {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval( null, 1, null, step)), null)), null)
 
     val plannedActivity = PlannedActivity(null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDate.now().plusDays(5), trainer, null,)
+        "Sample planned activity", LocalDate.now().plusDays(5), UserCreator.getTrainer(), null,)
 
     @BeforeEach
     fun setup() {
-        athlete = userRepo.save(athlete)
-        trainer = userRepo.save(trainer)
+        super.createDefaultTrainerAthleteRelationInDb()
     }
 
     @Test
@@ -79,6 +75,7 @@ class ActivityServiceUnitTests {
         }
 
     }
+
 
 
 
