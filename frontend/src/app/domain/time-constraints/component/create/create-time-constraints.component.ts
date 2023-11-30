@@ -11,7 +11,6 @@ import { TimeConstraintService } from '../../service/time-constraints.service';
 export class CreateTimeConstraintsComponent implements OnInit {
 
   @Input() constraint: TimeConstraint = { title: "", isBlacklist: true }
-  @Input() deledit = false
   startTime: string
   endTime: string
   date: Date
@@ -61,7 +60,6 @@ export class CreateTimeConstraintsComponent implements OnInit {
   setDate(val: any) {
     this.date = new Date(val.value)
   }
-
 
   saveConstraint() {
     if (this.startTime < this.endTime) {

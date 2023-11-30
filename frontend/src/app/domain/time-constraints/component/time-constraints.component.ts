@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { TimeConstraintService } from '../service/time-constraints.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
-import { CalendarEvent, CalendarEventAction } from 'angular-calendar';
+import { MatButtonModule } from "@angular/material/button";
+import { CalendarEvent, CalendarEventAction, CalendarView, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 
 @Component({
@@ -10,6 +12,8 @@ import { Subject } from 'rxjs';
   styleUrls: ['./time-constraints.component.scss'],
 })
 export class TimeConstraintsComponent implements OnInit {
+
+  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService) {}
 
   viewDate: Date = new Date()
   events: CalendarEvent[] = []
@@ -32,21 +36,29 @@ export class TimeConstraintsComponent implements OnInit {
       a11yLabel: 'Delete',
       onClick: ({ event }: { event: CalendarEvent }): void => {
 
-        this.constraintService.delete(this.eventMap.get(event)).subscribe(
-          () => this.getEvents(),
-        );
+        this.openDialog(event)
       },
     },
   ];
-
-  constructor(private constraintService: TimeConstraintService) {}
 
   ngOnInit(): void {
     this.setStartOfWeek()
     this.getEvents()
   }
 
+  openDialog(event: any): void {
+    const dialogRef = this.dialog.open(TimeConstraintsDialogComponent, {
+      data: this.eventMap.get(event),
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.getEvents()
+    });
+  }
+
+
   getEvents() {
+    const eventList: CalendarEvent[] = []
     this.eventMap = new Map<CalendarEvent, number>()
     this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString()).subscribe(
       (next) => {
@@ -66,8 +78,8 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   setChoice(choice: string[]) {
-    this.show[0] = (choice.indexOf("white") !== -1)
-    this.show[1] = (choice.indexOf("black") !== -1)
+    this.show[0] = (choice.indexOf("white") != -1)
+    this.show[1] = (choice.indexOf("black") != -1)
     this.setEvents()
   }
 
@@ -102,3 +114,37 @@ export class TimeConstraintsComponent implements OnInit {
     this.startOfWeek.setHours(0,0,0,0)
   }
 }
+
+@Component({
+  selector: 'app-time-constraints-dialog',
+  template: `
+    <h1 mat-dialog-title>Delete Time Constraints</h1>
+    <div mat-dialog-actions >
+      <button mat-button (click)="onNoClick()">Cancel</button>
+      <button mat-button color="warn" (click)="confirm()">Delete</button>
+    </div>
+  `,
+  imports: [MatDialogModule, MatButtonModule],
+  standalone: true,
+})
+export class TimeConstraintsDialogComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<TimeConstraintsDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: number,
+    public constraintService: TimeConstraintService
+  ) {}
+
+  // closes the dialog with result == undefined, so no changes are performed
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  confirm(): void {
+    this.constraintService.delete(this.data).subscribe(
+      (next) => console.log('deleted constraint'),
+    );
+    this.dialogRef.close();
+  }
+}
+

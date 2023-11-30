@@ -14,6 +14,7 @@ import { NgIf } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { MatDialogModule } from "@angular/material/dialog";
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 
@@ -44,6 +45,7 @@ const routes: Routes = [
     }),
     FormsModule,
     ReactiveFormsModule,
+    MatDialogModule
   ],
   exports: [RouterModule],
 })

@@ -5,9 +5,7 @@ import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.time_constraint.persistence.DailyTimeConstraintRepository
 import ase.athlete_view.domain.time_constraint.persistence.TimeConstraintRepository
 import ase.athlete_view.domain.time_constraint.persistence.WeeklyTimeConstraintRepository
-import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
-import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.DailyTimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.WeeklyTimeConstraint
@@ -63,7 +61,7 @@ class TimeConstraintServiceImpl(
             weeklies = weeklyTimeConstraintRepository.findByUser(user)
             dailies = dailyTimeConstraintRepository.findByUser(user)
         } else {
-            date = LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
+            date = LocalDateTime.parse(from, DateTimeFormatter.ofPattern("d.MM.yyyy, HH:mm:ss"))
             endTime = if (until == "") date.plusDays(7) else LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
             weeklies = weeklyTimeConstraintRepository.findByUser(user)
             dailies = dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
@@ -82,21 +80,6 @@ class TimeConstraintServiceImpl(
 
         list = weeklies + dailies
         return list.map { timeConstraints ->  timeConstraints.toDto() }
-    }
-
-    override fun getAllAsDailies(startOfWeek: LocalDate, userDto: UserDto): List<DailyTimeConstraintDto> {
-        val user = userService.getById(userDto.id!!)
-        val list: List<DailyTimeConstraint> = dailyTimeConstraintRepository.findByUser(user) +
-                weeklyTimeConstraintRepository.findByUser(user).map { weekly -> weekly.toDaily(startOfWeek) }
-        return list.map { constraint -> constraint.toDto() }
-    }
-
-    override fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime, userDto: UserDto): List<WeeklyTimeConstraintDto> {
-        val user = userService.getById(userDto.id!!)
-        val list: List<WeeklyTimeConstraint> = weeklyTimeConstraintRepository.findByUser(user) +
-                dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(userService.getById(userDto.id!!), startTime, endTime)
-                .map { daily -> daily.toWeekly()}
-        return list.map { constraint -> constraint.toDto()}
     }
 
     private fun validate(constraint: TimeConstraint) {

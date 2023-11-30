@@ -17,7 +17,4 @@ interface TimeConstraintService {
 
     fun getAll(userDto: UserDto, type: String, from:String, until:String): List<TimeConstraintDto>
 
-    fun getAllAsDailies(startOfWeek: LocalDate, userDto: UserDto): List<DailyTimeConstraintDto>
-
-    fun getAllAsWeeklies(startTime: LocalDateTime, endTime: LocalDateTime, userDto: UserDto): List<WeeklyTimeConstraintDto>
-}
+    }
