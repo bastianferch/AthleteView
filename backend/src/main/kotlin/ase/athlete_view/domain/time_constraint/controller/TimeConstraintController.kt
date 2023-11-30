@@ -8,15 +8,8 @@ import ase.athlete_view.domain.user.pojo.dto.UserDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+
 @RestController
 @RequestMapping("api/constraints")
 class TimeConstraintController(private val timeConstraintService: TimeConstraintService) {
@@ -39,6 +32,22 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
         return (timeConstraintService.save(constraint, userDto))
     }
 
+    @PutMapping("/dailies/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun putDaily(@RequestBody constraint: DailyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+
+        logger.info { "PUT time constraint by ${userDto.name}" }
+        return (timeConstraintService.edit(constraint, userDto))
+    }
+
+    @PutMapping("/weeklies/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun putWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+
+        logger.info { "PUT time constraint by ${userDto.name}" }
+        return (timeConstraintService.edit(constraint, userDto))
+    }
+
     @GetMapping
     fun getConstraints(@RequestParam(defaultValue = "") type: String,
                        @AuthenticationPrincipal userDto: UserDto,
@@ -48,7 +57,12 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
         logger.info { "GET Constraints" }
         return timeConstraintService.getAll(userDto, type, from, until)
+    }
 
+    @GetMapping("/{id}")
+    fun getById(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+        logger.info { "GET constraint with id $id by ${userDto.name}" }
+        return timeConstraintService.getById(id, userDto)
     }
 
     @DeleteMapping("/{id}")

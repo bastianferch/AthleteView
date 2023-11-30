@@ -36,6 +36,9 @@ class TimeConstraintServiceImpl(
     }
 
     override fun edit(timeConstraint: TimeConstraintDto, userDto: UserDto): TimeConstraintDto {
+        val constraint = timeConstraintRepository.findByIdOrNull(timeConstraint.id) ?: throw NotFoundException("Could not find constraint by given id")
+        if (constraint.user.id != userDto.id)
+            throw ValidationException("Cannot edit time constraint from different user")
         timeConstraint.user = userService.getById(userDto.id!!)
         validate(timeConstraint.toEntity())
         return (timeConstraintRepository.save(timeConstraint.toEntity())).toDto()
@@ -48,13 +51,21 @@ class TimeConstraintServiceImpl(
         timeConstraintRepository.deleteById(timeConstraintId)
     }
 
+    override fun getById(timeConstraintId: Long, userDto: UserDto): TimeConstraintDto {
+        var constraint: TimeConstraint? = dailyTimeConstraintRepository.findByIdOrNull(timeConstraintId)
+        if (constraint == null) constraint = weeklyTimeConstraintRepository.findByIdOrNull(timeConstraintId)?: throw NotFoundException("Could not find constraint by given id")
+        if (constraint.user.id != userDto.id)
+            throw ValidationException("Cannot get time constraint from different user")
+        return constraint.toDto()
+    }
+
     override fun getAll(userDto: UserDto, type: String, from: String, until: String): List<TimeConstraintDto> {
         val user = userService.getById(userDto.id!!)
         var weeklies: List<TimeConstraint>
         var dailies: List<TimeConstraint>
         val list: List<TimeConstraint>
         val date: LocalDateTime
-        val endTime: LocalDateTime
+        val endTime: LocalDateTime = if (until == "") LocalDateTime.now().plusDays(7) else LocalDateTime.parse(until, DateTimeFormatter.ofPattern("d.MM.yyyy, HH:mm:ss"))
 
         if (from == "") {
             date = LocalDateTime.now()
@@ -62,7 +73,6 @@ class TimeConstraintServiceImpl(
             dailies = dailyTimeConstraintRepository.findByUser(user)
         } else {
             date = LocalDateTime.parse(from, DateTimeFormatter.ofPattern("d.MM.yyyy, HH:mm:ss"))
-            endTime = if (until == "") date.plusDays(7) else LocalDateTime.parse(from, DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss"))
             weeklies = weeklyTimeConstraintRepository.findByUser(user)
             dailies = dailyTimeConstraintRepository.findByUserAndStartTimeGreaterThanEqualAndEndTimeLessThanEqual(
                 user,
@@ -72,7 +82,15 @@ class TimeConstraintServiceImpl(
         }
 
         if (type == "daily") {
+            val tempList = weeklies
             weeklies = weeklies.map { weekly -> weekly.toDaily(LocalDate.from(date)) }
+            if (from != "" && until != "") {
+                var currentDate = date
+                while (endTime.isAfter(currentDate.plusDays(7))) {
+                    currentDate = currentDate.plusDays(7)
+                    weeklies += (tempList.map { weekly -> weekly.toDaily(LocalDate.from(currentDate)) }).filter { daily -> daily.endTime.isBefore(endTime) }
+                }
+            }
         }
         if (type == "weekly") {
             dailies = dailies.map { daily -> daily.toWeekly()}

@@ -26,15 +26,28 @@ export class TimeConstraintService {
     return this.httpClient.post<TimeConstraint>(this.timeConstraintBaseUri + "/dailies", constraint);
   }
 
-  getConstraints(type?: string, from?: string): Observable<TimeConstraint[]> {
+  editWeeklyConstraint(constraint: TimeConstraint): Observable<TimeConstraint> {
+    return this.httpClient.put<TimeConstraint>(this.timeConstraintBaseUri + "/weeklies/" + constraint.id, constraint);
+  }
+
+  editDailyConstraint(constraint: TimeConstraint): Observable<TimeConstraint> {
+    return this.httpClient.put<TimeConstraint>(this.timeConstraintBaseUri + "/dailies/" + constraint.id, constraint);
+  }
+
+  getConstraints(type?: string, from?: string, until?: string): Observable<TimeConstraint[]> {
     let params = new HttpParams()
     if (type) params = params.append("type", type)
     if (from) params = params.append("from", from)
+    if (until) params = params.append("until", until)
     return this.httpClient.get<any>(this.timeConstraintBaseUri, { params });
   }
 
   delete(id: number) {
     return this.httpClient.delete(this.timeConstraintBaseUri + "/" + id);
+  }
+
+  getById(id: number): Observable<TimeConstraint> {
+    return this.httpClient.get<TimeConstraint>(this.timeConstraintBaseUri + "/" + id);
   }
 
 }

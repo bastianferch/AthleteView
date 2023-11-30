@@ -18,7 +18,9 @@
       [hourSegments]="1"
       [hourDuration]="60"
       [refresh]="refresh"
-      [weekStartsOn]=1>
+      [weekStartsOn]=1
+      (eventTimesChanged)="eventTimesChanged($event)"
+    >
     </mwl-calendar-week-view>
   </div>
   <app-create-time-constraints (newConstraint)="getEvents()"></app-create-time-constraints>

@@ -15,6 +15,8 @@ interface TimeConstraintService {
 
     fun delete(timeConstraintId: Long, userDto: UserDto)
 
+    fun getById(timeConstraintId: Long, userDto: UserDto): TimeConstraintDto
+
     fun getAll(userDto: UserDto, type: String, from:String, until:String): List<TimeConstraintDto>
 
     }

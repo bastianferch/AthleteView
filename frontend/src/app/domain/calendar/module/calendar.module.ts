@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CalendarComponent } from "../component/calendar.component";
+import { MatButtonModule } from "@angular/material/button";
 import { RouterModule, Routes } from "@angular/router";
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -16,6 +17,7 @@ const routes: Routes = [
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
+    MatButtonModule,
   ],
   exports: [RouterModule],
 })

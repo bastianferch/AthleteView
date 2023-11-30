@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { TimeConstraintService } from '../service/time-constraints.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
 import { MatButtonModule } from "@angular/material/button";
-import { CalendarEvent, CalendarEventAction } from 'angular-calendar';
+import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 
@@ -98,8 +98,38 @@ export class TimeConstraintsComponent implements OnInit {
   constraintToEvent(constraint: TimeConstraint): CalendarEvent {
     const start = this.parseDate(constraint.startTime)
     const end = this.parseDate(constraint.endTime)
-    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? this.colors[0] : this.colors[1], actions: this.actions }
+    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? this.colors[0] : this.colors[1], actions: this.actions,
+      resizable: {
+        beforeStart: true,
+        afterEnd: true,
+      },
+      draggable: true }
     return event
+  }
+
+  eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+    this.constraintService.getById(this.eventMap.get(event)).subscribe((constraint) => {
+      if (constraint.constraint !== undefined) {
+        constraint.constraint.weekday = newStart.getDay() - 1
+        constraint.constraint.startTime = `${newStart.getHours().toString().padStart(2, '0')}:${newStart.getMinutes().toString().padStart(2, '0')}`
+        constraint.constraint.endTime = `${newEnd.getHours().toString().padStart(2, '0')}:${newEnd.getMinutes().toString().padStart(2, '0')}`
+        this.constraintService.editWeeklyConstraint(constraint).subscribe(
+          () => {
+            this.getEvents()
+          })
+      } else {
+        constraint.endTime = newEnd
+        constraint.endTime.setHours(newEnd.getHours() - (new Date().getTimezoneOffset() / 60))
+        constraint.startTime = newStart
+        constraint.startTime.setHours(newStart.getHours() - (new Date().getTimezoneOffset() / 60))
+        this.constraintService.editDailyConstraint(constraint).subscribe(
+          () => {
+            this.getEvents()
+          },
+        )
+      }
+    })
+
   }
 
   setView(days: number) {
@@ -118,7 +148,7 @@ export class TimeConstraintsComponent implements OnInit {
 @Component({
   selector: 'app-time-constraints-dialog',
   template: `
-    <h1 mat-dialog-title>Delete Time Constraints</h1>
+    <h1 mat-dialog-title>Delete Time Constraint</h1>
     <div mat-dialog-actions >
       <button mat-button (click)="onNoClick()">Cancel</button>
       <button mat-button color="warn" (click)="confirm()">Delete</button>
