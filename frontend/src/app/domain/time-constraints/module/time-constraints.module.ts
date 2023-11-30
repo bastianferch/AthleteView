@@ -45,7 +45,7 @@ const routes: Routes = [
     }),
     FormsModule,
     ReactiveFormsModule,
-    MatDialogModule
+    MatDialogModule,
   ],
   exports: [RouterModule],
 })

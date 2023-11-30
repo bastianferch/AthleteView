@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { TimeConstraintService } from '../service/time-constraints.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
 import { MatButtonModule } from "@angular/material/button";
-import { CalendarEvent, CalendarEventAction, CalendarView, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import { CalendarEvent, CalendarEventAction } from 'angular-calendar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 
@@ -12,8 +12,6 @@ import { Subject } from 'rxjs';
   styleUrls: ['./time-constraints.component.scss'],
 })
 export class TimeConstraintsComponent implements OnInit {
-
-  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService) {}
 
   viewDate: Date = new Date()
   events: CalendarEvent[] = []
@@ -41,6 +39,8 @@ export class TimeConstraintsComponent implements OnInit {
     },
   ];
 
+  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService) {}
+
   ngOnInit(): void {
     this.setStartOfWeek()
     this.getEvents()
@@ -58,7 +58,7 @@ export class TimeConstraintsComponent implements OnInit {
 
 
   getEvents() {
-    const eventList: CalendarEvent[] = []
+
     this.eventMap = new Map<CalendarEvent, number>()
     this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString()).subscribe(
       (next) => {
@@ -78,8 +78,8 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   setChoice(choice: string[]) {
-    this.show[0] = (choice.indexOf("white") != -1)
-    this.show[1] = (choice.indexOf("black") != -1)
+    this.show[0] = (choice.indexOf("white") !== -1)
+    this.show[1] = (choice.indexOf("black") !== -1)
     this.setEvents()
   }
 
@@ -132,7 +132,7 @@ export class TimeConstraintsDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<TimeConstraintsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: number,
-    public constraintService: TimeConstraintService
+    public constraintService: TimeConstraintService,
   ) {}
 
   // closes the dialog with result == undefined, so no changes are performed
@@ -141,9 +141,7 @@ export class TimeConstraintsDialogComponent {
   }
 
   confirm(): void {
-    this.constraintService.delete(this.data).subscribe(
-      (next) => console.log('deleted constraint'),
-    );
+    this.constraintService.delete(this.data).subscribe();
     this.dialogRef.close();
   }
 }

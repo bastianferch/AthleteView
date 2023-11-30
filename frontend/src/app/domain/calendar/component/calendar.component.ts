@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CalendarEvent, CalendarEventAction, CalendarView, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import { CalendarEvent } from 'angular-calendar';
 
 
 @Component({
