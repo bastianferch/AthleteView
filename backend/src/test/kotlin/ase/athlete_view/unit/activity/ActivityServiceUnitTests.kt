@@ -53,7 +53,7 @@ class ActivityServiceUnitTests: TestBase(){
 
     @Test
     fun createValidPlannedActivity_ShouldReturnCategory() {
-        val newPlannedActivity = activityService.createPlannedActivity(plannedActivity)
+        val newPlannedActivity = activityService.createPlannedActivity(plannedActivity,UserCreator.getTrainer().id!!)
         assertAll(
             { assert(newPlannedActivity.id != null) },
             { assert(newPlannedActivity.type == plannedActivity.type) },
@@ -71,7 +71,7 @@ class ActivityServiceUnitTests: TestBase(){
     fun createPlannedActivityWithInvalidType_ShouldThrowValidationException() {
         val invalidPlannedActivity = plannedActivity.copy(date= LocalDate.now().minusDays(5))
         assertThrows<ValidationException> {
-            activityService.createPlannedActivity(invalidPlannedActivity)
+            activityService.createPlannedActivity(invalidPlannedActivity,UserCreator.getTrainer().id!!)
         }
 
     }

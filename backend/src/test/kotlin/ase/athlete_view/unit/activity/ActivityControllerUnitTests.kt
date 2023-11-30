@@ -15,6 +15,7 @@ import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.ninjasquad.springmockk.MockkBean
@@ -25,9 +26,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
@@ -85,20 +85,20 @@ class ActivityControllerUnitTests {
     fun mvcSetup() {
         this.mockMvc = MockMvcBuilders
             .webAppContextSetup(this.webContext)
-            .apply<DefaultMockMvcBuilder?>(SecurityMockMvcConfigurers.springSecurity())
+            .apply<DefaultMockMvcBuilder?>(springSecurity())
             .build()
     }
 
     @Test
-    @WithMockUser(value = "asdf")
+    @WithCustomMockUser
     fun createActivityPlanned_ReturnsOk() {
         val plannedActivityDTO = PlannedActivityDTO(
             null, ActivityType.RUN, interval.toDTO(), false, false,
             "Sample planned activity", LocalDate.now().plusDays(5), trainer.toUserDto(), null,
         )
-        every { activityService.createPlannedActivity(any<PlannedActivity>()) } returns plannedActivity
+        every { activityService.createPlannedActivity(any<PlannedActivity>(),any()) } returns plannedActivity
 
-        mockMvc.perform(
+         mockMvc.perform(
             post("/api/activity/planned").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -106,7 +106,7 @@ class ActivityControllerUnitTests {
         ).andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 
-        verify(exactly = 1) { activityService.createPlannedActivity(any<PlannedActivity>()) }
+        verify(exactly = 1) { activityService.createPlannedActivity(any<PlannedActivity>(),any()) }
     }
 
 

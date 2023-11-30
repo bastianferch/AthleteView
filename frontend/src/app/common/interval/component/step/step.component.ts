@@ -22,6 +22,7 @@ export class StepComponent {
   @Output() deleteStep: EventEmitter<any> = new EventEmitter();
   @Output() changeStep: EventEmitter<Step> = new EventEmitter();
 
+  protected readonly StepType = StepType;
   // so the html can see the type
   protected readonly StepDurationType = StepDurationType;
   protected activityMapper;
@@ -56,6 +57,4 @@ export class StepComponent {
   onEditStep() {
     this.openDialog();
   }
-
-  protected readonly StepType = StepType;
 }

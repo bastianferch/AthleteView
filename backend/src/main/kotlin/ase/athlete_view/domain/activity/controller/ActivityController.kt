@@ -19,7 +19,7 @@ class ActivityController(private val activityService: ActivityService) {
         authentication: Authentication,
         @RequestBody plannedActivityDTO: PlannedActivityDTO
     ): PlannedActivityDTO {
-        logger.info { "POST PLANNED ACTIVITY $plannedActivityDTO" }
+        logger.info { "POST PLANNED ACTIVITY $plannedActivityDTO ${authentication.principal}" }
 
         val userId = (authentication.principal as UserDto).id
         if (userId != null) {

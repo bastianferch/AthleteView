@@ -1,13 +1,13 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
-import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.domain.activity.pojo.dto.IntervalDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
+import ase.athlete_view.domain.activity.pojo.dto.StepDTO
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
-import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -15,7 +15,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -29,13 +28,13 @@ import java.time.LocalDate
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ActivityControllerIntegrationTests: TestBase(){
+class ActivityControllerIntegrationTests : TestBase() {
 
-    val log =   KotlinLogging.logger {}
+    val log = KotlinLogging.logger {}
+
+
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
-
-
 
 
     // Create a test object for Step class
@@ -75,10 +74,15 @@ class ActivityControllerIntegrationTests: TestBase(){
     }
 
     @Test
-    @WithMockUser(value="asdf")
-    fun createInvalidPlannedActivity_ShouldReturn(){
-        val plannedActivityDto = plannedActivity.toDTO()
-        plannedActivityDto.interval.step = step.toDTO()
+    @WithMockUser(value = "asdf")
+    fun createInvalidPlannedActivity_ShouldReturn() {
+        val plannedActivityDto = PlannedActivityDTO(
+            null, ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
+                null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+                StepTargetType.CADENCE, 100, 200, "Sample step note")), false, false,
+            "Sample planned activity", LocalDate.now().minusDays(5), null, null,
+        )
+
         val result = restTemplate.postForEntity("/api/activity/planned", plannedActivityDto, PlannedActivityDTO::class.java)
         assertThat(result).isNotNull
         assertAll(
