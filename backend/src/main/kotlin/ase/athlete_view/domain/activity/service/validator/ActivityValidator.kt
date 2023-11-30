@@ -21,6 +21,7 @@ class ActivityValidator {
 
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
+        log.trace{"Validating new planned activity $plannedActivity"}
         val validationErrors: MutableList<String> = ArrayList()
 
         if (user is Athlete) {
@@ -73,7 +74,7 @@ class ActivityValidator {
     }
 
     fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User){
-
+        log.trace{"Validating planned activity for edit $plannedActivity"}
         // check if the user is allowed to update this activity
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
@@ -103,7 +104,7 @@ class ActivityValidator {
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
-        log.info("Validating interval $interval") // TODO remove
+        log.trace{"Validating interval $interval"}
         if (interval.intervals != null) {
             if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
                 validationErrors.add("Step and intervals cannot be set at the same time")

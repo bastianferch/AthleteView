@@ -22,7 +22,7 @@ open class User(
     var isConfirmed: Boolean = false,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
-    var activities: List<PlannedActivity> = listOf()
+    open var activities: List<PlannedActivity> = listOf()
 ) {
     open fun toUserDto(): UserDto {
         return UserDto(
