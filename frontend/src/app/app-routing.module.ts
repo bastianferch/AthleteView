@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: 'activities', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/activities/module/activities.module').then((m) => m.ActivitiesModule) },
   { path: 'calendar', canActivate: [authGuard],
-    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },
+    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarViewModule) },
   { path: 'auth',
     loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule) },
   { path: 'time-constraints', canActivate: [authGuard],
