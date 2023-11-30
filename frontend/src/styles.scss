@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import "src/app/style/center";
 @import "src/app/style/whitespace";
+@import "src/app/style/gap";
+@import "src/app/style/width";
+@import "src/app/style/color-palette";
 
 body {
   width: 100%;
@@ -10,14 +13,17 @@ body {
 }
 
 .main-container {
-  column-gap: 1rem;
+  row-gap: 1rem;
   padding: 1rem;
   margin-top: 12vh;
-  width: 35rem;
   border-radius: 1rem;
   border: solid #f5dddd;
   min-height: 70%;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
 }
 
 .backdrop {

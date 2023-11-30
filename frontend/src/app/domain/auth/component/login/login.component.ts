@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { LoginDTO } from "../../dto/LoginDTO";
+import { LoginDto } from "../../dto/login-dto";
 import { Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
 
@@ -16,6 +16,8 @@ export class LoginComponent implements OnInit {
   }>;
 
   hide = true;
+  isAccountActivated = true;
+  accountForActivation: LoginDto;
 
   constructor(private loginService: AuthService,
     private fb: FormBuilder,
@@ -24,20 +26,35 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.setAuthToken(null);
+    this.authService.logout()
     this.form = this.fb.group({
       email: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
       password: new FormControl('', { validators: [Validators.required], updateOn: 'change' }),
     });
   }
 
+  sendConfirmLink(): void {
+    this.loginService.sendConfirmLink(this.accountForActivation).subscribe({
+      next: () => {
+        this.accountForActivation = undefined;
+        this.isAccountActivated = true;
+      },
+    })
+  }
+
   async performLogin() {
-    this.loginService.login(this.form.value as LoginDTO).subscribe({
+    this.isAccountActivated = true;
+    this.loginService.login(this.form.value as LoginDto).subscribe({
       next: () => {
         this.router.navigate(['/'])
       },
-      error: () => {
-        this.form.controls.email.setErrors({ 'invalidEmailPassword': 'oof' })
+      error: (err) => {
+        if (err.status === 409) {
+          this.isAccountActivated = false;
+          this.accountForActivation = this.form.value as LoginDto;
+        } else {
+          this.form.controls.email.setErrors({ 'invalidEmailPassword': 'oof' })
+        }
       },
     })
   }
