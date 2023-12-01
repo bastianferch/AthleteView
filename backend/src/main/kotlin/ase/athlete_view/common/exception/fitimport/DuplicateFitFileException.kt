@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
+
 @NoArgsConstructor
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-class InvalidFitFileException(message: String?) : RuntimeException(message)
+@ResponseStatus(HttpStatus.NOT_MODIFIED)
+class DuplicateFitFileException(message: String?) : RuntimeException(message)
