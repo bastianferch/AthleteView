@@ -1,9 +1,12 @@
 package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.user.pojo.dto.UserDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.AllArgsConstructor
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.multipart.MultipartFile
@@ -19,6 +22,7 @@ class ActivityController(
     @PostMapping("/import")
     @ResponseStatus(HttpStatus.CREATED)
     fun handleFileUpload(
+        authentication: Authentication,
         @RequestParam("files") files: List<MultipartFile>
     ): Unit {
         logger.info { "File import detected" }
@@ -26,8 +30,12 @@ class ActivityController(
             throw HttpServerErrorException(HttpStatus.BAD_REQUEST)
         }
 
-        //return
-        activityService.importActivity(files)
+        val uid = (authentication.principal as UserDto).id
+        if (uid === null) {
+            throw BadCredentialsException("Not logged in!")
+        }
+
+        activityService.importActivity(files, uid)
     }
 
     @GetMapping("/sanity")

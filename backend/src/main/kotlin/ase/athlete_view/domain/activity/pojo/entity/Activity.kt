@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.pojo.entity
 
+import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 
 @Entity
@@ -8,6 +9,8 @@ class Activity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private var id: Long?,
+    @OneToOne
+    private var user: User,
     private var accuracy: Int,
     private var averageBpm: Int,
     private var maxBpm: Int,
