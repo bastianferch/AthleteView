@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -44,7 +44,7 @@ class ActivityServiceUnitTests: TestBase(){
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval( null, 1, null, step)), null)), null)
 
     val plannedActivity = PlannedActivity(null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDate.now().plusDays(5), UserCreator.getTrainer(), null,)
+        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,)
 
     @BeforeEach
     fun setup() {
@@ -69,7 +69,7 @@ class ActivityServiceUnitTests: TestBase(){
 
     @Test
     fun createPlannedActivityWithInvalidType_ShouldThrowValidationException() {
-        val invalidPlannedActivity = plannedActivity.copy(date= LocalDate.now().minusDays(5))
+        val invalidPlannedActivity = plannedActivity.copy(date= LocalDateTime.now().minusDays(5))
         assertThrows<ValidationException> {
             activityService.createPlannedActivity(invalidPlannedActivity,UserCreator.getTrainer().id!!)
         }

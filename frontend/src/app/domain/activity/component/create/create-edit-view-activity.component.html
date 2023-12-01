@@ -39,12 +39,12 @@
         <div class="checkbox-container">
           <mat-form-field class="dense-2" appearance="outline" style="width:9rem">
             <a>Template?
-              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" name="template"></mat-checkbox>
+              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" checked="{{plannedActivity.template}}" name="template" disabled="{{this.mode===ActivityCreateEditViewMode.details}}"></mat-checkbox>
               <input matInput style="width:0 !important"></a>
           </mat-form-field>
           <mat-form-field class="dense-2" appearance="outline" style="width:10rem">
             <a>With Trainer?
-              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.withTrainer"></mat-checkbox>
+              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.withTrainer" checked="{{plannedActivity.withTrainer}}" disabled="{{this.mode===ActivityCreateEditViewMode.details}}"></mat-checkbox>
               <input matInput style="width:0 !important"></a>
           </mat-form-field>
         </div>

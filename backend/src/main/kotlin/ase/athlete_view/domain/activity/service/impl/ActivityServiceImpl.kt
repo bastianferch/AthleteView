@@ -117,6 +117,7 @@ class ActivityServiceImpl(
             // TODO message
             throw BadCredentialsException("")
         }
+        plannedActivity.createdBy = user.get()
 
         // get the original activity
         val oldPlannedActivity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }

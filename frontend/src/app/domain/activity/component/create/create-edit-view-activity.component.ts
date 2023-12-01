@@ -61,7 +61,7 @@ export class CreateEditViewActivityComponent implements OnInit {
       if (this.mode !== ActivityCreateEditViewMode.create) {
         this.activityService.getPlannedActivity(this.route.snapshot.params['id']).subscribe((activity) => {
           this.plannedActivity = convertToPlannedActivity(activity);
-          this.intervalComponent.manuallyLoadInterval(this.plannedActivity.interval);
+          this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
         },
         (error) => {
           if (error.status === HttpStatusCode.NotFound) {
@@ -78,7 +78,7 @@ export class CreateEditViewActivityComponent implements OnInit {
           type: ActivityType.RUN,
           withTrainer: false,
           note: "",
-          date: null,
+          date: new Date(),
           createdBy: null, // stays. Will be ignored by the backend anyway
           createdFor: null,
         }
@@ -86,7 +86,6 @@ export class CreateEditViewActivityComponent implements OnInit {
     });
   }
 
-  // TODO add routing after save (after other components are done)
   save(): void {
     let planned = convertToPlannedActivitySplit(this.plannedActivity);
     planned = this.activityService.postProcessActivity(planned);
@@ -137,5 +136,17 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   redirectToHome() {
     this.router.navigateByUrl("/").then();
+  }
+
+  parseDate(numbers: number[]): any {
+    const str: string[] = []
+    numbers.forEach((num) => {
+      if (num.toString().length === 1) {
+        str.push("0" + num.toString())
+      } else {
+        str.push(num.toString())
+      }
+    });
+    return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
   }
 }

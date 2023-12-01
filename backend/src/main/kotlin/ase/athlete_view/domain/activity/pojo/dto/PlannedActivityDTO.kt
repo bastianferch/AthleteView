@@ -5,7 +5,7 @@ import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 
 import ase.athlete_view.domain.user.pojo.dto.UserDto
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class PlannedActivityDTO(
     var id: Long? = null,
@@ -14,7 +14,7 @@ class PlannedActivityDTO(
     var withTrainer: Boolean = false,
     var template: Boolean = false,
     var note: String? = null,
-    var date: LocalDate? = null,
+    var date: LocalDateTime? = null,
     var createdBy: UserDto?, // TODO this property is only used to get the information from the backend to the frontend. The backend should NEVER rely on this field.
     var createdFor: AthleteDTO?
 

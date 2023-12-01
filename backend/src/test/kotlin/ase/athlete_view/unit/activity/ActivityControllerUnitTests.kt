@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 @WebMvcTest(controllers = [ActivityController::class, AuthenticationController::class])
@@ -78,7 +79,7 @@ class ActivityControllerUnitTests {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
         null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDate.now().plusDays(5), trainer, null,
+        "Sample planned activity", LocalDateTime.now().plusDays(5), trainer, null,
     )
 
     @BeforeEach
@@ -94,7 +95,7 @@ class ActivityControllerUnitTests {
     fun createActivityPlanned_ReturnsOk() {
         val plannedActivityDTO = PlannedActivityDTO(
             null, ActivityType.RUN, interval.toDTO(), false, false,
-            "Sample planned activity", LocalDate.now().plusDays(5), trainer.toUserDto(), null,
+            "Sample planned activity", LocalDateTime.now().plusDays(5), trainer.toUserDto(), null,
         )
         every { activityService.createPlannedActivity(any<PlannedActivity>(),any()) } returns plannedActivity
 

@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SpringBootTest(
     classes = [AthleteViewApplication::class],
@@ -56,7 +56,7 @@ class ActivityControllerIntegrationTests : TestBase() {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
         null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDate.now().plusDays(5), UserCreator.getTrainer(), null,
+        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,
     )
 
     @BeforeEach
@@ -93,7 +93,7 @@ class ActivityControllerIntegrationTests : TestBase() {
             null, ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
                 null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
                 StepTargetType.CADENCE, 100, 200, "Sample step note")), false, false,
-            "Sample planned activity", LocalDate.now().minusDays(5), null, null,
+            "Sample planned activity", LocalDateTime.now().minusDays(5), null, null,
         )
 
         val result = mockMvc.perform(

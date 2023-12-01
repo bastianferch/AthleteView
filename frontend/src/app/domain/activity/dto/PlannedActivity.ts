@@ -14,7 +14,7 @@ export interface PlannedActivity {
   withTrainer: boolean;
   template: boolean;
   note?: string;
-  date?: Date;
+  date?: Date | number[];
   createdBy: User;
   createdFor?: Athlete;
 }
@@ -26,7 +26,7 @@ export interface PlannedActivitySplit {
   withTrainer: boolean;
   template: boolean;
   note?: string;
-  date?: Date;
+  date?: Date | number[];
   createdBy?: User;
   createdFor?: Athlete;
 }

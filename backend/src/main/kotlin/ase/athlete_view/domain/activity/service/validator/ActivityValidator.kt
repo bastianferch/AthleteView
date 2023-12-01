@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.activity.service.validator
 
-import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
@@ -12,7 +11,7 @@ import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 @Validated
@@ -55,7 +54,7 @@ class ActivityValidator {
             }
         }
         if (plannedActivity.date != null) {
-            if (plannedActivity.date.isBefore(LocalDate.now())) {
+            if (plannedActivity.date.isBefore(LocalDateTime.now())) {
                 validationErrors.add("Date and time must be in the future")
             }
         }
@@ -79,7 +78,7 @@ class ActivityValidator {
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
             if (user.activities.none { it.id == oldPlannedActivity.id }) {
-                throw ValidationException("Athletes can only edit their own  Activities")
+                throw ValidationException("Athletes can only edit their own Activities")
             }
         } else if (user is Trainer) {
             val isOwnTemplate = user.activities.any { it.id == oldPlannedActivity.id }

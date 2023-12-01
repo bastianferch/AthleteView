@@ -5,7 +5,7 @@ import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 data class PlannedActivity(
@@ -24,7 +24,7 @@ data class PlannedActivity(
 
     val note: String?,
 
-    val date: LocalDate?,
+    val date: LocalDateTime?,
 
     @ManyToOne
     var createdBy: User?,
