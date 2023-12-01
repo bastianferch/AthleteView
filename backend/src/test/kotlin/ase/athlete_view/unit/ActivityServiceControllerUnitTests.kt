@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import kotlin.io.path.absolute
 
 
+// TODO: fix when feature-create-activity is merged (@WithCustomMockUser)
 @WebMvcTest(controllers = [ActivityController::class])
 @ActiveProfiles("test")
 class ActivityServiceControllerUnitTests {
@@ -37,7 +38,7 @@ class ActivityServiceControllerUnitTests {
     @Test
     fun verifyUploadingValidFitFile_Returns201Created() {
         // mock service
-        every { activityService.importActivity(any<List<MultipartFile>>()) } returns arrayOf("totallyavalidid")
+        every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } returns Unit
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file_2.fit").absolute()
         val name = "test.fit"
@@ -51,14 +52,14 @@ class ActivityServiceControllerUnitTests {
         )
             .andExpect(status().isCreated)
 
-        verify(exactly = 1) { activityService.importActivity(any<List<MultipartFile>>()) }
+        verify(exactly = 1) { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) }
     }
 
     @WithMockUser(value = "Testuser")
     @Test
     fun verifyUploadingInvalidFitFile_Returns400BadRequest() {
         // mock service
-        every { activityService.importActivity(any<List<MultipartFile>>()) } throws InvalidFitFileException("invalid")
+        every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } throws InvalidFitFileException("invalid")
 
         val filePath = Paths.get("src/test/resources/fit-files/empty_file.fit").absolute()
         val name = "test.fit"
@@ -72,6 +73,6 @@ class ActivityServiceControllerUnitTests {
         )
             .andExpect(status().isBadRequest)
 
-        verify(exactly = 1) { activityService.importActivity(any<List<MultipartFile>>()) }
+        verify(exactly = 1) { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) }
     }
 }

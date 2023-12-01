@@ -1,5 +1,6 @@
 package ase.athlete_view.util
 
+import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDto
 import ase.athlete_view.domain.user.pojo.entity.User
@@ -28,6 +29,24 @@ class UserCreator {
 
         fun getLoginDto(): LoginDTO {
             return LoginDTO(email = DEFAULT_USER_EMAIL, password = DEFAULT_USER_PASSWORD)
+        }
+
+        fun getDefaultActivity(): Activity {
+            return Activity(
+                1L,
+                getUser(),
+                0,
+                0,
+                0,
+                0.0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                ""
+            )
         }
     }
 }

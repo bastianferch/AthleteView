@@ -14,18 +14,18 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import util.mongo.ContainerizedMongoTest
+import ase.athlete_view.util.mongo.FlapdoodleConfig
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.absolute
 
-//@ContainerizedMongoTest
+
+// TODO: fix when feature-create-activity is merged (@WithCustomMockUser)
 @SpringBootTest(
-    classes = [AthleteViewApplication::class],
+    classes = [AthleteViewApplication::class, FlapdoodleConfig::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-@ContainerizedMongoTest
 @ActiveProfiles("test")
 class ActivityControllerIntegrationTests {
     @Autowired
