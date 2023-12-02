@@ -37,7 +37,7 @@ class DatagenProfile(private val userService: UserService) {
             "Austria",
             "1030",
             "ABGVA",
-            ArrayList()
+            listOf(athlete)
         )
         trainer.isConfirmed = true
         this.userService.save(trainer)

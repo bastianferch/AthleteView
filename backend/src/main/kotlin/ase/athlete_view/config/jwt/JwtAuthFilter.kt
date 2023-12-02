@@ -1,7 +1,7 @@
 package ase.athlete_view.config.jwt
 
 import ase.athlete_view.domain.authentication.service.AuthenticationService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -21,10 +21,10 @@ class JwtAuthFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        val header = request.getHeader(HttpHeaders.AUTHORIZATION)
         if (header == null) {
             filterChain.doFilter(request, response)
-            return;
+            return
         }
         val tokenParts = header.split(" ")
         if (tokenParts.size == 2 && "Bearer" == tokenParts[0]) {
@@ -32,16 +32,18 @@ class JwtAuthFilter(
                 val auth = userAuthProvider.validateToken(tokenParts[1])
                 SecurityContextHolder.getContext().authentication = auth
                 // in this context we know, that the token is legit and not expired.
-                (auth.principal as UserDto).id?.let { this.updateJwtHeader(it, response) }
+                (auth.principal as UserDTO).id?.let { this.updateJwtHeader(it, response) }
             } catch (e: RuntimeException) {
                 this.log.warn { "Could not set Auth from JWT. Maybe it is expired?" }
-                SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext()
             }
         }
         filterChain.doFilter(request, response)
     }
 
     private fun updateJwtHeader(userId: Long, response: HttpServletResponse) {
+        // otherwise, the front end http interceptors cannot read the new token
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "authorization")
         response.setHeader(HttpHeaders.AUTHORIZATION, this.authenticationService.createJwtToken(userId))
     }
 }
