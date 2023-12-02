@@ -1,4 +1,4 @@
-// TODO this should be somewhere else
+
 export interface Step {
   id:number;
   type: StepType;

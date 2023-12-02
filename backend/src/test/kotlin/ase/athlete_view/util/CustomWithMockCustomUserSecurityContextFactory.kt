@@ -1,6 +1,5 @@
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.util.WithCustomMockUser
-import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -13,7 +12,7 @@ class CustomWithMockCustomUserSecurityContextFactory :
     WithSecurityContextFactory<WithCustomMockUser> {
 
     override fun createSecurityContext(customUser: WithCustomMockUser): SecurityContext {
-        val userDto = UserDto(
+        val userDto = UserDTO(
             id = customUser.id,
             name = customUser.name,
             email = customUser.email,

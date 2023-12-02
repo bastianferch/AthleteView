@@ -13,7 +13,7 @@ import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.token.pojo.entity.TokenExpirationTime
 import ase.athlete_view.domain.token.service.TokenService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.TrainerService
@@ -95,7 +95,7 @@ class AuthenticationServiceImpl(
         return this.userAuthProvider.createToken(user)
     }
 
-    override fun authenticateUser(loginDTO: LoginDTO): UserDto {
+    override fun authenticateUser(loginDTO: LoginDTO): UserDTO {
         try {
             val user = this.userService.getByEmail(loginDTO.email)
             if (!encoder.matches(loginDTO.password, user.password)) {

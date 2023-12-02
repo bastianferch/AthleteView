@@ -20,7 +20,7 @@ class ActivityValidator {
 
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
-        log.trace{"Validating new planned activity $plannedActivity"}
+        log.trace { "Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()
 
         if (user is Athlete) {
@@ -33,11 +33,11 @@ class ActivityValidator {
         }
 
         if (user is Trainer && !plannedActivity.template) {
-            var isForAthleteOfTrainer = false;
+            var isForAthleteOfTrainer = false
             for (athlete in user.athletes) {
                 if (plannedActivity.createdFor == athlete) {
-                    isForAthleteOfTrainer = true;
-                    break;
+                    isForAthleteOfTrainer = true
+                    break
                 }
             }
             if (!isForAthleteOfTrainer) {
@@ -67,13 +67,18 @@ class ActivityValidator {
         if (plannedActivity.interval.step != null) {
             validateStep(plannedActivity.interval.step!!, validationErrors)
         }
+        if (plannedActivity.note != null) {
+            if (plannedActivity.note.length > 255) {
+                validationErrors.add("Note must be shorter than 255 characters")
+            }
+        }
         if (validationErrors.isNotEmpty()) {
             throw ValidationException("Validation of planned Activity failed $validationErrors")
         }
     }
 
-    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User){
-        log.trace{"Validating planned activity for edit $plannedActivity"}
+    fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User) {
+        log.trace { "Validating planned activity for edit $plannedActivity" }
         // check if the user is allowed to update this activity
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
@@ -82,7 +87,7 @@ class ActivityValidator {
             }
         } else if (user is Trainer) {
             val isOwnTemplate = user.activities.any { it.id == oldPlannedActivity.id }
-            var isForAthleteOfTrainer = false;
+            var isForAthleteOfTrainer = false
             for (athlete in user.athletes) {
                 if (athlete.activities.any { it.id == oldPlannedActivity.id }) {
                     isForAthleteOfTrainer = true
@@ -95,7 +100,7 @@ class ActivityValidator {
             throw ValidationException("Only Trainers and Athletes can edit Activities")
         }
 
-        if(plannedActivity.id != oldPlannedActivity.id){
+        if (plannedActivity.id != oldPlannedActivity.id) {
             throw NotFoundException("Planned Activity not found")
         }
 
@@ -103,7 +108,7 @@ class ActivityValidator {
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
-        log.trace{"Validating interval $interval"}
+        log.trace { "Validating interval $interval" }
         if (interval.intervals != null) {
             if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
@@ -112,7 +117,7 @@ class ActivityValidator {
     }
 
     private fun validateStep(step: Step, validationErrors: MutableList<String>) {
-
+        log.trace { "Validating step $step" }
         if (step.durationDistance != null) {
             if (step.durationDistanceUnit == null) {
                 validationErrors.add("Duration distance unit must be set if duration distance is set")
@@ -167,6 +172,12 @@ class ActivityValidator {
             }
             if (step.targetType == null) {
                 validationErrors.add("Target type must be set if target to is set")
+            }
+        }
+
+        if (step.note != null) {
+            if (step.note!!.length > 255) {
+                validationErrors.add("Note must be shorter than 255 characters")
             }
         }
 

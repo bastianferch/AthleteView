@@ -48,9 +48,7 @@ export class ActivityService {
     return activity;
   }
 
-  // TODO also validate all these things in the backend!
   validateActivity(activity: PlannedActivitySplit) {
-    // TODO check if the backend allows more chars
     const maxNoteLength = 255;
 
     if (activity.date === null && activity.template === false) {
@@ -75,7 +73,6 @@ export class ActivityService {
   }
 
   private validateInterval(interval: IntervalSplit): boolean {
-    // TODO check if the backend allows more chars
     const maxNoteLength = 255;
 
     if (interval.intervals && interval.intervals.length !== 0) {

@@ -3,7 +3,7 @@ package ase.athlete_view.util
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
@@ -37,8 +37,8 @@ class UserCreator {
         const val DEFAULT_ATHLETE_HEIGHT: Int = 1755
         const val DEFAULT_ATHLETE_WEIGHT: Int = 70500
 
-        fun getUserDto(): UserDto {
-            return UserDto(id = DEFAULT_USER_ID, name = DEFAULT_USER_NAME,
+        fun getUserDto(): UserDTO {
+            return UserDTO(id = DEFAULT_USER_ID, name = DEFAULT_USER_NAME,
                 email = DEFAULT_USER_EMAIL, password = DEFAULT_USER_PASSWORD,
                 token = DEFAULT_TOKEN_VALUE)
         }

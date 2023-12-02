@@ -6,7 +6,7 @@
         <form>
           <mat-form-field appearance="outline" class="dense-2" style="width: 300px">
             <mat-label>Select activity type</mat-label>
-            <mat-select [(ngModel)]="plannedActivity.type" name="activityType">
+            <mat-select [(ngModel)]="plannedActivity.type" name="activityType" disabled="{{mode===ActivityCreateEditViewMode.details}}">
               <mat-option *ngFor="let activityType of activityTypes" [value]="activityType">
                 {{activityMapper.get(activityType)}}
               </mat-option>

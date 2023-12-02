@@ -1,7 +1,6 @@
 package ase.athlete_view.domain.activity.service.impl
 
 import ase.athlete_view.common.exception.entity.NotFoundException
-import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.persistence.IntervalRepository
 import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
 import ase.athlete_view.domain.activity.persistence.StepRepository
@@ -33,12 +32,11 @@ class ActivityServiceImpl(
         // get the logged-in user
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
-            // TODO message
-            throw BadCredentialsException("")
+            throw BadCredentialsException("User not found")
         }
 
         // activity is always created by the logged-in user
-        plannedActivity.createdBy = user.get();
+        plannedActivity.createdBy = user.get()
 
         validator.validateNewPlannedActivity(plannedActivity, user.get())
         createInterval(plannedActivity.interval)
@@ -54,7 +52,7 @@ class ActivityServiceImpl(
         // get the logged-in user
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
-            throw NotFoundException("Planned Activity not found")
+            throw BadCredentialsException("User not found")
         }
 
         val userObject = user.get()
@@ -67,7 +65,7 @@ class ActivityServiceImpl(
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
             val isOwnTemplate = userObject.activities.any { it.id == id }
-            var isForAthleteOfTrainer = false;
+            var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
@@ -79,7 +77,7 @@ class ActivityServiceImpl(
         }
 
         // if all checks pass, return the activity
-        return activity;
+        return activity
     }
 
     override fun getAllPlannedActivities(userId: Long): List<PlannedActivity> {
@@ -88,21 +86,21 @@ class ActivityServiceImpl(
         // get the logged-in user
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
-            throw NotFoundException("Planned Activity not found")
+            throw BadCredentialsException("User not found!")
         }
 
         val userObject = user.get()
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            return userObject.activities;
+            return userObject.activities
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            var result: List<PlannedActivity> = userObject.activities;
+            var result: List<PlannedActivity> = userObject.activities
             for (athlete in userObject.athletes) {
                 result = result + athlete.activities
             }
-            return result;
+            return result
         }
 
         return listOf()
@@ -114,8 +112,7 @@ class ActivityServiceImpl(
         // get the logged-in user
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
-            // TODO message
-            throw BadCredentialsException("")
+            throw BadCredentialsException("User not found!")
         }
         plannedActivity.createdBy = user.get()
 

@@ -1,7 +1,7 @@
 package ase.athlete_view.domain.user.pojo.entity
 
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import jakarta.persistence.*
 
 @Entity
@@ -24,8 +24,8 @@ open class User(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
     open var activities: List<PlannedActivity> = listOf()
 ) {
-    open fun toUserDto(): UserDto {
-        return UserDto(
+    open fun toUserDto(): UserDTO {
+        return UserDTO(
             id,
             name,
             email,

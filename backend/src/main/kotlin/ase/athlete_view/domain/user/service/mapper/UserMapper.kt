@@ -3,7 +3,7 @@ package ase.athlete_view.domain.user.service.mapper
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
@@ -15,7 +15,7 @@ abstract class UserMapper {
 
     @Mapping(source = "country", target = ".", ignore = true)
     @Mapping(source = "zip", target = ".", ignore = true)
-    abstract fun toDTO(user:User): UserDto
+    abstract fun toDTO(user:User): UserDTO
 
     @Mapping(target = "activities", expression = "java(getEmptyList())")
     abstract fun toEntity(athleteRegistrationDTO: AthleteRegistrationDTO): Athlete
@@ -26,7 +26,7 @@ abstract class UserMapper {
 
     // used by the mappings. since the DTOs don't have notifications, provide an empty list
     fun getEmptyList(): List<PlannedActivity> {
-        return listOf();
+        return listOf()
     }
 
 }
