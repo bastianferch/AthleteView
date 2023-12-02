@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
@@ -21,6 +20,9 @@ import { ResetPasswordComponent } from './domain/auth/component/reset-password/r
 import { SpinnerComponent } from './domain/main/component/spinner/spinner.component';
 import { LoadInterceptor } from "./config/load-interceptor";
 import { ErrorInterceptor } from "./config/error-interceptor";
+import { FitImportDialogComponent } from './fit-import-dialog/fit-import-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { ErrorInterceptor } from "./config/error-interceptor";
     LegalInformationComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    FitImportDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +44,8 @@ import { ErrorInterceptor } from "./config/error-interceptor";
     MatListModule,
     MatDialogModule,
     SharedModule,
+    MatFormFieldModule,
+    MatButtonModule,
   ],
   exports: [
     SpinnerComponent,

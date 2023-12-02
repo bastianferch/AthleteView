@@ -4,12 +4,15 @@ import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.multipart.MultipartFile
 
-@RequestMapping("api/activity")
 @RestController
+@RequestMapping("api/activity")
 class ActivityController(private val activityService: ActivityService) {
 
     private val logger = KotlinLogging.logger {}
@@ -68,5 +71,23 @@ class ActivityController(private val activityService: ActivityService) {
         }
         throw BadCredentialsException("Not logged in!")
 
+    }
+    @PostMapping("/import")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun handleFileUpload(
+        authentication: Authentication,
+        @RequestParam("files") files: List<MultipartFile>
+    ): Unit {
+        logger.info { "File import detected" }
+        if (files.isEmpty()) {
+            throw HttpServerErrorException(HttpStatus.BAD_REQUEST)
+        }
+
+        val uid = (authentication.principal as UserDTO).id
+        if (uid === null) {
+            throw BadCredentialsException("Not logged in!")
+
+        }
+        activityService.importActivity(files, uid)
     }
 }

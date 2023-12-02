@@ -4,6 +4,7 @@ import ase.athlete_view.common.exception.entity.ConflictException
 import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
@@ -67,5 +68,13 @@ class GlobalExceptionHandler {
     fun handleDateTimeParse(ex: DateTimeParseException): ExceptionResponseDTO {
         logger.warn { "DateTimeParseException : ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY, "Could not parse a date")
+    }
+
+    @ExceptionHandler(DuplicateFitFileException::class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    @ResponseBody
+    fun handleDuplicateFitFile(ex: DuplicateFitFileException): ExceptionResponseDTO {
+        logger.warn { "DuplicateFitFileException : ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.CONFLICT, "File already in-store!")
     }
 }

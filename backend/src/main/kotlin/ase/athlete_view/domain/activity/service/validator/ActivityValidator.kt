@@ -18,7 +18,6 @@ import java.time.LocalDateTime
 class ActivityValidator {
     val log = KotlinLogging.logger {}
 
-
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
         log.trace { "Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()

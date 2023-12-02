@@ -1,5 +1,6 @@
+package ase.athlete_view.util
+
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
-import ase.athlete_view.util.WithCustomMockUser
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority

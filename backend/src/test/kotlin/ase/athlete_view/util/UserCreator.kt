@@ -1,5 +1,6 @@
 package ase.athlete_view.util
 
+import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
@@ -70,11 +71,13 @@ class UserCreator {
                 height = DEFAULT_ATHLETE_HEIGHT, weight = DEFAULT_ATHLETE_WEIGHT, trainer = getTrainerDto())
         }
 
-        fun getAthlete(): Athlete{
-            return Athlete(id = DEFAULT_ATHLETE_ID, email = DEFAULT_ATHLETE_EMAIL, name = DEFAULT_ATHLETE_NAME,
+        fun getAthlete(): Athlete {
+            return Athlete(
+                id = DEFAULT_ATHLETE_ID, email = DEFAULT_ATHLETE_EMAIL, name = DEFAULT_ATHLETE_NAME,
                 password = DEFAULT_ATHLETE_PASSWORD, country = DEFAULT_ATHLETE_COUNTRY, zip = DEFAULT_ATHLETE_ZIP,
                 dob = DEFAULT_ATHLETE_DOB, height = DEFAULT_ATHLETE_HEIGHT, weight = DEFAULT_ATHLETE_WEIGHT,
-                trainer = getTrainer())
+                trainer = getTrainer()
+            )
         }
     }
 }

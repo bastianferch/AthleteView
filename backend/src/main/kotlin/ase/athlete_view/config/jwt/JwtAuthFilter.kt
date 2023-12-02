@@ -23,12 +23,14 @@ class JwtAuthFilter(
     ) {
         val header = request.getHeader(HttpHeaders.AUTHORIZATION)
         if (header == null) {
+            logger.debug { "Header not found..." }
             filterChain.doFilter(request, response)
             return
         }
         val tokenParts = header.split(" ")
         if (tokenParts.size == 2 && "Bearer" == tokenParts[0]) {
             try {
+                log.debug { "Attempting to authenticate" }
                 val auth = userAuthProvider.validateToken(tokenParts[1])
                 SecurityContextHolder.getContext().authentication = auth
                 // in this context we know, that the token is legit and not expired.

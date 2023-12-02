@@ -14,6 +14,7 @@ import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
 
+
 @SpringBootTest
 @ActiveProfiles("test")
 class TestBase {
@@ -42,11 +43,12 @@ class TestBase {
         txm.rollback(txStatus)
     }
 
-    protected fun createDefaultUserInDb() {
+    protected fun createDefaultUserInDb(): Long? {
         val user = UserCreator.getUser()
         user.password = encoder.encode(user.password)
         user.isConfirmed = true
-        ur.save(user)
+        val updated = ur.save(user)
+        return updated.id
     }
 
     protected fun createDefaultTrainerAthleteRelationInDb() {

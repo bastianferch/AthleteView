@@ -1,6 +1,5 @@
 package ase.athlete_view.util
 
-import CustomWithMockCustomUserSecurityContextFactory
 import org.springframework.security.test.context.support.WithSecurityContext
 
 

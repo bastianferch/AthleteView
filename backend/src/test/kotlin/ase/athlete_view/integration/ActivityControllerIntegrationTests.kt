@@ -20,14 +20,22 @@ import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.LocalDateTime
+import kotlin.io.path.absolute
 
 @SpringBootTest(
     classes = [AthleteViewApplication::class],
@@ -75,7 +83,7 @@ class ActivityControllerIntegrationTests : TestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
                 .content(objectMapper.writeValueAsString(plannedActivityDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
+        ).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
         assertAll(result,
@@ -101,7 +109,7 @@ class ActivityControllerIntegrationTests : TestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
                 .content(objectMapper.writeValueAsString(plannedActivityDto))
-        ).andExpect(MockMvcResultMatchers.status().isUnprocessableEntity())
+        ).andExpect(status().isUnprocessableEntity())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
         log.info{"Result: $result"}
@@ -109,6 +117,21 @@ class ActivityControllerIntegrationTests : TestBase() {
             {assert(validationFailedRegex.containsMatchIn(result))},
             {assert(dateErrorRegex.containsMatchIn(result))}
         )
+    }
 
+    @Test
+    @WithCustomMockUser
+    fun verifyUploadOfValidFitFile_Returns201() {
+        val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
+        val name = "test.fit"
+        val byteContent = Files.readAllBytes(filePath)
+        val resultFile = MockMultipartFile("files", name, MediaType.MULTIPART_FORM_DATA_VALUE, byteContent)
+
+        mockMvc.perform(
+            multipart(HttpMethod.POST, "/api/activity/import")
+                .file(resultFile)
+                .with(csrf())
+        )
+            .andExpect(status().isCreated)
     }
 }
