@@ -18,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles
 class MailServiceUnitTests {
     // if you want to check the email sending per se, remove the next two lines.
     @MockkBean
-    private lateinit var javaMailSender: JavaMailSender //? = null
+    private lateinit var javaMailSender: JavaMailSender
 
     @Autowired
     private val mailService: MailService? = null

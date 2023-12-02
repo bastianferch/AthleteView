@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -25,7 +24,6 @@ import java.nio.file.Paths
 import kotlin.io.path.absolute
 
 
-// TODO: fix when feature-create-activity is merged (@WithCustomMockUser)
 @WebMvcTest(controllers = [ActivityController::class])
 @ActiveProfiles("test")
 class ActivityServiceControllerUnitTests {
@@ -36,7 +34,6 @@ class ActivityServiceControllerUnitTests {
     private lateinit var mockMvc: MockMvc
 
     @Test
-//    @WithMockUser(value = "Testuser")
     @WithCustomMockUser
     fun verifyUploadingValidFitFile_Returns201Created() {
         // mock service

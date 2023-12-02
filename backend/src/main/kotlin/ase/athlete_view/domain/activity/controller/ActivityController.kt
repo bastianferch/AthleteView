@@ -4,7 +4,6 @@ import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
-import lombok.AllArgsConstructor
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
@@ -14,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("api/activity")
-@AllArgsConstructor
 class ActivityController(private val activityService: ActivityService) {
 
     private val logger = KotlinLogging.logger {}

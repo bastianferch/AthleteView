@@ -188,7 +188,7 @@ class ActivityServiceImpl(
             val activity = Activity(
                 null,
                 user.get(),
-                0,
+                0, // TODO: implement
                 avgBpm,
                 hrMax.toInt(),
                 totalDistance,
@@ -197,7 +197,7 @@ class ActivityServiceImpl(
                 avgPower,
                 powerMax,
                 0,
-                1,
+                1, // TODO implement
                 fitId
             )
 
