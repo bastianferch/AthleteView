@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { FitImportDialogComponent } from 'src/app/fit-import-dialog/fit-import-dialog.component';
 import { ActivityService } from '../../activities/service/activities.service';
+import { SnackbarService } from "../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-main',
@@ -14,7 +15,7 @@ export class MainComponent {
   constructor(private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,
-    private activityService: ActivityService) {
+    private activityService: ActivityService,private snackbarService: SnackbarService) {
   }
 
   logout(): void {
@@ -31,14 +32,12 @@ export class MainComponent {
     dialogRef.afterClosed().subscribe((files) => {
       if (files.length > 0) {
         this.activityService.importFitActivity(files).subscribe({
-          next: (data) => {
-            // console.log("HTTP Call success! Data returned:")
-            console.warn(data)
-
-            // TODO: notification service
-
+          next: () => {
+            this.snackbarService.openSnackBar("Imported data successfully!")
           },
-          error: (err) => console.error(err),
+          error: () => {
+            this.snackbarService.openSnackBar("Error importing data!")
+          },
         })
       }
     });

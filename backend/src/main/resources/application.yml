@@ -1,3 +1,9 @@
+logging:
+  level:
+    root: INFO
+    ase: TRACE
+
+
 spring:
   data:
     mongodb:

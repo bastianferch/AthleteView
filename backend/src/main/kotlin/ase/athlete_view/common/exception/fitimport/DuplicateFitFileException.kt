@@ -6,5 +6,5 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 
 @NoArgsConstructor
-@ResponseStatus(HttpStatus.NOT_MODIFIED)
+@ResponseStatus(HttpStatus.CONFLICT)
 class DuplicateFitFileException(message: String?) : RuntimeException(message)

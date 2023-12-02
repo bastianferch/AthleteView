@@ -4,6 +4,7 @@ import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
 import ase.athlete_view.domain.activity.pojo.dto.FitData
 import com.mongodb.BasicDBObject
 import com.mongodb.client.gridfs.model.GridFSFile
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -19,6 +20,8 @@ class FitDataRepositoryImpl(
     private val gridFsTemplate: GridFsTemplate,
     private val gridFsOperations: GridFsOperations
 ): FitDataRepository {
+
+    private val log = KotlinLogging.logger {}
     private fun getSha256Digest(data: ByteArray): String {
         val messageDigest = MessageDigest.getInstance("sha256")
         messageDigest.update(data)
@@ -47,6 +50,7 @@ class FitDataRepositoryImpl(
 
     private fun checkIfFileExists(data: MultipartFile): Boolean {
         val hashValue = getSha256Digest(data.bytes)
+        log.debug { "Checking if file with hash $hashValue exists" }
         val file = gridFsTemplate.find(Query(Criteria.where("metadata.hash").`is`(hashValue))).firstOrNull()
         return file !== null
     }
