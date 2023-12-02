@@ -23,7 +23,7 @@ class FitDataRepositoryImpl(
         val messageDigest = MessageDigest.getInstance("sha256")
         messageDigest.update(data)
         val digest = messageDigest.digest()
-        return digest.joinToString { "02x".format(it) }
+        return digest.joinToString(separator = "") { "%02x".format(it) }
     }
 
     override fun saveFitData(data: MultipartFile): String {
