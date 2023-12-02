@@ -5,7 +5,7 @@ import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
 import ase.athlete_view.domain.authentication.service.AuthenticationService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
@@ -25,7 +25,7 @@ class AuthenticationController(
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registration/athlete")
-    fun registerAthlete(@Valid @RequestBody registrationDto: AthleteRegistrationDTO): UserDto {
+    fun registerAthlete(@Valid @RequestBody registrationDto: AthleteRegistrationDTO): UserDTO {
         logger.info { "POST ATHLETE REGISTRATION $registrationDto" }
         val savedUser = this.authenticationService.registerAthlete(registrationDto)
         return userMapper.toDTO(savedUser)
@@ -33,7 +33,7 @@ class AuthenticationController(
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registration/trainer")
-    fun registerTrainer(@Valid @RequestBody registrationDto: TrainerRegistrationDTO): UserDto {
+    fun registerTrainer(@Valid @RequestBody registrationDto: TrainerRegistrationDTO): UserDTO {
         logger.info { "POST TRAINER REGISTRATION ${registrationDto.email}" }
         val savedUser = this.authenticationService.registerTrainer(registrationDto)
         return userMapper.toDTO(savedUser)
@@ -41,7 +41,7 @@ class AuthenticationController(
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    fun login(@RequestBody dto: LoginDTO): UserDto {
+    fun login(@RequestBody dto: LoginDTO): UserDTO {
         logger.info { "POST LOGIN FOR USER ${dto.email}" }
         return this.authenticationService.authenticateUser(dto)
     }

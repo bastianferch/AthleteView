@@ -7,7 +7,7 @@ import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.User
 import org.springframework.security.authentication.BadCredentialsException
 import java.util.*
@@ -71,7 +71,7 @@ interface AuthenticationService {
      * @throws BadCredentialsException if user could not be found or the pass does not match.
      * @throws IllegalStateException should be impossible, probably bug in the kotlin.
      */
-    fun authenticateUser(loginDTO: LoginDTO): UserDto
+    fun authenticateUser(loginDTO: LoginDTO): UserDTO
 
     /**
      * Sends the user a new email with the confirmation token.

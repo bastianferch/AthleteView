@@ -1,0 +1,38 @@
+.checkbox {
+  width: 21px !important;
+  height: 21px !important;
+}
+
+.checkbox-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bottom-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.interval-container {
+  min-width: 380px;
+
+}
+.side-container{
+  min-width: 300px;
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media screen and (max-width: 900px) {
+  .interval-container{
+    width: 100%;
+  }
+  .side-container{
+    width: 100%;
+  }
+
+}

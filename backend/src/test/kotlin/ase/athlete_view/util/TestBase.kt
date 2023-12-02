@@ -50,4 +50,16 @@ class TestBase {
         val updated = ur.save(user)
         return updated.id
     }
+
+    protected fun createDefaultTrainerAthleteRelationInDb() {
+        val trainer = UserCreator.getTrainer()
+        trainer.password = encoder.encode(trainer.password)
+        trainer.isConfirmed = true
+        val athlete = UserCreator.getAthlete()
+        athlete.password = encoder.encode(athlete.password)
+        athlete.isConfirmed = true
+        athlete.trainer = trainer
+        ur.save(trainer)
+        ur.save(athlete)
+    }
 }

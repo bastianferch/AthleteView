@@ -6,6 +6,7 @@ import { httpInterceptorProviders } from "./domain/auth/service/auth-interceptor
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MainModule } from "./domain/main/module/main/main.module";
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   ConfirmRegistrationComponent,
 } from './domain/auth/component/confirm-registration/confirm-registration.component';
@@ -39,13 +40,16 @@ import { MatButtonModule } from '@angular/material/button';
     AppRoutingModule,
     HttpClientModule,
     MainModule,
+    MatSnackBarModule,
     MatListModule,
     MatDialogModule,
     SharedModule,
     MatFormFieldModule,
     MatButtonModule,
   ],
-  exports: [],
+  exports: [
+    SpinnerComponent,
+  ],
   providers: [httpInterceptorProviders,
     { provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { dateFormat: 'shortDate' } },
     { provide: HTTP_INTERCEPTORS, useClass: LoadInterceptor, multi: true },

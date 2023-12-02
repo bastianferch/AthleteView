@@ -7,6 +7,7 @@ import ase.athlete_view.domain.activity.persistence.ActivityRepository
 import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.UserCreator
 import ase.athlete_view.util.mongo.FlapdoodleConfig
 import com.ninjasquad.springmockk.MockkBean
@@ -43,7 +44,7 @@ class ActivityServiceMongoUnitTests {
     @Transactional
     fun uploadingValidIFitFile_shouldSucceed() {
         every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
-        every { activityRepository.save(any<Activity>() )} returns UserCreator.getDefaultActivity()
+        every { activityRepository.save(any<Activity>() )} returns ActivityCreator.getDefaultActivity()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"
@@ -87,7 +88,7 @@ class ActivityServiceMongoUnitTests {
     @Transactional
     fun uploadingDuplicateFile_shouldThrowDuplicateFitFileException() {
         every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
-        every { activityRepository.save(any<Activity>()) } returns UserCreator.getDefaultActivity()
+        every { activityRepository.save(any<Activity>()) } returns ActivityCreator.getDefaultActivity()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"

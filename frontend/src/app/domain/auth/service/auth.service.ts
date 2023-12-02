@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { BehaviorSubject, Observable, tap } from "rxjs";
+import { Router } from "@angular/router";
 import { UrlService } from "../../../config/service/UrlService";
 import { LoginDto } from "../dto/login-dto";
 import { RegisterDto } from "../dto/register-dto";
@@ -20,7 +21,8 @@ export class AuthService {
   getCurrentUser$ = this.currentUser$.asObservable();
 
   constructor(private http: HttpClient,
-    private urlService: UrlService) {
+    private urlService: UrlService,
+    private router: Router) {
     this.url = this.urlService.getBackendUrl() + 'auth/';
   }
 
@@ -31,6 +33,7 @@ export class AuthService {
 
   logout(): void {
     this.setAuthToken(null);
+    localStorage.removeItem(USER_ID_TOKEN_NAME);
     this.setCurrentUser(null)
   }
 
@@ -49,6 +52,7 @@ export class AuthService {
       tap((user) => {
         this.setCurrentUser(user)
         this.setAuthToken(user.token)
+        this.setUserIDToken(user.id)
       }),
     );
   }
@@ -81,6 +85,10 @@ export class AuthService {
     return this.http.post<void>(this.url + 'password', wrapper);
   }
 
+  private setUserIDToken(id: number) {
+    localStorage.setItem(USER_ID_TOKEN_NAME, id.toString());
+  }
 }
 
 export const JWT_TOKEN_NAME = 'auth_token'
+export const USER_ID_TOKEN_NAME = 'user_id'
