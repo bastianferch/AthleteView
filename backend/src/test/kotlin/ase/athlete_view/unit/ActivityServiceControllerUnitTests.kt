@@ -3,6 +3,7 @@ package ase.athlete_view.unit
 import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
 import ase.athlete_view.domain.activity.controller.ActivityController
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -34,8 +35,9 @@ class ActivityServiceControllerUnitTests {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @WithMockUser(value = "Testuser")
     @Test
+//    @WithMockUser(value = "Testuser")
+    @WithCustomMockUser
     fun verifyUploadingValidFitFile_Returns201Created() {
         // mock service
         every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } returns Unit
@@ -55,8 +57,8 @@ class ActivityServiceControllerUnitTests {
         verify(exactly = 1) { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) }
     }
 
-    @WithMockUser(value = "Testuser")
     @Test
+    @WithCustomMockUser
     fun verifyUploadingInvalidFitFile_Returns400BadRequest() {
         // mock service
         every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } throws InvalidFitFileException("invalid")

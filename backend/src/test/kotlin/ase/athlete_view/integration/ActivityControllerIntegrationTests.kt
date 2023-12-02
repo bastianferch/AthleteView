@@ -117,11 +117,10 @@ class ActivityControllerIntegrationTests : TestBase() {
             {assert(validationFailedRegex.containsMatchIn(result))},
             {assert(dateErrorRegex.containsMatchIn(result))}
         )
-
     }
 
     @Test
-    @WithMockUser(value = "Testuser")
+    @WithCustomMockUser
     fun verifyUploadOfValidFitFile_Returns201() {
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"
