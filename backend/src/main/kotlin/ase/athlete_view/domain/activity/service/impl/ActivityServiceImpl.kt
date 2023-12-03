@@ -12,11 +12,15 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import com.garmin.fit.RecordMesg
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ActivityServiceImpl(
@@ -85,7 +89,7 @@ class ActivityServiceImpl(
         return activity
     }
 
-    override fun getAllPlannedActivities(userId: Long): List<PlannedActivity> {
+    override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
         logger.trace { "S | getAllPlannedActivities" }
 
         // get the logged-in user
@@ -95,20 +99,28 @@ class ActivityServiceImpl(
         }
 
         val userObject = user.get()
+        var activities: List<PlannedActivity> = emptyList()
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            return userObject.activities
+            activities = userObject.activities
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            var result: List<PlannedActivity> = userObject.activities
+            activities = userObject.activities
             for (athlete in userObject.athletes) {
-                result = result + athlete.activities
+                activities = activities + athlete.activities
             }
-            return result
         }
 
-        return listOf()
+        if (startDate != null) {
+            activities = activities.filter { startDate.isBefore(it.date) }
+        }
+
+        if (endDate != null) {
+            activities = activities.filter { endDate.isAfter(it.date) }
+        }
+
+        return activities
     }
 
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
@@ -156,7 +168,18 @@ class ActivityServiceImpl(
             var hrMax: Short = 0
             var powerMax = 0
 
+            var startTime: LocalDateTime? = null
+            var endTime: LocalDateTime? = null
+
+            var recordMsgHolder: RecordMesg? = null
+
             for (d in data.recordMesgs) {
+                if (startTime === null) {
+                    // https://developer.garmin.com/fit/cookbook/datetime/
+                    startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
+                }
+
+                recordMsgHolder = d
                 val hr = d.heartRate ?: 0
                 val dist = d.distance ?: 0.0f
                 val power = d.power ?: 0
@@ -178,6 +201,8 @@ class ActivityServiceImpl(
                 cadenceSum += cadence
             }
 
+            endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+
             val totalElems = data.recordMesgs.size
             val avgBpm = hrSum / totalElems
             val avgPower = powerSum / totalElems
@@ -198,12 +223,25 @@ class ActivityServiceImpl(
                 powerMax,
                 0,
                 1, // TODO implement
-                fitId
+                fitId,
+                startTime,
+                endTime
             )
 
             ids.add(fitId)
             val respData = activityRepo.save(activity)
             logger.debug { respData.toString() }
+        }
+    }
+
+    override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
+        val user = userRepository.findById(uid).getOrNull()
+            ?: throw NotFoundException("No such user!")
+
+        return if (startDate != null && endDate != null) {
+            activityRepo.findActivitiesByUserAndDateRange(user.id!!, startDate, endDate)
+        } else {
+            activityRepo.findActivitiesByUserId(uid)
         }
     }
 

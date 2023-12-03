@@ -12,7 +12,6 @@ data class PlannedActivity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
-
     val type: ActivityType,
 
     @OneToOne
