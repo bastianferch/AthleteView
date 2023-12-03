@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { BehaviorSubject, Observable, tap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, tap } from "rxjs";
 import { UrlService } from "../../../config/service/UrlService";
 import { LoginDto } from "../dto/login-dto";
-import { RegisterDto } from "../dto/register-dto";
-import { User } from "../../user/dto/User";
+import { User } from "../../user/dto/user";
 import { UserType } from "../component/registration/user-registration.component";
 import { DateParsing } from "../../../common/util/parsing/date-parsing";
+import { UserService } from "../../user/service/UserService";
+import { RegisterDto } from "../dto/register-dto";
 import { ResetPassword } from "../dto/reset-password";
 
 @Injectable({
@@ -20,7 +21,8 @@ export class AuthService {
   getCurrentUser$ = this.currentUser$.asObservable();
 
   constructor(private http: HttpClient,
-    private urlService: UrlService) {
+    private urlService: UrlService,
+    private userService: UserService) {
     this.url = this.urlService.getBackendUrl() + 'auth/';
   }
 
@@ -31,6 +33,7 @@ export class AuthService {
 
   logout(): void {
     this.setAuthToken(null);
+    localStorage.removeItem(USER_ID_TOKEN_NAME);
     this.setCurrentUser(null)
   }
 
@@ -46,9 +49,11 @@ export class AuthService {
 
   login(body: LoginDto): Observable<User> {
     return this.http.post<User>(this.url + 'login', body, { withCredentials: true }).pipe(
+      User.serializeResponseMap(),
       tap((user) => {
         this.setCurrentUser(user)
         this.setAuthToken(user.token)
+        this.setUserIDToken(user.id)
       }),
     );
   }
@@ -81,6 +86,21 @@ export class AuthService {
     return this.http.post<void>(this.url + 'password', wrapper);
   }
 
+  async checkCurrentUser(): Promise<void> {
+    if (this.currentUser) {
+      return;
+    }
+    const token = this.getAuthToken();
+    if (token && token !== 'null') {
+      const user = await firstValueFrom(this.userService.get());
+      this.setCurrentUser(user);
+    }
+  }
+
+  private setUserIDToken(id: number) {
+    localStorage.setItem(USER_ID_TOKEN_NAME, id.toString());
+  }
 }
 
 export const JWT_TOKEN_NAME = 'auth_token'
+export const USER_ID_TOKEN_NAME = 'user_id'

@@ -27,7 +27,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
             BCryptPasswordEncoder().encode("aaaaaaaa"),
             "Austria",
             "1050",
-            LocalDate.now(),
+            LocalDate.of(2000,1,1),
             1800,
             80000,
             null
@@ -39,11 +39,11 @@ class DatagenProfile(private val userService: UserService, private val tcService
             1,
             "t@t",
             "trainer",
-            BCryptPasswordEncoder().encode("aaaaaaaa"),
+            BCryptPasswordEncoder().encode("tttttttt"),
             "Austria",
             "1030",
             "ABGVA",
-            ArrayList()
+            listOf(athlete)
         )
         trainer.isConfirmed = true
         this.userService.save(trainer)

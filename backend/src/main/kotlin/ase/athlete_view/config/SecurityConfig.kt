@@ -35,7 +35,7 @@ class SecurityConfig(private val userAuthProvider: UserAuthProvider, private val
                     .anyRequest().authenticated()
             }
             .sessionManagement { sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .build();
+            .build()
     }
 
     @Bean

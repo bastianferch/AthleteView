@@ -1,0 +1,96 @@
+<div>
+
+  <!--for debugging purposes-->
+  <!--own ID: {{interval.id}}
+  all IDs {{allDragNDropIDs}}-->
+
+<!--if the interval repeats only once or it is the top level interval, don't render a card around it-->
+<ng-container *ngIf="!displayIntervalCard()">
+  <!--this is a placeholder where the content will be injected-->
+  <ng-container *ngTemplateOutlet="childTemplate" />
+</ng-container>
+
+<!--else render a card around it-->
+<ng-container *ngIf="displayIntervalCard()">
+  <mat-card class="outer-card" [ngStyle]="{'background-color': service.getColor()}">
+    <mat-card-header class="card-header">
+      <mat-card-title class="title"><div>repeats: {{interval.repeat}}</div></mat-card-title>
+      <div *ngIf="editable">
+        <button mat-icon-button matSuffix (click)="openDialog()" type="button" class="icon-button"><mat-icon class="icon">edit</mat-icon></button>
+        <button mat-icon-button matSuffix (click)="onDeleteInterval()" type="button" class="icon-button"><mat-icon class="icon">delete</mat-icon></button>
+      </div>
+    </mat-card-header>
+
+    <mat-card class="inner-card">
+      <mat-card-content>
+        <!--this is a placeholder where the content will be injected-->
+        <ng-container *ngTemplateOutlet="childTemplate" />
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
+</ng-container>
+
+<ng-template #childTemplate>
+  <!--if it is a step, display it-->
+  <div *ngIf="isStep()">
+    <app-step
+      [step]="getStep()"
+      [editable]="editable"
+      [activityType]="activityType"
+      (deleteStep)="onDeleteInterval()"
+      (changeStep)="onChangeStep($event)" />
+  </div>
+
+  <!--if it is an interval array, loop over the intervals-->
+  <!--only render this as a drag n drop list if the component is editable-->
+  <!--this is a drag n drop list. it is connected to all other interval lists-->
+  <div
+    *ngIf="!isStep() && editable"
+    cdkDropList
+    id="{{interval.id}}"
+    [cdkDropListData]="getIntervalArray()"
+    [cdkDropListConnectedTo]="allDragNDropIDs"
+    class="interval-list"
+    (cdkDropListDropped)="drop($event)" >
+
+    <div class="interval-list-item interval" *ngFor="let i of getIntervalArray()" [cdkDragData]="i" cdkDrag>
+
+      <div class="drag-handle-container">
+        <div class="drag-handle" cdkDragHandle><mat-icon matSuffix>drag_indicator</mat-icon></div>
+      </div>
+
+      <div class="custom-placeholder" *cdkDragPlaceholder></div>
+      <app-interval
+        [allIDs]="allIDs"
+        [interval]="i"
+        [rootInterval]="rootInterval"
+        [editable]="editable"
+        [activityType]="activityType"
+        [level]="level + 1"
+        [maxNesting]="maxNesting"
+        (deleteInterval)="handleDeleteInterval($event)"
+        (changeInterval)="handleChangeInterval($event)"/>
+    </div>
+  </div>
+
+
+  <!--if this component is not editable, render it as a normal list without drag n drop-->
+  <div
+    *ngIf="!isStep() && !editable"
+    class="interval-list" >
+    <div class="interval-list-item interval" *ngFor="let i of getIntervalArray()" >
+      <app-interval
+        [allIDs]="allIDs"
+        [interval]="i"
+        [rootInterval]="rootInterval"
+        [editable]="editable"
+        [activityType]="activityType"
+        [level]="level + 1"
+        [maxNesting]="maxNesting"
+        (deleteInterval)="handleDeleteInterval($event)"
+        (changeInterval)="handleChangeInterval($event)"/>
+    </div>
+  </div>
+</ng-template>
+
+</div>

@@ -19,6 +19,9 @@ class WebConfig {
         var config = CorsConfiguration();
         config.allowCredentials = true;
         config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedOrigin("http://127.0.0.1:4200")
+        config.addAllowedOrigin("https://localhost:4200")
+        config.addAllowedOrigin("https://127.0.0.1:4200")
         config.allowedHeaders = listOf(
             HttpHeaders.ACCEPT,
             HttpHeaders.AUTHORIZATION,

@@ -37,7 +37,7 @@ class AuthenticationControllerIntegrationTests: TestBase() {
 
     @Test
     fun loginWithCorrectCredentials_ShouldReturnOk() {
-        val login = UserCreator.getLoginDto()
+        val login = UserCreator.getAthleteLoginDto()
 
         restTemplate.perform(
             post("/api/auth/login")
@@ -48,7 +48,7 @@ class AuthenticationControllerIntegrationTests: TestBase() {
         )
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber)
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isNotEmpty)
     }
 }

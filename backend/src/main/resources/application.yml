@@ -1,4 +1,17 @@
+logging:
+  level:
+    root: INFO
+    ase: TRACE
+
+
 spring:
+  data:
+    mongodb:
+        host: 127.0.0.1
+        database: athlete_view
+        port: 27017
+        username: mongousr
+        password: 1mongo3mongo3mongo7
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/athlete_view

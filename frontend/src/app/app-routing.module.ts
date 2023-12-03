@@ -6,16 +6,19 @@ import { LegalInformationComponent } from "./domain/user/component/legal-informa
 const routes: Routes = [
   { path: '', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/home/module/home.module').then((m) => m.HomeModule) },
-  { path: 'activities', canActivate: [authGuard],
-    loadChildren: () => import('src/app/domain/activities/module/activities.module').then((m) => m.ActivitiesModule) },
+  { path: 'activity', canActivate: [authGuard], // TODO bugfix for not redirecting to login page
+    loadChildren: () => import('src/app/domain/activity/module/activity.module').then((m) => m.ActivityModule) },
   { path: 'calendar', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarViewModule) },
   { path: 'time-constraints', canActivate: [authGuard],
       loadChildren: () => import('src/app/domain/time-constraints/module/time-constraints.module').then((m) => m.TimeConstraintsModule) },
+    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },
+  { path: 'profile', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/user/UserModule').then((m) => m.UserModule) },
   { path: 'auth',
     loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule) },
   { path: 'legal', component: LegalInformationComponent },
-  ];
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

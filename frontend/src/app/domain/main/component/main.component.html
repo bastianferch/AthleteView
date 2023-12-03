@@ -4,7 +4,7 @@
     Home
   </button>
 
-  <button mat-raised-button [routerLink]="'/activities'">
+  <button mat-raised-button [routerLink]="'/activity'">
     <mat-icon>home</mat-icon>
     Activities
   </button>
@@ -14,9 +14,21 @@
     Calendar
   </button>
 
+  <button mat-raised-button (click)="openImportDialog()">
+    <mat-icon>upload-file</mat-icon>
+    Fit Import
+  </button>
+
+  <button mat-raised-button [routerLink]="'/profile'">
+    <mat-icon>person</mat-icon>
+    Profile
+  </button>
   <button mat-raised-button (click)="logout()">
     <mat-icon>home</mat-icon>
     Logout
   </button>
 </div>
-<router-outlet></router-outlet>
+
+<div style="padding:1vh 1vw">
+  <router-outlet></router-outlet>
+</div>

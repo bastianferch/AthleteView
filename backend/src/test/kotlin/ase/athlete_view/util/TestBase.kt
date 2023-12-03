@@ -42,10 +42,24 @@ class TestBase {
         txm.rollback(txStatus)
     }
 
-    protected fun createDefaultUserInDb() {
-        val user = UserCreator.getUser()
+    protected fun createDefaultUserInDb(): Long? {
+        val user = UserCreator.getAthlete()
         user.password = encoder.encode(user.password)
         user.isConfirmed = true
-        ur.save(user)
+        user.trainer = null
+        val updated = ur.save(user)
+        return updated.id
+    }
+
+    protected fun createDefaultTrainerAthleteRelationInDb() {
+        val trainer = UserCreator.getTrainer()
+        trainer.password = encoder.encode(trainer.password)
+        trainer.isConfirmed = true
+        val athlete = UserCreator.getAthlete()
+        athlete.password = encoder.encode(athlete.password)
+        athlete.isConfirmed = true
+        athlete.trainer = trainer
+        ur.save(trainer)
+        ur.save(athlete)
     }
 }

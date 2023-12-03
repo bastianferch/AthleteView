@@ -13,8 +13,10 @@ import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.token.pojo.entity.TokenExpirationTime
 import ase.athlete_view.domain.token.service.TokenService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
@@ -95,7 +97,7 @@ class AuthenticationServiceImpl(
         return this.userAuthProvider.createToken(user)
     }
 
-    override fun authenticateUser(loginDTO: LoginDTO): UserDto {
+    override fun authenticateUser(loginDTO: LoginDTO): UserDTO {
         try {
             val user = this.userService.getByEmail(loginDTO.email)
             if (!encoder.matches(loginDTO.password, user.password)) {
@@ -104,7 +106,11 @@ class AuthenticationServiceImpl(
             if (!user.isConfirmed) {
                 throw ConflictException("Please confirm your email.")
             }
-            val dto = this.userMapper.toDTO(user)
+            val dto:UserDTO = if (user is Athlete){
+                this.userMapper.toDTO(user);
+            } else{
+                this.userMapper.toDTO(user as Trainer);
+            }
             dto.token = this.userAuthProvider.createToken(dto)
             return dto
         } catch (e: NotFoundException) {

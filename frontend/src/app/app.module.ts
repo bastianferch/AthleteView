@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
@@ -7,6 +6,7 @@ import { httpInterceptorProviders } from "./domain/auth/service/auth-interceptor
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MainModule } from "./domain/main/module/main/main.module";
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   ConfirmRegistrationComponent,
 } from './domain/auth/component/confirm-registration/confirm-registration.component';
@@ -20,6 +20,9 @@ import { ResetPasswordComponent } from './domain/auth/component/reset-password/r
 import { SpinnerComponent } from './domain/main/component/spinner/spinner.component';
 import { LoadInterceptor } from "./config/load-interceptor";
 import { ErrorInterceptor } from "./config/error-interceptor";
+import { FitImportDialogComponent } from './fit-import-dialog/fit-import-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -29,6 +32,7 @@ import { ErrorInterceptor } from "./config/error-interceptor";
     LegalInformationComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    FitImportDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,11 +40,16 @@ import { ErrorInterceptor } from "./config/error-interceptor";
     AppRoutingModule,
     HttpClientModule,
     MainModule,
+    MatSnackBarModule,
     MatListModule,
     MatDialogModule,
     SharedModule,
+    MatFormFieldModule,
+    MatButtonModule,
   ],
-  exports: [],
+  exports: [
+    SpinnerComponent,
+  ],
   providers: [httpInterceptorProviders,
     { provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { dateFormat: 'shortDate' } },
     { provide: HTTP_INTERCEPTORS, useClass: LoadInterceptor, multi: true },
