@@ -1,0 +1,41 @@
+
+<div class="wrapper">
+  <div class="cal-utils">
+    <mat-button-toggle-group #group="matButtonToggleGroup" (change)="handleViewSwitch(group.value)" [value]="viewType">
+      <mat-button-toggle [value]="CalendarView.Week">Week</mat-button-toggle>
+      <mat-button-toggle [value]="CalendarView.Month">Month</mat-button-toggle>
+    </mat-button-toggle-group>
+    <h2>{{ getViewTitle() }}</h2>
+    <div class="date-nav-btn">
+      <button mat-stroked-button (click)="handleDateChange(true)">Previous {{ getBtnLabelForView() }}</button>
+      <button mat-stroked-button (click)="handleDateToday()">Today</button>
+      <button mat-stroked-button (click)="handleDateChange(false)">Next {{ getBtnLabelForView() }}</button>
+    </div>
+  </div>
+  <div>
+    <mwl-calendar-month-view
+      [hidden]="viewType !== CalendarView.Month"
+      [viewDate]="viewDate"
+      locale="en"
+      [events]="events"
+      [weekStartsOn]="1"
+      [activeDayIsOpen]="activeDayIsOpen"
+      (dayClicked)="handleDayClicked($event.day)"
+      (eventClicked)="handleEventClicked($event.event)"
+    >
+    </mwl-calendar-month-view>
+
+    <mwl-calendar-week-view
+      [hidden]="viewType !== CalendarView.Week"
+      [viewDate]="viewDate"
+      locale="en"
+      [dayStartHour]="cropStartHour"
+      [dayEndHour]="cropEndHour"
+      [hourSegments]="1"
+      [precision]="'minutes'"
+      [events]="events"
+      (eventClicked)="handleEventClicked($event.event)"
+    >
+    </mwl-calendar-week-view>
+  </div>
+</div>

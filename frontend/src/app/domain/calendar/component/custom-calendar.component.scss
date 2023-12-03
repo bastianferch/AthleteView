@@ -1,0 +1,28 @@
+.wrapper {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  row-gap: 1em;
+}
+
+.cal-utils {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wrapper > div {
+  width: 100%;
+}
+
+.date-nav-btn {
+  display: flex;
+  column-gap: 1em;
+}
+
+h2 {
+  margin: 0 !important;
+}
