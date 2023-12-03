@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { TimeConstraint } from '../../../../common/dto/TimeConstraint';
 import { TimeConstraintService } from '../../service/time-constraints.service';
+import { SnackbarService } from '../../../../common/service/snackbar.service';
 
 
 @Component({
@@ -19,7 +20,7 @@ export class CreateTimeConstraintsComponent implements OnInit {
 
   @Output() newConstraint = new EventEmitter<any>();
 
-  constructor(private constraintService: TimeConstraintService) {}
+  constructor(private constraintService: TimeConstraintService, private msgService: SnackbarService) {}
 
   ngOnInit(): void {
     this.setUpInputs()
@@ -69,7 +70,8 @@ export class CreateTimeConstraintsComponent implements OnInit {
           this.constraintService.createWeeklyConstraint(this.constraint).subscribe(() => {
             this.newConstraint.emit()
             this.setUpInputs()
-          })
+          },
+          (error) => this.msgService.openSnackBar(error.error?.msg))
         }
       } else {
         this.constraint.startTime = this.makeDate(new Date(this.date), this.startTime)
@@ -77,11 +79,12 @@ export class CreateTimeConstraintsComponent implements OnInit {
         this.constraintService.createDailyConstraint(this.constraint).subscribe(() => {
           this.newConstraint.emit()
           this.setUpInputs()
-        })
+        },
+        (error) => this.msgService.openSnackBar(error.error?.msg))
       }
 
     } else {
-      console.error('Invalid time constraints. Start date must be before end date.');
+      this.msgService.openSnackBar('Invalid time constraints. Start date must be before end date.');
     }
   }
 

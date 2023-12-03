@@ -15,13 +15,13 @@
 
     <mat-form-field>
       <mat-label>Start time</mat-label>
-      <input matInput type="time" [ngxTimepicker]="start" [format]="24" [value]="startTime">
+      <input matInput type="time" name="startTime" [ngxTimepicker]="start" [format]="24" [(ngModel)]="startTime">
       <ngx-material-timepicker-toggle matSuffix [for]="start"></ngx-material-timepicker-toggle>
       <ngx-material-timepicker #start (timeChanged)="setStartTime($event)" [minutesGap]="5"></ngx-material-timepicker>
     </mat-form-field>
     <mat-form-field>
       <mat-label>End time</mat-label>
-      <input matInput type="time" [ngxTimepicker]="end" [format]="24" [value]="endTime">
+      <input matInput type="time" name="endTime" [ngxTimepicker]="end" [format]="24" [(ngModel)]="endTime">
       <ngx-material-timepicker-toggle matSuffix [for]="end"></ngx-material-timepicker-toggle>
       <ngx-material-timepicker #end (timeChanged)="setEndTime($event)" [minutesGap]="5"></ngx-material-timepicker>
     </mat-form-field>

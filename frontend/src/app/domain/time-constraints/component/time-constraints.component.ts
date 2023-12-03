@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { TimeConstraintService } from '../service/time-constraints.service';
+import { SnackbarService } from '../../../common/service/snackbar.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
 import { MatButtonModule } from "@angular/material/button";
 import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
@@ -39,7 +40,7 @@ export class TimeConstraintsComponent implements OnInit {
     },
   ];
 
-  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService) {}
+  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService, public msgService: SnackbarService) {}
 
   ngOnInit(): void {
     this.setStartOfWeek()
@@ -74,7 +75,8 @@ export class TimeConstraintsComponent implements OnInit {
           this.eventMap.set(event, constraint.id)
         }
         this.setEvents()
-      })
+      },
+      (error) => this.msgService.openSnackBar(error.error?.msg))
   }
 
   setChoice(choice: string[]) {
@@ -116,7 +118,8 @@ export class TimeConstraintsComponent implements OnInit {
         this.constraintService.editWeeklyConstraint(constraint).subscribe(
           () => {
             this.getEvents()
-          })
+          },
+          (error) => this.msgService.openSnackBar(error.error?.msg))
       } else {
         constraint.endTime = newEnd
         constraint.endTime.setHours(newEnd.getHours() - (new Date().getTimezoneOffset() / 60))
@@ -126,6 +129,7 @@ export class TimeConstraintsComponent implements OnInit {
           () => {
             this.getEvents()
           },
+          (error) => this.msgService.openSnackBar(error.error?.msg),
         )
       }
     })
@@ -163,6 +167,7 @@ export class TimeConstraintsDialogComponent {
     public dialogRef: MatDialogRef<TimeConstraintsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: number,
     public constraintService: TimeConstraintService,
+    public msgService: SnackbarService,
   ) {}
 
   // closes the dialog with result == undefined, so no changes are performed
@@ -171,7 +176,10 @@ export class TimeConstraintsDialogComponent {
   }
 
   confirm(): void {
-    this.constraintService.delete(this.data).subscribe();
+    this.constraintService.delete(this.data).subscribe(
+      () => this.msgService.openSnackBar("Deleted time constraint"),
+      (error) => this.msgService.openSnackBar(error.error?.msg),
+    );
     this.dialogRef.close();
   }
 }
