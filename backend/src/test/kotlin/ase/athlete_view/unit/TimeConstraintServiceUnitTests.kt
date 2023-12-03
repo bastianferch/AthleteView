@@ -9,7 +9,7 @@ import ase.athlete_view.domain.time_constraint.pojo.entity.TimeConstraint
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.time_constraint.pojo.entity.WeeklyTimeConstraint
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
@@ -41,7 +41,7 @@ class TimeConstraintServiceUnitTests {
     private lateinit var service: TimeConstraintService
 
     private val user = User(1, "a@s.com", "Josef", "asdf", "Austria", "1337")
-    private val userDto = UserDto(1, "","",null,null)
+    private val userDto = UserDTO(1, "","",null,null, "trainer")
     private val constraint = TimeConstraint(1, true, "TestConstraint", user)
     private val newConstraintDto = TimeConstraintDto(null, true, "TestConstraint", null)
     private val weeklyConstraint = WeeklyTimeConstraint(2, true, "TestConstraint", user, TimeFrame(DayOfWeek.MONDAY, LocalTime.of(11,0), LocalTime.of(12,0)))
@@ -80,7 +80,7 @@ class TimeConstraintServiceUnitTests {
     @Test
     fun deleteConstraintWrongUser(){
         every { repo.findByIdOrNull(1) } returns constraint
-        assertThrows<Exception> { service.delete(1, UserDto(2, "","", null, null)) }
+        assertThrows<Exception> { service.delete(1, UserDTO(2, "","", null, null, "")) }
     }
 
     @Test

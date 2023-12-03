@@ -4,7 +4,7 @@ import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,7 +18,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @PostMapping("/dailies")
     @ResponseStatus(HttpStatus.CREATED)
-    fun postDaily(@RequestBody constraint: DailyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+    fun postDaily(@RequestBody constraint: DailyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "POST time constraint by ${userDto.name}" }
         return (timeConstraintService.save(constraint, userDto))
@@ -26,7 +26,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @PostMapping("/weeklies")
     @ResponseStatus(HttpStatus.CREATED)
-    fun postWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+    fun postWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "POST time constraint by ${userDto.name}" }
         return (timeConstraintService.save(constraint, userDto))
@@ -34,7 +34,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @PutMapping("/dailies/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    fun putDaily(@RequestBody constraint: DailyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+    fun putDaily(@RequestBody constraint: DailyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "PUT time constraint by ${userDto.name}" }
         return (timeConstraintService.edit(constraint, userDto))
@@ -42,7 +42,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @PutMapping("/weeklies/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    fun putWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+    fun putWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "PUT time constraint by ${userDto.name}" }
         return (timeConstraintService.edit(constraint, userDto))
@@ -50,7 +50,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
 
     @GetMapping
     fun getConstraints(@RequestParam(defaultValue = "") type: String,
-                       @AuthenticationPrincipal userDto: UserDto,
+                       @AuthenticationPrincipal userDto: UserDTO,
                        @RequestParam(defaultValue = "") from: String,
                        @RequestParam(defaultValue = "") until: String
                        ): List<TimeConstraintDto> {
@@ -60,13 +60,13 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto): TimeConstraintDto {
+    fun getById(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
         logger.info { "GET constraint with id $id by ${userDto.name}" }
         return timeConstraintService.getById(id, userDto)
     }
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDto) {
+    fun delete(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO) {
         logger.info { "DELETE time constraint with id $id by ${userDto.name}"}
         timeConstraintService.delete(id, userDto)
     }

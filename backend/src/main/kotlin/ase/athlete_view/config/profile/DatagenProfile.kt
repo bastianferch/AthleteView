@@ -3,7 +3,7 @@ package ase.athlete_view.config.profile
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
@@ -51,6 +51,6 @@ class DatagenProfile(private val userService: UserService, private val tcService
         this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting", athlete,
             TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19,0), LocalTime.of(20,0))),
             //maybetodo change 1 from one
-            UserDto(1, "", "", null, null))
+            UserDTO(1, "", "", null, null, ""))
     }
 }

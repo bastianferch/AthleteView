@@ -9,6 +9,6 @@ open class UserDTO(
     open var userType: String
 ) {
     override fun toString(): String {
-        return "UserDto(id=$id, name='$name', email='$email')"
+        return "UserDTO(id=$id, name='$name', email='$email')"
     }
 }

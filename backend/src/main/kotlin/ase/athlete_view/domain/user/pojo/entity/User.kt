@@ -24,7 +24,7 @@ open class User(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
     open var activities: List<PlannedActivity> = listOf()
 ) {
-    open fun toUserDto(): UserDTO {
+    open fun toUserDTO(): UserDTO {
         return UserDTO(
             id,
             name,
