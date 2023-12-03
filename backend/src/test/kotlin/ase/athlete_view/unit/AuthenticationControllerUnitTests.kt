@@ -62,9 +62,9 @@ class AuthenticationControllerUnitTests {
 
     @Test
     fun givenExistingUser_LoginReturnsOk() {
-        every { authService.authenticateUser(any<LoginDTO>()) } returns UserCreator.getUserDto()
+        every { authService.authenticateUser(any<LoginDTO>()) } returns UserCreator.getAthleteDTO()
 
-        val login = UserCreator.getLoginDto()
+        val login = UserCreator.getAthleteLoginDto()
         mockMvc.perform(
             post("/api/auth/login")
                 .with(csrf())
@@ -74,7 +74,7 @@ class AuthenticationControllerUnitTests {
         )
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.id").value(UserCreator.DEFAULT_ATHLETE_ID))
 
         verify(exactly = 1) { authService.authenticateUser(login) }
     }

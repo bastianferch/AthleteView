@@ -18,7 +18,8 @@ class CustomWithMockCustomUserSecurityContextFactory :
             name = customUser.name,
             email = customUser.email,
             password = customUser.password,
-            token = customUser.token
+            token = customUser.token,
+            userType = ""
         )
         val context = SecurityContextHolder.createEmptyContext()
         val principal = userDto

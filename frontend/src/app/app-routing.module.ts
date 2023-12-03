@@ -10,6 +10,8 @@ const routes: Routes = [
     loadChildren: () => import('src/app/domain/activity/module/activity.module').then((m) => m.ActivityModule) },
   { path: 'calendar', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },
+  { path: 'profile', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/user/UserModule').then((m) => m.UserModule) },
   { path: 'auth',
     loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule) },
   { path: 'legal', component: LegalInformationComponent },

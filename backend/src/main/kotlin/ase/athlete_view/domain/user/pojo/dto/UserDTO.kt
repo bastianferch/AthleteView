@@ -1,11 +1,12 @@
 package ase.athlete_view.domain.user.pojo.dto
 
-class UserDTO(
-    var id: Long? = null,
-    val name: String,
-    val email: String,
-    val password: String?,
-    var token: String?,
+open class UserDTO(
+    open var id: Long? = null,
+    open var name: String,
+    open var email: String,
+    open var password: String?,
+    open var token: String?,
+    open var userType: String
 ) {
     override fun toString(): String {
         return "UserDto(id=$id, name='$name', email='$email')"
