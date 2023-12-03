@@ -3,7 +3,7 @@ import { AuthService } from "../../auth/service/auth.service";
 import { Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { FitImportDialogComponent } from 'src/app/fit-import-dialog/fit-import-dialog.component';
-import { ActivityService } from '../../activities/service/activities.service';
+import { ActivityService } from '../../activity/service/activity.service';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 
 @Component({
@@ -15,7 +15,7 @@ export class MainComponent {
   constructor(private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,
-    private activityService: ActivityService,private snackbarService: SnackbarService) {
+    private activityService: ActivityService, private snackbarService: SnackbarService) {
   }
 
   logout(): void {
@@ -36,7 +36,7 @@ export class MainComponent {
             this.snackbarService.openSnackBar("Imported data successfully!")
           },
           error: () => {
-            this.snackbarService.openSnackBar("Error importing data!")
+            this.snackbarService.openSnackBarWithAction("Error importing data!", "X")
           },
         })
       }
