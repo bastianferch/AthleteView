@@ -24,16 +24,16 @@ class AuthenticationServiceUnitTests {
 
     @Test
     fun testUserRepo() {
-        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getUser()
+        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getAthlete()
 
         val usrData = userService.getByEmail("a@b.com")
         verify(exactly = 1) { userRepo.findByEmail("a@b.com") }
 
-        assertThat(usrData.id).isEqualTo(UserCreator.DEFAULT_USER_ID)
-        assertThat(usrData.email).isEqualTo(UserCreator.DEFAULT_USER_EMAIL)
-        assertThat(usrData.password).isEqualTo(UserCreator.DEFAULT_USER_PASSWORD)
-        assertThat(usrData.zip).isEqualTo(UserCreator.DEFAULT_USER_ZIP)
-        assertThat(usrData.country).isEqualTo(UserCreator.DEFAULT_USER_COUNTRY)
-        assertThat(usrData.name).isEqualTo(UserCreator.DEFAULT_USER_NAME)
+        assertThat(usrData.id).isEqualTo(UserCreator.DEFAULT_ATHLETE_ID)
+        assertThat(usrData.email).isEqualTo(UserCreator.DEFAULT_ATHLETE_EMAIL)
+        assertThat(usrData.password).isEqualTo(UserCreator.DEFAULT_ATHLETE_PASSWORD)
+        assertThat(usrData.zip).isEqualTo(UserCreator.DEFAULT_ATHLETE_ZIP)
+        assertThat(usrData.country).isEqualTo(UserCreator.DEFAULT_ATHLETE_COUNTRY)
+        assertThat(usrData.name).isEqualTo(UserCreator.DEFAULT_ATHLETE_NAME)
     }
 }

@@ -30,6 +30,11 @@ open class User(
             name,
             email,
             null,
-            null)
+            null,
+            this.getUserType())
+    }
+
+    open fun getUserType(): String {
+        return "undefined"
     }
 }

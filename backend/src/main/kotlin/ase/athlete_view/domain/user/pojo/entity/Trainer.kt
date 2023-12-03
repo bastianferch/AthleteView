@@ -31,11 +31,18 @@ class Trainer(
             name,
             country,
             zip,
-            code
+            code,
+            "",
+            "trainer",
+            listOf()
         )
         val athletes = athletes.map { it.toAthleteDto() }
         trainer.athletes = athletes
         return trainer
+    }
+
+    override fun getUserType(): String {
+        return "trainer"
     }
 
     override fun toString(): String {

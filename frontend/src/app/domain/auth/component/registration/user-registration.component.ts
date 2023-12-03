@@ -109,4 +109,4 @@ export class UserRegistrationComponent implements OnInit {
 }
 
 export type UserType = 'trainer' | 'athlete'
-const defaultMinMaxValidator = [Validators.maxLength(255), Validators.minLength(0)]
+export const defaultMinMaxValidator = [Validators.maxLength(255), Validators.minLength(0)]

@@ -17,9 +17,9 @@ class Athlete(
     password: String,
     country: String?,
     zip: String?,
-    val dob: LocalDate,
-    val height: Int, // mm
-    val weight: Int, // g
+    var dob: LocalDate,
+    var height: Int, // mm
+    var weight: Int, // g
     @ManyToOne()
     @OnDelete(action = OnDeleteAction.SET_NULL)
     var trainer: Trainer?,
@@ -37,7 +37,12 @@ class Athlete(
             dob,
             height,
             weight,
-            trainer?.toDto()
+            trainer?.toDto(),
+            "",
+            "athlete"
         )
+    }
+    override fun getUserType(): String {
+        return "athlete"
     }
 }

@@ -4,15 +4,19 @@ import ase.athlete_view.domain.user.pojo.entity.Athlete
 import java.time.LocalDate
 
 class AthleteDTO (
-    var id: Long?,
-    var email: String,
-    var name: String,
+    id: Long?,
+    email: String,
+    name: String,
     var country: String?,
     var zip: String?,
     var dob: LocalDate,
     var height: Int,
     var weight: Int,
-    var trainer: TrainerDTO?
+    var trainer: TrainerDTO?,
+    token: String?,
+    userType: String = "athlete",
+): UserDTO(
+    id,name,email, null, token, userType
 ){
     fun toEntity(): Athlete {
         return Athlete(
