@@ -1,6 +1,8 @@
 package ase.athlete_view.util
 
 import ase.athlete_view.domain.activity.pojo.entity.Activity
+import java.time.DateTimeException
+import java.time.LocalDateTime
 
 class ActivityCreator {
         companion object {
@@ -18,7 +20,9 @@ class ActivityCreator {
                     0,
                     0,
                     0,
-                    ""
+                    "",
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(120)
                 )
             }
         }

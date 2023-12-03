@@ -73,10 +73,5 @@ class ActivityServiceUnitTests: TestBase(){
         assertThrows<ValidationException> {
             activityService.createPlannedActivity(invalidPlannedActivity,UserCreator.getTrainer().id!!)
         }
-
     }
-
-
-
-
 }
