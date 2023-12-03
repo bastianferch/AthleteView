@@ -22,4 +22,10 @@ open class TimeConstraint(
         open fun toDto(): TimeConstraintDto{
                 return TimeConstraintDto(id, isBlacklist, title, user)
         }
+
+        override fun toString(): String {
+                return "TimeConstraint(id=$id, isBlacklist=$isBlacklist, title='$title', user=$user)"
+        }
+
+
 }

@@ -14,6 +14,6 @@ open class TimeConstraintDto (
     }
 
     override fun toString(): String {
-        return super.toString()
+        return "TimeConstraintDto(id=$id, isBlacklist=$isBlacklist, title=$title, user=$user)"
     }
 }

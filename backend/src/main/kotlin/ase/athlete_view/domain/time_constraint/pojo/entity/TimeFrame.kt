@@ -13,4 +13,8 @@ class TimeFrame (
         var startTime: LocalTime,
         @Column(columnDefinition = "TIME")
         var endTime: LocalTime
-)
+) {
+        override fun toString(): String {
+                return "TimeFrame(weekday=$weekday, startTime=$startTime, endTime=$endTime)"
+        }
+}
