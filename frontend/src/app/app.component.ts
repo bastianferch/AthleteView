@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from "./domain/auth/service/auth.service";
 import { Subject, takeUntil } from "rxjs";
-import { User } from "./domain/user/dto/User";
+import { User } from "./domain/user/dto/user";
 
 @Component({
   selector: 'app-root',
@@ -15,6 +15,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.authService.checkCurrentUser().then()
     this.authService.getCurrentUser$
       .pipe(takeUntil(this._destroyStream))
       .subscribe((user) => {

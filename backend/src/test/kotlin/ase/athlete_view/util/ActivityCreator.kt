@@ -9,7 +9,7 @@ class ActivityCreator {
             fun getDefaultActivity(): Activity {
                 return Activity(
                     1L,
-                    UserCreator.getUser(),
+                    UserCreator.getAthlete(),
                     0,
                     0,
                     0,

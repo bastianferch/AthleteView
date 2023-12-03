@@ -20,6 +20,8 @@ const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule),
   },
+  { path: 'profile', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/user/UserModule').then((m) => m.UserModule) },
   { path: 'legal', component: LegalInformationComponent },
 ];
 

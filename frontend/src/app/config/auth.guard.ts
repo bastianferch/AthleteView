@@ -5,7 +5,8 @@ import { AuthService } from "../domain/auth/service/auth.service";
 export const authGuard = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  if (authService.currentUser) {
+  const token = authService.getAuthToken()
+  if (token && token !== 'null') {
     return true;
   }
 

@@ -43,7 +43,7 @@ class ActivityServiceMongoUnitTests {
     @Test
     @Transactional
     fun uploadingValidIFitFile_shouldSucceed() {
-        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
+        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete())
         every { activityRepository.save(any<Activity>() )} returns ActivityCreator.getDefaultActivity()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
@@ -58,7 +58,7 @@ class ActivityServiceMongoUnitTests {
     @Test
     @Transactional
     fun uploadingEmptyButValidIFitFile_shouldSucceed() {
-        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
+        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete())
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file_2.fit").absolute()
         val name = "test.fit"
@@ -72,7 +72,7 @@ class ActivityServiceMongoUnitTests {
     @Test
     @Transactional
     fun uploadingInvalidIFitFile_shouldThrowException() {
-        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
+        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete())
 
         val filePath = Paths.get("src/test/resources/fit-files/empty_file.fit").absolute()
         val name = "login"
@@ -87,7 +87,7 @@ class ActivityServiceMongoUnitTests {
     @Test
     @Transactional
     fun uploadingDuplicateFile_shouldThrowDuplicateFitFileException() {
-        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getUser())
+        every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete())
         every { activityRepository.save(any<Activity>()) } returns ActivityCreator.getDefaultActivity()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()

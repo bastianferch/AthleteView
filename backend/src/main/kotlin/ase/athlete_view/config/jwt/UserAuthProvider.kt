@@ -29,14 +29,22 @@ class UserAuthProvider(
             .withIssuedAt(now)
             .withExpiresAt(validity)
             .withClaim("name", dto.name)
+            .withClaim("userType", dto.userType)
             .sign(Algorithm.HMAC256(secretKey))
     }
 
     fun validateToken(token: String): Authentication {
-        var algorithm = Algorithm.HMAC256(secretKey)
-        var verifier = JWT.require(algorithm).build()
-        var decoded = verifier.verify(token)
-        var user = UserDTO(decoded.getClaim("id").asLong(), decoded.subject, decoded.getClaim("name").asString(), null, token)
+        val algorithm = Algorithm.HMAC256(secretKey)
+        val verifier = JWT.require(algorithm).build()
+        val decoded = verifier.verify(token)
+        val user = UserDTO(
+            decoded.getClaim("id").asLong(),
+            decoded.getClaim("name").asString(),
+            decoded.subject,
+            null,
+            token,
+            decoded.getClaim("userType").asString()
+        )
         return UsernamePasswordAuthenticationToken(user, null, ArrayList())
     }
 }

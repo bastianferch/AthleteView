@@ -37,7 +37,7 @@ class AuthenticationControllerIntegrationTests: TestBase() {
 
     @Test
     fun loginWithCorrectCredentials_ShouldReturnOk() {
-        val login = UserCreator.getLoginDto()
+        val login = UserCreator.getAthleteLoginDto()
 
         restTemplate.perform(
             post("/api/auth/login")

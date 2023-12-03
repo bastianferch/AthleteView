@@ -21,7 +21,7 @@ class DatagenProfile(private val userService: UserService) {
             BCryptPasswordEncoder().encode("aaaaaaaa"),
             "Austria",
             "1050",
-            LocalDate.now(),
+            LocalDate.of(2000,1,1),
             1800,
             80000,
             null
@@ -33,7 +33,7 @@ class DatagenProfile(private val userService: UserService) {
             1,
             "t@t",
             "trainer",
-            BCryptPasswordEncoder().encode("aaaaaaaa"),
+            BCryptPasswordEncoder().encode("tttttttt"),
             "Austria",
             "1030",
             "ABGVA",
