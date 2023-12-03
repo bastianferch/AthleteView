@@ -6,9 +6,6 @@ import { UrlService } from '../../../config/service/UrlService';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { IntervalSplit } from "../../../common/interval/dto/Interval";
 import { Activity } from "../../activity/dto/Activity"
-import { NavigationExtras } from '@angular/router';
-import { query } from '@angular/animations';
-
 
 @Injectable({
   providedIn: 'root',
@@ -120,10 +117,10 @@ export class ActivityService {
 
   private buildTimeParams(startTime: string, endTime: string): HttpParams {
     let params = new HttpParams()
-    if (startTime != null) {
+    if (startTime !== null) {
       params = params.append("startTime", startTime)
     }
-    if (endTime != null) {
+    if (endTime !== null) {
       params = params.append("endTime", endTime)
     }
 

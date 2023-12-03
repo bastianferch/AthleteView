@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivityService } from '../../activity/service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
@@ -19,98 +19,10 @@ export class CustomCalendarComponent {
   viewType: CalendarView = CalendarView.Week
   // helper to check which view is open atm
   CalendarView = CalendarView
-  cropStartHour: number = 5
-  cropEndHour: number = 22
+  cropStartHour = 5
+  cropEndHour = 22
   events: CalendarEvent[] = []
-  activeDayIsOpen: boolean = false
-
-  constructor(
-    private activityService: ActivityService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef,
-    private notifService: SnackbarService,
-    private router: Router
-  ) { }
-
-  private parseDate(numbers: number[]): any {
-    const str: string[] = []
-    numbers.forEach((num) => {
-      if (num.toString().length === 1) {
-        str.push("0" + num.toString())
-      } else {
-        str.push(num.toString())
-      }
-    });
-    return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
-  }
-
-  private loadData() {
-    this.events = []
-
-    // load initial calendar-events
-    const uid = this.authService.currentUser.id
-    const dateFormatString = "dd.MM.yyyy'T'HH:mm'Z'xxx"
-
-    let startTime = ""
-    let endTime = ""
-    if (this.viewType === CalendarView.Week) {
-      startTime = format(startOfWeek(this.viewDate), dateFormatString)
-      endTime = format(endOfWeek(this.viewDate), dateFormatString)
-    } else {
-      startTime = format(startOfMonth(this.viewDate), dateFormatString)
-      endTime = format(endOfMonth(this.viewDate), dateFormatString)
-    }
-
-    console.log(`Start: ${startTime}`)
-    console.log(`End: ${endTime}`)
-
-    this.activityService.fetchAllActivitiesForUser(uid, startTime, endTime).subscribe({
-      next: (data: Array<Activity>) => {
-        console.log(`activities returned: ${JSON.stringify(data)}`)
-        let calData = data.map((x) => {
-          return {
-            title: "Finished activity",
-            start: new Date(this.parseDate(x.startTime)),
-            end: new Date(this.parseDate(x.endTime)),
-            resizable: { beforeStart: false, afterEnd: false },
-            draggable: false,
-            color: { ... this.colors["blue"] },
-            meta: x
-          }
-        }, this)
-        this.events = [...this.events, ...calData]
-      },
-      error: (e) => {
-        this.notifService.openSnackBarWithAction("Error trying to fetch completed activities", "X")
-        console.error(e)
-      },
-    })
-
-    this.activityService.fetchAllPlannedActivitiesForUser(uid, startTime, endTime).subscribe({
-      next: (data) => {
-        console.log("Planned activities returned!")
-        let calData: CalendarEvent[] = data.map((x) => {
-          let startTime = new Date(this.parseDate(x.date as number[]))
-          let endTime = add(startTime, { minutes: 120 })
-
-          return {
-            title: "Planned Activity",
-            start: startTime,
-            end: endTime,
-            resizable: { beforeStart: false, afterEnd: false },
-            draggable: false,
-            color: { ... this.colors["red"] },
-            meta: x
-          }
-        }, this)
-        this.events = [...this.events, ...calData]
-      },
-      error: (e) => {
-        this.notifService.openSnackBarWithAction("Error loading planned activities", "X")
-        console.error(e)
-      }
-    })
-  }
+  activeDayIsOpen = false
 
   // idk about this, suppose we should be using templating colors instead
   colors: Record<string, EventColor> = {
@@ -126,7 +38,15 @@ export class CustomCalendarComponent {
       primary: '#e3bc08',
       secondary: '#FDF1BA',
     },
-  };
+  }
+
+  constructor(
+    private activityService: ActivityService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+    private notifService: SnackbarService,
+    private router: Router,
+  ) { }
 
   ngOnInit() {
     this.loadData()
@@ -174,7 +94,7 @@ export class CustomCalendarComponent {
   }
 
   handleDateChange(past: boolean): void {
-    if (this.viewType == CalendarView.Month) {
+    if (this.viewType === CalendarView.Month) {
       if (past) {
         this.viewDate = subMonths(this.viewDate, 1)
       } else {
@@ -188,16 +108,93 @@ export class CustomCalendarComponent {
       }
     }
     this.loadData()
+    this.activeDayIsOpen = false
     this.cdr.detectChanges()
   }
 
   handleDateToday() {
     this.viewDate = new Date()
     this.loadData()
+    this.activeDayIsOpen = false
     this.cdr.detectChanges()
   }
 
   getViewTitle() {
     return format(this.viewDate, "LLLL yyyy", { locale: enUS })
+  }
+
+  private parseDate(numbers: number[]): any {
+    const str: string[] = []
+    numbers.forEach((num) => {
+      if (num.toString().length === 1) {
+        str.push("0" + num.toString())
+      } else {
+        str.push(num.toString())
+      }
+    });
+    return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
+  }
+
+  private loadData() {
+    this.events = []
+
+    // load initial calendar-events
+    const uid = this.authService.currentUser.id
+    const dateFormatString = "dd.MM.yyyy'T'HH:mm'Z'xxx"
+
+    let startTime = ""
+    let endTime = ""
+    if (this.viewType === CalendarView.Week) {
+      startTime = format(startOfWeek(this.viewDate), dateFormatString)
+      endTime = format(endOfWeek(this.viewDate), dateFormatString)
+    } else {
+      startTime = format(startOfMonth(this.viewDate), dateFormatString)
+      endTime = format(endOfMonth(this.viewDate), dateFormatString)
+    }
+
+    this.activityService.fetchAllActivitiesForUser(uid, startTime, endTime).subscribe({
+      next: (data: Array<Activity>) => {
+        const calData = data.map((x) => {
+          return {
+            title: "Finished activity",
+            start: new Date(this.parseDate(x.startTime)),
+            end: new Date(this.parseDate(x.endTime)),
+            resizable: { beforeStart: false, afterEnd: false },
+            draggable: false,
+            color: { ...this.colors["blue"] },
+            meta: x,
+          }
+        }, this)
+        this.events = [...this.events, ...calData]
+      },
+      error: (e) => {
+        this.notifService.openSnackBarWithAction("Error trying to fetch completed activities", "X")
+        console.error(e)
+      },
+    })
+
+    this.activityService.fetchAllPlannedActivitiesForUser(uid, startTime, endTime).subscribe({
+      next: (data) => {
+        const calData: CalendarEvent[] = data.map((x) => {
+          const activityStart = new Date(this.parseDate(x.date as number[]))
+          const activityEnd = add(activityStart, { minutes: 120 })
+
+          return {
+            title: "Planned Activity",
+            start: activityStart,
+            end: activityEnd,
+            resizable: { beforeStart: false, afterEnd: false },
+            draggable: false,
+            color: { ...this.colors["red"] },
+            meta: x,
+          }
+        }, this)
+        this.events = [...this.events, ...calData]
+      },
+      error: (e) => {
+        this.notifService.openSnackBarWithAction("Error loading planned activities", "X")
+        console.error(e)
+      },
+    })
   }
 }

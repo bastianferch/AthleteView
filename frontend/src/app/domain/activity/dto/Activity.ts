@@ -10,7 +10,7 @@ export interface Activity {
   maxPower: number;
   load: number;
   fatigue: number;
-  fitData: String;
+  fitData: string;
   startTime: number[];
   endTime: number[];
 }
