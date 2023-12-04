@@ -9,7 +9,9 @@ const routes: Routes = [
   { path: 'activity', canActivate: [authGuard], // TODO bugfix for not redirecting to login page
     loadChildren: () => import('src/app/domain/activity/module/activity.module').then((m) => m.ActivityModule) },
   { path: 'calendar', canActivate: [authGuard],
-    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarModule) },
+    loadChildren: () => import('src/app/domain/calendar/module/calendar.module').then((m) => m.CalendarViewModule) },
+  { path: 'time-constraints', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/time-constraints/module/time-constraints.module').then((m) => m.TimeConstraintsModule) },
   { path: 'profile', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/user/UserModule').then((m) => m.UserModule) },
   { path: 'auth',

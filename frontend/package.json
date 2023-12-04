@@ -21,8 +21,12 @@
     "@angular/platform-browser": "^16.2.11",
     "@angular/platform-browser-dynamic": "^16.2.11",
     "@angular/router": "^16.2.11",
+    "angular-calendar": "^0.31.0",
+    "date-fns": "^2.29.3",
+    "luxon": "^3.4.4",
     "lodash": "^4.17.21",
     "ngx-cookie-service": "^16.0.1",
+    "ngx-material-timepicker": "^13.1.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.3"

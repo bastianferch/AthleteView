@@ -95,7 +95,7 @@ class ActivityControllerUnitTests {
     fun createActivityPlanned_ReturnsOk() {
         val plannedActivityDTO = PlannedActivityDTO(
             null, ActivityType.RUN, interval.toDTO(), false, false,
-            "Sample planned activity", LocalDateTime.now().plusDays(5), trainer.toUserDto(), null,
+            "Sample planned activity", LocalDateTime.now().plusDays(5), trainer.toUserDTO(), null,
         )
         every { activityService.createPlannedActivity(any<PlannedActivity>(),any()) } returns plannedActivity
 
