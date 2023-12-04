@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TimeConstraintService } from '../../time-constraints/service/time-constraints.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
 import { CalendarEvent } from 'angular-calendar';
+import { Calendarcolors } from "../../../common/util/calendar-colors";
 
 
 @Component({
@@ -15,11 +16,6 @@ export class CalendarComponent implements OnInit {
   events: CalendarEvent[] = []
   firstOfMonth: Date
   lastOfMonth: Date
-  // TODO import from some global color scheme
-  colors = [
-    { primary: '#e3bc08', secondary: '#FDF1BA' },
-    { primary: '#1e90ff', secondary: '#D1E8FF' },
-  ]
 
   constructor(private constraintService: TimeConstraintService) {}
 
@@ -52,7 +48,7 @@ export class CalendarComponent implements OnInit {
   constraintToEvent(constraint: TimeConstraint): CalendarEvent {
     const start = this.parseDate(constraint.startTime)
     const end = this.parseDate(constraint.endTime)
-    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? this.colors[0] : this.colors[1] }
+    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"] }
     return event
   }
 }

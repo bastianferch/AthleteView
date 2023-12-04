@@ -6,6 +6,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
+import { Calendarcolors } from "../../../common/util/calendar-colors";
 
 @Component({
   selector: 'app-time-constraints',
@@ -23,11 +24,6 @@ export class TimeConstraintsComponent implements OnInit {
   show: boolean[] = [false, true]
   startOfWeek: Date
   refresh = new Subject<void>();
-  // TODO import from some global color scheme
-  colors = [
-    { primary: '#e3bc08', secondary: '#FDF1BA' },
-    { primary: '#1e90ff', secondary: '#D1E8FF' },
-  ]
 
   actions: CalendarEventAction[] = [
     {
@@ -100,7 +96,7 @@ export class TimeConstraintsComponent implements OnInit {
   constraintToEvent(constraint: TimeConstraint): CalendarEvent {
     const start = this.parseDate(constraint.startTime)
     const end = this.parseDate(constraint.endTime)
-    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? this.colors[0] : this.colors[1], actions: this.actions,
+    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"], actions: this.actions,
       resizable: {
         beforeStart: true,
         afterEnd: true,
