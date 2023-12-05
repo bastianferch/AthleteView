@@ -2,27 +2,31 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import {
   Step,
-  StepDurationDistanceUnit, StepDurationDistanceUnitMapper, StepDurationMapper,
+  StepDurationDistanceUnit,
+  StepDurationDistanceUnitMapper,
+  StepDurationMapper,
   StepDurationType,
-  StepNameMapper, StepTargetMapper,
+  StepNameMapper,
+  StepTargetMapper,
   StepTargetType,
   StepType,
 } from "../../dto/Step";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { FormsModule } from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
 import { IntervalService } from "../../service/interval.service";
 import { ActivityNameMapper, ActivityType } from "../../../../domain/activity/dto/PlannedActivity";
+import { MatSliderModule } from "@angular/material/slider";
 
 @Component({
   selector: 'app-edit-step-dialog',
   templateUrl: './edit-step-dialog.component.html',
   styleUrls: ['./edit-step-dialog.component.scss'],
-  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatSelectModule, NgForOf, NgIf, MatDividerModule],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatSelectModule, NgForOf, NgIf, MatDividerModule, MatSliderModule, ReactiveFormsModule],
   standalone: true,
 })
 export class EditStepDialogComponent implements OnInit {
@@ -34,12 +38,27 @@ export class EditStepDialogComponent implements OnInit {
   public targetTypes = Object.values(StepTargetType);
 
   protected readonly StepType = StepType;
+  protected readonly StepTargetType = StepTargetType;
 
   protected activityMapper;
   protected stepNameMapper;
   protected stepDurationMapper;
   protected stepDurationDistanceUnitMapper;
   protected stepTargetMapper;
+
+
+  form = new FormGroup({
+    type: new FormControl(null, [Validators.required]),
+    durationType: new FormControl(null, [Validators.required]),
+    durationDistance: new FormControl(null, [Validators.required]),
+    durationDistanceUnit: new FormControl(null, [Validators.required]),
+    targetType: new FormControl(null),
+    targetFrom: new FormControl(null, [Validators.required]),
+    targetTo: new FormControl(null, [Validators.required]),
+    targetFrom2: new FormControl(null, [Validators.required]),
+    targetTo2: new FormControl(null, [Validators.required]),
+    note: new FormControl(null),
+  });
 
 
   constructor(
@@ -57,6 +76,18 @@ export class EditStepDialogComponent implements OnInit {
   // copy the object aso the original object is not mutated
   ngOnInit(): void {
     this.stepCopy = Object.assign({}, this.data[0]);
+    this.form.patchValue({
+      type: this.stepCopy.type,
+      durationType: this.stepCopy.durationType,
+      durationDistance: this.stepCopy.durationDistance,
+      durationDistanceUnit: this.stepCopy.durationDistanceUnit,
+      targetType: this.stepCopy.targetType,
+      targetFrom: this.stepCopy.targetFrom,
+      targetFrom2: this.service.convertToMinSec(this.stepCopy.targetFrom),
+      targetTo: this.stepCopy.targetTo,
+      targetTo2: this.service.convertToMinSec(this.stepCopy.targetTo),
+      note: this.stepCopy.note,
+    });
   }
 
   // closes the dialog with result == undefined, so no changes are performed
@@ -77,11 +108,10 @@ export class EditStepDialogComponent implements OnInit {
   }
 
   showDurationSettings() {
-    return !(this.stepCopy.durationType === StepDurationType.LAPBUTTON) && !(this.stepCopy.durationType === undefined);
+    return !(this.form.get('durationType').value === StepDurationType.LAPBUTTON) && !(this.form.get('durationType').value === undefined);
   }
 
   showIntensitySettings() {
-    return !(this.stepCopy.targetType === undefined);
+    return !(this.form.get('targetType').value === undefined);
   }
-
 }

@@ -61,7 +61,9 @@ export class CreateEditViewActivityComponent implements OnInit {
       if (this.mode !== ActivityCreateEditViewMode.create) {
         this.activityService.getPlannedActivity(this.route.snapshot.params['id']).subscribe((activity) => {
           this.plannedActivity = convertToPlannedActivity(activity);
-          this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
+          if (this.plannedActivity.date !== null) {
+            this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
+          }
         },
         (error) => {
           if (error.status === HttpStatusCode.NotFound) {
