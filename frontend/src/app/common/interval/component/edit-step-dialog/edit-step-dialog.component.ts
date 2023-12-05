@@ -48,7 +48,7 @@ export class EditStepDialogComponent implements OnInit {
 
 
   form = new FormGroup({
-    type: new FormControl(null, [Validators.required]),
+    type: new FormControl(null, [Validators.required]), // TODO add additional validators like time format
     durationType: new FormControl(null, [Validators.required]),
     durationDistance: new FormControl(null, [Validators.required]),
     durationDistanceUnit: new FormControl(null, [Validators.required]),

@@ -12,11 +12,15 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
+import com.garmin.fit.ActivityType as FitActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Service
 class ActivityServiceImpl(
@@ -31,6 +35,7 @@ class ActivityServiceImpl(
 ) : ActivityService {
     private val logger = KotlinLogging.logger {}
 
+    @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
         logger.trace { "S | createPlannedActivity \n $plannedActivity" }
 
@@ -135,6 +140,7 @@ class ActivityServiceImpl(
         logger.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
+
         if (!user.isPresent) {
             throw BadCredentialsException("User not found")
         }
@@ -156,7 +162,22 @@ class ActivityServiceImpl(
             var hrMax: Short = 0
             var powerMax = 0
 
+            var fitActivityType = data.recordMesgs[0].activityType
+            var date = LocalDate.of(1970, 1, 1)
+
+
             for (d in data.recordMesgs) {
+                logger.debug { d.toString() }
+
+                if (date == LocalDate.of(1970, 1, 1)) {
+                    date = d.timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                }
+                if (fitActivityType == null) {
+                    fitActivityType = FitActivityType.INVALID
+                } else if (fitActivityType != d.activityType && fitActivityType != FitActivityType.GENERIC && fitActivityType != FitActivityType.INVALID) {
+                    fitActivityType = FitActivityType.GENERIC
+                }
+
                 val hr = d.heartRate ?: 0
                 val dist = d.distance ?: 0.0f
                 val power = d.power ?: 0
@@ -177,6 +198,11 @@ class ActivityServiceImpl(
                 totalDistance += dist
                 cadenceSum += cadence
             }
+            logger.debug { "date: $date" }
+            logger.debug { "activityType: $fitActivityType" }
+            val activityType = mapFitActivityTypeToActivityType(fitActivityType)
+            val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
+
 
             val totalElems = data.recordMesgs.size
             val avgBpm = hrSum / totalElems
@@ -198,7 +224,8 @@ class ActivityServiceImpl(
                 powerMax,
                 0,
                 1, // TODO implement
-                fitId
+                fitId,
+                if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
             )
 
             ids.add(fitId)
@@ -207,7 +234,11 @@ class ActivityServiceImpl(
         }
     }
 
-    private fun createInterval(interval: Interval): Interval {
+    private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: MyActivityType, date: LocalDate): List<PlannedActivity> {
+        return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, date)
+    }
+
+    override fun createInterval(interval: Interval): Interval {
         if (interval.intervals?.isNotEmpty() == true) {
             interval.intervals!!.forEach { createInterval(it) }
         }
@@ -219,5 +250,18 @@ class ActivityServiceImpl(
 
     private fun createStep(step: Step): Step {
         return this.stepRepo.save(step)
+    }
+
+
+    // TODO find the different kind of sports and why rowing and crosscountryskiing are not existing in FitActivityType
+    fun mapFitActivityTypeToActivityType(fitActivityType: FitActivityType): MyActivityType {
+        return when (fitActivityType) {
+            FitActivityType.SWIMMING -> MyActivityType.SWIM
+            FitActivityType.RUNNING -> MyActivityType.RUN
+            FitActivityType.CYCLING -> MyActivityType.BIKE
+            FitActivityType.FITNESS_EQUIPMENT -> MyActivityType.ROW
+            FitActivityType.GENERIC -> MyActivityType.CROSSCOUNTRYSKIING
+            else -> MyActivityType.OTHER
+        }
     }
 }

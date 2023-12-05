@@ -23,7 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
@@ -56,7 +55,7 @@ class ActivityControllerIntegrationTests : TestBase() {
 
     // Create a test object for Step class
     private val step = Step(
-        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note"
     )
 
@@ -99,7 +98,7 @@ class ActivityControllerIntegrationTests : TestBase() {
         val dateErrorRegex = "Date and time must be in the future".toRegex()
         val plannedActivityDto = PlannedActivityDTO(
             null, ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
-                null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+                null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
                 StepTargetType.CADENCE, 100, 200, "Sample step note")), false, false,
             "Sample planned activity", LocalDateTime.now().minusDays(5), null, null,
         )

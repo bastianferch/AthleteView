@@ -37,7 +37,7 @@ export const StepDurationMapper = new Map<StepDurationType, string>([
 ]);
 
 
-export enum StepDurationDistanceUnit {
+export enum StepDurationDistanceUnit { // TODO rename to StepDurationUnit and add 2 types
   KM = "KM",
   M = "M",
 }

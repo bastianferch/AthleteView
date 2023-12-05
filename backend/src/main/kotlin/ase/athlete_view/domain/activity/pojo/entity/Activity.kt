@@ -9,7 +9,7 @@ class Activity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private var id: Long?,
-    @OneToOne
+    @ManyToOne
     private var user: User,
     private var accuracy: Int,
     private var averageBpm: Int,
@@ -22,8 +22,10 @@ class Activity(
     private var load: Int, // TODO check what this is and comment after
     private var fatigue: Int,
     private var fitData: String?,
+    @OneToOne
+    private var plannedActivity: PlannedActivity?
 ) {
     override fun toString(): String {
-        return "Activity(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, load=$load, fatigue=$fatigue, fitData=$fitData)"
+        return "Activity(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, load=$load, fatigue=$fatigue, fitData=$fitData, plannedActivity=$plannedActivity)"
     }
 }

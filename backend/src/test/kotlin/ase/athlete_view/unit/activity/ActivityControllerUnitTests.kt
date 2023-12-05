@@ -71,7 +71,7 @@ class ActivityControllerUnitTests {
 
     // Create a test object for Step class
     private val step = Step(
-        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note"
     )
 

@@ -7,8 +7,6 @@ import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.persistence.UserRepository
-import ase.athlete_view.domain.user.pojo.entity.Athlete
-import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import org.junit.jupiter.api.BeforeEach
@@ -36,7 +34,7 @@ class ActivityServiceUnitTests: TestBase(){
 
 
     // Create a test object for Step class
-    private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+    private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note")
 
 
