@@ -51,7 +51,7 @@ class TestBase {
         return updated.id
     }
 
-    protected fun createDefaultTrainerAthleteRelationInDb() {
+    protected fun createDefaultTrainerAthleteRelationInDb(): Pair<Long, Long> {
         val trainer = UserCreator.getTrainer()
         trainer.password = encoder.encode(trainer.password)
         trainer.isConfirmed = true
@@ -59,7 +59,8 @@ class TestBase {
         athlete.password = encoder.encode(athlete.password)
         athlete.isConfirmed = true
         athlete.trainer = trainer
-        ur.save(trainer)
-        ur.save(athlete)
+        val tres = ur.save(trainer)
+        val ares = ur.save(athlete)
+        return tres.id!! to ares.id!!
     }
 }

@@ -1,6 +1,5 @@
 package ase.athlete_view.util
 
-import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
@@ -10,7 +9,7 @@ import java.time.LocalDate
 
 class UserCreator {
     companion object {
-        const val DEFAULT_TRAINER_ID: Long = 2L
+        const val DEFAULT_TRAINER_ID: Long = 1L
         const val DEFAULT_TRAINER_EMAIL: String = "trainer@example.com"
         const val DEFAULT_TRAINER_NAME: String = "Trainer Name"
         const val DEFAULT_TRAINER_PASSWORD: String = "trainerpassword"
@@ -18,7 +17,7 @@ class UserCreator {
         const val DEFAULT_TRAINER_ZIP: String = "12345"
         const val DEFAULT_TRAINER_CODE: String = "123456"
 
-        const val DEFAULT_ATHLETE_ID: Long = 3L
+        const val DEFAULT_ATHLETE_ID: Long = 2L
         const val DEFAULT_ATHLETE_EMAIL: String = "athlete@example.com"
         const val DEFAULT_ATHLETE_NAME: String = "Athlete Name"
         const val DEFAULT_ATHLETE_PASSWORD: String = "athletepassword"
