@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>Edit Zone Groups</h1>
+<div mat-dialog-content class="dialog-content">
+  <button mat-raised-button (click)="reset()">Reset</button>
+  <hr/>
+  <div>
+    <div *ngFor="let zone of zones, index as i" class="zones">
+      <p>Zone {{i}}:</p>
+      <mat-form-field>
+        <input matInput [(ngModel)]="zone.name"/>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" name="fromBPM{{i}}" [(ngModel)]="zone.fromBPM"/>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" name="toBPM{{i}}" [(ngModel)]="zone.toBPM"/>
+      </mat-form-field>
+      <button mat-button color="warn" (click)="removeZone(zone)"> - </button>
+    </div>
+    <button mat-stroked-button color="primary" (click)="addZone()">Add Zone</button>
+  </div>
+</div>
+<div mat-dialog-actions class="dialog-footer">
+  <button mat-button color="warn" (click)="handleCancel()">Cancel</button>
+  <button mat-button color="primary">Save</button>
+</div>

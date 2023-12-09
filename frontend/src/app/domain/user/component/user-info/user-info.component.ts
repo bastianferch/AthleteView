@@ -5,6 +5,8 @@ import { Athlete, Trainer, User } from "../../dto/user";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { defaultMinMaxValidator } from "../../../auth/component/registration/user-registration.component";
 import { SnackbarService } from "../../../../common/service/snackbar.service";
+import { ZoneGroupsDialogComponent } from "../../../zone-groups-dialog/component/zone-groups-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
   selector: 'app-user-info',
@@ -18,6 +20,7 @@ export class UserInfoComponent implements OnInit {
   constructor(private userService: UserService,
     private authService: AuthService, private fb: FormBuilder,
     private notificationService: SnackbarService,
+    private dialog: MatDialog,
   ) {
   }
 
@@ -58,6 +61,13 @@ export class UserInfoComponent implements OnInit {
     } else {
       this.updateTrainer();
     }
+  }
+
+  // TODO: remove button, open dialog via settings
+  openZoneDialog(): void {
+    this.dialog.open(ZoneGroupsDialogComponent, {
+      width: "60%",
+    });
   }
 
   private updateAthlete(): void {
