@@ -16,11 +16,12 @@ class PlannedActivityDTO(
     var note: String? = null,
     var date: LocalDateTime? = null,
     var createdBy: UserDTO?, // TODO this property is only used to get the information from the backend to the frontend. The backend should NEVER rely on this field.
-    var createdFor: AthleteDTO?
+    var createdFor: AthleteDTO?,
+    var activity: ActivityDTO? = null
 
 ) {
     fun toEntity(): PlannedActivity {
-        return PlannedActivity(id, type, interval.toEntity(), withTrainer, template, note, date, null, createdFor?.toEntity())
+        return PlannedActivity(id, type, interval.toEntity(), withTrainer, template, note, date, null, createdFor?.toEntity(), activity?.toEntity())
     }
 
     override fun toString(): String {

@@ -2,16 +2,16 @@ package ase.athlete_view.domain.activity.service.impl
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
-import ase.athlete_view.domain.activity.pojo.entity.Activity
-import ase.athlete_view.domain.activity.pojo.entity.Interval
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
-import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.activity.pojo.entity.*
+import ase.athlete_view.domain.activity.pojo.util.StepDurationType
+import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
 import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import com.garmin.fit.Intensity
 import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
 import com.garmin.fit.ActivityType as FitActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -25,6 +25,7 @@ import java.time.ZoneId
 @Service
 class ActivityServiceImpl(
     private val plannedActivityRepo: PlannedActivityRepository,
+    private val lapRepo: LapRepository,
     private val intervalRepo: IntervalRepository,
     private val stepRepo: StepRepository,
     private val userRepository: UserRepository,
@@ -33,11 +34,11 @@ class ActivityServiceImpl(
     private val activityRepo: ActivityRepository,
     private val fitFileRepo: FitDataRepositoryImpl
 ) : ActivityService {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        logger.trace { "S | createPlannedActivity \n $plannedActivity" }
+        log.trace { "S | createPlannedActivity \n $plannedActivity" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -54,7 +55,7 @@ class ActivityServiceImpl(
     }
 
     override fun getPlannedActivity(id: Long, userId: Long): PlannedActivity {
-        logger.trace { "S | getPlannedActivity $id" }
+        log.trace { "S | getPlannedActivity $id" }
 
         // activity is fetched right away, so we don't have to do unnecessary computation for nonexistent activities
         val activity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
@@ -91,7 +92,7 @@ class ActivityServiceImpl(
     }
 
     override fun getAllPlannedActivities(userId: Long): List<PlannedActivity> {
-        logger.trace { "S | getAllPlannedActivities" }
+        log.trace { "S | getAllPlannedActivities" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -117,7 +118,7 @@ class ActivityServiceImpl(
     }
 
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        logger.trace { "S | updatePlannedActivity $id $plannedActivity" }
+        log.trace { "S | updatePlannedActivity $id $plannedActivity" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -137,7 +138,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
-        logger.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        log.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
 
@@ -158,24 +159,41 @@ class ActivityServiceImpl(
             var calSum = 0
             var totalDistance = 0.0
             var cadenceSum = 0
-
             var hrMax: Short = 0
             var powerMax = 0
 
             var fitActivityType = data.recordMesgs[0].activityType
-            var date = LocalDate.of(1970, 1, 1)
-
+            var date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val activityType = mapFitActivityTypeToActivityType(fitActivityType)
+            val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
+            val plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
+            val stepList = plannedActivity?.unroll()
+            val laps: MutableList<Lap> = mutableListOf()
+            val lapList = data.lapMesgs
+            var i = 0
+            var lap = lapList[i]
+            laps.add(Lap(null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
+                lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt()))
+            val compare = !stepList.isNullOrEmpty()
 
             for (d in data.recordMesgs) {
-                logger.debug { d.toString() }
 
-                if (date == LocalDate.of(1970, 1, 1)) {
-                    date = d.timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                if (lap.timestamp < d.timestamp) {
+                    lap = lapList[++i]
+                    laps.add(Lap(null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
+                            lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt()))
+                    log.debug { "lap ${mapFitIntensityToStepType(lap.intensity)}" }
                 }
-                if (fitActivityType == null) {
-                    fitActivityType = FitActivityType.INVALID
-                } else if (fitActivityType != d.activityType && fitActivityType != FitActivityType.GENERIC && fitActivityType != FitActivityType.INVALID) {
-                    fitActivityType = FitActivityType.GENERIC
+
+                if (compare) {
+                    var speed = 0f
+                    if (stepList!![0].durationType == StepDurationType.LAPBUTTON)
+
+                        if (d.enhancedSpeed != null) {
+                            speed = convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)
+                        }
+
+
                 }
 
                 val hr = d.heartRate ?: 0
@@ -198,10 +216,6 @@ class ActivityServiceImpl(
                 totalDistance += dist
                 cadenceSum += cadence
             }
-            logger.debug { "date: $date" }
-            logger.debug { "activityType: $fitActivityType" }
-            val activityType = mapFitActivityTypeToActivityType(fitActivityType)
-            val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
 
 
             val totalElems = data.recordMesgs.size
@@ -210,6 +224,7 @@ class ActivityServiceImpl(
             val avgCadence = cadenceSum / totalElems
 
             val fitId: String = fitFileRepo.saveFitData(item)
+
 
             val activity = Activity(
                 null,
@@ -225,12 +240,14 @@ class ActivityServiceImpl(
                 0,
                 1, // TODO implement
                 fitId,
-                if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
+                plannedActivity,
+                laps
             )
-
+            plannedActivity?.activity = activity
             ids.add(fitId)
+            laps.map { lapRepo.save(it) }
             val respData = activityRepo.save(activity)
-            logger.debug { respData.toString() }
+            log.debug { respData.toString() }
         }
     }
 
@@ -263,5 +280,21 @@ class ActivityServiceImpl(
             FitActivityType.GENERIC -> MyActivityType.CROSSCOUNTRYSKIING
             else -> MyActivityType.OTHER
         }
+    }
+
+    fun mapFitIntensityToStepType(fitIntensity: Intensity): StepType {
+        return when (fitIntensity) {
+            Intensity.RECOVERY -> StepType.RECOVERY
+            Intensity.ACTIVE -> StepType.ACTIVE
+            Intensity.WARMUP -> StepType.WARMUP
+            Intensity.COOLDOWN -> StepType.COOLDOWN
+            Intensity.INTERVAL -> StepType.ACTIVE
+            else -> StepType.RECOVERY
+        }
+    }
+
+
+    fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Float {
+        return 1000 / speedInMetersPerSecond
     }
 }

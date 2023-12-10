@@ -30,14 +30,33 @@ data class PlannedActivity(
     var createdBy: User?,
 
     @ManyToOne
-    val createdFor: Athlete?
+    val createdFor: Athlete?,
+
+    @OneToOne(fetch = FetchType.LAZY)
+    var activity: Activity?
 ) {
+
     fun toDTO(): PlannedActivityDTO {
-        return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
-            createdBy?.toUserDTO(), createdFor?.toAthleteDto())
+        return PlannedActivityDTO(
+            id, type, interval.toDTO(), withTrainer, template, note, date,
+            createdBy?.toUserDTO(), createdFor?.toAthleteDto()
+        )
     }
 
     override fun toString(): String {
         return "PlannedActivity(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=$createdBy, createdFor=$createdFor)"
+    }
+
+    fun unroll(): List<Step> {
+        val steps = mutableListOf<Step>()
+        unrollInterval(interval, steps)
+        return steps
+    }
+
+    private fun unrollInterval(interval: Interval, steps: MutableList<Step>) {
+        interval.step?.let { steps.add(it) }
+        for (i in 1..interval.repeat) {
+            interval.intervals?.forEach { unrollInterval(it, steps) }
+        }
     }
 }

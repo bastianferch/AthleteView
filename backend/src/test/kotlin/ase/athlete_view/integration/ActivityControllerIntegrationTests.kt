@@ -63,7 +63,7 @@ class ActivityControllerIntegrationTests : TestBase() {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
         null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,
+        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null, null
     )
 
     @BeforeEach

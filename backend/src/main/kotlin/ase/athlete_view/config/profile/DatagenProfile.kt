@@ -75,7 +75,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
                 Interval(null,1,null,
                     Step(null,StepType.COOLDOWN,StepDurationType.LAPBUTTON,null,null,null,null,null,null))),null)
                     ,
-            false,false, "", LocalDateTime.of(2023,9,30,12,10),trainer,athlete)
+            false,false, "", LocalDateTime.of(2023,9,30,12,10),trainer,athlete, null)
 
         activityService.createInterval(plannedActivity.interval)
         activityRepository.save(plannedActivity)
