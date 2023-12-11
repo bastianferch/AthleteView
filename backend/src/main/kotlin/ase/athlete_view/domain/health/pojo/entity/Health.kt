@@ -1,13 +1,20 @@
 package ase.athlete_view.domain.health.pojo.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import ase.athlete_view.domain.user.pojo.entity.User
+import jakarta.persistence.*
+import java.time.LocalDate
 
 @Entity
 class Health(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long?
+    private var id: Long?,
+
+    @OneToOne
+    private var user: User,
+
+    private var date: LocalDate,
+    private var avgSteps: Int,
+    private var avgBPM: Int,
+    private var avgSleepDuration: Int, // in minutes
 )

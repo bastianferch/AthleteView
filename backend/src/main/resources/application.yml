@@ -45,3 +45,8 @@ security:
 app:
   scheduling:
     enable: true
+
+api:
+  mock:
+    url: http://localhost:8089
+    auth: 9579e55c-5522-4033-ae15-2c0aa4b2067e
