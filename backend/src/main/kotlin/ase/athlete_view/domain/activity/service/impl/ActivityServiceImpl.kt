@@ -3,7 +3,7 @@ package ase.athlete_view.domain.activity.service.impl
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.entity.*
-import ase.athlete_view.domain.activity.pojo.util.StepDurationType
+import ase.athlete_view.domain.activity.pojo.util.StepTargetType
 import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
@@ -161,6 +161,8 @@ class ActivityServiceImpl(
             var cadenceSum = 0
             var hrMax: Short = 0
             var powerMax = 0
+            var accuracySum = 0
+            var intensityValueMissing = 0
 
             var fitActivityType = data.recordMesgs[0].activityType
             var date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
@@ -169,31 +171,92 @@ class ActivityServiceImpl(
             val plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
             val stepList = plannedActivity?.unroll()
             val laps: MutableList<Lap> = mutableListOf()
+            log.debug { plannedActivity }
+
             val lapList = data.lapMesgs
             var i = 0
+            var j = 0
             var lap = lapList[i]
-            laps.add(Lap(null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
-                lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt()))
+
+            var currentIntensity: Intensity = lap.intensity
+            laps.add(
+                Lap(
+                    null,
+                    i,
+                    lap.totalTimerTime.toInt(),
+                    lap.totalDistance.toInt(),
+                    lap.enhancedAvgSpeed,
+                    lap.avgPower.toInt(),
+                    lap.maxPower.toInt(),
+                    lap.avgHeartRate.toInt(),
+                    lap.maxHeartRate.toInt(),
+                    lap.avgCadence.toInt(),
+                    lap.maxCadence.toInt(),
+                    mapFitIntensityToStepType(lap.intensity)
+                )
+            )
             val compare = !stepList.isNullOrEmpty()
 
-            for (d in data.recordMesgs) {
+            log.debug { }
 
+            for (d in data.recordMesgs) {
+                // add every lap to the list for later saving in the repo
                 if (lap.timestamp < d.timestamp) {
                     lap = lapList[++i]
-                    laps.add(Lap(null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
-                            lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt()))
-                    log.debug { "lap ${mapFitIntensityToStepType(lap.intensity)}" }
+                    laps.add(
+                        Lap(
+                            null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
+                            lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt(),
+                            mapFitIntensityToStepType(lap.intensity)
+                        )
+                    )
                 }
 
                 if (compare) {
-                    var speed = 0f
-                    if (stepList!![0].durationType == StepDurationType.LAPBUTTON)
-
-                        if (d.enhancedSpeed != null) {
-                            speed = convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)
+                    // get next lap if the intensity changes
+                    // TODO check more constraints
+                    if (currentIntensity != lap.intensity) {
+                        log.debug { "$currentIntensity  changed to  ${lap.intensity}" }
+                        currentIntensity = lap.intensity
+                        j++
+                    }
+                    log.debug { "${stepList!![j].targetType} ${stepList[j].targetFrom} ${stepList[j].targetTo} ${convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)}  "}
+                    // get target type and check if the value is in the range
+                    if (stepList!![j].targetType == StepTargetType.CADENCE) {
+                        if (d.cadence == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(d.cadence.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
                         }
-
-
+                    } else if (stepList[j].targetType == StepTargetType.HEARTRATE) {
+                        if (d.heartRate == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(d.heartRate.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                        }
+                    } else if (stepList[j].targetType == StepTargetType.PACE) {
+                        if (d.enhancedSpeed == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(
+                                convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed),
+                                stepList[j].targetFrom ?: 0,
+                                stepList[j].targetTo ?: 0
+                            )
+                        }
+                    } else if (stepList[j].targetType == StepTargetType.SPEED) {
+                        if (d.enhancedSpeed == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(
+                                convertMetersPerSecondToKilometerPerHour(d.enhancedSpeed),
+                                stepList[j].targetFrom ?: 0,
+                                stepList[j].targetTo ?: 0
+                            )
+                        }
+                    } else {
+                        intensityValueMissing++
+                    }
                 }
 
                 val hr = d.heartRate ?: 0
@@ -222,14 +285,15 @@ class ActivityServiceImpl(
             val avgBpm = hrSum / totalElems
             val avgPower = powerSum / totalElems
             val avgCadence = cadenceSum / totalElems
+            val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing))*100).toInt()
 
             val fitId: String = fitFileRepo.saveFitData(item)
-
+            log.debug { "accuracy: $accuracy $accuracySum $totalElems $intensityValueMissing" }
 
             val activity = Activity(
                 null,
                 user.get(),
-                0, // TODO: implement
+                accuracy,
                 avgBpm,
                 hrMax.toInt(),
                 totalDistance,
@@ -238,7 +302,7 @@ class ActivityServiceImpl(
                 avgPower,
                 powerMax,
                 0,
-                1, // TODO implement
+                1, // TODO implement if time left
                 fitId,
                 plannedActivity,
                 laps
@@ -294,7 +358,16 @@ class ActivityServiceImpl(
     }
 
 
-    fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Float {
-        return 1000 / speedInMetersPerSecond
+    fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
+        return (1000 / speedInMetersPerSecond).toInt()
+    }
+
+
+    private fun convertMetersPerSecondToKilometerPerHour(enhancedSpeed: Float?): Int {
+        return (enhancedSpeed!! * 3.6).toInt()
+    }
+
+    fun isBetween(value: Int, from: Int, to: Int): Int {
+        return if (value in from..to) 1 else 0
     }
 }

@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.pojo.entity
 
+import ase.athlete_view.domain.activity.pojo.util.StepType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -19,8 +20,9 @@ class Lap(
     var maxBpm: Int,
     var avgCadence: Int,
     var maxCadence: Int,
+    var stepType: StepType
 ) {
     override fun toString(): String {
-        return "Lap(id=$id, lapNum=$lapNum, time=$time, distance=$distance, avgSpeed=$avgSpeed, avgPower=$avgPower, maxPower=$maxPower, avgBpm=$avgBpm, maxBpm=$maxBpm, avgCadence=$avgCadence, maxCadence=$maxCadence)"
+        return "Lap(id=$id, lapNum=$lapNum, time=$time, distance=$distance, avgSpeed=$avgSpeed, avgPower=$avgPower, maxPower=$maxPower, avgBpm=$avgBpm, maxBpm=$maxBpm, avgCadence=$avgCadence, maxCadence=$maxCadence, stepType=$stepType"
     }
 }
