@@ -1,12 +1,12 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {TimeConstraintService} from '../service/time-constraints.service';
-import {SnackbarService} from '../../../common/service/snackbar.service';
-import {TimeConstraint} from '../../../common/dto/TimeConstraint';
-import {MatButtonModule} from "@angular/material/button";
-import {CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent} from 'angular-calendar';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
-import {Subject} from 'rxjs';
-import {Calendarcolors} from "../../../common/util/calendar-colors";
+import { Component, Inject, OnInit } from '@angular/core';
+import { TimeConstraintService } from '../service/time-constraints.service';
+import { SnackbarService } from '../../../common/service/snackbar.service';
+import { TimeConstraint } from '../../../common/dto/TimeConstraint';
+import { MatButtonModule } from "@angular/material/button";
+import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } from 'angular-calendar';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
+import { Subject } from 'rxjs';
+import { Calendarcolors } from "../../../common/util/calendar-colors";
 
 @Component({
   selector: 'app-time-constraints',
@@ -106,7 +106,7 @@ export class TimeConstraintsComponent implements OnInit {
         beforeStart: true,
         afterEnd: true,
       },
-      draggable: true
+      draggable: true,
     }
   }
 
