@@ -5,7 +5,7 @@ import ase.athlete_view.domain.zone.pojo.entity.Zone
 class ZoneDto (
     var id: Long?,
     val name: String,
-    val fromBPM: Int,
+    var fromBPM: Int,
     val toBPM: Int
 ) {
     override fun toString(): String {

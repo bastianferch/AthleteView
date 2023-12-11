@@ -57,7 +57,7 @@ class ZoneServiceImpl(
         return list.map { zone -> zone.toDTO() }
     }
 
-    fun calcZones(age: Int): List<Zone> {
+    override fun calcZones(age: Int): List<Zone> {
         // calculated with MHR method
         val amount = 5
         val startingPercent = 50
@@ -82,6 +82,7 @@ class ZoneServiceImpl(
         val sorted = zones.sortedBy { it.fromBPM }
         var temp = 0
         for (zone in sorted) {
+            if (zone.fromBPM < 0 || zone.fromBPM > zone.toBPM) throw ValidationException("Invalid zones")
             if (zone.fromBPM > temp+1) throw ValidationException("Zones not covering full range")
             temp = zone.toBPM
         }
