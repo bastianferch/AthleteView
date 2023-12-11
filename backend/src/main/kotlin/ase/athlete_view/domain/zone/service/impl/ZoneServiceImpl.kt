@@ -16,9 +16,9 @@ import java.time.Period
 
 @Service
 class ZoneServiceImpl(
-    val zoneRepository: ZoneRepository,
-    val athleteService: AthleteService
-    ): ZoneService  {
+    private val zoneRepository: ZoneRepository,
+    private val athleteService: AthleteService
+): ZoneService  {
 
     val log = KotlinLogging.logger {}
     override fun getAll(userId: Long): List<ZoneDto> {
@@ -40,6 +40,7 @@ class ZoneServiceImpl(
             list.add(entity)
         }
         validateZones(list)
+        zoneRepository.deleteByUser(user)
         return zoneRepository.saveAll(list).map { zone -> zone.toDTO() }
     }
 
