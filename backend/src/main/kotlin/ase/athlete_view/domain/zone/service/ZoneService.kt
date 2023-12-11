@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.zone.service
 
-import ase.athlete_view.domain.zone.persistence.ZoneRepository
 import ase.athlete_view.domain.zone.pojo.dto.ZoneDto
 import ase.athlete_view.domain.zone.pojo.entity.Zone
 
