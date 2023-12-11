@@ -7,6 +7,7 @@ import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
+import ase.athlete_view.domain.zone.service.ZoneService
 import jakarta.annotation.PostConstruct
 import org.springframework.context.annotation.Profile
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -17,7 +18,8 @@ import java.time.LocalTime
 
 @Component
 @Profile("datagen")
-class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService)  {
+class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService,
+    private val zoneService: ZoneService)  {
     @PostConstruct
     fun init() {
         val athlete = Athlete(
@@ -33,7 +35,8 @@ class DatagenProfile(private val userService: UserService, private val tcService
             null
         )
         athlete.isConfirmed = true
-        this.userService.save(athlete)
+        val saved = this.userService.save(athlete)
+        this.zoneService.resetZones(saved.id!!)
 
         val trainer = Trainer(
             1,

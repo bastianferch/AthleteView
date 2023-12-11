@@ -1,9 +1,7 @@
 package ase.athlete_view.domain.zone.service.impl
 
 import ase.athlete_view.common.exception.entity.ValidationException
-import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.AthleteService
-import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.zone.persistence.ZoneRepository
 import ase.athlete_view.domain.zone.pojo.dto.ZoneDto
 import ase.athlete_view.domain.zone.pojo.dto.toEntity
@@ -11,6 +9,7 @@ import ase.athlete_view.domain.zone.pojo.entity.Zone
 import ase.athlete_view.domain.zone.pojo.entity.toDTO
 import ase.athlete_view.domain.zone.service.ZoneService
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.Period
@@ -29,6 +28,7 @@ class ZoneServiceImpl(
         return zoneRepository.findAllByUser(user).sortedBy { it.fromBPM }.map { zone -> zone.toDTO() }
     }
 
+    @Transactional
     override fun edit(userId: Long, zones: List<ZoneDto>): List<ZoneDto> {
         log.trace { "ZoneService.edit($userId, $zones)" }
 
@@ -43,11 +43,12 @@ class ZoneServiceImpl(
         return zoneRepository.saveAll(list).map { zone -> zone.toDTO() }
     }
 
+    @Transactional
     override fun resetZones(userId: Long): List<ZoneDto> {
         log.trace { "ZoneService.resetZones($userId)" }
 
         val user = athleteService.getById(userId)
-        zoneRepository.deleteAllByUser(user)
+        zoneRepository.deleteByUser(user)
         val age = Period.between(user.dob, LocalDate.now()).years
         val list: List<Zone> = calcZones(age)
         list.forEach { it.user = user }
@@ -67,10 +68,11 @@ class ZoneServiceImpl(
         val list: ArrayList<Zone> = arrayListOf()
 
         for (i in 1..amount) {
-            val from = MHR * (startingPercent + increment*(i-1))
-            val to = MHR * (startingPercent + increment*i)
+            val from = MHR * (startingPercent + increment*(i-1)) / 100
+            val to = MHR * (startingPercent + increment*i) / 100
             list.add(Zone(null, names[i], from, to, null))
         }
+        list[0].fromBPM = 0
 
         return list
     }

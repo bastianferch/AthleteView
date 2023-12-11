@@ -72,7 +72,7 @@ export class TimeConstraintsComponent implements OnInit {
         }
         this.setEvents()
       },
-      (error) => this.msgService.openSnackBar(error.error?.msg))
+      (error) => this.msgService.openSnackBar(error.error?.message))
   }
 
   setChoice(choice: string[]) {
@@ -125,7 +125,7 @@ export class TimeConstraintsComponent implements OnInit {
           () => {
             this.getEvents()
           },
-          (error) => this.msgService.openSnackBar(error.error?.msg),
+          (error) => this.msgService.openSnackBar(error.error?.message),
         )
       }
     })
@@ -174,7 +174,7 @@ export class TimeConstraintsDialogComponent {
   confirm(): void {
     this.constraintService.delete(this.data).subscribe(
       () => this.msgService.openSnackBar("Deleted time constraint"),
-      (error) => this.msgService.openSnackBar(error.error?.msg),
+      (error) => this.msgService.openSnackBar(error.error?.message),
     );
     this.dialogRef.close();
   }

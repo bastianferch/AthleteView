@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository
 interface ZoneRepository: JpaRepository<Zone, Long> {
 
     fun findAllByUser(user: User): List<Zone>
-
-    fun deleteAllByUser(user: User)
+    fun deleteByUser(user: User)
 
 }

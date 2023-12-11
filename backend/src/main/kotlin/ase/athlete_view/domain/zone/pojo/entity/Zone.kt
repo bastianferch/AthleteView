@@ -16,7 +16,7 @@ class Zone (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long?,
     val name: String,
-    val fromBPM: Int,
+    var fromBPM: Int,
     val toBPM: Int,
 
     @ManyToOne

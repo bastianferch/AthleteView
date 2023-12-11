@@ -24,6 +24,7 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.domain.zone.service.ZoneService
 import lombok.RequiredArgsConstructor
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -44,7 +45,8 @@ class AuthenticationServiceImpl(
     private val mailService: MailService,
     private val authValidationService: AuthValidationService,
     private val trainerService: TrainerService,
-    private val timeConstraintService: TimeConstraintService
+    private val timeConstraintService: TimeConstraintService,
+    private val zoneService: ZoneService
 ) : AuthenticationService {
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
@@ -67,6 +69,7 @@ class AuthenticationServiceImpl(
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
         this.authValidationService.validateAthleteDTO(dto)
         val athlete =  this.registerUser(this.userMapper.toEntity(dto))
+        this.zoneService.resetZones(athlete.id!!)
         if (dto.code == null){
             return athlete
         }

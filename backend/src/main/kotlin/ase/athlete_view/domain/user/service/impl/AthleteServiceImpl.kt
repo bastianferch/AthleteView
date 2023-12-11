@@ -6,7 +6,9 @@ import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.AthleteService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
 
+@Service
 class AthleteServiceImpl(val athleteRepository: AthleteRepository): AthleteService {
 
     val log = KotlinLogging.logger {}

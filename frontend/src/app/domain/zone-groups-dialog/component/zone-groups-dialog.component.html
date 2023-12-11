@@ -2,24 +2,27 @@
 <div mat-dialog-content class="dialog-content">
   <button mat-raised-button (click)="reset()">Reset</button>
   <hr/>
-  <div>
+  <div class="zone-wrapper">
     <div *ngFor="let zone of zones, index as i" class="zones">
-      <p>Zone {{i}}:</p>
+      <span class="zone-label">Zone {{i+1}}:</span>
       <mat-form-field>
+        <mat-label>Name</mat-label>
         <input matInput [(ngModel)]="zone.name"/>
       </mat-form-field>
       <mat-form-field>
+        <mat-label>Beats per Minute</mat-label>
         <input matInput type="number" name="fromBPM{{i}}" [(ngModel)]="zone.fromBPM"/>
       </mat-form-field>
       <mat-form-field>
+        <mat-label>Beats per Minute</mat-label>
         <input matInput type="number" name="toBPM{{i}}" [(ngModel)]="zone.toBPM"/>
       </mat-form-field>
-      <button mat-button color="warn" (click)="removeZone(zone)"> - </button>
+      <button mat-icon-button color="warn" (click)="removeZone(zone)"><mat-icon>delete</mat-icon></button>
     </div>
     <button mat-stroked-button color="primary" (click)="addZone()">Add Zone</button>
   </div>
 </div>
 <div mat-dialog-actions class="dialog-footer">
   <button mat-button color="warn" (click)="handleCancel()">Cancel</button>
-  <button mat-button color="primary">Save</button>
+  <button mat-button color="primary" (click)="save()">Save</button>
 </div>
