@@ -11,6 +11,9 @@ import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
+import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
+import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
+import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.token.pojo.entity.TokenExpirationTime
 import ase.athlete_view.domain.token.service.TokenService
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
@@ -26,6 +29,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.DayOfWeek
+import java.time.LocalTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,7 +43,8 @@ class AuthenticationServiceImpl(
     private val tokenService: TokenService,
     private val mailService: MailService,
     private val authValidationService: AuthValidationService,
-    private val trainerService: TrainerService
+    private val trainerService: TrainerService,
+    private val timeConstraintService: TimeConstraintService
 ) : AuthenticationService {
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
@@ -52,6 +58,7 @@ class AuthenticationServiceImpl(
         this.authValidationService.validateUser(user)
         user.password = BCryptPasswordEncoder().encode(user.password)
         val persistedUser = this.userService.save(user)
+        createDefaultTimeConstraintsForUser(persistedUser)
         this.createConfirmationTokenToUser(persistedUser)
         return persistedUser
     }
@@ -169,5 +176,15 @@ class AuthenticationServiceImpl(
 
     private fun throwBadCredentialsException() {
         throw BadCredentialsException("Either email or password is incorrect")
+    }
+
+    private fun createDefaultTimeConstraintsForUser(user: User) {
+        val defaultStartTime = LocalTime.of(7,0)
+        val defaultEndTime = LocalTime.of(22,0)
+        val titleForDefaultConstraint = "normal training hours"
+        for (day in DayOfWeek.values()) {
+            val timeConstraint = WeeklyTimeConstraintDto(null, false, titleForDefaultConstraint, user, TimeFrame(day,defaultStartTime,defaultEndTime))
+            timeConstraintService.save(timeConstraint, user.toUserDTO())
+        }
     }
 }
