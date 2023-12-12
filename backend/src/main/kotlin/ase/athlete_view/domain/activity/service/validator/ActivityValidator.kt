@@ -39,7 +39,7 @@ class ActivityValidator {
             val athletes = user.athletes
             var isForAthleteOfTrainer = false
             for (athlete in athletes) {
-                if (plannedActivity.createdFor.id == athlete.id) {
+                if (plannedActivity.createdFor!!.id == athlete.id) {
                     isForAthleteOfTrainer = true
                     break
                 }

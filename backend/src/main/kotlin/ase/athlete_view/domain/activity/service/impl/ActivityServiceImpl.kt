@@ -282,7 +282,6 @@ class ActivityServiceImpl(
                     // get next lap if the intensity changes
                     if (sameStructure) {
                         if (curLapIntensity != lap.intensity) {
-                            log.debug { "$curLapIntensity  changed to  ${lap.intensity}" }
                             curLapIntensity = lap.intensity
                             j++
                         }
@@ -291,7 +290,6 @@ class ActivityServiceImpl(
                             j++
                         }
                     }
-                    log.debug { "${stepList!![j].targetType} ${stepList[j].targetFrom} ${stepList[j].targetTo} ${convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)}  " }
                     // get target type and check if the value is in the range
                     if (stepList!![j].targetType == StepTargetType.CADENCE) {
                         if (d.cadence == null) {
@@ -364,7 +362,6 @@ class ActivityServiceImpl(
             plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
             val fitId: String = fitFileRepo.saveFitData(item)
-            log.debug { "accuracy: $accuracy $accuracySum $totalElems $intensityValueMissing" }
 
             val activity = Activity(
                 null,
@@ -387,7 +384,7 @@ class ActivityServiceImpl(
             ids.add(fitId)
             laps.map { lapRepo.save(it) }
             val respData = activityRepo.save(activity)
-            log.debug { respData.toString() }
+            logger.debug { respData.toString() }
         }
     }
 

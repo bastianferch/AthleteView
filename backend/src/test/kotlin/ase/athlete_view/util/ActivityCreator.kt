@@ -24,24 +24,24 @@ class ActivityCreator {
                     0,
                     0,
                     0,
-                    0,
-                    0,
                     "",
                     LocalDateTime.now(),
-                    LocalDateTime.now().plusMinutes(120)
+                    LocalDateTime.now().plusMinutes(120),
+                    null,
+                    listOf()
                 )
             }
 
             fun getDefaultPlannedActivity(trainer: Trainer, date: LocalDateTime?, athlete: Athlete?): PlannedActivity {
                 return PlannedActivity(
                         null, ActivityType.RUN, getDefaultInterval(), false, false,
-                        "Sample planned activity", date ?: LocalDateTime.now().plusDays(5), trainer, athlete,
+                        "Sample planned activity", date ?: LocalDateTime.now().plusDays(5), trainer, athlete, null
                 )
             }
 
             fun getDefaultStep(): Step {
                 return Step(
-                        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+                        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
                         StepTargetType.CADENCE, 100, 200, "Sample step note"
                 )
             }

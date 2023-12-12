@@ -32,7 +32,7 @@ class ActivityServiceUnitTests: TestBase() {
 
 
     // Create a test object for Step class
-    private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+    private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note")
 
 
@@ -40,7 +40,7 @@ class ActivityServiceUnitTests: TestBase() {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval( null, 1, null, step)), null)), null)
 
     val plannedActivity = PlannedActivity(null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,)
+        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,null)
 
     lateinit var defaultTrainer: Trainer
     lateinit var defaultAthlete: Athlete

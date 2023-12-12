@@ -1,4 +1,6 @@
+package ase.athlete_view.domain.activity.pojo.dto
 
+import ase.athlete_view.domain.activity.pojo.entity.Activity
 import java.time.LocalDateTime
 
 class ActivityDTO(
@@ -11,13 +13,16 @@ class ActivityDTO(
     var cadence: Int,
     var avgPower: Int,
     var maxPower: Int,
-    var load: Int,
-    var fatigue: Int,
     var fitData: String?,
     var startTime: LocalDateTime?,
-    var endTime: LocalDateTime?
+    var endTime: LocalDateTime?,
+    var plannedActivity: PlannedActivityDTO?,
+    var laps : List<LapDTO>
 ) {
+    fun toEntity(): Activity {
+        return Activity(id,null, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime, plannedActivity?.toEntity(), laps.map { it.toEntity() })
+    }
     override fun toString(): String {
-        return "ActivityDTO(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, load=$load, fatigue=$fatigue, fitData=$fitData, startTime=$startTime, endTime=$endTime)"
+        return "ActivityDTO(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, fitData=$fitData, startTime=$startTime, endTime=$endTime)"
     }
 }
