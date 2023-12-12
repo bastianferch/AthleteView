@@ -12,7 +12,6 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
-import com.garmin.fit.EventMesg
 import com.garmin.fit.Intensity
 import com.garmin.fit.LapMesg
 import com.garmin.fit.LapTrigger
@@ -151,7 +150,7 @@ class ActivityServiceImpl(
             throw BadCredentialsException("User not found")
         }
 
-        var ids = arrayOf<String>().toMutableList()
+        val ids = arrayOf<String>().toMutableList()
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
 
@@ -169,8 +168,8 @@ class ActivityServiceImpl(
             var accuracySum = 0
             var intensityValueMissing = 0
 
-            var fitActivityType = data.recordMesgs[0].activityType
-            var date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val fitActivityType = data.recordMesgs[0].activityType
+            val date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val activityType = mapFitActivityTypeToActivityType(fitActivityType)
             val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
             var plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
