@@ -58,7 +58,7 @@ class ActivityValidator {
             }
         }
         if (plannedActivity.date != null) {
-            if (plannedActivity.date.isBefore(LocalDateTime.now())) {
+            if (plannedActivity.date!!.isBefore(LocalDateTime.now())) {
                 validationErrors.add("Date and time must be in the future")
             }
         }
@@ -72,7 +72,7 @@ class ActivityValidator {
             validateStep(plannedActivity.interval.step!!, validationErrors)
         }
         if (plannedActivity.note != null) {
-            if (plannedActivity.note.length > 255) {
+            if (plannedActivity.note!!.length > 255) {
                 validationErrors.add("Note must be shorter than 255 characters")
             }
         }

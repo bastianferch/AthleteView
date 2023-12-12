@@ -1,18 +1,39 @@
 spring:
+  data:
+    mongodb:
+      database: athlete_view_test
+      host: localhost
+      port: 0
   datasource:
+    url: jdbc:h2:mem:mydb;
+    username: sa
+    password:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:mydb;MODE=LEGACY;
   jpa:
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        use_sql_comments: true
         show_sql: false
     hibernate:
-      ddl-auto: create
-    database-platform: org.hibernate.dialect.H2Dialect
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+
 ENV: "test"
 
 app:
   scheduling:
     enable: false
+
+logging:
+  level:
+    de:
+      flapdoodle:
+        embed:
+          mongo: WARN
+    org:
+      mongodb:
+        driver: WARN
+
+de.flapdoodle.mongodb.embedded.version: 6.0.2

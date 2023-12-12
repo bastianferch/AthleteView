@@ -1,6 +1,6 @@
 package ase.athlete_view.domain.activity.service.impl
 
-import ase.athlete_view.common.exception.entity.NotFoundException
+import  ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.StepDurationType
@@ -12,6 +12,7 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import com.garmin.fit.RecordMesg
 import com.garmin.fit.Intensity
 import com.garmin.fit.LapMesg
 import com.garmin.fit.LapTrigger
@@ -24,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ActivityServiceImpl(
@@ -37,11 +41,11 @@ class ActivityServiceImpl(
     private val activityRepo: ActivityRepository,
     private val fitFileRepo: FitDataRepositoryImpl
 ) : ActivityService {
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        log.trace { "S | createPlannedActivity \n $plannedActivity" }
+        logger.trace { "S | createPlannedActivity \n $plannedActivity" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -50,15 +54,29 @@ class ActivityServiceImpl(
         }
 
         // activity is always created by the logged-in user
-        plannedActivity.createdBy = user.get()
+        val usr = user.get()
+        validator.validateNewPlannedActivity(plannedActivity, usr)
+        plannedActivity.createdBy = usr
 
-        validator.validateNewPlannedActivity(plannedActivity, user.get())
+        // verify if `createdFor` actually exists?
+        if (plannedActivity.createdFor != null) {
+            val forUser = userRepository.findById(plannedActivity.createdFor?.id!!)
+            if (!forUser.isPresent) {
+                throw NotFoundException("Cannot create activity for unknown user!")
+            } else if (forUser.get() !is Athlete) {
+                // TODO: handle properly ig
+                throw RuntimeException("Something's off...")
+            }
+
+            plannedActivity.createdFor = forUser.get() as Athlete
+        }
+
         createInterval(plannedActivity.interval)
         return this.plannedActivityRepo.save(plannedActivity)
     }
 
     override fun getPlannedActivity(id: Long, userId: Long): PlannedActivity {
-        log.trace { "S | getPlannedActivity $id" }
+        logger.trace { "S | getPlannedActivity $id" }
 
         // activity is fetched right away, so we don't have to do unnecessary computation for nonexistent activities
         val activity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
@@ -73,14 +91,18 @@ class ActivityServiceImpl(
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            if (userObject.activities.none { it.id == id }) {
+            val activitiesForUser = plannedActivityRepo.findAllByCreatedForId(userObject.id!!)
+            val activities = userObject.activities + activitiesForUser
+            if (activities.none { it.id == id }) {
                 throw NotFoundException("Planned Activity not found")
             }
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
+            // TODO: does this also need to be adapted to use `createdFor`?
             val isOwnTemplate = userObject.activities.any { it.id == id }
             var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
+                // TODO: same here, think this only considers those `createdBy` athlete, none that were created for them by trainer
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
                 }
@@ -94,8 +116,9 @@ class ActivityServiceImpl(
         return activity
     }
 
-    override fun getAllPlannedActivities(userId: Long): List<PlannedActivity> {
-        log.trace { "S | getAllPlannedActivities" }
+    @Transactional
+    override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
+        logger.trace { "S | getAllPlannedActivities" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -104,24 +127,36 @@ class ActivityServiceImpl(
         }
 
         val userObject = user.get()
+        var activities: Set<PlannedActivity> = userObject.activities.toMutableSet()
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            return userObject.activities
+            activities = userObject.activities
+
+            // athletes can also see activities `createdFor` them
+            val elems = plannedActivityRepo.findAllByCreatedForId(userId)
+            activities.addAll(elems)
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            var result: List<PlannedActivity> = userObject.activities
+            activities = userObject.activities
             for (athlete in userObject.athletes) {
-                result = result + athlete.activities
+                activities = activities + athlete.activities
             }
-            return result
         }
 
-        return listOf()
+        if (startDate != null) {
+            activities = activities.filter { it.date != null && startDate.isBefore(it.date) }.toSet()
+        }
+
+        if (endDate != null) {
+            activities = activities.filter { it.date != null && endDate.isAfter(it.date) }.toSet()
+        }
+
+        return activities.toList()
     }
 
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        log.trace { "S | updatePlannedActivity $id $plannedActivity" }
+        logger.trace { "S | updatePlannedActivity $id $plannedActivity" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -139,18 +174,16 @@ class ActivityServiceImpl(
         return this.plannedActivityRepo.save(plannedActivity)
     }
 
-
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
-        log.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        logger.debug { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
-
         if (!user.isPresent) {
             throw BadCredentialsException("User not found")
         }
 
-        val ids = arrayOf<String>().toMutableList()
+        var ids = arrayOf<String>().toMutableList()
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
 
@@ -219,7 +252,18 @@ class ActivityServiceImpl(
 
 
 
+            var startTime: LocalDateTime? = null
+            var endTime: LocalDateTime? = null
+
+            var recordMsgHolder: RecordMesg? = null
+
             for (d in data.recordMesgs) {
+                if (startTime === null) {
+                    // https://developer.garmin.com/fit/cookbook/datetime/
+                    startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
+                }
+
+                recordMsgHolder = d
                 // add every lap to the list for later saving in the repo
                 if (lap.timestamp < d.timestamp) {
                     lastLap = lap
@@ -307,6 +351,7 @@ class ActivityServiceImpl(
                 cadenceSum += cadence
             }
 
+            endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
 
             val totalElems = data.recordMesgs.size
             val avgBpm = hrSum / totalElems
@@ -332,9 +377,9 @@ class ActivityServiceImpl(
                 avgCadence,
                 avgPower,
                 powerMax,
-                0,
-                1, // TODO implement if time left
                 fitId,
+                startTime,
+                endTime,
                 plannedActivity,
                 laps
             )
@@ -363,6 +408,17 @@ class ActivityServiceImpl(
         }
         return true
     }
+    override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
+        logger.trace { "S | getAllActivities" }
+        val user = userRepository.findById(uid).getOrNull()
+            ?: throw NotFoundException("No such user!")
+
+        return if (startDate != null && endDate != null) {
+            activityRepo.findActivitiesByUserAndDateRange(user.id!!, startDate, endDate)
+        } else {
+            activityRepo.findActivitiesByUserId(uid)
+        }
+    }
 
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
         var i = 0
@@ -376,7 +432,6 @@ class ActivityServiceImpl(
                         i++
                     }
                 }
-
                 StepDurationType.TIME -> {
                     while (lapList[i].lapTrigger != LapTrigger.TIME) {
                         if (i == lapList.size) { // all laps are done and more steps

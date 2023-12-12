@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.controller
 
+import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
@@ -7,14 +8,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("api/activity")
 class ActivityController(private val activityService: ActivityService) {
-
     private val logger = KotlinLogging.logger {}
 
     @PostMapping("/planned")
@@ -46,13 +49,28 @@ class ActivityController(private val activityService: ActivityService) {
         throw BadCredentialsException("Not logged in!")
     }
 
-    @GetMapping("/planned/")
-    fun getAllPlannedActivities(authentication: Authentication): List<PlannedActivityDTO> {
+    @GetMapping("/planned")
+    fun getAllPlannedActivities(
+        authentication: Authentication,
+        @RequestParam(required=false, name = "startTime") startTime: String?,
+        @RequestParam(required=false, name = "endTime") endTime: String?
+    ): List<PlannedActivityDTO> {
         logger.info { "GET ALL PLANNED ACTIVITIES" }
+
+        var startDate: LocalDateTime? = null
+        var endDate: LocalDateTime? = null
+
+        if (startTime != null) {
+            startDate = parseStringIntoLocalDateTime(startTime)
+        }
+
+        if (endTime != null) {
+            endDate = parseStringIntoLocalDateTime(endTime)
+        }
 
         val userId = (authentication.principal as UserDTO).id
         if (userId != null) {
-            return this.activityService.getAllPlannedActivities(userId).map { it.toDTO() }
+            return this.activityService.getAllPlannedActivities(userId, startDate, endDate).map { it.toDTO() }
         }
         throw BadCredentialsException("Not logged in!")
     }
@@ -69,9 +87,10 @@ class ActivityController(private val activityService: ActivityService) {
         if (userId != null) {
             return this.activityService.updatePlannedActivity(id, plannedActivityDTO.toEntity(), userId).toDTO()
         }
-        throw BadCredentialsException("Not logged in!")
 
+        throw BadCredentialsException("Not logged in!")
     }
+
     @PostMapping("/import")
     @ResponseStatus(HttpStatus.CREATED)
     fun handleFileUpload(
@@ -89,5 +108,40 @@ class ActivityController(private val activityService: ActivityService) {
 
         }
         activityService.importActivity(files, uid)
+    }
+
+    @GetMapping("/finished")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun fetchActivitiesForUser(
+        @AuthenticationPrincipal user: UserDTO,
+        @RequestParam(required = false, name = "startTime") startTime: String?,
+        @RequestParam(required = false, name = "endTime") endTime: String?
+    ): List<ActivityDTO> {
+        logger.info { "Fetching finished/imported activities for user ${user.id}" }
+
+        var startDate: LocalDateTime? = null
+        var endDate: LocalDateTime? = null
+
+        if (startTime != null) {
+            startDate = parseStringIntoLocalDateTime(startTime)
+        }
+
+        if (endTime != null) {
+            endDate = parseStringIntoLocalDateTime(endTime)
+        }
+
+
+        logger.debug { "Start and end were provided: ${startDate.toString()}\t${endDate.toString()}" }
+        // can be sure that logged-in user has an id
+        val result = activityService.getAllActivities(user.id!!, startDate, endDate)
+        logger.debug { "Fetched activities: $result" }
+        val mapped = result.map { it.toDTO() }
+        logger.debug { "After DTO-mapping, activities: $mapped"}
+        return mapped
+    }
+
+    private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {
+        return LocalDateTime.parse(strInput, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
     }
 }

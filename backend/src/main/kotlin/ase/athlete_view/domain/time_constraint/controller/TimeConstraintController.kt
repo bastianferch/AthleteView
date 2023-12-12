@@ -55,7 +55,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
                        @RequestParam(defaultValue = "") until: String
                        ): List<TimeConstraintDto> {
 
-        logger.info { "GET Constraints" }
+        logger.info { "GET Constraints from: $from until $until" }
         return timeConstraintService.getAll(userDto, type, from, until)
     }
 

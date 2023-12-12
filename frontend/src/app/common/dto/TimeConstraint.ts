@@ -4,8 +4,8 @@ export interface TimeConstraint {
   title: string,
   user?: any,
   constraint?: TimeFrame,
-  startTime?: Date,
-  endTime?: Date
+  startTime?: Date | number[],
+  endTime?: Date | number[]
 }
 
 export interface TimeFrame {

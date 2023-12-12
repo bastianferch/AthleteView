@@ -46,8 +46,8 @@ abstract class UserMapper {
     abstract fun toEntity(@MappingTarget athlete: Athlete, athleteDTO: AthleteDTO)
 
     // used by the mappings. since the DTOs don't have notifications, provide an empty list
-    fun getEmptyList(): List<PlannedActivity> {
-        return listOf()
+    fun getEmptyList(): Set<PlannedActivity> {
+        return emptySet()
     }
 
 }

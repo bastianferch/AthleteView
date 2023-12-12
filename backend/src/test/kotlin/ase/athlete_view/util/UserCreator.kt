@@ -1,16 +1,17 @@
 package ase.athlete_view.util
 
-import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.authentication.dto.LoginDTO
+import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 class UserCreator {
     companion object {
-        const val DEFAULT_TRAINER_ID: Long = 2L
+        const val DEFAULT_TRAINER_ID: Long = 1L
         const val DEFAULT_TRAINER_EMAIL: String = "trainer@example.com"
         const val DEFAULT_TRAINER_NAME: String = "Trainer Name"
         const val DEFAULT_TRAINER_PASSWORD: String = "trainerpassword"
@@ -18,7 +19,7 @@ class UserCreator {
         const val DEFAULT_TRAINER_ZIP: String = "12345"
         const val DEFAULT_TRAINER_CODE: String = "123456"
 
-        const val DEFAULT_ATHLETE_ID: Long = 3L
+        const val DEFAULT_ATHLETE_ID: Long = 2L
         const val DEFAULT_ATHLETE_EMAIL: String = "athlete@example.com"
         const val DEFAULT_ATHLETE_NAME: String = "Athlete Name"
         const val DEFAULT_ATHLETE_PASSWORD: String = "athletepassword"
@@ -37,10 +38,10 @@ class UserCreator {
                 country = DEFAULT_TRAINER_COUNTRY, zip = DEFAULT_TRAINER_ZIP, code = DEFAULT_TRAINER_CODE, token = "")
         }
 
-        fun getTrainer(): Trainer{
+        fun getTrainer(): Trainer {
             return Trainer(id = DEFAULT_TRAINER_ID, email = DEFAULT_TRAINER_EMAIL, name = DEFAULT_TRAINER_NAME,
                 password = DEFAULT_TRAINER_PASSWORD, country = DEFAULT_TRAINER_COUNTRY, zip = DEFAULT_TRAINER_ZIP,
-                code = DEFAULT_TRAINER_CODE)
+                code = DEFAULT_TRAINER_CODE, athletes = mutableSetOf())
         }
 
         fun getAthleteDTO(): AthleteDTO{

@@ -1,26 +1,23 @@
-package ase.athlete_view.domain.activity.pojo.dto
 
-import ase.athlete_view.domain.activity.pojo.entity.Activity
-import ase.athlete_view.domain.user.pojo.dto.UserDTO
+import java.time.LocalDateTime
 
 class ActivityDTO(
-    private var id: Long? = null,
-    private var user: UserDTO?,
-    private var accuracy: Int,
-    private var averageBpm: Int,
-    private var maxBpm: Int,
-    private var distance: Double,
-    private var spentKcal: Int,
-    private var cadence: Int,
-    private var avgPower: Int,
-    private var maxPower: Int,
-    private var load: Int,
-    private var fatigue: Int,
-    private var fitData: String,
-    private var plannedActivity: PlannedActivityDTO?,
-    private var laps : List<LapDTO>
+    var id: Long? = null,
+    var accuracy: Int,
+    var averageBpm: Int,
+    var maxBpm: Int,
+    var distance: Double,
+    var spentKcal: Int,
+    var cadence: Int,
+    var avgPower: Int,
+    var maxPower: Int,
+    var load: Int,
+    var fatigue: Int,
+    var fitData: String?,
+    var startTime: LocalDateTime?,
+    var endTime: LocalDateTime?
 ) {
-    fun toEntity():Activity{
-        return Activity(id, null, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, load, fatigue, fitData, plannedActivity?.toEntity(), laps.map { it.toEntity() })
+    override fun toString(): String {
+        return "ActivityDTO(id=$id, accuracy=$accuracy, averageBpm=$averageBpm, maxBpm=$maxBpm, distance=$distance, spentKcal=$spentKcal, cadence=$cadence, avgPower=$avgPower, maxPower=$maxPower, load=$load, fatigue=$fatigue, fitData=$fitData, startTime=$startTime, endTime=$endTime)"
     }
 }
