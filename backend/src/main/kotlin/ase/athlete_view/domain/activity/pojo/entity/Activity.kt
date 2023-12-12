@@ -11,7 +11,7 @@ class Activity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private var id: Long?,
-    @OneToOne
+    @ManyToOne
     private var user: User,
     private var accuracy: Int,
     private var averageBpm: Int,

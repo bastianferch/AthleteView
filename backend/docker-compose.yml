@@ -19,10 +19,10 @@ services:
     volumes:
       - mongovol:/data/
       - $PWD/db_init/mongo/:/docker-entrypoint-initdb.d/
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=mongousr
-#      - MONGO_INITDB_ROOT_PASSWORD=1mongo3mongo3mongo7
-#      - MONGO_INITDB_DATABASE=athlete_view
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongousr
+      - MONGO_INITDB_ROOT_PASSWORD=1mongo3mongo3mongo7
+      - MONGO_INITDB_DATABASE=athlete_view
 volumes:
   pgvol:
   mongovol:
