@@ -16,12 +16,12 @@ const routes: Routes = [
     path: 'calendar', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/calendar/module/custom-calendar.module').then((m) => m.CustomCalendarModule),
   },
-  {
-    path: 'auth',
-    loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule),
-  },
+  { path: 'time-constraints', canActivate: [authGuard],
+    loadChildren: () => import('src/app/domain/time-constraints/module/time-constraints.module').then((m) => m.TimeConstraintsModule) },
   { path: 'profile', canActivate: [authGuard],
     loadChildren: () => import('src/app/domain/user/UserModule').then((m) => m.UserModule) },
+  { path: 'auth',
+    loadChildren: () => import('src/app/domain/auth/module/auth.module').then((m) => m.AuthModule) },
   { path: 'legal', component: LegalInformationComponent },
 ];
 

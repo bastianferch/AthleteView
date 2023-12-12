@@ -2,12 +2,27 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivityService } from '../../activity/service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
-import { EventColor } from "calendar-utils"
 import { Activity } from '../../activity/dto/Activity'
 import { SnackbarService } from 'src/app/common/service/snackbar.service';
-import { add, addMonths, addWeeks, isSameDay, isSameMonth, subMonths, subWeeks, format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns'
+import { TimeConstraintService } from '../../time-constraints/service/time-constraints.service'
+import {
+  add,
+  addMonths,
+  addWeeks,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+  subWeeks,
+} from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import { Router } from '@angular/router';
+import { TimeConstraint } from "../../../common/dto/TimeConstraint";
+import { Calendarcolors } from "../../../common/util/calendar-colors";
 
 @Component({
   selector: 'app-custom-calendar',
@@ -24,24 +39,9 @@ export class CustomCalendarComponent {
   events: CalendarEvent[] = []
   activeDayIsOpen = false
 
-  // idk about this, suppose we should be using templating colors instead
-  colors: Record<string, EventColor> = {
-    red: {
-      primary: '#ad2121',
-      secondary: '#FAE3E3',
-    },
-    blue: {
-      primary: '#1e90ff',
-      secondary: '#D1E8FF',
-    },
-    yellow: {
-      primary: '#e3bc08',
-      secondary: '#FDF1BA',
-    },
-  }
-
   constructor(
     private activityService: ActivityService,
+    private constraintService: TimeConstraintService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private notifService: SnackbarService,
@@ -100,12 +100,10 @@ export class CustomCalendarComponent {
       } else {
         this.viewDate = addMonths(this.viewDate, 1)
       }
+    } else if (past) {
+      this.viewDate = subWeeks(this.viewDate, 1)
     } else {
-      if (past) {
-        this.viewDate = subWeeks(this.viewDate, 1)
-      } else {
-        this.viewDate = addWeeks(this.viewDate, 1)
-      }
+      this.viewDate = addWeeks(this.viewDate, 1)
     }
     this.loadData()
     this.activeDayIsOpen = false
@@ -162,7 +160,7 @@ export class CustomCalendarComponent {
             end: new Date(this.parseDate(x.endTime)),
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
-            color: { ...this.colors["blue"] },
+            color: Calendarcolors["blue"],
             meta: x,
           }
         }, this)
@@ -186,7 +184,7 @@ export class CustomCalendarComponent {
             end: activityEnd,
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
-            color: { ...this.colors["red"] },
+            color: Calendarcolors["red"],
             meta: x,
           }
         }, this)
@@ -197,5 +195,31 @@ export class CustomCalendarComponent {
         console.error(e)
       },
     })
+
+    this.constraintService.getConstraints("daily", startTime, endTime).subscribe({
+      next: (next) => {
+        for (const constraint of next) {
+          const event = this.constraintToEvent(constraint)
+          if (constraint.isBlacklist) {
+            this.events.push(event)
+          }
+        }
+        this.events = [...this.events]
+      },
+      error: (error) => {
+        this.notifService.openSnackBar(error.error?.message)
+      },
+    })
+  }
+
+  private constraintToEvent(constraint: TimeConstraint): CalendarEvent {
+    const start = new Date(this.parseDate(constraint.startTime as number[]))
+    const end = new Date(this.parseDate(constraint.endTime as number[]))
+    return {
+      start: start,
+      end: end,
+      title: constraint.title,
+      color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"],
+    }
   }
 }

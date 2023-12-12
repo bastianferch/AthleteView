@@ -34,7 +34,7 @@ open class PlannedActivity(
 ) {
     fun toDTO(): PlannedActivityDTO {
         return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
-            createdBy?.toUserDto(), createdFor?.toAthleteDto())
+            createdBy?.toUserDTO(), createdFor?.toAthleteDto())
     }
 
     override fun toString(): String {

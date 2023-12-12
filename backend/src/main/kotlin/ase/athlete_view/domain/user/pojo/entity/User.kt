@@ -24,7 +24,7 @@ open class User(
     @OneToMany(mappedBy = "createdBy", cascade = [CascadeType.MERGE, CascadeType.PERSIST], fetch = FetchType.LAZY)
     open var activities: MutableSet<PlannedActivity> = mutableSetOf(),
 ) {
-    open fun toUserDto(): UserDTO {
+    open fun toUserDTO(): UserDTO {
         return UserDTO(
             id,
             name,
