@@ -5,6 +5,7 @@ import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
+import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import java.time.DateTimeException
 import java.time.LocalDateTime
@@ -31,10 +32,10 @@ class ActivityCreator {
                 )
             }
 
-            fun getDefaultPlannedActivity(trainer: Trainer, date: LocalDateTime?): PlannedActivity {
+            fun getDefaultPlannedActivity(trainer: Trainer, date: LocalDateTime?, athlete: Athlete?): PlannedActivity {
                 return PlannedActivity(
                         null, ActivityType.RUN, getDefaultInterval(), false, false,
-                        "Sample planned activity", date ?: LocalDateTime.now().plusDays(5), trainer, null,
+                        "Sample planned activity", date ?: LocalDateTime.now().plusDays(5), trainer, athlete,
                 )
             }
 

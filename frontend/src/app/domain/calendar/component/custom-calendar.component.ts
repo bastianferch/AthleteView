@@ -140,7 +140,8 @@ export class CustomCalendarComponent {
 
     // load initial calendar-events
     const uid = this.authService.currentUser.id
-    const dateFormatString = "dd.MM.yyyy'T'HH:mm'Z'xxx"
+    //const dateFormatString = "dd.MM.yyyy'T'HH:mm'Z'xxx"
+    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx"
 
     let startTime = ""
     let endTime = ""

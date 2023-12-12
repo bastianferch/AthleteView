@@ -26,7 +26,7 @@ class DatagenProfile(private val userService: UserService) {
             80000,
             null
         )
-        athlete.isConfirmed = true
+//        athlete.isConfirmed = true
         this.userService.save(athlete)
 
         val trainer = Trainer(
@@ -37,7 +37,7 @@ class DatagenProfile(private val userService: UserService) {
             "Austria",
             "1030",
             "ABGVA",
-            listOf(athlete)
+            mutableSetOf(athlete)
         )
         trainer.isConfirmed = true
         this.userService.save(trainer)

@@ -142,7 +142,6 @@ class ActivityController(private val activityService: ActivityService) {
     }
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {
-        val dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy'T'HH:mm'Z'xxx")
-        return LocalDateTime.parse(strInput, dtf)
+        return LocalDateTime.parse(strInput, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
     }
 }

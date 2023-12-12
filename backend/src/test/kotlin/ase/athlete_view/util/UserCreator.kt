@@ -1,10 +1,12 @@
 package ase.athlete_view.util
 
 import ase.athlete_view.domain.authentication.dto.LoginDTO
+import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
 class UserCreator {
@@ -36,10 +38,10 @@ class UserCreator {
                 country = DEFAULT_TRAINER_COUNTRY, zip = DEFAULT_TRAINER_ZIP, code = DEFAULT_TRAINER_CODE, token = "")
         }
 
-        fun getTrainer(): Trainer{
+        fun getTrainer(): Trainer {
             return Trainer(id = DEFAULT_TRAINER_ID, email = DEFAULT_TRAINER_EMAIL, name = DEFAULT_TRAINER_NAME,
                 password = DEFAULT_TRAINER_PASSWORD, country = DEFAULT_TRAINER_COUNTRY, zip = DEFAULT_TRAINER_ZIP,
-                code = DEFAULT_TRAINER_CODE)
+                code = DEFAULT_TRAINER_CODE, athletes = mutableSetOf())
         }
 
         fun getAthleteDTO(): AthleteDTO{

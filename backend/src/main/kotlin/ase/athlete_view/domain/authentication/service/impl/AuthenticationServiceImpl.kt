@@ -59,12 +59,12 @@ class AuthenticationServiceImpl(
     @Transactional
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
         this.authValidationService.validateAthleteDTO(dto)
-        val athlete =  this.registerUser(this.userMapper.toEntity(dto))
+        val athlete =  this.registerUser(this.userMapper.toEntity(dto)) as Athlete
         if (dto.code == null){
             return athlete
         }
         val trainer = this.trainerService.getByCode(dto.code!!) ?: return athlete
-        trainer.athletes += athlete as Athlete
+        trainer.athletes += athlete
         athlete.trainer = trainer
         this.userService.saveAll(listOf(trainer, athlete))
         return athlete
@@ -90,7 +90,6 @@ class AuthenticationServiceImpl(
         this.userService.save(user)
         this.tokenService.deleteToken(uuid)
     }
-
 
     override fun createJwtToken(id: Long): String {
         val user = this.userMapper.toDTO(this.userService.getById(id))

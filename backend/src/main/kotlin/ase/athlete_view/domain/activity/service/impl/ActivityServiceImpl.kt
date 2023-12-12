@@ -1,6 +1,6 @@
 package ase.athlete_view.domain.activity.service.impl
 
-import ase.athlete_view.common.exception.entity.NotFoundException
+import  ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.pojo.entity.Interval
@@ -35,6 +35,7 @@ class ActivityServiceImpl(
 ) : ActivityService {
     private val logger = KotlinLogging.logger {}
 
+    @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
         logger.trace { "S | createPlannedActivity \n $plannedActivity" }
 
@@ -45,9 +46,23 @@ class ActivityServiceImpl(
         }
 
         // activity is always created by the logged-in user
-        plannedActivity.createdBy = user.get()
+        val usr = user.get()
+        validator.validateNewPlannedActivity(plannedActivity, usr)
+        plannedActivity.createdBy = usr
 
-        validator.validateNewPlannedActivity(plannedActivity, user.get())
+        // verify if `createdFor` actually exists?
+        if (plannedActivity.createdFor != null) {
+            val forUser = userRepository.findById(plannedActivity.createdFor?.id!!)
+            if (!forUser.isPresent) {
+                throw NotFoundException("Cannot create activity for unknown user!")
+            } else if (forUser.get() !is Athlete) {
+                // TODO: handle properly ig
+                throw RuntimeException("Something's off...")
+            }
+
+            plannedActivity.createdFor = forUser.get() as Athlete
+        }
+
         createInterval(plannedActivity.interval)
         return this.plannedActivityRepo.save(plannedActivity)
     }
@@ -68,14 +83,18 @@ class ActivityServiceImpl(
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            if (userObject.activities.none { it.id == id }) {
+            val activitiesForUser = plannedActivityRepo.findAllByCreatedForId(userObject.id!!)
+            val activities = userObject.activities + activitiesForUser
+            if (activities.none { it.id == id }) {
                 throw NotFoundException("Planned Activity not found")
             }
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
+            // TODO: does this also need to be adapted to use `createdFor`?
             val isOwnTemplate = userObject.activities.any { it.id == id }
             var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
+                // TODO: same here, think this only considers those `createdBy` athlete, none that were created for them by trainer
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
                 }
@@ -89,6 +108,7 @@ class ActivityServiceImpl(
         return activity
     }
 
+    @Transactional
     override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
         logger.trace { "S | getAllPlannedActivities" }
 
@@ -99,11 +119,15 @@ class ActivityServiceImpl(
         }
 
         val userObject = user.get()
-        var activities: List<PlannedActivity> = emptyList()
+        var activities: Set<PlannedActivity> = userObject.activities
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
             activities = userObject.activities
+
+            // athletes can also see activities `createdFor` them
+            val elems = plannedActivityRepo.findAllByCreatedForId(userId)
+            activities.addAll(elems)
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
             activities = userObject.activities
@@ -113,14 +137,14 @@ class ActivityServiceImpl(
         }
 
         if (startDate != null) {
-            activities = activities.filter { startDate.isBefore(it.date) }
+            activities = activities.filter { it.date != null && startDate.isBefore(it.date) }.toSet()
         }
 
         if (endDate != null) {
-            activities = activities.filter { endDate.isAfter(it.date) }
+            activities = activities.filter { it.date != null && endDate.isAfter(it.date) }.toSet()
         }
 
-        return activities
+        return activities.toList()
     }
 
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {

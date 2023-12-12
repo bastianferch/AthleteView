@@ -1,11 +1,8 @@
 package ase.athlete_view.domain.user.pojo.entity
 
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
-import jakarta.persistence.CascadeType
-import jakarta.persistence.Column
-import jakarta.persistence.DiscriminatorValue
-import jakarta.persistence.Entity
-import jakarta.persistence.OneToMany
+import com.fasterxml.jackson.annotation.JsonManagedReference
+import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("trainer")
@@ -16,13 +13,15 @@ class Trainer(
     password: String,
     country: String?,
     zip: String?,
+
     @Column(unique = true)
     val code: String,
-    @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST])
-    var athletes: List<Athlete> = ArrayList()
 
+    @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST], mappedBy = "trainer", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    var athletes: MutableSet<Athlete>,
 ) : User(
-    id, email, name, password, country, zip
+    id, email, name, password, country, zip, true, mutableSetOf(),
 ) {
     fun toDto(): TrainerDTO {
         val trainer =  TrainerDTO(
@@ -36,7 +35,7 @@ class Trainer(
             "trainer",
             listOf()
         )
-        val athletes = athletes.map { it.toAthleteDto() }
+        val athletes = athletes.map { it.toAthleteDto(false) }
         trainer.athletes = athletes
         return trainer
     }
@@ -48,4 +47,26 @@ class Trainer(
     override fun toString(): String {
         return "Trainer(id=$id, email='$email', name='$name', country='$country', zip='$zip')"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as Trainer
+
+        if (code != other.code) return false
+        if (athletes != other.athletes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + code.hashCode()
+        result = 31 * result + athletes.hashCode()
+        return result
+    }
+
+
 }
