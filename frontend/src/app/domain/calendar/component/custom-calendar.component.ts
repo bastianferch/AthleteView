@@ -166,7 +166,7 @@ export class CustomCalendarComponent {
         this.events = [...this.events, ...calData]
       },
       error: (e) => {
-        this.notifService.openSnackBarWithAction("Error trying to fetch completed activities", "X")
+        this.notifService.openSnackBarWithAction("Error trying to fetch completed activities", "Close")
         console.error(e)
       },
     })
@@ -190,7 +190,7 @@ export class CustomCalendarComponent {
         this.events = [...this.events, ...calData]
       },
       error: (e) => {
-        this.notifService.openSnackBarWithAction("Error loading planned activities", "X")
+        this.notifService.openSnackBarWithAction("Error loading planned activities", "Close")
         console.error(e)
       },
     })

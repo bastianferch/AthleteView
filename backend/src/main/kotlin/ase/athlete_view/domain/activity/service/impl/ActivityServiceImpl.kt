@@ -119,7 +119,7 @@ class ActivityServiceImpl(
         }
 
         val userObject = user.get()
-        var activities: Set<PlannedActivity> = userObject.activities
+        var activities: Set<PlannedActivity> = userObject.activities.toMutableSet()
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
@@ -168,7 +168,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
-        logger.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        logger.debug { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
@@ -259,6 +259,7 @@ class ActivityServiceImpl(
     }
 
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
+        logger.trace { "S | getAllActivities" }
         val user = userRepository.findById(uid).getOrNull()
             ?: throw NotFoundException("No such user!")
 

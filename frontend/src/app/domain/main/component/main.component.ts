@@ -36,7 +36,7 @@ export class MainComponent {
             this.snackbarService.openSnackBar("Imported data successfully!")
           },
           error: () => {
-            this.snackbarService.openSnackBarWithAction("Error importing data!", "X")
+            this.snackbarService.openSnackBarWithAction("Error importing data!", "Close")
           },
         })
       }
