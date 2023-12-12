@@ -3,6 +3,7 @@ package ase.athlete_view.domain.activity.service.impl
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.entity.*
+import ase.athlete_view.domain.activity.pojo.util.StepDurationType
 import ase.athlete_view.domain.activity.pojo.util.StepTargetType
 import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
@@ -11,7 +12,10 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import com.garmin.fit.EventMesg
 import com.garmin.fit.Intensity
+import com.garmin.fit.LapMesg
+import com.garmin.fit.LapTrigger
 import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
 import com.garmin.fit.ActivityType as FitActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -136,6 +140,7 @@ class ActivityServiceImpl(
         return this.plannedActivityRepo.save(plannedActivity)
     }
 
+
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
         log.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
@@ -168,7 +173,7 @@ class ActivityServiceImpl(
             var date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val activityType = mapFitActivityTypeToActivityType(fitActivityType)
             val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
-            val plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
+            var plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
             val stepList = plannedActivity?.unroll()
             val laps: MutableList<Lap> = mutableListOf()
             log.debug { plannedActivity }
@@ -177,8 +182,9 @@ class ActivityServiceImpl(
             var i = 0
             var j = 0
             var lap = lapList[i]
+            var lastLap = lapList[0]
 
-            var currentIntensity: Intensity = lap.intensity
+            var curLapIntensity: Intensity = lap.intensity
             laps.add(
                 Lap(
                     null,
@@ -196,13 +202,23 @@ class ActivityServiceImpl(
                 )
             )
             val compare = !stepList.isNullOrEmpty()
+            var sameStructure = false
+            var sameDurations = false
+            if (compare) {
+                sameStructure = compareLapLists(stepList!!, lapList)
+                if (!sameStructure) {
+                    sameDurations = compareLapDurations(stepList, lapList)
+                }
+            }
 
-            log.debug { }
+
 
             for (d in data.recordMesgs) {
                 // add every lap to the list for later saving in the repo
                 if (lap.timestamp < d.timestamp) {
+                    lastLap = lap
                     lap = lapList[++i]
+
                     laps.add(
                         Lap(
                             null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
@@ -214,13 +230,18 @@ class ActivityServiceImpl(
 
                 if (compare) {
                     // get next lap if the intensity changes
-                    // TODO check more constraints
-                    if (currentIntensity != lap.intensity) {
-                        log.debug { "$currentIntensity  changed to  ${lap.intensity}" }
-                        currentIntensity = lap.intensity
-                        j++
+                    if (sameStructure) {
+                        if (curLapIntensity != lap.intensity) {
+                            log.debug { "$curLapIntensity  changed to  ${lap.intensity}" }
+                            curLapIntensity = lap.intensity
+                            j++
+                        }
+                    } else if (sameDurations) {
+                        if (lastLap.lapTrigger == stepList!![j].durationType) {
+                            j++
+                        }
                     }
-                    log.debug { "${stepList!![j].targetType} ${stepList[j].targetFrom} ${stepList[j].targetTo} ${convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)}  "}
+                    log.debug { "${stepList!![j].targetType} ${stepList[j].targetFrom} ${stepList[j].targetTo} ${convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed)}  " }
                     // get target type and check if the value is in the range
                     if (stepList!![j].targetType == StepTargetType.CADENCE) {
                         if (d.cadence == null) {
@@ -285,7 +306,10 @@ class ActivityServiceImpl(
             val avgBpm = hrSum / totalElems
             val avgPower = powerSum / totalElems
             val avgCadence = cadenceSum / totalElems
-            val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing))*100).toInt()
+            val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
+
+            // if accuracy too low do not count as planned activity
+            plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
             val fitId: String = fitFileRepo.saveFitData(item)
             log.debug { "accuracy: $accuracy $accuracySum $totalElems $intensityValueMissing" }
@@ -313,6 +337,61 @@ class ActivityServiceImpl(
             val respData = activityRepo.save(activity)
             log.debug { respData.toString() }
         }
+    }
+
+    private fun compareLapLists(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        var i = 0
+        for (lap in lapList) { // go through all laps
+            val stepIntensity = stepList[i].type
+            val lapIntensity = mapFitIntensityToStepType(lap.intensity)
+            if (lapIntensity != stepIntensity) {
+                if (i == stepList.size) { // all steps are done and more laps
+                    return false
+                } else if (lapIntensity != stepList[i + 1].type) { // next step is also not the correct one
+                    return false
+                } else {
+                    i++
+                }
+            }
+        }
+        return true
+    }
+
+    private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        var i = 0
+        for (step in stepList) { // go through all steps
+            when (step.durationType) {
+                StepDurationType.LAPBUTTON -> {
+                    while (lapList[i].lapTrigger != LapTrigger.MANUAL) {
+                        if (i == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                StepDurationType.TIME -> {
+                    while (lapList[i].lapTrigger != LapTrigger.TIME) {
+                        if (i == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                StepDurationType.DISTANCE -> {
+                    while (lapList[i].lapTrigger != LapTrigger.DISTANCE) {
+                        if (i == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                null -> return false
+            }
+        }
+        return true
     }
 
     private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: MyActivityType, date: LocalDate): List<PlannedActivity> {

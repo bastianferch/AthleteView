@@ -7,6 +7,7 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
+// TODO add duration and add load(High, Medium, Low)
 @Entity
 data class PlannedActivity(
     @Id

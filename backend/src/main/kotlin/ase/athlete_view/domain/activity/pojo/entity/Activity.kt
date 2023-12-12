@@ -19,7 +19,7 @@ class Activity(
     private var cadence: Int,
     private var avgPower: Int,
     private var maxPower: Int,
-    private var load: Int, // TODO check what this is and comment after
+    private var load: Int, // TODO remove
     private var fatigue: Int,
     private var fitData: String?,
     @OneToOne(fetch = FetchType.LAZY)
