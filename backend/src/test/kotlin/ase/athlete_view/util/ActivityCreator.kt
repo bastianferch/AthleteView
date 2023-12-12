@@ -20,7 +20,8 @@ class ActivityCreator {
                     0,
                     0,
                     "",
-                    null
+                    null,
+                    listOf()
                 )
             }
         }

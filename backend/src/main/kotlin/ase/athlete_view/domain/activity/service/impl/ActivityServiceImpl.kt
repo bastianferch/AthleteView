@@ -168,45 +168,52 @@ class ActivityServiceImpl(
             var accuracySum = 0
             var intensityValueMissing = 0
 
-            val fitActivityType = data.recordMesgs[0].activityType
-            val date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val activityType = mapFitActivityTypeToActivityType(fitActivityType)
-            val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
-            var plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
-            val stepList = plannedActivity?.unroll()
-            val laps: MutableList<Lap> = mutableListOf()
-            log.debug { plannedActivity }
-
             val lapList = data.lapMesgs
             var i = 0
             var j = 0
             var lap = lapList[i]
             var lastLap = lapList[0]
+            val laps: MutableList<Lap> = mutableListOf()
+            var curLapIntensity: Intensity? = lap.intensity
 
-            var curLapIntensity: Intensity = lap.intensity
             laps.add(
                 Lap(
                     null,
                     i,
                     lap.totalTimerTime.toInt(),
-                    lap.totalDistance.toInt(),
+                    lap.totalDistance?.toInt(),
                     lap.enhancedAvgSpeed,
-                    lap.avgPower.toInt(),
-                    lap.maxPower.toInt(),
-                    lap.avgHeartRate.toInt(),
-                    lap.maxHeartRate.toInt(),
-                    lap.avgCadence.toInt(),
-                    lap.maxCadence.toInt(),
+                    lap.avgPower?.toInt(),
+                    lap.maxPower?.toInt(),
+                    lap.avgHeartRate?.toInt(),
+                    lap.maxHeartRate?.toInt(),
+                    lap.avgCadence?.toInt(),
+                    lap.maxCadence?.toInt(),
                     mapFitIntensityToStepType(lap.intensity)
                 )
             )
-            val compare = !stepList.isNullOrEmpty()
+            var compare = data.recordMesgs[0].activityType != null
             var sameStructure = false
             var sameDurations = false
+            var stepList: List<Step>? = null
+            var plannedActivity : PlannedActivity? = null
+
             if (compare) {
-                sameStructure = compareLapLists(stepList!!, lapList)
-                if (!sameStructure) {
-                    sameDurations = compareLapDurations(stepList, lapList)
+                val fitActivityType = data.recordMesgs[0].activityType
+                val date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                val activityType = mapFitActivityTypeToActivityType(fitActivityType)
+                val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
+                plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
+                stepList = plannedActivity?.unroll()
+
+
+                compare = !stepList.isNullOrEmpty()
+
+                if (compare) {
+                    sameStructure = compareLapLists(stepList!!, lapList)
+                    if (!sameStructure) {
+                        sameDurations = compareLapDurations(stepList, lapList)
+                    }
                 }
             }
 
@@ -220,8 +227,8 @@ class ActivityServiceImpl(
 
                     laps.add(
                         Lap(
-                            null, i, lap.totalTimerTime.toInt(), lap.totalDistance.toInt(), lap.enhancedAvgSpeed, lap.avgPower.toInt(),
-                            lap.maxPower.toInt(), lap.avgHeartRate.toInt(), lap.maxHeartRate.toInt(), lap.avgCadence.toInt(), lap.maxCadence.toInt(),
+                            null, i, lap.totalTimerTime.toInt(), lap.totalDistance?.toInt(), lap.enhancedAvgSpeed, lap.avgPower?.toInt(),
+                            lap.maxPower?.toInt(), lap.avgHeartRate?.toInt(), lap.maxHeartRate?.toInt(), lap.avgCadence?.toInt(), lap.maxCadence?.toInt(),
                             mapFitIntensityToStepType(lap.intensity)
                         )
                     )
@@ -308,6 +315,7 @@ class ActivityServiceImpl(
             val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
 
             // if accuracy too low do not count as planned activity
+
             plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
             val fitId: String = fitFileRepo.saveFitData(item)
@@ -424,7 +432,7 @@ class ActivityServiceImpl(
         }
     }
 
-    fun mapFitIntensityToStepType(fitIntensity: Intensity): StepType {
+    fun mapFitIntensityToStepType(fitIntensity: Intensity?): StepType {
         return when (fitIntensity) {
             Intensity.RECOVERY -> StepType.RECOVERY
             Intensity.ACTIVE -> StepType.ACTIVE
