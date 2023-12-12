@@ -25,7 +25,15 @@ ENV: "test"
 app:
   scheduling:
     enable: false
-#  mongodb:
-#    enabled: false
+
+logging:
+  level:
+    de:
+      flapdoodle:
+        embed:
+          mongo: WARN
+    org:
+      mongodb:
+        driver: WARN
 
 de.flapdoodle.mongodb.embedded.version: 6.0.2
