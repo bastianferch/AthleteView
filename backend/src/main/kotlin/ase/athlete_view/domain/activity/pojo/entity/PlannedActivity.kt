@@ -8,29 +8,29 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-data class PlannedActivity(
+open class PlannedActivity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    open val id: Long?,
 
-    val type: ActivityType,
+    open val type: ActivityType,
 
     @OneToOne
-    var interval: Interval,
+    open var interval: Interval,
 
-    val withTrainer: Boolean,
+    open val withTrainer: Boolean,
 
-    val template: Boolean,
+    open val template: Boolean,
 
-    val note: String?,
+    open val note: String?,
 
-    val date: LocalDateTime?,
+    open val date: LocalDateTime?,
 
-    @ManyToOne
-    var createdBy: User?,
+    @ManyToOne(fetch = FetchType.LAZY)
+    open var createdBy: User?,
 
-    @ManyToOne
-    val createdFor: Athlete?
+    @ManyToOne(fetch = FetchType.LAZY)
+    open var createdFor: Athlete?
 ) {
     fun toDTO(): PlannedActivityDTO {
         return PlannedActivityDTO(id, type, interval.toDTO(), withTrainer, template, note, date,
@@ -38,6 +38,6 @@ data class PlannedActivity(
     }
 
     override fun toString(): String {
-        return "PlannedActivity(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=$createdBy, createdFor=$createdFor)"
+        return "PlannedActivity(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=${createdBy?.id}, createdFor=${createdFor?.id})"
     }
 }

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface PlannedActivityRepository : JpaRepository<PlannedActivity, Long> {
+    fun findAllByCreatedForId(uid: Long): List<PlannedActivity>
 }

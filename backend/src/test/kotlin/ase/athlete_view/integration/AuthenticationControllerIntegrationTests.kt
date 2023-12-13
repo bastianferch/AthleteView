@@ -32,7 +32,7 @@ class AuthenticationControllerIntegrationTests: TestBase() {
 
     @BeforeEach
     fun setupUser() {
-        super.createDefaultUserInDb()
+        super.createDefaultUserInDb(UserCreator.DEFAULT_ATHLETE_EMAIL)
     }
 
     @Test
