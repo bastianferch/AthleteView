@@ -9,8 +9,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
-import jakarta.transaction.Transactional
-import org.hibernate.Hibernate
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import java.time.LocalDateTime

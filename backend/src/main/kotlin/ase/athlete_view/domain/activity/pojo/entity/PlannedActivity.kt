@@ -2,6 +2,7 @@ package ase.athlete_view.domain.activity.pojo.entity
 
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
+import ase.athlete_view.domain.activity.pojo.util.Load
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
@@ -13,6 +14,8 @@ open class PlannedActivity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open val id: Long?,
+
+    open val name:String,
 
     open val type: ActivityType,
 
@@ -27,6 +30,10 @@ open class PlannedActivity(
 
     open val date: LocalDateTime?,
 
+    open val estimatedDuration: Int?,
+
+    open val load: Load?,
+
     @ManyToOne(fetch = FetchType.LAZY)
     open var createdBy: User?,
 
@@ -39,8 +46,7 @@ open class PlannedActivity(
 
     fun toDTO(): PlannedActivityDTO {
         return PlannedActivityDTO(
-            id, type, interval.toDTO(), withTrainer, template, note, date,
-            createdBy?.toUserDTO(), createdFor?.toAthleteDto()
+            id, name, type, interval.toDTO(), withTrainer, template, note, date, estimatedDuration, load, createdBy?.toUserDTO(), createdFor?.toAthleteDto(), activity?.toDTO()
         )
     }
 

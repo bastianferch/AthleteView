@@ -1,26 +1,21 @@
 package ase.athlete_view.unit.activity
 
 import ase.athlete_view.common.exception.entity.ValidationException
-import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
-import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.transaction.annotation.Transactional
+
 import java.time.LocalDateTime
 
 //@SpringBootTest
@@ -39,8 +34,8 @@ class ActivityServiceUnitTests: TestBase() {
     // Create a test object for Interval class
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval( null, 1, null, step)), null)), null)
 
-    val plannedActivity = PlannedActivity(null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,null)
+    val plannedActivity = PlannedActivity(null,"test activity", ActivityType.RUN, interval, false, false,
+        "Sample planned activity", LocalDateTime.now().plusDays(5), 60, Load.MEDIUM, UserCreator.getTrainer(), null,null)
 
     lateinit var defaultTrainer: Trainer
     lateinit var defaultAthlete: Athlete
