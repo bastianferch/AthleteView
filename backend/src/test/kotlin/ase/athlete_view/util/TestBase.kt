@@ -1,21 +1,23 @@
 package ase.athlete_view.util
 
 import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
 
 @SpringBootTest
-@ActiveProfiles("test")
+@DirtiesContext
 class TestBase {
     @Autowired
     private lateinit var txm: PlatformTransactionManager
@@ -33,7 +35,7 @@ class TestBase {
         val def = DefaultTransactionDefinition()
         def.propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
         txStatus = txm.getTransaction(def)
-        assumeTrue(txStatus.isNewTransaction)
+        Assumptions.assumeTrue(txStatus.isNewTransaction)
         txStatus.setRollbackOnly()
     }
 
@@ -42,24 +44,39 @@ class TestBase {
         txm.rollback(txStatus)
     }
 
-    protected fun createDefaultUserInDb(): Long? {
+    protected fun createDefaultUserInDb(email: String = UserCreator.DEFAULT_ATHLETE_EMAIL): Athlete {
         val user = UserCreator.getAthlete()
         user.password = encoder.encode(user.password)
         user.isConfirmed = true
         user.trainer = null
-        val updated = ur.save(user)
-        return updated.id
+        user.email = email
+        return ur.save(user)
     }
 
-    protected fun createDefaultTrainerAthleteRelationInDb() {
-        val trainer = UserCreator.getTrainer()
-        trainer.password = encoder.encode(trainer.password)
-        trainer.isConfirmed = true
+    protected fun addAthleteToTrainer(athlete: Athlete, trainer: Trainer): Trainer {
+        val trainerOption = ur.findById(trainer.id!!).get() as Trainer
+        val user = ur.findById(athlete.id!!)
+        trainerOption.athletes.add(user.get() as Athlete)
+        return ur.save(trainerOption)
+    }
+
+    protected fun createDefaultTrainerAthleteRelationInDb(): Pair<Athlete, Trainer> {
         val athlete = UserCreator.getAthlete()
         athlete.password = encoder.encode(athlete.password)
         athlete.isConfirmed = true
-        athlete.trainer = trainer
-        ur.save(trainer)
-        ur.save(athlete)
+        athlete.trainer = null
+
+        val trainer = UserCreator.getTrainer()
+        trainer.password = encoder.encode(trainer.password)
+        trainer.isConfirmed = true
+        trainer.athletes = mutableSetOf(athlete)
+
+        val ares = ur.save(athlete)
+        val tres = ur.save(trainer)
+
+        ares.trainer = tres
+        ur.save(ares)
+
+        return ares to tres
     }
 }

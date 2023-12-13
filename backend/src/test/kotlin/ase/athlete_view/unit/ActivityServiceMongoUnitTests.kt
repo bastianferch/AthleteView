@@ -9,7 +9,6 @@ import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.UserCreator
-import ase.athlete_view.util.mongo.FlapdoodleConfig
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -26,7 +25,7 @@ import java.nio.file.Paths
 import java.util.*
 import kotlin.io.path.absolute
 
-@SpringBootTest(classes = [AthleteViewApplication::class, FlapdoodleConfig::class])
+@SpringBootTest(classes = [AthleteViewApplication::class])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
 class ActivityServiceMongoUnitTests {

@@ -21,8 +21,8 @@ open class User(
     open var zip: String?,
     var isConfirmed: Boolean = false,
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
-    open var activities: List<PlannedActivity> = listOf()
+    @OneToMany(mappedBy = "createdBy", cascade = [CascadeType.MERGE, CascadeType.PERSIST], fetch = FetchType.LAZY)
+    open var activities: MutableSet<PlannedActivity> = mutableSetOf(),
 ) {
     open fun toUserDTO(): UserDTO {
         return UserDTO(
@@ -36,5 +36,9 @@ open class User(
 
     open fun getUserType(): String {
         return "undefined"
+    }
+
+    override fun toString(): String {
+        return "User(id=$id, email='$email', name='$name', password='$password', country=$country, zip=$zip, isConfirmed=$isConfirmed, activities=$activities)"
     }
 }

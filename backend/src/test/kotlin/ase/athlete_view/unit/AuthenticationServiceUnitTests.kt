@@ -1,5 +1,7 @@
 package ase.athlete_view.unit
 
+import ase.athlete_view.domain.activity.persistence.FitDataRepository
+import ase.athlete_view.domain.activity.persistence.FitDataRepositoryImpl
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.UserCreator

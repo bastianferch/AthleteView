@@ -3,7 +3,6 @@ logging:
     root: INFO
     ase: TRACE
 
-
 spring:
   data:
     mongodb:

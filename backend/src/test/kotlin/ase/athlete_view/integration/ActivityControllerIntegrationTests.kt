@@ -1,6 +1,7 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
+import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
 import ase.athlete_view.domain.activity.pojo.dto.IntervalDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.dto.StepDTO
@@ -8,6 +9,9 @@ import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
+import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import ase.athlete_view.util.WithCustomMockUser
@@ -23,18 +27,20 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.transaction.annotation.Transactional
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlin.io.path.absolute
 
 @SpringBootTest(
@@ -44,9 +50,17 @@ import kotlin.io.path.absolute
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+//@EnableFlapdoodle
+//@TestPropertySource(properties = ["app.mongodb.enabled=true"])
 class ActivityControllerIntegrationTests : TestBase() {
 
     val log = KotlinLogging.logger {}
+
+    @Autowired
+    private lateinit var plActRep: PlannedActivityRepository
+
+    @Autowired
+    private lateinit var userRepo: UserRepository
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -67,14 +81,19 @@ class ActivityControllerIntegrationTests : TestBase() {
         "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null,
     )
 
+    private lateinit var defaultAthlete: Athlete;
+    private lateinit var defaultTrainer: Trainer;
+
     @BeforeEach
     fun setupUser() {
-        super.createDefaultTrainerAthleteRelationInDb()
+        val (athl, train) = super.createDefaultTrainerAthleteRelationInDb()
+        defaultAthlete = athl
+        defaultTrainer = train
     }
 
     @Test
-    @WithCustomMockUser(id=2)
-    fun createValidPlannedActivity_ShouldReturnOk(){
+    @WithCustomMockUser(id=1)
+    fun createValidPlannedActivity_ShouldReturnOk() {
         val idRegexPattern = "\"id\": null".toRegex()
         val activityTypeRegexPattern = "\"type\":\"RUN\"".toRegex()
         val plannedActivityDto = plannedActivity.toDTO()
@@ -133,5 +152,66 @@ class ActivityControllerIntegrationTests : TestBase() {
                 .with(csrf())
         )
             .andExpect(status().isCreated)
+    }
+
+    @Test
+    @Transactional
+    @WithCustomMockUser(id = -3)
+    fun fetchAllPlannedActivities_WithoutDates_shouldReturnAllPlannedActivities() {
+        // setup
+//        val plannedActivity = ActivityCreator.getDefaultPlannedActivity(defaultTrainer, null, defaultAthlete)
+
+//        mockMvc.perform(
+//            post("/api/activity/planned").with(csrf())
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .characterEncoding("utf-8")
+//                    .content(objectMapper.writeValueAsString(plannedActivity))
+//        )
+//                .andExpect(status().isOk)
+//                .andDo(MockMvcResultHandlers.print())
+
+//        val results = plActRep.findAll()
+//        val users = userRepo.findAll()
+//        KotlinLogging.logger {}.info { "Stored activities: $results" }
+//        KotlinLogging.logger {}.info { "Stored users: $users" }
+
+        // retrieve
+        mockMvc.perform(
+                get("/api/activity/planned").with(csrf())
+        )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray)
+                .andExpect(jsonPath("$.length()").value(6))
+    }
+
+    @Test
+    @WithCustomMockUser(id = -3)
+    fun getAllPlannedActivities_WithTimeRange_shouldReturnOnlyActivitiesInRange() {
+        val starTime = OffsetDateTime.of(2023, 8, 1, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
+        val endTime = OffsetDateTime.of(2023, 8, 31, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
+
+
+        mockMvc.perform(
+                get("/api/activity/planned").with(csrf())
+                        .param("startTime", starTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+                        .param("endTime", endTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+        )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray)
+                .andExpect(jsonPath("$.length()").value(1))
+    }
+
+    @Test
+    @WithCustomMockUser(id = -1)
+    fun getAllPlannedActivitiesForAthlete_shouldOnlyReturnOwnActivities () {
+        mockMvc.perform(
+                get("/api/activity/planned")
+        )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray)
+                .andExpect(jsonPath("$.length()").value(1))
     }
 }

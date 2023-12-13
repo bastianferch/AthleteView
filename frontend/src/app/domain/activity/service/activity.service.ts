@@ -1,18 +1,16 @@
-import { PlannedActivitySplit } from '../dto/PlannedActivity';
+import { PlannedActivity, PlannedActivitySplit } from '../dto/PlannedActivity';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UrlService } from '../../../config/service/UrlService';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { IntervalSplit } from "../../../common/interval/dto/Interval";
+import { Activity } from "../../activity/dto/Activity"
 
 @Injectable({
   providedIn: 'root',
 })
-
-
 export class ActivityService {
-
   private activityBaseUri: string;
   private plannedActivityBaseUri: string;
 
@@ -35,8 +33,29 @@ export class ActivityService {
 
   getPlannedActivity(id: number) {
     return this.httpClient.get<PlannedActivitySplit>(this.plannedActivityBaseUri + '/' + id);
-
   }
+
+  importFitActivity(data: File[]) {
+    const url = this.activityBaseUri + '/import'
+    const formData = new FormData()
+    for (const item of data) {
+      formData.append("files", item)
+    }
+    return this.httpClient.post(url, formData)
+  }
+
+  fetchAllActivitiesForUser(uid: number, startTime: string, endTime: string) {
+    const params = this.buildTimeParams(startTime, endTime)
+    const url = this.activityBaseUri + "/finished"
+    return this.httpClient.get<Array<Activity>>(url, { params: params })
+  }
+
+  fetchAllPlannedActivitiesForUser(uid: number, startTime: string, endTime: string) {
+    const params = this.buildTimeParams(startTime, endTime)
+    const url = this.activityBaseUri + "/planned"
+    return this.httpClient.get<Array<PlannedActivity>>(url, { params: params })
+  }
+
 
   // do some post-processing on the activity
   // if it is a template, set the date to null
@@ -94,5 +113,17 @@ export class ActivityService {
       return true;
     }
     return false;
+  }
+
+  private buildTimeParams(startTime: string, endTime: string): HttpParams {
+    let params = new HttpParams()
+    if (startTime !== null) {
+      params = params.append("startTime", startTime)
+    }
+    if (endTime !== null) {
+      params = params.append("endTime", endTime)
+    }
+
+    return params
   }
 }
