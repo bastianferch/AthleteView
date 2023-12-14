@@ -25,3 +25,5 @@ export class DateParsing {
   }
 
 }
+
+export const dateFormatString: string = "yyyy-MM-dd'T'HH:mm:ssxxx" // ISO format

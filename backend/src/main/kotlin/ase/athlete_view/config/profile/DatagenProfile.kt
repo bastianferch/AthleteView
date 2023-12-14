@@ -37,6 +37,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
 //        athlete.isConfirmed = true
         val saved = this.userService.save(athlete)
         this.zoneService.resetZones(saved.id!!)
+        this.tcService.createDefaultTimeConstraintsForUser(saved)
 
         val trainer = Trainer(
             1,

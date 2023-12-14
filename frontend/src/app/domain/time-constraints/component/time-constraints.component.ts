@@ -7,6 +7,8 @@ import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } fr
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Calendarcolors } from "../../../common/util/calendar-colors";
+import { dateFormatString } from "../../../common/util/parsing/date-parsing"
+import {endOfDay, subDays, format, startOfDay, addDays} from "date-fns";
 
 @Component({
   selector: 'app-time-constraints',
@@ -57,8 +59,8 @@ export class TimeConstraintsComponent implements OnInit {
   getEvents() {
 
     this.eventMap = new Map<CalendarEvent, number>()
-    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString()).subscribe(
-      (next) => {
+    this.constraintService.getConstraints("daily", format(this.startOfWeek, dateFormatString)).subscribe({
+      next: (next) => {
         this.whitelist = []
         this.blacklist = []
         for (const constraint of next) {
@@ -72,7 +74,8 @@ export class TimeConstraintsComponent implements OnInit {
         }
         this.setEvents()
       },
-      (error) => this.msgService.openSnackBar(error.error?.message))
+      error: (error) => this.msgService.openSnackBar(error.error?.message)}
+    )
   }
 
   setChoice(choice: string[]) {
@@ -111,16 +114,18 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+    if (newEnd.getDay() != event.end.getDay()) newEnd = endOfDay(subDays(newEnd,1))
+    if (newStart.getDay() != event.start.getDay()) newStart = startOfDay(addDays(newStart,1))
     this.constraintService.getById(this.eventMap.get(event)).subscribe((constraint) => {
       if (constraint.constraint !== undefined) {
-        constraint.constraint.weekday = newStart.getDay() - 1
+        constraint.constraint.weekday = (newStart.getDay() - 1 + 7) % 7
         constraint.constraint.startTime = `${newStart.getHours().toString().padStart(2, '0')}:${newStart.getMinutes().toString().padStart(2, '0')}`
         constraint.constraint.endTime = `${newEnd.getHours().toString().padStart(2, '0')}:${newEnd.getMinutes().toString().padStart(2, '0')}`
         this.constraintService.editWeeklyConstraint(constraint).subscribe(
-          () => {
-            this.getEvents()
-          },
-          (error) => this.msgService.openSnackBar(error.error?.msg))
+          {
+            next: () => this.getEvents(),
+            error: (error) => this.msgService.openSnackBar(error.error?.msg)
+          })
       } else {
         constraint.endTime = newEnd
         constraint.endTime.setHours(newEnd.getHours() - (new Date().getTimezoneOffset() / 60))

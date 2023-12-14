@@ -36,8 +36,6 @@ export class TimeConstraintService {
 
   getConstraints(type?: string, from?: string, until?: string): Observable<TimeConstraint[]> {
     let params = new HttpParams()
-    if (from?.length > 20) from = this.sanitize(from)
-    if (until?.length > 20) until = this.sanitize(until)
     if (type) params = params.append("type", type)
     if (from) params = params.append("from", from)
     if (until) params = params.append("until", until)

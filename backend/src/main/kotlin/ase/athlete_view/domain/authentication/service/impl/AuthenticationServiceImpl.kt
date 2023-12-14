@@ -60,7 +60,7 @@ class AuthenticationServiceImpl(
         this.authValidationService.validateUser(user)
         user.password = BCryptPasswordEncoder().encode(user.password)
         val persistedUser = this.userService.save(user)
-        createDefaultTimeConstraintsForUser(persistedUser)
+        timeConstraintService.createDefaultTimeConstraintsForUser(persistedUser)
         this.createConfirmationTokenToUser(persistedUser)
         return persistedUser
     }
@@ -178,15 +178,5 @@ class AuthenticationServiceImpl(
 
     private fun throwBadCredentialsException() {
         throw BadCredentialsException("Either email or password is incorrect")
-    }
-
-    private fun createDefaultTimeConstraintsForUser(user: User) {
-        val defaultStartTime = LocalTime.of(7,0)
-        val defaultEndTime = LocalTime.of(22,0)
-        val titleForDefaultConstraint = "normal training hours"
-        for (day in DayOfWeek.values()) {
-            val timeConstraint = WeeklyTimeConstraintDto(null, false, titleForDefaultConstraint, user, TimeFrame(day,defaultStartTime,defaultEndTime))
-            timeConstraintService.save(timeConstraint, user.toUserDTO())
-        }
     }
 }
