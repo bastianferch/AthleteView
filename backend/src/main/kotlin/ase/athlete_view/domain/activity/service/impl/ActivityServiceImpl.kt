@@ -175,7 +175,7 @@ class ActivityServiceImpl(
     }
 
     @Transactional
-    override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
+    override fun importActivity(files: List<MultipartFile>, userId: Long): Activity {
         logger.debug { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
@@ -184,6 +184,7 @@ class ActivityServiceImpl(
         }
 
         var ids = arrayOf<String>().toMutableList()
+        var respData: Activity? = null
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
 
@@ -229,7 +230,7 @@ class ActivityServiceImpl(
             var sameStructure = false
             var sameDurations = false
             var stepList: List<Step>? = null
-            var plannedActivity : PlannedActivity? = null
+            var plannedActivity: PlannedActivity? = null
 
             if (compare) {
                 val fitActivityType = data.recordMesgs[0].activityType
@@ -249,7 +250,6 @@ class ActivityServiceImpl(
                     }
                 }
             }
-
 
 
             var startTime: LocalDateTime? = null
@@ -378,13 +378,19 @@ class ActivityServiceImpl(
                 startTime,
                 endTime,
                 plannedActivity,
-                laps
+                laps,
+                data.recordMesgs[0].activityType?.let { mapFitActivityTypeToActivityType(it) }
             )
             plannedActivity?.activity = activity
             ids.add(fitId)
             laps.map { lapRepo.save(it) }
-            val respData = activityRepo.save(activity)
-            logger.debug { respData.toString() }
+            respData = activityRepo.save(activity)
+
+        }
+        if (respData != null) {
+            return respData
+        } else {
+            throw NotImplementedError("Health fit files are currently not supported")
         }
     }
 
@@ -405,6 +411,7 @@ class ActivityServiceImpl(
         }
         return true
     }
+
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
         logger.trace { "S | getAllActivities" }
         val user = userRepository.findById(uid).getOrNull()
@@ -423,15 +430,16 @@ class ActivityServiceImpl(
             when (step.durationType) {
                 StepDurationType.LAPBUTTON -> {
                     while (lapList[i].lapTrigger != LapTrigger.MANUAL) {
-                        if (i == lapList.size) { // all laps are done and more steps
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
                             return false
                         }
                         i++
                     }
                 }
+
                 StepDurationType.TIME -> {
                     while (lapList[i].lapTrigger != LapTrigger.TIME) {
-                        if (i == lapList.size) { // all laps are done and more steps
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
                             return false
                         }
                         i++
@@ -440,7 +448,7 @@ class ActivityServiceImpl(
 
                 StepDurationType.DISTANCE -> {
                     while (lapList[i].lapTrigger != LapTrigger.DISTANCE) {
-                        if (i == lapList.size) { // all laps are done and more steps
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
                             return false
                         }
                         i++

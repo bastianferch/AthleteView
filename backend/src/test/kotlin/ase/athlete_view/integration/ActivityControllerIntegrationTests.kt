@@ -77,12 +77,12 @@ class ActivityControllerIntegrationTests : TestBase() {
     // Create a test object for Interval class
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
-        null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), UserCreator.getTrainer(), null, null
+        null, "test", ActivityType.RUN, interval, false, false,
+        "Sample planned activity", LocalDateTime.now().plusDays(5),60,Load.MEDIUM, UserCreator.getTrainer(), null, null
     )
 
-    private lateinit var defaultAthlete: Athlete;
-    private lateinit var defaultTrainer: Trainer;
+    private lateinit var defaultAthlete: Athlete
+    private lateinit var defaultTrainer: Trainer
 
     @BeforeEach
     fun setupUser() {
@@ -117,10 +117,10 @@ class ActivityControllerIntegrationTests : TestBase() {
         val validationFailedRegex = "\"message\":\"Validation of planned Activity failed".toRegex()
         val dateErrorRegex = "Date and time must be in the future".toRegex()
         val plannedActivityDto = PlannedActivityDTO(
-            null, ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
+            null, "test", ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
                 null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
                 StepTargetType.CADENCE, 100, 200, "Sample step note")), false, false,
-            "Sample planned activity", LocalDateTime.now().minusDays(5), null, null,
+            "Sample planned activity", LocalDateTime.now().minusDays(5), 60,Load.MEDIUM, null, null,
         )
 
         val result = mockMvc.perform(
@@ -213,5 +213,22 @@ class ActivityControllerIntegrationTests : TestBase() {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray)
                 .andExpect(jsonPath("$.length()").value(1))
+    }
+
+    @Test
+    @WithCustomMockUser(id = -1)
+    fun sendFitFileForPlannedTraining_shouldNotThrow(){
+        val filePath = Paths.get("src/test/resources/fit-files/7x(1km P2').fit").absolute()
+        val name = "test.fit"
+        val byteContent = Files.readAllBytes(filePath)
+        val resultFile = MockMultipartFile("files", name, MediaType.MULTIPART_FORM_DATA_VALUE, byteContent)
+
+        mockMvc.perform(
+                multipart(HttpMethod.POST, "/api/activity/import")
+                        .file(resultFile)
+                        .with(csrf())
+        )
+                .andExpect(status().isCreated)
+
     }
 }

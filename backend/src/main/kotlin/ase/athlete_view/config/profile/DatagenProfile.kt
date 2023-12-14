@@ -62,7 +62,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
             UserDTO(1, "", "", null, null, ""))
 
 
-        val plannedActivity = PlannedActivity(1, ActivityType.RUN,
+        val plannedActivity = PlannedActivity(1," 7x(1km P:1')", ActivityType.RUN,
             Interval(null,1, listOf(
                 Interval(null,1,null,
                     Step(null,StepType.WARMUP, StepDurationType.LAPBUTTON,null,null,null,null,null,null)),
@@ -75,7 +75,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
                 Interval(null,1,null,
                     Step(null,StepType.COOLDOWN,StepDurationType.LAPBUTTON,null,null,null,null,null,null))),null)
                     ,
-            false,false, "", LocalDateTime.of(2023,9,30,12,10),trainer,athlete, null)
+            false,false, "", LocalDateTime.of(2023,9,30,12,10), 60,Load.MEDIUM,trainer,athlete, null)
 
         activityService.createInterval(plannedActivity.interval)
         activityRepository.save(plannedActivity)

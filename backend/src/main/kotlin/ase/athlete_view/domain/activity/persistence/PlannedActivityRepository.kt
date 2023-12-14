@@ -12,7 +12,7 @@ import java.time.LocalDate
 interface PlannedActivityRepository : JpaRepository<PlannedActivity, Long> {
 
 
-    @Query("SELECT p FROM PlannedActivity p WHERE p.createdFor.id = :userId AND p.type = :activityType AND DATE(p.date) = :date AND p.activity IS NULL")
+    @Query("SELECT p FROM PlannedActivity p WHERE p.createdFor.id = :userId AND p.type = :activityType AND CAST(p.date AS DATE) = :date AND p.activity IS NULL")
     fun findActivitiesByUserIdTypeAndDateWithoutActivity(@Param("userId") userId: Long, @Param("activityType") activityType: ActivityType, @Param("date") date: LocalDate): List<PlannedActivity>
 
     fun findAllByCreatedForId(uid: Long): List<PlannedActivity>

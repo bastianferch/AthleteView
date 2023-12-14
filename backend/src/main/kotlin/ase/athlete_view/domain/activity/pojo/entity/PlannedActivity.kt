@@ -41,7 +41,7 @@ open class PlannedActivity(
     open var createdFor: Athlete?,
 
     @OneToOne(fetch = FetchType.LAZY)
-    var activity: Activity?
+    open var activity: Activity?
 ) {
 
     fun toDTO(): PlannedActivityDTO {

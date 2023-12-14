@@ -35,5 +35,5 @@ interface UserService {
      * Updates the athlete without id, email and password.
      * @throws ConflictException if user is trying to update the wrong user type (trainer)
      */
-    fun updateAthlete(atlAthleteDTO: AthleteDTO)
+    fun updateAthlete(athleteDTO: AthleteDTO)
 }

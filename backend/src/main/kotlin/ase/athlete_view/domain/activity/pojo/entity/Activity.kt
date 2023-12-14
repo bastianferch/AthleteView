@@ -1,37 +1,40 @@
 package ase.athlete_view.domain.activity.pojo.entity
 
 import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
+import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "activity")
-class Activity(
+open class Activity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private var id: Long?,
+    open var id: Long?,
     @ManyToOne
-    private var user: User?,
-    private var accuracy: Int,
-    private var averageBpm: Int,
-    private var maxBpm: Int,
-    private var distance: Double,
-    private var spentKcal: Int,
-    private var cadence: Int,
-    private var avgPower: Int,
-    private var maxPower: Int,
-    private var fitData: String?,
-    private var startTime: LocalDateTime?,
-    private var endTime: LocalDateTime?,
+    open var user: User?,
+    open var accuracy: Int,
+    open var averageBpm: Int,
+    open var maxBpm: Int,
+    open var distance: Double,
+    open var spentKcal: Int,
+    open var cadence: Int,
+    open var avgPower: Int,
+    open var maxPower: Int,
+    open var fitData: String?,
+    open var startTime: LocalDateTime?,
+    open var endTime: LocalDateTime?,
     @OneToOne(fetch = FetchType.LAZY)
-    private var plannedActivity: PlannedActivity?,
+    open var plannedActivity: PlannedActivity?,
     @OneToMany
-    private var laps : List<Lap>
+    open var laps: List<Lap>,
+    open var activityType: ActivityType?
 ) {
     fun toDTO(): ActivityDTO {
         return ActivityDTO(id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
-            plannedActivity?.toDTO(),laps.map { it.toDTO()})
+            plannedActivity?.toDTO(), laps.map { it.toDTO() }, activityType
+        )
     }
 
     override fun toString(): String {

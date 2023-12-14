@@ -3,6 +3,7 @@ package ase.athlete_view.unit
 import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
 import ase.athlete_view.domain.activity.controller.ActivityController
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -37,9 +38,9 @@ class ActivityServiceControllerUnitTests {
     @WithCustomMockUser
     fun verifyUploadingValidFitFile_Returns201Created() {
         // mock service
-        every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } returns Unit
+        every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } returns ActivityCreator.getDefaultActivity()
 
-        val filePath = Paths.get("src/test/resources/fit-files/valid_file_2.fit").absolute()
+        val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"
         val byteContent = Files.readAllBytes(filePath)
         val resultFile = MockMultipartFile("files", name, MediaType.MULTIPART_FORM_DATA_VALUE, byteContent)

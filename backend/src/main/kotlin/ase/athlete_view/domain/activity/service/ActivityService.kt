@@ -15,7 +15,7 @@ interface ActivityService {
 
     fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity
 
-    fun importActivity(files: List<MultipartFile>, userId: Long): Unit
+    fun importActivity(files: List<MultipartFile>, userId: Long): Activity
 
     fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity>
 
