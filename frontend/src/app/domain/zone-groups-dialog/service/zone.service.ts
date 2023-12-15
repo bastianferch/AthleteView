@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UrlService } from '../../../config/service/UrlService';
 import { Zone } from "../dto/Zone";
@@ -28,7 +28,7 @@ export class ZoneService {
 
   resetZones(maxHR?: number): Observable<Zone[]> {
     let params = new HttpParams()
-    if(maxHR) params = params.append("maxHR", maxHR)
+    if (maxHR) params = params.append("maxHR", maxHR)
     return this.httpClient.delete<Zone[]>(this.zoneBaseUri, { params });
   }
 

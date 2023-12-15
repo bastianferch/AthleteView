@@ -59,22 +59,21 @@ export class TimeConstraintsComponent implements OnInit {
   getEvents() {
 
     this.eventMap = new Map<CalendarEvent, number>()
-    this.constraintService.getConstraints("daily", format(this.startOfWeek, dateFormatString)).subscribe({
-      next: (next) => {
-        this.whitelist = []
-        this.blacklist = []
-        for (const constraint of next) {
-          const event = this.constraintToEvent(constraint)
-          if (constraint.isBlacklist) {
-            this.blacklist.push(event)
-          } else {
-            this.whitelist.push(event)
-          }
-          this.eventMap.set(event, constraint.id)
+    this.constraintService.getConstraints("daily", format(this.startOfWeek, dateFormatString)).subscribe({ next: (next) => {
+      this.whitelist = []
+      this.blacklist = []
+      for (const constraint of next) {
+        const event = this.constraintToEvent(constraint)
+        if (constraint.isBlacklist) {
+          this.blacklist.push(event)
+        } else {
+          this.whitelist.push(event)
         }
-        this.setEvents()
-      },
-      error: (error) => this.msgService.openSnackBar(error.error?.message)}
+        this.eventMap.set(event, constraint.id)
+      }
+      this.setEvents()
+    },
+    error: (error) => this.msgService.openSnackBar(error.error?.message) },
     )
   }
 
@@ -114,8 +113,8 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-    if (newEnd.getDay() != event.end.getDay()) newEnd = endOfDay(subDays(newEnd,1))
-    if (newStart.getDay() != event.start.getDay()) newStart = startOfDay(addDays(newStart,1))
+    if (newEnd.getDay() !== event.end.getDay()) newEnd = endOfDay(subDays(newEnd,1))
+    if (newStart.getDay() !== event.start.getDay()) newStart = startOfDay(addDays(newStart,1))
     this.constraintService.getById(this.eventMap.get(event)).subscribe((constraint) => {
       if (constraint.constraint !== undefined) {
         constraint.constraint.weekday = (newStart.getDay() - 1 + 7) % 7
@@ -124,7 +123,7 @@ export class TimeConstraintsComponent implements OnInit {
         this.constraintService.editWeeklyConstraint(constraint).subscribe(
           {
             next: () => this.getEvents(),
-            error: (error) => this.msgService.openSnackBar(error.error?.message)
+            error: (error) => this.msgService.openSnackBar(error.error?.message),
           })
       } else {
         constraint.endTime = newEnd
