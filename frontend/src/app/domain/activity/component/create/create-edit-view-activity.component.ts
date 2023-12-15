@@ -61,7 +61,9 @@ export class CreateEditViewActivityComponent implements OnInit {
       if (this.mode !== ActivityCreateEditViewMode.create) {
         this.activityService.getPlannedActivity(this.route.snapshot.params['id']).subscribe((activity) => {
           this.plannedActivity = convertToPlannedActivity(activity);
-          this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
+          if (this.plannedActivity.date !== null) {
+            this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
+          }
         },
         (error) => {
           if (error.status === HttpStatusCode.NotFound) {
@@ -73,14 +75,18 @@ export class CreateEditViewActivityComponent implements OnInit {
         // if this is the create screen, initialize the activity with a default one.
         this.plannedActivity = {
           id: null,
+          name: undefined,
           interval: undefined,
           template: false,
           type: ActivityType.RUN,
           withTrainer: false,
           note: "",
           date: new Date(),
+          estimatedDuration: 0,
+          load: undefined,
           createdBy: null, // stays. Will be ignored by the backend anyway
           createdFor: null,
+          activity: null,
         }
       }
     });

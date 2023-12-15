@@ -45,7 +45,7 @@ class TestBase {
     }
 
     protected fun createDefaultUserInDb(email: String = UserCreator.DEFAULT_ATHLETE_EMAIL): Athlete {
-        val user = UserCreator.getAthlete()
+        val user = UserCreator.getAthlete(null)
         user.password = encoder.encode(user.password)
         user.isConfirmed = true
         user.trainer = null
@@ -61,7 +61,7 @@ class TestBase {
     }
 
     protected fun createDefaultTrainerAthleteRelationInDb(): Pair<Athlete, Trainer> {
-        val athlete = UserCreator.getAthlete()
+        val athlete = UserCreator.getAthlete(null)
         athlete.password = encoder.encode(athlete.password)
         athlete.isConfirmed = true
         athlete.trainer = null

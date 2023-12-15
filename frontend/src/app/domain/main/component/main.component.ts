@@ -12,6 +12,7 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent {
+  email: string = this.authService.currentUser.email
   constructor(private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,

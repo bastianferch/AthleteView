@@ -58,11 +58,11 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     @Transactional
-    override fun updateAthlete(dto: AthleteDTO) {
-        log.trace { "updateAthlete ${dto.email}" }
-        val athlete = this.userRepository.findByEmail(dto.email)
+    override fun updateAthlete(athleteDTO: AthleteDTO) {
+        log.trace { "updateAthlete ${athleteDTO.email}" }
+        val athlete = this.userRepository.findByEmail(athleteDTO.email)
         if (athlete is Athlete){
-            this.userMapper.toEntity(athlete, dto)
+            this.userMapper.toEntity(athlete, athleteDTO)
             this.validationService.validateUser(athlete)
             this.save(athlete)
         } else{

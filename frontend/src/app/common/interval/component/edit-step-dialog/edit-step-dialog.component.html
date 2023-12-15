@@ -1,10 +1,10 @@
 <h1 mat-dialog-title>Edit Step</h1>
 <div mat-dialog-content class="dialog-container">
-  <div class="settings-container">
+  <form class="settings-container" [formGroup]="form">
     <h1>Details</h1>
     <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
-      <mat-select [(ngModel)]="stepCopy.type">
+      <mat-select formControlName="type">
         <mat-option *ngFor="let stepType of stepTypes" [value]="stepType">
           {{stepType === StepType.ACTIVE ? activityMapper.get(data[1]) : stepNameMapper.get(stepType)}}
         </mat-option>
@@ -14,24 +14,21 @@
     <h1>Duration</h1>
     <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
-      <mat-select [(ngModel)]="stepCopy.durationType">
-        <mat-option [value]="undefined">
-          none
-        </mat-option>
+      <mat-select formControlName="durationType">
         <mat-option *ngFor="let durationType of durationTypes" [value]="durationType">
           {{stepDurationMapper.get(durationType)}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
-    <div class="split-field" *ngIf="showDurationSettings()">
+    <div class="split-field" *ngIf="service.showDurationSettings(this.form.get('durationType').value)">
       <mat-form-field appearance="outline" class="small">
         <mat-label>Distance</mat-label>
-        <input matInput type="number" [(ngModel)]="stepCopy.durationDistance">
+        <input matInput type="number" formControlName="durationDistance">
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="small">
-        <mat-select [(ngModel)]="stepCopy.durationDistanceUnit">
+        <mat-select formControlName="durationDistanceUnit">
           <mat-option *ngFor="let unit of distanceUnits" [value]="unit">
             {{stepDurationDistanceUnitMapper.get(unit)}}
           </mat-option>
@@ -42,7 +39,7 @@
     <h1>Intensity Target</h1>
     <mat-form-field appearance="outline">
       <mat-label>Type</mat-label>
-      <mat-select [(ngModel)]="stepCopy.targetType">
+      <mat-select formControlName="targetType">
         <mat-option [value]="undefined">
           none
         </mat-option>
@@ -52,20 +49,31 @@
       </mat-select>
     </mat-form-field>
 
-    <div class="split-field" *ngIf="showIntensitySettings()">
-      <mat-form-field appearance="outline" class="small">
-        <input matInput type="number" [(ngModel)]="stepCopy.targetFrom">
+    <div class="split-field" *ngIf="service.showIntensitySettings(this.form.get('targetType').value)">
+      <mat-form-field appearance="outline" class="small" *ngIf="this.form.get('targetType').value !== StepTargetType.PACE">
+        <input matInput type="number" formControlName="targetFrom">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="small" *ngIf="this.form.get('targetType').value === StepTargetType.PACE">
+        <input  matInput type="text"  formControlName="targetFrom2">
       </mat-form-field>
 
       <p> to </p>
 
-      <mat-form-field appearance="outline" class="small">
-        <input matInput type="number" [(ngModel)]="stepCopy.targetTo">
+      <mat-form-field appearance="outline" class="small" *ngIf="this.form.get('targetType').value !== StepTargetType.PACE">
+        <input matInput type="number" formControlName="targetTo">
       </mat-form-field>
 
-      <p> {{service.getUnitForTargetType(stepCopy.targetType)}} </p>
+      <mat-form-field appearance="outline" class="small" *ngIf="this.form.get('targetType').value === StepTargetType.PACE">
+        <input  matInput type="text" formControlName="targetTo2">
+        <mat-error>
+          Please enter a valid pace in the format mm:ss
+        </mat-error>
+      </mat-form-field>
+
+      <p> {{service.getUnitForTargetType(this.form.get('targetType').value)}} </p>
     </div>
-  </div>
+  </form>
 
   <div class="note-container">
     <h1>Note</h1>
@@ -78,5 +86,5 @@
 <div mat-dialog-actions class="footer">
   <button mat-button (click)="onNoClick()">Cancel</button>
   <!--closes the dialog with the mutated object as result-->
-  <button mat-button color="primary" (click)="prepareResult()" [mat-dialog-close]="stepCopy">Save</button>
+  <button mat-button color="primary" (click)="prepareResult()" [mat-dialog-close]="this.form.value" [disabled]="form.invalid">Save</button>
 </div>

@@ -1,33 +1,39 @@
-<div class="navbar flex-end-row-container">
-  <button mat-raised-button [routerLink]="'/'">
-    <mat-icon>home</mat-icon>
-    Home
-  </button>
+<mat-toolbar color="primary" class=" centered-row-container" style="justify-content: space-between">
+  <div [routerLink]="'/'" class="large-button">
+      AthleteView
+  </div>
 
-  <button mat-raised-button [routerLink]="'/activity'">
-    <mat-icon>home</mat-icon>
-    Activities
-  </button>
+  <div>
+    <button mat-flat-button color="primary" [routerLink]="'/'">
 
-  <button mat-raised-button [routerLink]="'/calendar'">
-    <mat-icon>home</mat-icon>
-    Calendar
-  </button>
+      Home
+    </button>
+    <button mat-flat-button color="primary" [routerLink]="'/activity'">
+      Activities
+    </button>
 
-  <button mat-raised-button (click)="openImportDialog()">
-    <mat-icon>upload-file</mat-icon>
-    Fit Import
+    <button mat-flat-button color="primary" [routerLink]="'/calendar'">
+      Calendar
+    </button>
+  </div>
+  <button mat-button [matMenuTriggerFor]="menu" >
+    {{email}}s  <mat-icon>person</mat-icon>
   </button>
-
-  <button mat-raised-button [routerLink]="'/profile'">
-    <mat-icon>person</mat-icon>
-    Profile
-  </button>
-  <button mat-raised-button (click)="logout()">
-    <mat-icon>home</mat-icon>
-    Logout
-  </button>
-</div>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="openImportDialog()">
+      <mat-icon>upload_file</mat-icon>
+      Fit Import
+    </button>
+    <button mat-menu-item [routerLink]="'/profile'">
+      <mat-icon>person</mat-icon>
+      Profile
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  </mat-menu>
+</mat-toolbar>
 
 <div style="padding:1vh 1vw">
   <router-outlet></router-outlet>
