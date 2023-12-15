@@ -28,9 +28,10 @@ class ZoneController(val zoneService: ZoneService) {
     }
 
     @DeleteMapping
-    fun resetZones(@AuthenticationPrincipal userDto: UserDTO): List<ZoneDto> {
+    fun resetZones(@RequestParam(required = false, name = "maxHR") maxHR: Int?,
+                   @AuthenticationPrincipal userDto: UserDTO): List<ZoneDto> {
 
-        logger.info { "DELETE zones by $userDto" }
-        return zoneService.resetZones(userDto.id!!)
+        logger.info { "DELETE zones by $userDto, maxHR: $maxHR" }
+        return zoneService.resetZones(userDto.id!!, maxHR)
     }
 }

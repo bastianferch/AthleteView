@@ -20,6 +20,8 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
 export class ZoneGroupsDialogComponent implements OnInit {
 
   zones: Zone[]
+  maxHR: number
+
   constructor(public dialogRef: MatDialogRef<ZoneGroupsDialogComponent>,
     public zoneService: ZoneService,
     public msgService: SnackbarService) {}
@@ -34,7 +36,7 @@ export class ZoneGroupsDialogComponent implements OnInit {
   }
 
   reset(): void {
-    this.zoneService.resetZones().subscribe({
+    this.zoneService.resetZones(this.maxHR).subscribe({
       next: (next: Zone[]) => this.zones = next,
       error: (e) => this.msgService.openSnackBar(e.error?.message),
     },
@@ -43,7 +45,7 @@ export class ZoneGroupsDialogComponent implements OnInit {
 
   addZone(): void {
     const top: number = this.zones[this.zones.length - 1].toBPM
-    this.zones.push({ name: 'New Zone',fromBPM: top,toBPM: top + 20 })
+    this.zones.push({ name: 'New Zone',fromBPM: top + 1,toBPM: top + 20 })
   }
 
   removeZone(zone: Zone): void {
@@ -57,7 +59,7 @@ export class ZoneGroupsDialogComponent implements OnInit {
         break
       default:
         this.zones[index - 1].toBPM = middle
-        this.zones[index + 1].fromBPM = middle
+        this.zones[index + 1].fromBPM = middle + 1
     }
     this.zones = this.zones.filter((value) => value !== zone)
   }

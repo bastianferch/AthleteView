@@ -8,7 +8,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angu
 import { Subject } from 'rxjs';
 import { Calendarcolors } from "../../../common/util/calendar-colors";
 import { dateFormatString } from "../../../common/util/parsing/date-parsing"
-import {endOfDay, subDays, format, startOfDay, addDays} from "date-fns";
+import { endOfDay, subDays, format, startOfDay, addDays } from "date-fns";
 
 @Component({
   selector: 'app-time-constraints',
@@ -124,7 +124,7 @@ export class TimeConstraintsComponent implements OnInit {
         this.constraintService.editWeeklyConstraint(constraint).subscribe(
           {
             next: () => this.getEvents(),
-            error: (error) => this.msgService.openSnackBar(error.error?.msg)
+            error: (error) => this.msgService.openSnackBar(error.error?.message)
           })
       } else {
         constraint.endTime = newEnd

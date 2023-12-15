@@ -9,7 +9,7 @@ interface ZoneService {
 
     fun edit(userId: Long, zones: List<ZoneDto>): List<ZoneDto>
 
-    fun resetZones(userId: Long): List<ZoneDto>
+    fun resetZones(userId: Long, maxHR: Int? = null): List<ZoneDto>
 
-    fun calcZones(age: Int): List<Zone>
+    fun calcZones(maxHR: Int): List<Zone>
 }
