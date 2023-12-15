@@ -23,7 +23,7 @@ VALUES (-1, '1024', '1', '0', '10', '20', '0', '0', 'sample step #1'),
        (-5, '700', '2', '1', '99', '100', '1', '1', 'sample step #5'),
        (-6, '700', '2', '1', '99', '100', '1', '1', 'sample step #6'),
        (-7, null, null, '2', null, null, null, '2', 'lap button warm up #1'),
-       (-8, '1', '0', '1', '240', '260', '1', '0', '1km 4:00-4:20'),
+       (-8, '1', '0', '1', '240', '260', '2', '0', '1km 4:00-4:20'),
        (-9, '2', '2', '1', null, null, null, '1', '2min recovery'),
        (-10, null, null, '2', null, null, null, '3', 'lap button cooldown #1');
 
@@ -59,4 +59,4 @@ VALUES (-1, FALSE, '0', FALSE, -3, -2, PARSEDATETIME('26-08-2023', 'dd-MM-yyyy')
        (-4, FALSE, '3', FALSE, -3, -2, PARSEDATETIME('26-10-2023', 'dd-MM-yyyy'), -5, 'test #4', 'test #4', '1', 60, null),
        (-5, FALSE, '4', FALSE, -3, -2, PARSEDATETIME('26-10-2023', 'dd-MM-yyyy'), -3, 'test #5', 'test #5', '1', 60, null),
        (-6, FALSE, '5', FALSE, -3, -2, PARSEDATETIME('12-12-2023', 'dd-MM-yyyy'), -4, 'test #6', 'test #6', '1', 60, null),
-       (-7, FALSE, '1', FALSE, -4, -4, PARSEDATETIME('12-12-2023', 'dd-MM-yyyy'), -12, 'test #7', '7x(1km P:1min)', '1', 60, null);
+       (-7, FALSE, '1', FALSE, -4, -4, PARSEDATETIME('30-09-2023', 'dd-MM-yyyy'), -12, 'test #7', '7x(1km P:1min)', '1', 60, null);

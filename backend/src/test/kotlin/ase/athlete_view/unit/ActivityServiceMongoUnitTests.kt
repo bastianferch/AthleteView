@@ -121,7 +121,8 @@ class ActivityServiceMongoUnitTests {
             plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(
                 any(),
                 any(),
-                any()
+                any(),
+                any(),
             )
         } returns listOf(ActivityCreator.get7Times1KmPlannedActivity(UserCreator.getAthlete(-4), UserCreator.getAthlete(-4)))
 
@@ -133,7 +134,7 @@ class ActivityServiceMongoUnitTests {
         val resultFile = MockMultipartFile(name, name, content, byteContent)
 
         activityService.importActivity(arrayListOf(resultFile), -4L)
-        verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any()) }
+        verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) }
         assertAll("Activity",
             { assert(slot.captured.accuracy > 25) },
             { assert(slot.captured.activityType == ActivityType.RUN) },
@@ -151,6 +152,7 @@ class ActivityServiceMongoUnitTests {
             plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(
                 any(),
                 any(),
+                any(),
                 any()
             )
         } returns listOf(ActivityCreator.get7Times1KmPlannedActivity(UserCreator.getAthlete(-4), UserCreator.getAthlete(-4)))
@@ -163,7 +165,7 @@ class ActivityServiceMongoUnitTests {
         val resultFile = MockMultipartFile(name, name, content, byteContent)
 
         activityService.importActivity(arrayListOf(resultFile), -4L)
-        verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any()) }
+        verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) }
         assertAll("Activity",
             { assert(slot.captured.accuracy == 0) },
             { assert(slot.captured.activityType == ActivityType.RUN) },

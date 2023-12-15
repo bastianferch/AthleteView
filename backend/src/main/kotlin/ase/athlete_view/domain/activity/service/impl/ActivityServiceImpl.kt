@@ -3,6 +3,7 @@ package ase.athlete_view.domain.activity.service.impl
 import  ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.entity.*
+import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.activity.pojo.util.StepDurationType
 import ase.athlete_view.domain.activity.pojo.util.StepTargetType
 import ase.athlete_view.domain.activity.pojo.util.StepType
@@ -23,8 +24,6 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import java.time.LocalDate
-import java.time.ZoneId
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.jvm.optionals.getOrNull
@@ -234,9 +233,19 @@ class ActivityServiceImpl(
 
             if (compare) {
                 val fitActivityType = data.recordMesgs[0].activityType
-                val date = data.recordMesgs[0].timestamp.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                val startTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+                    .withHour(0)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                val endTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+                    .withHour(23)
+                    .withMinute(59)
+                    .withSecond(59)
+                    .withNano(0)
                 val activityType = mapFitActivityTypeToActivityType(fitActivityType)
-                val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, date)
+
+                val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, startTime, endTime)
                 plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
                 stepList = plannedActivity?.unroll()
 
@@ -461,8 +470,8 @@ class ActivityServiceImpl(
         return true
     }
 
-    private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: MyActivityType, date: LocalDate): List<PlannedActivity> {
-        return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, date)
+    private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: ActivityType, startTime: LocalDateTime, endTime: LocalDateTime): List<PlannedActivity> {
+        return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
     }
 
     override fun createInterval(interval: Interval): Interval {
