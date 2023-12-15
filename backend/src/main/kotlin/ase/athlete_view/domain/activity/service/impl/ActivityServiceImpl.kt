@@ -175,7 +175,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Activity {
-        logger.debug { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        logger.trace { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
