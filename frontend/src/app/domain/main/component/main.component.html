@@ -14,11 +14,6 @@
     Calendar
   </button>
 
-  <button mat-raised-button (click)="openImportDialog()">
-    <mat-icon>upload-file</mat-icon>
-    Fit Import
-  </button>
-
   <button mat-raised-button [routerLink]="'/profile'">
     <mat-icon>person</mat-icon>
     Profile
@@ -27,6 +22,26 @@
     <mat-icon>home</mat-icon>
     Logout
   </button>
+
+  <button
+    mat-icon-button
+    matSuffix
+    type="button"
+    id="more"
+    [matMenuTriggerFor]="menu">
+    <mat-icon
+      aria-hidden="false">
+      more_vert
+    </mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="openImportDialog()">
+      <mat-icon>upload-file</mat-icon>
+      Fit Import
+    </button>
+    <button mat-menu-item (click)="openZoneDialog()">Edit Zones</button>
+  </mat-menu>
+
 </div>
 
 <div style="padding:1vh 1vw">

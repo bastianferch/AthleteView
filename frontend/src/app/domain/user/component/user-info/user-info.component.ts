@@ -63,13 +63,6 @@ export class UserInfoComponent implements OnInit {
     }
   }
 
-  // TODO: remove button, open dialog via settings
-  openZoneDialog(): void {
-    this.dialog.open(ZoneGroupsDialogComponent, {
-      width: "60%",
-    });
-  }
-
   private updateAthlete(): void {
     const athlete = this.form.getRawValue() as Athlete;
     athlete.weight *= 1000;
