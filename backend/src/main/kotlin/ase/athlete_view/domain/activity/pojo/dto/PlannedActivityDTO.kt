@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 class PlannedActivityDTO(
     var id: Long? = null,
-    var name: String,
+    var name: String = "",
     var type: ActivityType,
     var interval: IntervalDTO,
     var withTrainer: Boolean = false,
