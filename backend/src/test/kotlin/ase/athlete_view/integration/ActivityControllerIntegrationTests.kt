@@ -18,7 +18,9 @@ import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.hamcrest.Matchers.greaterThan
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -78,7 +80,7 @@ class ActivityControllerIntegrationTests : TestBase() {
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
         null, "test", ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5),60,Load.MEDIUM, UserCreator.getTrainer(), null, null
+        "Sample planned activity", LocalDateTime.now().plusDays(5), 60, Load.MEDIUM, UserCreator.getTrainer(), null, null
     )
 
     private lateinit var defaultAthlete: Athlete
@@ -92,12 +94,12 @@ class ActivityControllerIntegrationTests : TestBase() {
     }
 
     @Test
-    @WithCustomMockUser(id=1)
+    @WithCustomMockUser(id = 1)
     fun createValidPlannedActivity_ShouldReturnOk() {
         val idRegexPattern = "\"id\": null".toRegex()
         val activityTypeRegexPattern = "\"type\":\"RUN\"".toRegex()
         val plannedActivityDto = plannedActivity.toDTO()
-        val result= mockMvc.perform(
+        val result = mockMvc.perform(
             post("/api/activity/planned").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -106,21 +108,26 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
         assertAll(result,
-            {assert(!idRegexPattern.containsMatchIn(result))},
-            {assert(activityTypeRegexPattern.containsMatchIn(result))}
+            { assert(!idRegexPattern.containsMatchIn(result)) },
+            { assert(activityTypeRegexPattern.containsMatchIn(result)) }
         )
     }
 
     @Test
-    @WithCustomMockUser(id=2)
+    @WithCustomMockUser(id = 2)
     fun createInvalidPlannedActivity_ShouldReturnUnprocessableEntity() {
         val validationFailedRegex = "\"message\":\"Validation of planned Activity failed".toRegex()
         val dateErrorRegex = "Date and time must be in the future".toRegex()
         val plannedActivityDto = PlannedActivityDTO(
-            null, "test", ActivityType.RUN, IntervalDTO(null, 1, listOf(IntervalDTO(null,1,null,null)), StepDTO(
-                null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
-                StepTargetType.CADENCE, 100, 200, "Sample step note")), false, false,
-            "Sample planned activity", LocalDateTime.now().minusDays(5), 60,Load.MEDIUM, null, null,
+            null, "test", ActivityType.RUN,
+            IntervalDTO(
+                null, 1, listOf(IntervalDTO(null, 1, null, null)), StepDTO(
+                    null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
+                    StepTargetType.CADENCE, 100, 200, "Sample step note"
+                )
+            ),
+            false, false,
+            "Sample planned activity", LocalDateTime.now().minusDays(5), 60, Load.MEDIUM, null, null,
         )
 
         val result = mockMvc.perform(
@@ -131,10 +138,10 @@ class ActivityControllerIntegrationTests : TestBase() {
         ).andExpect(status().isUnprocessableEntity())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
-        log.info{"Result: $result"}
+        log.info { "Result: $result" }
         assertAll(result,
-            {assert(validationFailedRegex.containsMatchIn(result))},
-            {assert(dateErrorRegex.containsMatchIn(result))}
+            { assert(validationFailedRegex.containsMatchIn(result)) },
+            { assert(dateErrorRegex.containsMatchIn(result)) }
         )
     }
 
@@ -177,12 +184,12 @@ class ActivityControllerIntegrationTests : TestBase() {
 
         // retrieve
         mockMvc.perform(
-                get("/api/activity/planned").with(csrf())
+            get("/api/activity/planned").with(csrf())
         )
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray)
-                .andExpect(jsonPath("$.length()").value(6))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(6))
     }
 
     @Test
@@ -193,42 +200,59 @@ class ActivityControllerIntegrationTests : TestBase() {
 
 
         mockMvc.perform(
-                get("/api/activity/planned").with(csrf())
-                        .param("startTime", starTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
-                        .param("endTime", endTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+            get("/api/activity/planned").with(csrf())
+                .param("startTime", starTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+                .param("endTime", endTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
         )
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray)
-                .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(1))
     }
 
     @Test
     @WithCustomMockUser(id = -1)
-    fun getAllPlannedActivitiesForAthlete_shouldOnlyReturnOwnActivities () {
+    fun getAllPlannedActivitiesForAthlete_shouldOnlyReturnOwnActivities() {
         mockMvc.perform(
-                get("/api/activity/planned")
+            get("/api/activity/planned")
         )
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray)
-                .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(1))
     }
 
     @Test
-    @WithCustomMockUser(id = -1)
-    fun sendFitFileForPlannedTraining_shouldNotThrow(){
+    @Disabled
+    @WithCustomMockUser(id = -4)
+    fun sendFitFileForPlannedTrainingAndSearchForTrainingInItsTimePeriod_shouldReturnTrainingWithAccuracy() {
         val filePath = Paths.get("src/test/resources/fit-files/7x(1km P2').fit").absolute()
         val name = "test.fit"
         val byteContent = Files.readAllBytes(filePath)
         val resultFile = MockMultipartFile("files", name, MediaType.MULTIPART_FORM_DATA_VALUE, byteContent)
 
+        val starTime = OffsetDateTime.of(2022, 9, 1, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
+        val endTime = OffsetDateTime.of(2024, 9, 30, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
+
+
         mockMvc.perform(
-                multipart(HttpMethod.POST, "/api/activity/import")
-                        .file(resultFile)
-                        .with(csrf())
+            multipart(HttpMethod.POST, "/api/activity/import")
+                .file(resultFile)
+                .with(csrf())
         )
-                .andExpect(status().isCreated)
+            .andExpect(status().isCreated)
+
+        mockMvc.perform(
+            get("/api/activity/finished").with(csrf())
+                .param("startTime", starTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+                .param("endTime", endTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+        ).andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].accuracy", greaterThan(25)))
+            .andExpect(jsonPath("$[0].activityType").value("RUN"))
+
 
     }
 }

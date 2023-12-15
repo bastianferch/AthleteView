@@ -8,14 +8,14 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-// TODO add duration and add load(High, Medium, Low)
+// TODO calculate duration and add load(High, Medium, Low)
 @Entity
 open class PlannedActivity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open val id: Long?,
 
-    open val name:String,
+    open val name: String,
 
     open val type: ActivityType,
 
@@ -44,10 +44,40 @@ open class PlannedActivity(
     open var activity: Activity?
 ) {
 
-    fun toDTO(): PlannedActivityDTO {
-        return PlannedActivityDTO(
-            id, name, type, interval.toDTO(), withTrainer, template, note, date, estimatedDuration, load, createdBy?.toUserDTO(), createdFor?.toAthleteDto(), activity?.toDTO()
-        )
+    fun toDTO(withoutActivity: Boolean = false): PlannedActivityDTO {
+        if (withoutActivity) {
+            return PlannedActivityDTO(
+                id,
+                name,
+                type,
+                interval.toDTO(),
+                withTrainer,
+                template,
+                note,
+                date,
+                estimatedDuration,
+                load,
+                createdBy?.toUserDTO(),
+                createdFor?.toAthleteDto(),
+                null
+            )
+        } else {
+            return PlannedActivityDTO(
+                id,
+                name,
+                type,
+                interval.toDTO(),
+                withTrainer,
+                template,
+                note,
+                date,
+                estimatedDuration,
+                load,
+                createdBy?.toUserDTO(),
+                createdFor?.toAthleteDto(),
+                activity?.toDTO(true)
+            )
+        }
     }
 
     override fun toString(): String {

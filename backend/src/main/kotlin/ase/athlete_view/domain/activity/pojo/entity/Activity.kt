@@ -31,10 +31,18 @@ open class Activity(
     open var laps: List<Lap>,
     open var activityType: ActivityType?
 ) {
-    fun toDTO(): ActivityDTO {
-        return ActivityDTO(id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
-            plannedActivity?.toDTO(), laps.map { it.toDTO() }, activityType
-        )
+    fun toDTO(withoutActivity: Boolean = false): ActivityDTO {
+        if (withoutActivity) {
+            return ActivityDTO(
+                id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
+                null, laps.map { it.toDTO() }, activityType
+            )
+        } else {
+            return ActivityDTO(
+                id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
+                plannedActivity?.toDTO(true), laps.map { it.toDTO() }, activityType
+            )
+        }
     }
 
     override fun toString(): String {

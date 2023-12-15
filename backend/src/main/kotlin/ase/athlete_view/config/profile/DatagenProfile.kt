@@ -14,7 +14,9 @@ import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
 import jakarta.annotation.PostConstruct
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
@@ -24,9 +26,11 @@ import java.time.LocalTime
 
 @Component
 @Profile("datagen")
-class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService, private val activityService: ActivityService, private val activityRepository: PlannedActivityRepository)  {
+class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService, private val activityService: ActivityService, private val activityRepository: PlannedActivityRepository, @Autowired private val mongoTemplate: MongoTemplate)  {
     @PostConstruct
     fun init() {
+        mongoTemplate.dropCollection("fs.files")
+        mongoTemplate.dropCollection("fs.chunks")
         val athlete = Athlete(
             1,
             "a@a",
