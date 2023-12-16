@@ -64,7 +64,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
         trainer.isConfirmed = true
         this.userService.save(trainer)
 
-        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting", athlete,
+        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting",
             TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19,0), LocalTime.of(20,0))),
             //maybetodo change 1 from one
             UserDTO(1, "", "", null, null, ""))

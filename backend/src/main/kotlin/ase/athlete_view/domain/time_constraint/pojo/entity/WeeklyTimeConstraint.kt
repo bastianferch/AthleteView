@@ -15,14 +15,14 @@ class WeeklyTimeConstraint (
         id: Long?,
         isBlacklist: Boolean,
         title: String,
-        user: User,
+        user: User?,
 
         @Embedded
         var constraint: TimeFrame
 
 ): TimeConstraint(id, isBlacklist, title, user) {
         override fun toDto(): WeeklyTimeConstraintDto {
-                return WeeklyTimeConstraintDto(id, isBlacklist, title, user, constraint)
+                return WeeklyTimeConstraintDto(id, isBlacklist, title, constraint)
         }
         fun toDaily(startOfWeek: LocalDate): DailyTimeConstraint {
 
