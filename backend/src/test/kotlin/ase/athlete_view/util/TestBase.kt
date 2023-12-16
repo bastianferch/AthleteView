@@ -1,7 +1,6 @@
 package ase.athlete_view.util
 
 import ase.athlete_view.domain.notification.persistence.NotificationRepository
-import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -11,13 +10,15 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
-import java.sql.Timestamp
+import java.sql.ResultSet
+import java.util.function.Consumer
 
 @SpringBootTest
 @DirtiesContext
@@ -28,6 +29,9 @@ class TestBase {
 
     @Autowired
     private lateinit var ur: UserRepository
+
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var nr: NotificationRepository
@@ -50,6 +54,19 @@ class TestBase {
         txm.rollback(txStatus)
     }
 
+    protected fun resetDbWithIdIncrementor() {
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE ")
+        val tableNames = jdbcTemplate.query(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = SCHEMA()"
+        ) { rs: ResultSet, rowNum: Int -> rs.getString(1) }
+        tableNames.forEach(Consumer { tableName: String? ->
+            jdbcTemplate.execute(
+                String.format("TRUNCATE TABLE %s RESTART IDENTITY", tableName)
+            )
+        })
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE")
+    }
+
     protected fun createDefaultUserInDb(email: String = UserCreator.DEFAULT_ATHLETE_EMAIL): Athlete {
         val user = UserCreator.getAthlete(null)
         user.password = encoder.encode(user.password)
@@ -57,6 +74,12 @@ class TestBase {
         user.trainer = null
         user.email = email
         return ur.save(user)
+    }
+
+    protected fun persistDefaultTrainer(id: Long): Trainer {
+        val trainer = UserCreator.getTrainer()
+        trainer.id = id
+        return ur.save(trainer)
     }
 
     protected fun addAthleteToTrainer(athlete: Athlete, trainer: Trainer): Trainer {
