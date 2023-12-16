@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { UrlService } from "../../../config/service/UrlService";
 import { Observable } from "rxjs";
 import { Athlete, Trainer, User } from "../dto/user";
+import { PreferencesDto } from "../dto/preferences-dto";
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +45,21 @@ export class UserService {
         params: {},withCredentials: true,
       },
     ).pipe(User.serializeResponseMap());
+  }
+
+  getPreferences(): Observable<PreferencesDto> {
+    return this.http.get<PreferencesDto>(
+      this.url + '/preferences',
+      { withCredentials: true },
+    )
+  }
+
+  patchPreferences(preferences: PreferencesDto): Observable<PreferencesDto> {
+    return this.http.patch<PreferencesDto>(
+      this.url + '/preferences',
+      preferences,
+      { withCredentials: true },
+    )
   }
 
 

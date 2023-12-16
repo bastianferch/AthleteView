@@ -2,6 +2,7 @@ package ase.athlete_view.domain.user.controller
 
 import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
+import ase.athlete_view.domain.user.pojo.dto.PreferencesDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
@@ -45,5 +46,17 @@ class UserController (private val userService: UserService,
         log.info { "PUT TRAINER ${userDTO.email}" }
         trainerDTO.email = userDTO.email
         this.userService.updateTrainer(trainerDTO)
+    }
+
+    @GetMapping("/preferences")
+    fun getPreferences(@AuthenticationPrincipal user: UserDTO): PreferencesDTO? {
+        log.info { "GET PREFERENCES ${user.id}" }
+        return this.userService.getPreferences(user)?.toDTO();
+    }
+
+    @PatchMapping("/preferences")
+    fun patchPreferences(@AuthenticationPrincipal user: UserDTO, @RequestBody preferencesDTO: PreferencesDTO): PreferencesDTO? {
+        log.info { "PATCH PREFERENCES ${user.id} $preferencesDTO" }
+        return this.userService.patchPreferences(user, preferencesDTO)?.toDTO();
     }
 }

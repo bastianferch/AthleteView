@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { HomeComponent } from '../component/home.component';
 import { RouterModule, Routes } from "@angular/router";
+import { NgForOf } from "@angular/common";
 
 
 const routes: Routes = [
@@ -11,7 +12,7 @@ const routes: Routes = [
   declarations: [
     HomeComponent,
   ],
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(routes), NgForOf],
   exports: [RouterModule],
 })
 export class HomeModule { }

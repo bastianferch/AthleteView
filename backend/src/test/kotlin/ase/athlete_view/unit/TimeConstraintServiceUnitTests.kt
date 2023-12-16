@@ -40,7 +40,7 @@ class TimeConstraintServiceUnitTests {
     @Autowired
     private lateinit var service: TimeConstraintService
 
-    private val user = User(1, "a@s.com", "Josef", "asdf", "Austria", "1337")
+    private val user = User(1, "a@s.com", listOf(), "Josef", "asdf", "Austria", "1337")
     private val userDto = UserDTO(1, "","",null,null, "trainer")
     private val constraint = TimeConstraint(1, true, "TestConstraint", user)
     private val newConstraintDto = TimeConstraintDto(null, true, "TestConstraint", null)

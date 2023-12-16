@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { NotificationService } from "../../notification/service/notification.service";
 
 @Component({
   selector: 'app-home',
@@ -6,5 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+
+  constructor(private notificationService: NotificationService) {
+  }
+
+  testPostNotification() {
+    this.notificationService.testPostNotification();
+  }
 
 }

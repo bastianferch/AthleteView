@@ -1,40 +1,67 @@
-<mat-toolbar color="primary" class=" centered-row-container" style="justify-content: space-between">
-  <div [routerLink]="'/'" class="large-button">
-      AthleteView
-  </div>
+<div style="height: 100vh; display: block; width: 100vw">
+  <mat-drawer-container class="drawer-container" autosize>
+    <mat-drawer #drawer mode="over" position="end" (closed)="markAllNotificationsAsRead()" (opened)="onOpen(drawer)">
+      <app-notification-list></app-notification-list>
+    </mat-drawer>
+    <div class="router-container">
+    <mat-toolbar color="primary" class=" centered-row-container" style="justify-content: space-between">
+      <div [routerLink]="'/'" class="large-button">
+          AthleteView
+      </div>
 
-  <div>
-    <button mat-flat-button color="primary" [routerLink]="'/'">
+      <div>
+        <button mat-flat-button color="primary" [routerLink]="'/'">
+          Home
+        </button>
 
-      Home
-    </button>
-    <button mat-flat-button color="primary" [routerLink]="'/activity'">
-      Activities
-    </button>
+        <button mat-flat-button color="primary" [routerLink]="'/activity'">
+          Activities
+        </button>
 
-    <button mat-flat-button color="primary" [routerLink]="'/calendar'">
-      Calendar
-    </button>
-  </div>
-  <button mat-button [matMenuTriggerFor]="menu" >
-    {{email}}s  <mat-icon>person</mat-icon>
-  </button>
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="openImportDialog()">
-      <mat-icon>upload_file</mat-icon>
-      Fit Import
-    </button>
-    <button mat-menu-item [routerLink]="'/profile'">
-      <mat-icon>person</mat-icon>
-      Profile
-    </button>
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon>
-      Logout
-    </button>
-  </mat-menu>
-</mat-toolbar>
+        <button mat-flat-button color="primary" [routerLink]="'/calendar'">
+          Calendar
+        </button>
+      </div>
 
-<div style="padding:1vh 1vw">
-  <router-outlet></router-outlet>
+      <div>
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="drawer.toggle()"
+          type="button" >
+          <mat-icon
+            aria-hidden="false"
+            [matBadge]="getNumberOfUnreadNotifications()"
+            [matBadgeHidden]="getNumberOfUnreadNotifications() === 0"
+            matBadgeColor="warn" >
+            notifications
+          </mat-icon>
+        </button>
+
+        <button mat-flat-button color="primary" [matMenuTriggerFor]="menu" >
+          {{email}}s  <mat-icon>person</mat-icon>
+        </button>
+      </div>
+
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openImportDialog()">
+          <mat-icon>upload_file</mat-icon>
+          Fit Import
+        </button>
+        <button mat-menu-item [routerLink]="'/profile'">
+          <mat-icon>person</mat-icon>
+          Profile
+        </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Logout
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <div style="padding:1vh 1vw">
+      <router-outlet></router-outlet>
+    </div>
+    </div>
+  </mat-drawer-container>
 </div>
