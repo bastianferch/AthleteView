@@ -66,11 +66,13 @@ export class CustomCalendarComponent {
   }
 
   handleEventClicked(ev: any) {
-    if (ev.title.includes("Planned")) {
-      this.router.navigateByUrl(`/activity/${ev.meta.id}`)
-    } else {
-      // TODO: implement redirection to Activity view once implemented
-      this.notifService.openSnackBar("Activity is not planned, thus cannot be opened...")
+    if (ev.title.includes("activity")) {
+      if (ev.title.includes("Planned")) {
+        this.router.navigateByUrl(`/activity/${ev.meta.id}`)
+      } else {
+        // TODO: implement redirection to Activity view once implemented
+        this.notifService.openSnackBar("Activity is not planned, thus cannot be opened...")
+      }
     }
   }
 

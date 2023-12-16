@@ -7,7 +7,13 @@
   margin: 20px;
 }
 
-.button-row {
-    margin-top: 8px;
-    margin-bottom: 8px;
+.date-nav-btn {
+  display: flex;
+  column-gap: 1em;
+}
+
+.cal-utils {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

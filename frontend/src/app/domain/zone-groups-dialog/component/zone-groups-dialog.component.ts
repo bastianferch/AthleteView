@@ -7,13 +7,14 @@ import { Zone } from '../dto/Zone'
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { ZoneService } from "../service/zone.service";
 import { SnackbarService } from "../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-zone-groups-dialog',
   templateUrl: './zone-groups-dialog.component.html',
-  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, NgFor, MatIconModule],
+  imports: [MatDialogModule, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, NgFor, MatIconModule, MatTooltipModule],
   styleUrls: ['./zone-groups-dialog.component.scss'],
   standalone: true,
 })
