@@ -1,7 +1,5 @@
 package ase.athlete_view.unit
 
-import ase.athlete_view.domain.activity.persistence.FitDataRepository
-import ase.athlete_view.domain.activity.persistence.FitDataRepositoryImpl
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.UserCreator
@@ -26,7 +24,7 @@ class AuthenticationServiceUnitTests {
 
     @Test
     fun testUserRepo() {
-        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getAthlete()
+        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getAthlete(null)
 
         val usrData = userService.getByEmail("a@b.com")
         verify(exactly = 1) { userRepo.findByEmail("a@b.com") }

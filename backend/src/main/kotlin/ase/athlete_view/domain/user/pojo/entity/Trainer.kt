@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
@@ -9,6 +10,7 @@ import jakarta.persistence.*
 class Trainer(
     id: Long?,
     email: String,
+    //notifications: List<Notification> = listOf(),
     name: String,
     password: String,
     country: String?,
@@ -21,7 +23,7 @@ class Trainer(
     @JsonManagedReference
     var athletes: MutableSet<Athlete>,
 ) : User(
-    id, email, name, password, country, zip, true, mutableSetOf(),
+    id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
 ) {
     fun toDto(): TrainerDTO {
         val trainer =  TrainerDTO(

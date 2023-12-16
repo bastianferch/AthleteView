@@ -31,10 +31,13 @@ class ActivityValidator {
             }
         }
 
-        if (user is Trainer && !plannedActivity.template) {
+
+
+        if (user is Trainer && !plannedActivity.template && plannedActivity.createdFor != null) {
+            val athletes = user.athletes
             var isForAthleteOfTrainer = false
-            for (athlete in user.athletes) {
-                if (plannedActivity.createdFor?.id == athlete.id) {
+            for (athlete in athletes) {
+                if (plannedActivity.createdFor!!.id == athlete.id) {
                     isForAthleteOfTrainer = true
                     break
                 }
@@ -107,7 +110,6 @@ class ActivityValidator {
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
-        log.trace { "Validating interval $interval" }
         if (interval.intervals != null) {
             if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
@@ -116,7 +118,6 @@ class ActivityValidator {
     }
 
     private fun validateStep(step: Step, validationErrors: MutableList<String>) {
-        log.trace { "Validating step $step" }
         if (step.durationDistance != null) {
             if (step.durationDistanceUnit == null) {
                 validationErrors.add("Duration distance unit must be set if duration distance is set")

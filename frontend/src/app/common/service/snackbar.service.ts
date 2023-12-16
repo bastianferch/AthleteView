@@ -12,16 +12,16 @@ export class SnackbarService {
   openSnackBar(msg: string) {
     this._snackBar.open(msg, '', {
       horizontalPosition: 'right',
-      verticalPosition: 'top',
-      duration: 5000,
+      verticalPosition: 'bottom',
+      duration: 3000,
     });
   }
 
   openSnackBarWithAction(msg: string, action: string) {
     const snackBarRef = this._snackBar.open(msg, action, {
       horizontalPosition: 'right',
-      verticalPosition: 'top',
-      duration: 5000,
+      verticalPosition: 'bottom',
+      duration: 3000,
     });
     return snackBarRef.onAction();
   }

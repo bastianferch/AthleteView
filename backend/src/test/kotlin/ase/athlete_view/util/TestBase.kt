@@ -1,5 +1,7 @@
 package ase.athlete_view.util
 
+import ase.athlete_view.domain.notification.persistence.NotificationRepository
+import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -15,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
+import java.sql.Timestamp
 
 @SpringBootTest
 @DirtiesContext
@@ -25,6 +28,9 @@ class TestBase {
 
     @Autowired
     private lateinit var ur: UserRepository
+
+    @Autowired
+    private lateinit var nr: NotificationRepository
 
     private val logger = KotlinLogging.logger {}
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
@@ -45,7 +51,7 @@ class TestBase {
     }
 
     protected fun createDefaultUserInDb(email: String = UserCreator.DEFAULT_ATHLETE_EMAIL): Athlete {
-        val user = UserCreator.getAthlete()
+        val user = UserCreator.getAthlete(null)
         user.password = encoder.encode(user.password)
         user.isConfirmed = true
         user.trainer = null
@@ -61,7 +67,7 @@ class TestBase {
     }
 
     protected fun createDefaultTrainerAthleteRelationInDb(): Pair<Athlete, Trainer> {
-        val athlete = UserCreator.getAthlete()
+        val athlete = UserCreator.getAthlete(null)
         athlete.password = encoder.encode(athlete.password)
         athlete.isConfirmed = true
         athlete.trainer = null

@@ -11,6 +11,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatRadioModule } from "@angular/material/radio";
 import { NgForOf, NgIf } from "@angular/common";
 import { MatNativeDateModule } from "@angular/material/core";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 
 const routes: Routes = [
   { path: '', component: UserInfoComponent },
@@ -30,7 +31,7 @@ const routes: Routes = [
     NgForOf,
     NgIf,
     MatNativeDateModule,
-    ReactiveFormsModule],
+    ReactiveFormsModule, MatSlideToggleModule],
   exports: [RouterModule],
 })
 export class UserModule {}

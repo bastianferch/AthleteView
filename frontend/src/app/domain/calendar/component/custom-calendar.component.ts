@@ -47,7 +47,8 @@ export class CustomCalendarComponent {
     private cdr: ChangeDetectorRef,
     private notifService: SnackbarService,
     private router: Router,
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.loadData()
@@ -153,6 +154,39 @@ export class CustomCalendarComponent {
     this.activityService.fetchAllActivitiesForUser(uid, startTime, endTime).subscribe({
       next: (data: Array<Activity>) => {
         const calData = data.map((x) => {
+          if (x.accuracy >= 75) {
+            return {
+              title: "Finished activity",
+              start: new Date(this.parseDate(x.startTime)),
+              end: new Date(this.parseDate(x.endTime)),
+              resizable: { beforeStart: false, afterEnd: false },
+              draggable: false,
+              color: Calendarcolors["green"],
+              meta: x,
+            }
+          }
+          if (x.accuracy >= 50) {
+            return {
+              title: "Finished activity",
+              start: new Date(this.parseDate(x.startTime)),
+              end: new Date(this.parseDate(x.endTime)),
+              resizable: { beforeStart: false, afterEnd: false },
+              draggable: false,
+              color: Calendarcolors["yellow"],
+              meta: x,
+            }
+          }
+          if (x.accuracy >= 25) {
+            return {
+              title: "Finished activity",
+              start: new Date(this.parseDate(x.startTime)),
+              end: new Date(this.parseDate(x.endTime)),
+              resizable: { beforeStart: false, afterEnd: false },
+              draggable: false,
+              color: Calendarcolors["red"],
+              meta: x,
+            }
+          }
           return {
             title: "Finished activity",
             start: new Date(this.parseDate(x.startTime)),
@@ -162,6 +196,7 @@ export class CustomCalendarComponent {
             color: Calendarcolors["blue"],
             meta: x,
           }
+
         }, this)
         this.events = [...this.events, ...calData]
       },
@@ -176,16 +211,27 @@ export class CustomCalendarComponent {
         const calData: CalendarEvent[] = data.map((x) => {
           const activityStart = new Date(this.parseDate(x.date as number[]))
           const activityEnd = add(activityStart, { minutes: 120 })
-
+          if (new Date().getTime() >= activityStart.getTime()) {
+            return {
+              title: "Planned Activity",
+              start: activityStart,
+              end: activityEnd,
+              resizable: { beforeStart: false, afterEnd: false },
+              draggable: false,
+              color: Calendarcolors["red"],
+              meta: x,
+            }
+          }
           return {
             title: "Planned Activity",
             start: activityStart,
             end: activityEnd,
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
-            color: Calendarcolors["red"],
+            color: Calendarcolors["gray"],
             meta: x,
           }
+
         }, this)
         this.events = [...this.events, ...calData]
       },

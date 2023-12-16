@@ -71,15 +71,15 @@ class ActivityControllerUnitTests {
 
     // Create a test object for Step class
     private val step = Step(
-        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note"
     )
 
     // Create a test object for Interval class
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
-        null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), trainer, null,
+        null, "test", ActivityType.RUN, interval, false, false,
+        "Sample planned activity", LocalDateTime.now().plusDays(5),60,Load.MEDIUM, trainer, null, null
     )
 
     @BeforeEach
@@ -94,8 +94,8 @@ class ActivityControllerUnitTests {
     @WithCustomMockUser
     fun createActivityPlanned_ReturnsOk() {
         val plannedActivityDTO = PlannedActivityDTO(
-            null, ActivityType.RUN, interval.toDTO(), false, false,
-            "Sample planned activity", LocalDateTime.now().plusDays(5), trainer.toUserDTO(), null,
+            null, "test", ActivityType.RUN, interval.toDTO(), false, false,
+            "Sample planned activity", LocalDateTime.now().plusDays(5), 60, Load.MEDIUM, trainer.toUserDTO(), null,
         )
         every { activityService.createPlannedActivity(any<PlannedActivity>(),any()) } returns plannedActivity
 

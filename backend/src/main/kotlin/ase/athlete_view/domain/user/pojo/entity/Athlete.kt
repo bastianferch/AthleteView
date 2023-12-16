@@ -1,5 +1,7 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.notification.pojo.entity.Notification
+import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.DiscriminatorValue
@@ -15,6 +17,7 @@ import java.time.LocalDate
 class Athlete(
     id: Long?,
     email: String,
+    //notifications: List<Notification> = listOf(),
 
     name: String,
     password: String,
@@ -30,7 +33,7 @@ class Athlete(
     @JsonBackReference
     var trainer: Trainer?,
 ) : User(
-    id, email, name, password, country, zip, true, mutableSetOf(),
+    id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
 ) {
 
     fun toAthleteDto(include_trainer: Boolean = true): AthleteDTO {

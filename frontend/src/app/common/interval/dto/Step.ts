@@ -37,7 +37,7 @@ export const StepDurationMapper = new Map<StepDurationType, string>([
 ]);
 
 
-export enum StepDurationDistanceUnit {
+export enum StepDurationDistanceUnit { // TODO rename to StepDurationUnit and add 2 types
   KM = "KM",
   M = "M",
 }
@@ -50,9 +50,13 @@ export const StepDurationDistanceUnitMapper = new Map<StepDurationDistanceUnit, 
 export enum StepTargetType {
   CADENCE = "CADENCE",
   HEARTRATE = "HEARTRATE",
+  PACE = "PACE",
+  SPEED = "SPEED",
 }
 
 export const StepTargetMapper = new Map<StepTargetType, string>([
   [StepTargetType.CADENCE, 'Cadence'],
   [StepTargetType.HEARTRATE, 'Heart Rate'],
+  [StepTargetType.PACE, 'Pace'],
+  [StepTargetType.SPEED, 'Speed'],
 ]);
