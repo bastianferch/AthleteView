@@ -22,7 +22,7 @@ spring:
   mail:
     host: mail.gmx.net
     username: athlete.view@gmx.at
-    password: fjsdokfasojksfaojlsafjlkfsa
+    password: ijfuaofadsqfasdjoikasjfsalkafsasfcsfda
     port: 587
     properties:
       mail:
