@@ -35,7 +35,7 @@ class ZoneServiceUnitTests {
 
     @Test
     fun getZones() {
-        every { athleteService.getById(any()) } returns UserCreator.getAthlete()
+        every { athleteService.getById(any()) } returns UserCreator.getAthlete(null)
         every { zoneRepo.findAllByUser(any()) } returns zoneService.calcZones(195).shuffled()
 
         val list = zoneService.getAll(1)
@@ -51,7 +51,7 @@ class ZoneServiceUnitTests {
     fun verifyZoneValidation() {
         val validList = zoneService.calcZones(195)
         every { zoneRepo.saveAll(any<List<Zone>>()) } returns validList
-        every { athleteService.getById(any()) } returns UserCreator.getAthlete()
+        every { athleteService.getById(any()) } returns UserCreator.getAthlete(null)
         every { zoneRepo.deleteByUser(any()) } just Runs
 
         val invalidList = validList.map { z: Zone -> z.toDTO()}
@@ -67,7 +67,7 @@ class ZoneServiceUnitTests {
     @Test
     fun saveZones() {
         val list = zoneService.calcZones(20)
-        val user = UserCreator.getAthlete()
+        val user = UserCreator.getAthlete(null)
         list.forEach { it.user = user }
         every { zoneRepo.saveAll(any<List<Zone>>()) } returns list
         every { athleteService.getById(any()) } returns user
@@ -85,7 +85,7 @@ class ZoneServiceUnitTests {
 
     @Test
     fun resetZones() {
-        val user = UserCreator.getAthlete()
+        val user = UserCreator.getAthlete(null)
         every { zoneRepo.saveAll(any<List<Zone>>()) } returnsArgument 0
         every { athleteService.getById(any()) } returns user
         every { zoneRepo.deleteByUser(any()) } just Runs

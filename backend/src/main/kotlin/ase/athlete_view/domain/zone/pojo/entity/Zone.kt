@@ -17,7 +17,7 @@ class Zone (
     var id: Long?,
     val name: String,
     var fromBPM: Int,
-    val toBPM: Int,
+    var toBPM: Int,
 
     @ManyToOne
     var user: Athlete?

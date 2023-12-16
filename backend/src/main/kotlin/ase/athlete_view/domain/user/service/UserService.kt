@@ -20,7 +20,7 @@ interface UserService {
      * Simple repository get.
      * @throws NotFoundException if user was not found.
      */
-    fun getByEmail(string: String): User
+    fun getByEmail(email: String): User
 
     /**
      * Simple repository get.
