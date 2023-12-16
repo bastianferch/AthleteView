@@ -36,7 +36,7 @@ class ZoneServiceUnitTests {
     @Test
     fun getZones() {
         every { athleteService.getById(any()) } returns UserCreator.getAthlete()
-        every { zoneRepo.findAllByUser(any()) } returns zoneService.calcZones(20).shuffled()
+        every { zoneRepo.findAllByUser(any()) } returns zoneService.calcZones(195).shuffled()
 
         val list = zoneService.getAll(1)
 
@@ -49,7 +49,7 @@ class ZoneServiceUnitTests {
 
     @Test
     fun verifyZoneValidation() {
-        val validList = zoneService.calcZones(20)
+        val validList = zoneService.calcZones(195)
         every { zoneRepo.saveAll(any<List<Zone>>()) } returns validList
         every { athleteService.getById(any()) } returns UserCreator.getAthlete()
         every { zoneRepo.deleteByUser(any()) } just Runs
@@ -73,7 +73,7 @@ class ZoneServiceUnitTests {
         every { athleteService.getById(any()) } returns user
         every { zoneRepo.deleteByUser(any()) } just Runs
 
-        val saved = zoneService.edit(1, zoneService.calcZones(20).map { z:Zone -> z.toDTO() })
+        val saved = zoneService.edit(1, zoneService.calcZones(195).map { z:Zone -> z.toDTO() })
 
         verify(exactly = 1) { zoneRepo.deleteByUser(user) }
 
@@ -91,7 +91,7 @@ class ZoneServiceUnitTests {
         every { zoneRepo.deleteByUser(any()) } just Runs
 
 
-        val testList = zoneService.calcZones(20)
+        val testList = zoneService.calcZones(195)
         val saved = zoneService.resetZones(1)
 
         verify(exactly = 1) { zoneRepo.deleteByUser(user) }
