@@ -1,7 +1,8 @@
 package ase.athlete_view.domain.health.service
 
-import ase.athlete_view.common.exception.entity.ConflictException
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.InternalException
+import ase.athlete_view.domain.health.pojo.entity.Health
 
 interface HealthService {
     /**
@@ -10,8 +11,20 @@ interface HealthService {
      * If the health data already exists for the given day, does nothing.
      *
      * @throws InternalException when external API did not respond / sent the wrong data.
-     * @throws ConflictException when current authenticated user could not be fetched from db.
+     * @throws NotFoundException when current authenticated user could not be fetched from db.
      */
     fun mock()
+
+    /**
+     * Provides all Health data from the current authenticated user.
+     *
+     * @throws NotFoundException when current authenticated user could not be fetched from db.
+     */
+    fun getAllByCurrentUser(): List<Health>
+
+    /**
+     * Simple crud save.
+     */
+    fun save(health: Health): Health
 
 }

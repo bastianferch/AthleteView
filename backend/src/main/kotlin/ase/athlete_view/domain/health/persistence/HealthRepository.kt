@@ -9,4 +9,7 @@ import java.util.*
 @Repository
 interface HealthRepository : JpaRepository<Health, Long> {
     fun findByDate(date: LocalDate): Optional<Health>
+
+
+    fun findByUser_Id(id: Long): List<Health>
 }
