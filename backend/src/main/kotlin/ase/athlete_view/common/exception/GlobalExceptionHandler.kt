@@ -1,9 +1,6 @@
 package ase.athlete_view.common.exception
 
-import ase.athlete_view.common.exception.entity.ConflictException
-import ase.athlete_view.common.exception.entity.ForbiddenException
-import ase.athlete_view.common.exception.entity.NotFoundException
-import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.common.exception.entity.*
 import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -52,6 +49,14 @@ class GlobalExceptionHandler {
     fun handleForbidden(ex: ForbiddenException): ExceptionResponseDTO {
         logger.warn {"Invalid request: ${ex.message}"}
         return ExceptionResponseDTO(HttpStatus.FORBIDDEN, ex.message)
+    }
+
+    @ExceptionHandler(InternalException::class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    fun handleForbidden(ex: InternalException): ExceptionResponseDTO {
+        logger.warn {"InternalException: ${ex.message}"}
+        return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.message)
     }
 
     @ExceptionHandler(ConflictException::class)
