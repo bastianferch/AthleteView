@@ -57,7 +57,7 @@ export class TimeConstraintsComponent implements OnInit {
   getEvents() {
 
     this.eventMap = new Map<CalendarEvent, number>()
-    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString()).subscribe(
+    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString('de-DE')).subscribe(
       (next) => {
         this.whitelist = []
         this.blacklist = []

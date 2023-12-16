@@ -1,5 +1,7 @@
 package ase.athlete_view.util
 
+import ase.athlete_view.domain.notification.persistence.NotificationRepository
+import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -15,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
+import java.sql.Timestamp
 
 @SpringBootTest
 @DirtiesContext
@@ -25,6 +28,9 @@ class TestBase {
 
     @Autowired
     private lateinit var ur: UserRepository
+
+    @Autowired
+    private lateinit var nr: NotificationRepository
 
     private val logger = KotlinLogging.logger {}
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
