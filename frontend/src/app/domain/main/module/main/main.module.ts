@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MainComponent } from '../../component/main.component';
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { SharedModule } from "../../../../config/module/SharedModule";
-import {MatMenuModule} from "@angular/material/menu";
+import { MatMenuModule } from "@angular/material/menu";
 
 
 @NgModule({
