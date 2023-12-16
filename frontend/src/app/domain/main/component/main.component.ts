@@ -5,6 +5,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { FitImportDialogComponent } from 'src/app/fit-import-dialog/fit-import-dialog.component';
 import { ActivityService } from '../../activities/service/activities.service';
 import { SnackbarService } from "../../../common/service/snackbar.service";
+import { HealthService } from "../../health/service/health.service";
+import { firstValueFrom } from "rxjs";
 
 @Component({
   selector: 'app-main',
@@ -12,15 +14,22 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent {
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     private router: Router,
     private dialog: MatDialog,
-    private activityService: ActivityService,private snackbarService: SnackbarService) {
+    private activityService: ActivityService,
+    private snackbarService: SnackbarService,
+    private healthService: HealthService) {
   }
 
   logout(): void {
     this.authService.logout()
     this.router.navigate(['/auth/login'])
+  }
+
+  async mockHealthData(): Promise<void> {
+    await firstValueFrom(this.healthService.mock());
   }
 
   openImportDialog(): void {
