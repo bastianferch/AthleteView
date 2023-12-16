@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { TimeConstraintService } from '../service/time-constraints.service';
 import { SnackbarService } from '../../../common/service/snackbar.service';
 import { TimeConstraint } from '../../../common/dto/TimeConstraint';
@@ -57,7 +57,7 @@ export class TimeConstraintsComponent implements OnInit {
   getEvents() {
 
     this.eventMap = new Map<CalendarEvent, number>()
-    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString()).subscribe(
+    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString('de-DE')).subscribe(
       (next) => {
         this.whitelist = []
         this.blacklist = []
@@ -96,13 +96,18 @@ export class TimeConstraintsComponent implements OnInit {
   constraintToEvent(constraint: TimeConstraint): CalendarEvent {
     const start = this.parseDate(constraint.startTime)
     const end = this.parseDate(constraint.endTime)
-    const event: CalendarEvent = { start: start, end: end, title: constraint.title, color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"], actions: this.actions,
+    return {
+      start: start,
+      end: end,
+      title: constraint.title,
+      color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"],
+      actions: this.actions,
       resizable: {
         beforeStart: true,
         afterEnd: true,
       },
-      draggable: true }
-    return event
+      draggable: true,
+    }
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {

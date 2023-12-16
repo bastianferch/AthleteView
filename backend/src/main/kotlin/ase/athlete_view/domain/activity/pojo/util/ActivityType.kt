@@ -5,5 +5,6 @@ enum class ActivityType {
     RUN,
     BIKE,
     ROW,
-    CROSSCOUNTRYSKIIN
+    CROSSCOUNTRYSKIING,
+    OTHER
 }

@@ -24,7 +24,7 @@ class AuthenticationServiceUnitTests {
 
     @Test
     fun testUserRepo() {
-        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getAthlete()
+        every { userRepo.findByEmail("a@b.com") } returns UserCreator.getAthlete(null)
 
         val usrData = userService.getByEmail("a@b.com")
         verify(exactly = 1) { userRepo.findByEmail("a@b.com") }

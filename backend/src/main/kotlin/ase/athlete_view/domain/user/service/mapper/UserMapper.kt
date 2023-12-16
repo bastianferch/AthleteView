@@ -3,6 +3,7 @@ package ase.athlete_view.domain.user.service.mapper
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
+import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
@@ -18,16 +19,18 @@ abstract class UserMapper {
 
     @Mapping(source = "country", target = ".", ignore = true)
     @Mapping(source = "zip", target = ".", ignore = true)
+    @Mapping(source = "notifications", target = ".", ignore = true)
     @Mapping(source = "password", target = "password", ignore = true)
     abstract fun toDTO(user:User): UserDTO
+
+    @Mapping(target = "activities", expression = "java(getEmptyActivityList())")
+    abstract fun toEntity(athleteRegistrationDTO: AthleteRegistrationDTO): Athlete
 
     @Mapping(source = "password", target = "password", ignore = true)
     abstract fun toDTO(trainer: Trainer): TrainerDTO
     @Mapping(source = "password", target = "password", ignore = true)
     abstract fun toDTO(athlete: Athlete): AthleteDTO
 
-    @Mapping(target = "activities", expression = "java(getEmptyList())")
-    abstract fun toEntity(athleteRegistrationDTO: AthleteRegistrationDTO): Athlete
 
     @Mapping(source = "code", target = "code")
     @Mapping(source = "athletes", target = "athletes")
@@ -46,8 +49,12 @@ abstract class UserMapper {
     abstract fun toEntity(@MappingTarget athlete: Athlete, athleteDTO: AthleteDTO)
 
     // used by the mappings. since the DTOs don't have notifications, provide an empty list
-    fun getEmptyList(): List<PlannedActivity> {
-        return listOf()
+    fun getEmptyNotificationList(): List<Notification> {
+        return listOf();
+    }
+
+    fun getEmptyActivityList(): Set<PlannedActivity> {
+        return emptySet()
     }
 
 }

@@ -1,0 +1,24 @@
+<div class="notification-wrapper">
+  <div class="notification-list-header">
+    <h2>Notifications</h2>
+    <button mat-icon-button matSuffix (click)="notificationService.notificationDrawer.close()" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="notification-list" *ngIf="notificationService.notifications.length !== 0">
+    <app-notification
+      *ngFor="let notification of notificationService.notifications"
+      [notification]="notification"
+      (deleteNotification)="deleteNotification($event)"
+      (navigateTo)="navigateTo($event)">
+    </app-notification>
+    <button mat-raised-button color="warn" (click)="deleteAllNotifications()">
+      clear all
+    </button>
+  </div>
+
+  <div class="notification-list" *ngIf="notificationService.notifications.length === 0">
+    <p>No notifications at the moment</p>
+  </div>
+</div>

@@ -20,8 +20,8 @@ class FitDataRepositoryImpl(
     private val gridFsTemplate: GridFsTemplate,
     private val gridFsOperations: GridFsOperations
 ): FitDataRepository {
-
     private val log = KotlinLogging.logger {}
+
     private fun getSha256Digest(data: ByteArray): String {
         val messageDigest = MessageDigest.getInstance("sha256")
         messageDigest.update(data)
@@ -30,9 +30,12 @@ class FitDataRepositoryImpl(
     }
 
     override fun saveFitData(data: MultipartFile): String {
+
         if (checkIfFileExists(data)) {
             throw DuplicateFitFileException("File already in-store!")
         }
+
+
 
         val metadata = BasicDBObject()
         metadata.append("hash", getSha256Digest(data.bytes))

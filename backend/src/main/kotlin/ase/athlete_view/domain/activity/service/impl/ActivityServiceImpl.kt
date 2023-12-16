@@ -1,26 +1,37 @@
 package ase.athlete_view.domain.activity.service.impl
 
-import ase.athlete_view.common.exception.entity.NotFoundException
+import  ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.persistence.*
-import ase.athlete_view.domain.activity.pojo.entity.Activity
-import ase.athlete_view.domain.activity.pojo.entity.Interval
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
-import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.activity.pojo.entity.*
+import ase.athlete_view.domain.activity.pojo.util.ActivityType
+import ase.athlete_view.domain.activity.pojo.util.StepDurationType
+import ase.athlete_view.domain.activity.pojo.util.StepTargetType
+import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
 import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import com.garmin.fit.RecordMesg
+import com.garmin.fit.Intensity
+import com.garmin.fit.LapMesg
+import com.garmin.fit.LapTrigger
+import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
+import com.garmin.fit.ActivityType as FitActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ActivityServiceImpl(
     private val plannedActivityRepo: PlannedActivityRepository,
+    private val lapRepo: LapRepository,
     private val intervalRepo: IntervalRepository,
     private val stepRepo: StepRepository,
     private val userRepository: UserRepository,
@@ -31,6 +42,7 @@ class ActivityServiceImpl(
 ) : ActivityService {
     private val logger = KotlinLogging.logger {}
 
+    @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
         logger.trace { "S | createPlannedActivity \n $plannedActivity" }
 
@@ -41,9 +53,23 @@ class ActivityServiceImpl(
         }
 
         // activity is always created by the logged-in user
-        plannedActivity.createdBy = user.get()
+        val usr = user.get()
+        validator.validateNewPlannedActivity(plannedActivity, usr)
+        plannedActivity.createdBy = usr
 
-        validator.validateNewPlannedActivity(plannedActivity, user.get())
+        // verify if `createdFor` actually exists?
+        if (plannedActivity.createdFor != null) {
+            val forUser = userRepository.findById(plannedActivity.createdFor?.id!!)
+            if (!forUser.isPresent) {
+                throw NotFoundException("Cannot create activity for unknown user!")
+            } else if (forUser.get() !is Athlete) {
+                // TODO: handle properly ig
+                throw RuntimeException("Something's off...")
+            }
+
+            plannedActivity.createdFor = forUser.get() as Athlete
+        }
+
         createInterval(plannedActivity.interval)
         return this.plannedActivityRepo.save(plannedActivity)
     }
@@ -64,14 +90,18 @@ class ActivityServiceImpl(
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            if (userObject.activities.none { it.id == id }) {
+            val activitiesForUser = plannedActivityRepo.findAllByCreatedForId(userObject.id!!)
+            val activities = userObject.activities + activitiesForUser
+            if (activities.none { it.id == id }) {
                 throw NotFoundException("Planned Activity not found")
             }
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
+            // TODO: does this also need to be adapted to use `createdFor`?
             val isOwnTemplate = userObject.activities.any { it.id == id }
             var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
+                // TODO: same here, think this only considers those `createdBy` athlete, none that were created for them by trainer
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
                 }
@@ -85,7 +115,8 @@ class ActivityServiceImpl(
         return activity
     }
 
-    override fun getAllPlannedActivities(userId: Long): List<PlannedActivity> {
+    @Transactional
+    override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
         logger.trace { "S | getAllPlannedActivities" }
 
         // get the logged-in user
@@ -95,20 +126,32 @@ class ActivityServiceImpl(
         }
 
         val userObject = user.get()
+        var activities: Set<PlannedActivity> = userObject.activities.toMutableSet()
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
-            return userObject.activities
+            activities = userObject.activities
+
+            // athletes can also see activities `createdFor` them
+            val elems = plannedActivityRepo.findAllByCreatedForId(userId)
+            activities.addAll(elems)
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            var result: List<PlannedActivity> = userObject.activities
+            activities = userObject.activities
             for (athlete in userObject.athletes) {
-                result = result + athlete.activities
+                activities = activities + athlete.activities
             }
-            return result
         }
 
-        return listOf()
+        if (startDate != null) {
+            activities = activities.filter { it.date != null && startDate.isBefore(it.date) }.toSet()
+        }
+
+        if (endDate != null) {
+            activities = activities.filter { it.date != null && endDate.isAfter(it.date) }.toSet()
+        }
+
+        return activities.toList()
     }
 
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
@@ -131,8 +174,8 @@ class ActivityServiceImpl(
     }
 
     @Transactional
-    override fun importActivity(files: List<MultipartFile>, userId: Long): Unit {
-        logger.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+    override fun importActivity(files: List<MultipartFile>, userId: Long): Activity {
+        logger.trace { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
@@ -140,6 +183,7 @@ class ActivityServiceImpl(
         }
 
         var ids = arrayOf<String>().toMutableList()
+        var respData: Activity? = null
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
 
@@ -152,11 +196,147 @@ class ActivityServiceImpl(
             var calSum = 0
             var totalDistance = 0.0
             var cadenceSum = 0
-
             var hrMax: Short = 0
             var powerMax = 0
+            var accuracySum = 0
+            var intensityValueMissing = 0
+
+            val lapList = data.lapMesgs
+            var i = 0
+            var j = 0
+            var lap = lapList[i]
+            var lastLap = lapList[0]
+            val laps: MutableList<Lap> = mutableListOf()
+            var curLapIntensity: Intensity? = lap.intensity
+
+            laps.add(
+                Lap(
+                    null,
+                    i,
+                    lap.totalTimerTime.toInt(),
+                    lap.totalDistance?.toInt(),
+                    lap.enhancedAvgSpeed,
+                    lap.avgPower?.toInt(),
+                    lap.maxPower?.toInt(),
+                    lap.avgHeartRate?.toInt(),
+                    lap.maxHeartRate?.toInt(),
+                    lap.avgCadence?.toInt(),
+                    lap.maxCadence?.toInt(),
+                    mapFitIntensityToStepType(lap.intensity)
+                )
+            )
+            var compare = data.recordMesgs[0].activityType != null
+            var sameStructure = false
+            var sameDurations = false
+            var stepList: List<Step>? = null
+            var plannedActivity: PlannedActivity? = null
+
+            if (compare) {
+                val fitActivityType = data.recordMesgs[0].activityType
+                val startTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+                    .withHour(0)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                val endTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+                    .withHour(23)
+                    .withMinute(59)
+                    .withSecond(59)
+                    .withNano(0)
+                val activityType = mapFitActivityTypeToActivityType(fitActivityType)
+
+                val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(userId, activityType, startTime, endTime)
+                plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
+                stepList = plannedActivity?.unroll()
+
+
+                compare = !stepList.isNullOrEmpty()
+
+                if (compare) {
+                    sameStructure = compareLapLists(stepList!!, lapList)
+                    if (!sameStructure) {
+                        sameDurations = compareLapDurations(stepList, lapList)
+                    }
+                }
+            }
+
+
+            var startTime: LocalDateTime? = null
+            var endTime: LocalDateTime? = null
+
+            var recordMsgHolder: RecordMesg? = null
 
             for (d in data.recordMesgs) {
+                if (startTime === null) {
+                    // https://developer.garmin.com/fit/cookbook/datetime/
+                    startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
+                }
+
+                recordMsgHolder = d
+                // add every lap to the list for later saving in the repo
+                if (lap.timestamp < d.timestamp) {
+                    lastLap = lap
+                    lap = lapList[++i]
+
+                    laps.add(
+                        Lap(
+                            null, i, lap.totalTimerTime.toInt(), lap.totalDistance?.toInt(), lap.enhancedAvgSpeed, lap.avgPower?.toInt(),
+                            lap.maxPower?.toInt(), lap.avgHeartRate?.toInt(), lap.maxHeartRate?.toInt(), lap.avgCadence?.toInt(), lap.maxCadence?.toInt(),
+                            mapFitIntensityToStepType(lap.intensity)
+                        )
+                    )
+                }
+
+                if (compare) {
+                    // get next lap if the intensity changes
+                    if (sameStructure) {
+                        if (curLapIntensity != lap.intensity) {
+                            curLapIntensity = lap.intensity
+                            j++
+                        }
+                    } else if (sameDurations) {
+                        if (lastLap.lapTrigger == stepList!![j].durationType) {
+                            j++
+                        }
+                    }
+                    // get target type and check if the value is in the range
+                    if (stepList!![j].targetType == StepTargetType.CADENCE) {
+                        if (d.cadence == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(d.cadence.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                        }
+                    } else if (stepList[j].targetType == StepTargetType.HEARTRATE) {
+                        if (d.heartRate == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(d.heartRate.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                        }
+                    } else if (stepList[j].targetType == StepTargetType.PACE) {
+                        if (d.enhancedSpeed == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(
+                                convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed),
+                                stepList[j].targetFrom ?: 0,
+                                stepList[j].targetTo ?: 0
+                            )
+                        }
+                    } else if (stepList[j].targetType == StepTargetType.SPEED) {
+                        if (d.enhancedSpeed == null) {
+                            intensityValueMissing++
+                        } else {
+                            accuracySum += isBetween(
+                                convertMetersPerSecondToKilometerPerHour(d.enhancedSpeed),
+                                stepList[j].targetFrom ?: 0,
+                                stepList[j].targetTo ?: 0
+                            )
+                        }
+                    } else {
+                        intensityValueMissing++
+                    }
+                }
+
                 val hr = d.heartRate ?: 0
                 val dist = d.distance ?: 0.0f
                 val power = d.power ?: 0
@@ -178,17 +358,24 @@ class ActivityServiceImpl(
                 cadenceSum += cadence
             }
 
+            endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+
             val totalElems = data.recordMesgs.size
             val avgBpm = hrSum / totalElems
             val avgPower = powerSum / totalElems
             val avgCadence = cadenceSum / totalElems
+            val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
+
+            // if accuracy too low do not count as planned activity
+
+            plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
             val fitId: String = fitFileRepo.saveFitData(item)
 
             val activity = Activity(
                 null,
                 user.get(),
-                0, // TODO: implement
+                accuracy,
                 avgBpm,
                 hrMax.toInt(),
                 totalDistance,
@@ -196,18 +383,98 @@ class ActivityServiceImpl(
                 avgCadence,
                 avgPower,
                 powerMax,
-                0,
-                1, // TODO implement
-                fitId
+                fitId,
+                startTime,
+                endTime,
+                plannedActivity,
+                laps,
+                data.recordMesgs[0].activityType?.let { mapFitActivityTypeToActivityType(it) }
             )
-
+            plannedActivity?.activity = activity
             ids.add(fitId)
-            val respData = activityRepo.save(activity)
-            logger.debug { respData.toString() }
+            laps.map { lapRepo.save(it) }
+            respData = activityRepo.save(activity)
+
+        }
+        if (respData != null) {
+            return respData
+        } else {
+            throw NotImplementedError("Health fit files are currently not supported")
         }
     }
 
-    private fun createInterval(interval: Interval): Interval {
+    private fun compareLapLists(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        var i = 0
+        for (lap in lapList) { // go through all laps
+            val stepIntensity = stepList[i].type
+            val lapIntensity = mapFitIntensityToStepType(lap.intensity)
+            if (lapIntensity != stepIntensity) {
+                if (i == stepList.size) { // all steps are done and more laps
+                    return false
+                } else if (lapIntensity != stepList[i + 1].type) { // next step is also not the correct one
+                    return false
+                } else {
+                    i++
+                }
+            }
+        }
+        return true
+    }
+
+    override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
+        logger.trace { "S | getAllActivities" }
+        val user = userRepository.findById(uid).getOrNull()
+            ?: throw NotFoundException("No such user!")
+
+        return if (startDate != null && endDate != null) {
+            activityRepo.findActivitiesByUserAndDateRange(user.id!!, startDate, endDate)
+        } else {
+            activityRepo.findActivitiesByUserId(uid)
+        }
+    }
+
+    private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        var i = 0
+        for (step in stepList) { // go through all steps
+            when (step.durationType) {
+                StepDurationType.LAPBUTTON -> {
+                    while (lapList[i].lapTrigger != LapTrigger.MANUAL) {
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                StepDurationType.TIME -> {
+                    while (lapList[i].lapTrigger != LapTrigger.TIME) {
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                StepDurationType.DISTANCE -> {
+                    while (lapList[i].lapTrigger != LapTrigger.DISTANCE) {
+                        if (i + 1 == lapList.size) { // all laps are done and more steps
+                            return false
+                        }
+                        i++
+                    }
+                }
+
+                null -> return false
+            }
+        }
+        return true
+    }
+
+    private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: ActivityType, startTime: LocalDateTime, endTime: LocalDateTime): List<PlannedActivity> {
+        return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
+    }
+
+    override fun createInterval(interval: Interval): Interval {
         if (interval.intervals?.isNotEmpty() == true) {
             interval.intervals!!.forEach { createInterval(it) }
         }
@@ -219,5 +486,43 @@ class ActivityServiceImpl(
 
     private fun createStep(step: Step): Step {
         return this.stepRepo.save(step)
+    }
+
+
+    // TODO find the different kind of sports and why rowing and crosscountryskiing are not existing in FitActivityType
+    fun mapFitActivityTypeToActivityType(fitActivityType: FitActivityType): MyActivityType {
+        return when (fitActivityType) {
+            FitActivityType.SWIMMING -> MyActivityType.SWIM
+            FitActivityType.RUNNING -> MyActivityType.RUN
+            FitActivityType.CYCLING -> MyActivityType.BIKE
+            FitActivityType.FITNESS_EQUIPMENT -> MyActivityType.ROW
+            FitActivityType.GENERIC -> MyActivityType.CROSSCOUNTRYSKIING
+            else -> MyActivityType.OTHER
+        }
+    }
+
+    fun mapFitIntensityToStepType(fitIntensity: Intensity?): StepType {
+        return when (fitIntensity) {
+            Intensity.RECOVERY -> StepType.RECOVERY
+            Intensity.ACTIVE -> StepType.ACTIVE
+            Intensity.WARMUP -> StepType.WARMUP
+            Intensity.COOLDOWN -> StepType.COOLDOWN
+            Intensity.INTERVAL -> StepType.ACTIVE
+            else -> StepType.RECOVERY
+        }
+    }
+
+
+    fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
+        return (1000 / speedInMetersPerSecond).toInt()
+    }
+
+
+    private fun convertMetersPerSecondToKilometerPerHour(enhancedSpeed: Float?): Int {
+        return (enhancedSpeed!! * 3.6).toInt()
+    }
+
+    fun isBetween(value: Int, from: Int, to: Int): Int {
+        return if (value in from..to) 1 else 0
     }
 }

@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.user.pojo.entity
 
+import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import jakarta.persistence.*
@@ -15,14 +16,21 @@ open class User(
     @Column(unique = true)
     open var email: String,
 
+    @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY, targetEntity = Notification::class)
+    open var notifications: List<Notification> = mutableListOf(),
+
     open var name: String,
     open var password: String,
     open var country: String?,
     open var zip: String?,
     var isConfirmed: Boolean = false,
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "createdBy")
-    open var activities: List<PlannedActivity> = listOf()
+    @OneToMany(mappedBy = "createdBy", cascade = [CascadeType.MERGE, CascadeType.PERSIST], fetch = FetchType.LAZY)
+    open var activities: MutableSet<PlannedActivity> = mutableSetOf(),
+
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "preferences_id", referencedColumnName = "id")
+    open var preferences: Preferences? = null
 ) {
     open fun toUserDTO(): UserDTO {
         return UserDTO(
@@ -36,5 +44,9 @@ open class User(
 
     open fun getUserType(): String {
         return "undefined"
+    }
+
+    override fun toString(): String {
+        return "User(id=$id, email='$email', name='$name', password='$password', country=$country, zip=$zip, isConfirmed=$isConfirmed, activities=$activities, notifications=$notifications)"
     }
 }

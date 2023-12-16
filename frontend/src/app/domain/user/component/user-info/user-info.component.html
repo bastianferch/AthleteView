@@ -52,7 +52,16 @@
           </mat-form-field>
         </div>
       </ng-container>
+    </form>
 
+    <div *ngIf="preferences">
+      <div>
+        <mat-slide-toggle [(ngModel)]="preferences.emailNotifications">Send Email Notifications</mat-slide-toggle>
+        <textarea matInput hidden></textarea>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="performUpdate()" class="centered-column-container">
       <div class="centered-column-container row-gap-1">
         <button
           [disabled]="!form.valid "

@@ -67,19 +67,19 @@ class ActivityControllerUnitTests {
 
     private var athlete = Athlete(1, "athelte@example.com", "Athlete Doe", "athletepassword","CountryName", "12345",LocalDate.now().minusYears(20),150,70000,null)
 
-    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345","", listOf(athlete))
+    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345","", mutableSetOf(athlete))
 
     // Create a test object for Step class
     private val step = Step(
-        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationDistanceUnit.KM,
+        null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
         StepTargetType.CADENCE, 100, 200, "Sample step note"
     )
 
     // Create a test object for Interval class
     val interval = Interval(null, 1, listOf(Interval(null, 2, listOf(Interval(null, 1, null, step)), null)), null)
     val plannedActivity = PlannedActivity(
-        null, ActivityType.RUN, interval, false, false,
-        "Sample planned activity", LocalDateTime.now().plusDays(5), trainer, null,
+        null, "test", ActivityType.RUN, interval, false, false,
+        "Sample planned activity", LocalDateTime.now().plusDays(5),60,Load.MEDIUM, trainer, null, null
     )
 
     @BeforeEach
@@ -94,8 +94,8 @@ class ActivityControllerUnitTests {
     @WithCustomMockUser
     fun createActivityPlanned_ReturnsOk() {
         val plannedActivityDTO = PlannedActivityDTO(
-            null, ActivityType.RUN, interval.toDTO(), false, false,
-            "Sample planned activity", LocalDateTime.now().plusDays(5), trainer.toUserDTO(), null,
+            null, "test", ActivityType.RUN, interval.toDTO(), false, false,
+            "Sample planned activity", LocalDateTime.now().plusDays(5), 60, Load.MEDIUM, trainer.toUserDTO(), null,
         )
         every { activityService.createPlannedActivity(any<PlannedActivity>(),any()) } returns plannedActivity
 
@@ -109,6 +109,4 @@ class ActivityControllerUnitTests {
 
         verify(exactly = 1) { activityService.createPlannedActivity(any<PlannedActivity>(),any()) }
     }
-
-
 }

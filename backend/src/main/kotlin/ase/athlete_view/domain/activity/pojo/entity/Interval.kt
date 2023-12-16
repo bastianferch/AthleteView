@@ -19,11 +19,7 @@ class Interval(
     var step: Step?
 ) {
     fun toDTO(): IntervalDTO {
-        return IntervalDTO(id, repeat, intervals?.toDTOList(), step?.toDTO())
-    }
-
-    fun <E> List<E>.toDTOList(): List<IntervalDTO>? {
-        return intervals?.map { it.toDTO() }
+        return IntervalDTO(id, repeat, intervals?.map { it.toDTO() }, step?.toDTO())
     }
 
     override fun toString(): String {

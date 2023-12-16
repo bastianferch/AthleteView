@@ -1,8 +1,7 @@
 logging:
   level:
     root: INFO
-    ase: TRACE
-
+    ase:  TRACE
 
 spring:
   data:

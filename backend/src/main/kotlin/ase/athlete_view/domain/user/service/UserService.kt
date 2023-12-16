@@ -3,7 +3,10 @@ package ase.athlete_view.domain.user.service
 import ase.athlete_view.common.exception.entity.ConflictException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
+import ase.athlete_view.domain.user.pojo.dto.PreferencesDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
+import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.User
 
 interface UserService {
@@ -35,5 +38,8 @@ interface UserService {
      * Updates the athlete without id, email and password.
      * @throws ConflictException if user is trying to update the wrong user type (trainer)
      */
-    fun updateAthlete(atlAthleteDTO: AthleteDTO)
+    fun updateAthlete(athleteDTO: AthleteDTO)
+
+    fun getPreferences(userDTO: UserDTO): Preferences?
+    fun patchPreferences(userDTO: UserDTO, preferencesDTO: PreferencesDTO): Preferences?
 }
