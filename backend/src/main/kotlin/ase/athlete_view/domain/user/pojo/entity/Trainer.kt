@@ -17,7 +17,7 @@ class Trainer(
     zip: String?,
 
     @Column(unique = true)
-    val code: String,
+    var code: String,
 
     @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST], mappedBy = "trainer", fetch = FetchType.LAZY)
     @JsonManagedReference
