@@ -1,15 +1,8 @@
 package ase.athlete_view.domain.time_constraint.service
 
-import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
-import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
-import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.User
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 interface TimeConstraintService {
 

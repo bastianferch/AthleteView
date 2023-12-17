@@ -11,12 +11,9 @@ import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
-import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
-import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.token.pojo.entity.TokenExpirationTime
 import ase.athlete_view.domain.token.service.TokenService
-import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -30,8 +27,6 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.DayOfWeek
-import java.time.LocalTime
 import java.util.*
 import kotlin.collections.ArrayList
 
