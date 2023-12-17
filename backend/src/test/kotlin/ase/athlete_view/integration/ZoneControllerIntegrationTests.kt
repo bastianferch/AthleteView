@@ -63,7 +63,7 @@ class ZoneControllerIntegrationTests: TestBase() {
 
     @Test
     @WithCustomMockUser(id = TEST_USER_ID)
-    fun resetZones_withCustomMaxHRShouldCreateZonesAndReturnOk() {
+    fun resetZonesWithCustomMaxHR_shouldCreateZonesAndReturnOk() {
 
         val result = mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/zones?maxHR=212").with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -79,7 +79,7 @@ class ZoneControllerIntegrationTests: TestBase() {
 
     @Test
     @WithCustomMockUser(TEST_USER_ID)
-    fun putZones_withValidZonesReturns201AndValidZones() {
+    fun putZonesWithValidZones_shouldReturn201AndValidZones() {
 
         val zones = zoneService.calcZones(212)
         zones[4].toBPM = 215
@@ -105,7 +105,7 @@ class ZoneControllerIntegrationTests: TestBase() {
 
     @Test
     @WithCustomMockUser(TEST_USER_ID)
-    fun putZones_withInvalidZonesShouldReturn422() {
+    fun putZonesWithInvalidZones_shouldReturn422() {
         val zones = zoneService.calcZones(212)
         zones[3].toBPM = 187
 
@@ -144,7 +144,7 @@ class ZoneControllerIntegrationTests: TestBase() {
 
     @Test
     @WithCustomMockUser(TEST_USER_ID)
-    fun getZones_fromNotExistingShouldReturnEmpty(){
+    fun getZonesFromNotExisting_shouldReturnEmpty(){
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/api/zones").with(SecurityMockMvcRequestPostProcessors.csrf())

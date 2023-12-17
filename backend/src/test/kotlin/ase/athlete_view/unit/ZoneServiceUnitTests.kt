@@ -34,7 +34,7 @@ class ZoneServiceUnitTests {
     private lateinit var zoneService: ZoneService
 
     @Test
-    fun getZones() {
+    fun getZones_shouldReturnZonesInCorrectOrder() {
         every { athleteService.getById(any()) } returns UserCreator.getAthlete(null)
         every { zoneRepo.findAllByUser(any()) } returns zoneService.calcZones(195).shuffled()
 
@@ -48,7 +48,7 @@ class ZoneServiceUnitTests {
     }
 
     @Test
-    fun verifyZoneValidation() {
+    fun editZonesWithInvalidZones_shouldThrowValidationException() {
         val validList = zoneService.calcZones(195)
         every { zoneRepo.saveAll(any<List<Zone>>()) } returns validList
         every { athleteService.getById(any()) } returns UserCreator.getAthlete(null)
@@ -65,7 +65,7 @@ class ZoneServiceUnitTests {
     }
 
     @Test
-    fun saveZones() {
+    fun saveZoneWithValidZones_shouldSaveZonesCorrectly() {
         val list = zoneService.calcZones(20)
         val user = UserCreator.getAthlete(null)
         list.forEach { it.user = user }
@@ -84,7 +84,7 @@ class ZoneServiceUnitTests {
     }
 
     @Test
-    fun resetZones() {
+    fun resetZonesWithoutCustomMHR_shouldCreateNewZonesForAthlete() {
         val user = UserCreator.getAthlete(null)
         every { zoneRepo.saveAll(any<List<Zone>>()) } returnsArgument 0
         every { athleteService.getById(any()) } returns user
