@@ -1,16 +1,18 @@
 <div class="time-constraints-container">
   <div class="calendar-container">
-    <mat-chip-listbox #days aria-label="Show Constraints" multiple (change)="setChoice(days.value)">
-      <mat-chip-option value="white">Show training times</mat-chip-option>
-      <mat-chip-option value="black" selected>Show conflicts</mat-chip-option>
-    </mat-chip-listbox>
-    <div class="button-row">
-      <button mat-raised-button (click)="setView(-7)" color="primary">
-        Previous Week
-      </button>
-      <button mat-raised-button (click)="setView(7)" color="primary">
-        Next Week
-      </button>
+
+    <div class="cal-utils">
+      <mat-chip-listbox #days aria-label="Show Constraints" multiple (change)="setChoice(days.value)">
+        <mat-chip-option value="white">Show training times</mat-chip-option>
+        <mat-chip-option value="black" selected>Show conflicts</mat-chip-option>
+      </mat-chip-listbox>
+
+      <h2>{{ getViewTitle() }}</h2>
+      <div class="date-nav-btn">
+        <button mat-stroked-button (click)="setView(-7)">Previous Week</button>
+        <button mat-stroked-button (click)="handleDateToday()">Today</button>
+        <button mat-stroked-button (click)="setView(7)">Next Week</button>
+      </div>
     </div>
     <mwl-calendar-week-view
       [viewDate]="viewDate"

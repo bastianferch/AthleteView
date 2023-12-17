@@ -7,6 +7,9 @@ import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } fr
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Calendarcolors } from "../../../common/util/calendar-colors";
+import { dateFormatString } from "../../../common/util/parsing/date-parsing"
+import { endOfDay, subDays, format, startOfDay, addDays } from "date-fns";
+import { enUS } from "date-fns/locale";
 
 @Component({
   selector: 'app-time-constraints',
@@ -57,22 +60,22 @@ export class TimeConstraintsComponent implements OnInit {
   getEvents() {
 
     this.eventMap = new Map<CalendarEvent, number>()
-    this.constraintService.getConstraints("daily", this.startOfWeek.toLocaleString('de-DE')).subscribe(
-      (next) => {
-        this.whitelist = []
-        this.blacklist = []
-        for (const constraint of next) {
-          const event = this.constraintToEvent(constraint)
-          if (constraint.isBlacklist) {
-            this.blacklist.push(event)
-          } else {
-            this.whitelist.push(event)
-          }
-          this.eventMap.set(event, constraint.id)
+    this.constraintService.getConstraints("daily", format(this.startOfWeek, dateFormatString)).subscribe({ next: (next) => {
+      this.whitelist = []
+      this.blacklist = []
+      for (const constraint of next) {
+        const event = this.constraintToEvent(constraint)
+        if (constraint.isBlacklist) {
+          this.blacklist.push(event)
+        } else {
+          this.whitelist.push(event)
         }
-        this.setEvents()
-      },
-      (error) => this.msgService.openSnackBar(error.error?.msg))
+        this.eventMap.set(event, constraint.id)
+      }
+      this.setEvents()
+    },
+    error: (error) => this.msgService.openSnackBar(error.error?.message) },
+    )
   }
 
   setChoice(choice: string[]) {
@@ -111,16 +114,18 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
+    if (newEnd.getDay() !== event.end.getDay()) newEnd = endOfDay(subDays(newEnd,1))
+    if (newStart.getDay() !== event.start.getDay()) newStart = startOfDay(addDays(newStart,1))
     this.constraintService.getById(this.eventMap.get(event)).subscribe((constraint) => {
       if (constraint.constraint !== undefined) {
-        constraint.constraint.weekday = newStart.getDay() - 1
+        constraint.constraint.weekday = (newStart.getDay() - 1 + 7) % 7
         constraint.constraint.startTime = `${newStart.getHours().toString().padStart(2, '0')}:${newStart.getMinutes().toString().padStart(2, '0')}`
         constraint.constraint.endTime = `${newEnd.getHours().toString().padStart(2, '0')}:${newEnd.getMinutes().toString().padStart(2, '0')}`
         this.constraintService.editWeeklyConstraint(constraint).subscribe(
-          () => {
-            this.getEvents()
-          },
-          (error) => this.msgService.openSnackBar(error.error?.msg))
+          {
+            next: () => this.getEvents(),
+            error: (error) => this.msgService.openSnackBar(error.error?.message),
+          })
       } else {
         constraint.endTime = newEnd
         constraint.endTime.setHours(newEnd.getHours() - (new Date().getTimezoneOffset() / 60))
@@ -130,11 +135,17 @@ export class TimeConstraintsComponent implements OnInit {
           () => {
             this.getEvents()
           },
-          (error) => this.msgService.openSnackBar(error.error?.msg),
+          (error) => this.msgService.openSnackBar(error.error?.message),
         )
       }
     })
 
+  }
+
+  handleDateToday() {
+    this.viewDate = new Date()
+    this.setStartOfWeek()
+    this.getEvents()
   }
 
   setView(days: number) {
@@ -147,6 +158,10 @@ export class TimeConstraintsComponent implements OnInit {
     this.startOfWeek = this.viewDate
     this.startOfWeek.setDate(this.startOfWeek.getDate() - this.startOfWeek.getDay() + 1)
     this.startOfWeek.setHours(0,0,0,0)
+  }
+
+  getViewTitle() {
+    return format(this.viewDate, "LLLL yyyy", { locale: enUS })
   }
 }
 
@@ -179,7 +194,7 @@ export class TimeConstraintsDialogComponent {
   confirm(): void {
     this.constraintService.delete(this.data).subscribe(
       () => this.msgService.openSnackBar("Deleted time constraint"),
-      (error) => this.msgService.openSnackBar(error.error?.msg),
+      (error) => this.msgService.openSnackBar(error.error?.message),
     );
     this.dialogRef.close();
   }

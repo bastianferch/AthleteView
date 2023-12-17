@@ -43,7 +43,7 @@ class TimeConstraintServiceUnitTests {
     private val user = User(1, "a@s.com", listOf(), "Josef", "asdf", "Austria", "1337")
     private val userDto = UserDTO(1, "","",null,null, "trainer")
     private val constraint = TimeConstraint(1, true, "TestConstraint", user)
-    private val newConstraintDto = TimeConstraintDto(null, true, "TestConstraint", null)
+    private val newConstraintDto = TimeConstraintDto(null, true, "TestConstraint")
     private val weeklyConstraint = WeeklyTimeConstraint(2, true, "TestConstraint", user, TimeFrame(DayOfWeek.MONDAY, LocalTime.of(11,0), LocalTime.of(12,0)))
 
     @Test
@@ -58,7 +58,7 @@ class TimeConstraintServiceUnitTests {
     @Test
     fun saveInvalidWeeklyConstraint(){
         every { us.getById(1) } returns user
-        val invalid = WeeklyTimeConstraintDto(null, true, "invalid", null, TimeFrame(DayOfWeek.MONDAY, LocalTime.now(), LocalTime.now()))
+        val invalid = WeeklyTimeConstraintDto(null, true, "invalid", TimeFrame(DayOfWeek.MONDAY, LocalTime.now(), LocalTime.now()))
 
         assertThrows<Exception> { service.save(invalid, userDto) }
     }
@@ -66,7 +66,7 @@ class TimeConstraintServiceUnitTests {
     @Test
     fun saveInvalidDailyConstraint(){
         every { us.getById(1) } returns user
-        val invalid = DailyTimeConstraintDto(null, true, "invalid", null, LocalDateTime.now(), LocalDateTime.now())
+        val invalid = DailyTimeConstraintDto(null, true, "invalid", LocalDateTime.now(), LocalDateTime.now())
 
         assertThrows<Exception> { service.save(invalid, userDto) }
     }

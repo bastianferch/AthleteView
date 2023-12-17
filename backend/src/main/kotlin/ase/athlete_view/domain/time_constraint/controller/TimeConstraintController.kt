@@ -41,7 +41,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     }
 
     @PutMapping("/weeklies/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     fun putWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "PUT time constraint by ${userDto.name}" }

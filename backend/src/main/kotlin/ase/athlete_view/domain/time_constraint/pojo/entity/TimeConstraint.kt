@@ -17,10 +17,10 @@ open class TimeConstraint(
         open val title: String,
 
         @ManyToOne
-        open val user: User
+        open var user: User?
 ) {
         open fun toDto(): TimeConstraintDto{
-                return TimeConstraintDto(id, isBlacklist, title, user)
+                return TimeConstraintDto(id, isBlacklist, title)
         }
 
         override fun toString(): String {

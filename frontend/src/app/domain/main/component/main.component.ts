@@ -9,6 +9,7 @@ import { ActivityService } from '../../activity/service/activity.service';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { HealthService } from "../../health/service/health.service";
 import { firstValueFrom } from "rxjs";
+import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zone-groups-dialog.component";
 
 @Component({
   selector: 'app-main',
@@ -67,6 +68,12 @@ export class MainComponent {
           },
         })
       }
+    });
+  }
+
+  openZoneDialog(): void {
+    this.dialog.open(ZoneGroupsDialogComponent, {
+      width: "60%",
     });
   }
 }

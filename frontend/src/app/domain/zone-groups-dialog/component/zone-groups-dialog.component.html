@@ -1,0 +1,36 @@
+<h1 mat-dialog-title>Edit Zone Groups <mat-icon matTooltip="Calculated via maximum heart rate">info_outline</mat-icon></h1>
+<div mat-dialog-content class="dialog-content">
+  <hr/>
+  <div class="zone-wrapper">
+    <div *ngFor="let zone of zones, index as i" class="zones">
+      <span class="zone-label">Zone {{i+1}}:</span>
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput [(ngModel)]="zone.name"/>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Beats per Minute</mat-label>
+        <input matInput type="number" name="fromBPM{{i}}" [(ngModel)]="zone.fromBPM"/>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Beats per Minute</mat-label>
+        <input matInput type="number" name="toBPM{{i}}" [(ngModel)]="zone.toBPM"/>
+      </mat-form-field>
+      <button mat-icon-button color="warn" (click)="removeZone(zone)"><mat-icon>delete</mat-icon></button>
+    </div>
+    <button mat-stroked-button color="primary" (click)="addZone()">Add Zone</button>
+  </div>
+  <hr/>
+  <div class="mhr">
+    <button mat-raised-button (click)="reset()">Recalculate</button>
+    <mat-form-field [style.width.px]="200">
+      <mat-label>Maximum heart rate</mat-label>
+      <input matInput type="number" name="maxHR" [(ngModel)]="maxHR"/>
+    </mat-form-field>
+    <div></div>
+  </div>
+</div>
+<div mat-dialog-actions class="dialog-footer">
+  <button mat-button color="warn" (click)="handleCancel()">Cancel</button>
+  <button mat-button color="primary" (click)="save()">Save</button>
+</div>
