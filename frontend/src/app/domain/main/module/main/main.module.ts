@@ -5,7 +5,6 @@ import { RouterLink, RouterOutlet } from "@angular/router";
 import { SharedModule } from "../../../../config/module/SharedModule";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatMenuModule } from "@angular/material/menu";
-
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NotificationComponent } from '../../../notification/component/notification/notification.component';
 import { NotificationListComponent } from '../../../notification/component/notification-list/notification-list.component';

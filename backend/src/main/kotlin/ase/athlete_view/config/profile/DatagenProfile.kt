@@ -13,6 +13,7 @@ import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
+import ase.athlete_view.domain.zone.service.ZoneService
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
@@ -26,7 +27,9 @@ import java.time.LocalTime
 
 @Component
 @Profile("datagen")
-class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService, private val activityService: ActivityService, private val activityRepository: PlannedActivityRepository, @Autowired private val mongoTemplate: MongoTemplate)  {
+class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService,
+                     private val activityService: ActivityService, private val activityRepository: PlannedActivityRepository,
+                     @Autowired private val mongoTemplate: MongoTemplate, private val zoneService: ZoneService)  {
     @PostConstruct
     fun init() {
         mongoTemplate.dropCollection("fs.files")
@@ -44,7 +47,9 @@ class DatagenProfile(private val userService: UserService, private val tcService
             null
         )
 //        athlete.isConfirmed = true
-        this.userService.save(athlete)
+        val saved = this.userService.save(athlete)
+        this.zoneService.resetZones(saved.id!!)
+        this.tcService.createDefaultTimeConstraintsForUser(saved)
 
         val trainer = Trainer(
             2,
@@ -59,8 +64,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
         trainer.isConfirmed = true
         this.userService.save(trainer)
 
-
-        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting", athlete,
+        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting",
             TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19,0), LocalTime.of(20,0))),
             //maybetodo change 1 from one
             UserDTO(1, "", "", null, null, ""))
