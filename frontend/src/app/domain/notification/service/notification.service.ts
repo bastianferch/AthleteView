@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { UrlService } from "../../../config/service/UrlService";
 import { User } from "../../user/dto/user";
@@ -39,18 +38,16 @@ export class NotificationService {
         'Authorization': `Bearer ${this.authService.getAuthToken()}`,
       },
     });
-    return new Observable((observer) => {
-      eventSource.onmessage = (event) => {
-        const messageData: NotificationDto = event.data;
-        observer.next(messageData);
-      };
-    }).subscribe(
-      (e: any) => {
-        const notification : NotificationDto = JSON.parse(e)
-        this.notifications.push(notification);
-        this.sortNotifications();
-      },
-    );
+
+    eventSource.onmessage = (event) => {
+      const notification : NotificationDto = JSON.parse(event.data);
+      this.notifications.push(notification);
+      this.sortNotifications();
+    };
+    eventSource.onerror = () => {
+      // upon encountering an error (when the backend closes the connection), close the connection client-side as well.
+      eventSource.close();
+    }
   }
 
   getAllNotifications() {

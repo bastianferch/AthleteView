@@ -5,17 +5,23 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-// TODO: this is in-memory. For production, convert this into an actual repo
 @Repository
 class EmitterRepository {
     private val userEmitterMap: MutableMap<Long, SseEmitter> = ConcurrentHashMap()
 
     fun save(id: Long, emitter: SseEmitter) {
+        //delete old emitter
+        deleteById(id);
+
+        // set new one
         userEmitterMap[id] = emitter
     }
 
     fun deleteById(id: Long) {
         if (userEmitterMap.containsKey(id)) {
+            // do nothing on completion and close emitter
+            userEmitterMap[id]?.onCompletion {}
+            userEmitterMap[id]?.complete()
             userEmitterMap.remove(id)
         }
     }
@@ -29,6 +35,6 @@ class EmitterRepository {
     }
 
     fun deleteAll() {
-        this.userEmitterMap.clear()
+        this.userEmitterMap.forEach { deleteById(it.key) }
     }
 }
