@@ -8,7 +8,7 @@ import {
 import { IntervalModule } from '../../../common/interval/IntervalModule';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { NgForOf, NgIf } from '@angular/common';
+import { CommonModule, NgForOf, NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,16 +17,29 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from '@angular/material/list';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { FinishedActivityComponent } from '../component/finished-activity/finished-activity.component';
+import { MatGridListModule } from "@angular/material/grid-list";
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
+
 
 const routes: Routes = [
   { path: '', component: ActivityComponent },
   { path: 'create', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.create } },
   { path: ':id', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.details } },
+  { path: 'finished/:id', component: FinishedActivityComponent },
   { path: ':id/edit', component: CreateEditViewActivityComponent, data: { mode: ActivityCreateEditViewMode.edit } },
 ];
 
 @NgModule({
-  declarations: [ActivityComponent, CreateEditViewActivityComponent],
+  declarations: [
+    ActivityComponent,
+    CreateEditViewActivityComponent,
+    FinishedActivityComponent,
+  ],
   imports: [
     RouterModule.forChild(routes),
     IntervalModule,
@@ -43,6 +56,13 @@ const routes: Routes = [
     ReactiveFormsModule,
     MatIconModule,
     MatListModule,
+    MatButtonToggleModule,
+    CommonModule,
+    MatTableModule,
+    MatGridListModule,
+    MatTabsModule,
+    MatDividerModule,
+    MatPaginatorModule,
   ],
   exports: [RouterModule],
 })

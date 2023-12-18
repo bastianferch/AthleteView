@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivityService } from '../../activity/service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
-import { Activity } from '../../activity/dto/Activity'
+import { Activity, ActivityEvent } from '../../activity/dto/Activity'
 import { SnackbarService } from 'src/app/common/service/snackbar.service';
 import { TimeConstraintService } from '../../time-constraints/service/time-constraints.service'
 import {
@@ -23,7 +23,8 @@ import { enUS } from 'date-fns/locale'
 import { Router } from '@angular/router';
 import { TimeConstraint } from "../../../common/dto/TimeConstraint";
 import { Calendarcolors } from "../../../common/util/calendar-colors";
-import { dateFormatString } from "../../../common/util/parsing/date-parsing";
+import { DateParsing, dateFormatString } from "../../../common/util/parsing/date-parsing";
+import { PlannedActivityEvent } from '../../activity/dto/PlannedActivity';
 
 @Component({
   selector: 'app-custom-calendar',
@@ -47,6 +48,7 @@ export class CustomCalendarComponent {
     private cdr: ChangeDetectorRef,
     private notifService: SnackbarService,
     private router: Router,
+    private dateParser: DateParsing,
   ) {
   }
 
@@ -66,13 +68,10 @@ export class CustomCalendarComponent {
   }
 
   handleEventClicked(ev: any) {
-    if (ev.title.includes("activity")) {
-      if (ev.title.includes("Planned")) {
-        this.router.navigateByUrl(`/activity/${ev.meta.id}`)
-      } else {
-        // TODO: implement redirection to Activity view once implemented
-        this.notifService.openSnackBar("Activity is not planned, thus cannot be opened...")
-      }
+    if (ev.meta.objectType === "planned") {
+      this.router.navigateByUrl(`/activity/${ev.meta.id}`)
+    } else {
+      this.router.navigateByUrl(`/activity/finished/${ev.meta.id}`)
     }
   }
 
@@ -125,18 +124,6 @@ export class CustomCalendarComponent {
     return format(this.viewDate, "LLLL yyyy", { locale: enUS })
   }
 
-  private parseDate(numbers: number[]): any {
-    const str: string[] = []
-    numbers.forEach((num) => {
-      if (num.toString().length === 1) {
-        str.push("0" + num.toString())
-      } else {
-        str.push(num.toString())
-      }
-    });
-    return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
-  }
-
   private loadData() {
     this.events = []
 
@@ -156,47 +143,49 @@ export class CustomCalendarComponent {
     this.activityService.fetchAllActivitiesForUser(uid, startTime, endTime).subscribe({
       next: (data: Array<Activity>) => {
         const calData = data.map((x) => {
+          const xEvent: ActivityEvent = { ...x, objectType: "finished" }
+
           if (x.accuracy >= 75) {
             return {
               title: "Finished activity",
-              start: new Date(this.parseDate(x.startTime)),
-              end: new Date(this.parseDate(x.endTime)),
+              start: x.startTime as Date,
+              end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
               draggable: false,
               color: Calendarcolors["green"],
-              meta: x,
+              meta: xEvent,
             }
           }
           if (x.accuracy >= 50) {
             return {
               title: "Finished activity",
-              start: new Date(this.parseDate(x.startTime)),
-              end: new Date(this.parseDate(x.endTime)),
+              start: x.startTime as Date,
+              end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
               draggable: false,
               color: Calendarcolors["yellow"],
-              meta: x,
+              meta: xEvent,
             }
           }
           if (x.accuracy >= 25) {
             return {
               title: "Finished activity",
-              start: new Date(this.parseDate(x.startTime)),
-              end: new Date(this.parseDate(x.endTime)),
+              start: x.startTime as Date,
+              end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
               draggable: false,
               color: Calendarcolors["red"],
-              meta: x,
+              meta: xEvent,
             }
           }
           return {
             title: "Finished activity",
-            start: new Date(this.parseDate(x.startTime)),
-            end: new Date(this.parseDate(x.endTime)),
+            start: x.startTime as Date,
+            end: x.endTime as Date,
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
             color: Calendarcolors["blue"],
-            meta: x,
+            meta: xEvent,
           }
 
         }, this)
@@ -211,8 +200,15 @@ export class CustomCalendarComponent {
     this.activityService.fetchAllPlannedActivitiesForUser(uid, startTime, endTime).subscribe({
       next: (data) => {
         const calData: CalendarEvent[] = data.map((x) => {
-          const activityStart = new Date(this.parseDate(x.date as number[]))
-          const activityEnd = add(activityStart, { minutes: 120 })
+          const xEvent: PlannedActivityEvent = { ...x, objectType: "planned" }
+          const activityStart = new Date(x.date as Date)
+
+          // TODO: remove when estimatedDuration is 100% always present
+          let est = x.estimatedDuration
+          if (est === null || est === undefined) {
+            est = 60
+          }
+          const activityEnd = add(x.date as Date, { minutes: est })
           if (new Date().getTime() >= activityStart.getTime()) {
             return {
               title: "Planned Activity",
@@ -221,7 +217,7 @@ export class CustomCalendarComponent {
               resizable: { beforeStart: false, afterEnd: false },
               draggable: false,
               color: Calendarcolors["red"],
-              meta: x,
+              meta: xEvent,
             }
           }
           return {
@@ -231,7 +227,7 @@ export class CustomCalendarComponent {
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
             color: Calendarcolors["gray"],
-            meta: x,
+            meta: xEvent,
           }
 
         }, this)
@@ -260,8 +256,8 @@ export class CustomCalendarComponent {
   }
 
   private constraintToEvent(constraint: TimeConstraint): CalendarEvent {
-    const start = new Date(this.parseDate(constraint.startTime as number[]))
-    const end = new Date(this.parseDate(constraint.endTime as number[]))
+    const start = new Date(this.dateParser.parseNumbersIntoDate(constraint.startTime as number[]))
+    const end = new Date(this.dateParser.parseNumbersIntoDate(constraint.endTime as number[]))
     return {
       start: start,
       end: end,

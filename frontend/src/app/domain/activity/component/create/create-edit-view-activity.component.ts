@@ -38,7 +38,8 @@ export class CreateEditViewActivityComponent implements OnInit {
       case ActivityCreateEditViewMode.edit:
         return 'Edit Activity';
       case ActivityCreateEditViewMode.details:
-        return 'Activity name';
+        // return 'Activity name';
+        return this.plannedActivity.name
       default:
         return '?';
     }

@@ -1,11 +1,12 @@
 import { PlannedActivity, PlannedActivitySplit } from '../dto/PlannedActivity';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UrlService } from '../../../config/service/UrlService';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { IntervalSplit } from "../../../common/interval/dto/Interval";
 import { Activity } from "../../activity/dto/Activity"
+import { DateParsing } from 'src/app/common/util/parsing/date-parsing';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,9 @@ export class ActivityService {
   constructor(
     private httpClient: HttpClient,
     private urlService: UrlService,
-    private snackbarService: SnackbarService) {
+    private snackbarService: SnackbarService,
+    private dateParser: DateParsing,
+  ) {
     const backendUrl = this.urlService.getBackendUrl();
     this.activityBaseUri = backendUrl + 'activity';
     this.plannedActivityBaseUri = this.activityBaseUri + '/planned';
@@ -48,14 +51,58 @@ export class ActivityService {
     const params = this.buildTimeParams(startTime, endTime)
     const url = this.activityBaseUri + "/finished"
     return this.httpClient.get<Array<Activity>>(url, { params: params })
+      .pipe(tap((item) => {
+        const newData = []
+
+        for (const x of item) {
+          if (x.startTime !== null && x.startTime !== undefined) {
+            x.startTime = this.dateParser.parseNumbersIntoDate(x.startTime as number[])
+          }
+
+          if (x.endTime !== null && x.endTime !== undefined) {
+            x.endTime = this.dateParser.parseNumbersIntoDate(x.endTime as number[])
+          }
+
+          newData.push(x)
+        }
+        return newData
+      }))
   }
 
   fetchAllPlannedActivitiesForUser(uid: number, startTime: string, endTime: string) {
     const params = this.buildTimeParams(startTime, endTime)
     const url = this.activityBaseUri + "/planned"
     return this.httpClient.get<Array<PlannedActivity>>(url, { params: params })
+      .pipe(tap((item) => {
+        const newData = []
+
+        for (const x of item) {
+          if (x.date !== null && x.date !== undefined) {
+            x.date = this.dateParser.parseNumbersIntoDate(x.date as number[])
+          }
+
+          newData.push(x)
+        }
+
+        return newData
+      }))
   }
 
+  fetchActivityForUser(aid: number): Observable<Activity> {
+    const url = this.activityBaseUri + `/finished/${aid}`
+    return this.httpClient.get<Activity>(url)
+      .pipe(tap((item) => {
+        if (item.startTime !== undefined) {
+          item.startTime = this.dateParser.parseNumbersIntoDate(item.startTime as number[])
+        }
+
+        if (item.endTime !== undefined) {
+          item.endTime = this.dateParser.parseNumbersIntoDate(item.endTime as number[])
+        }
+
+        return item
+      }))
+  }
 
   // do some post-processing on the activity
   // if it is a template, set the date to null

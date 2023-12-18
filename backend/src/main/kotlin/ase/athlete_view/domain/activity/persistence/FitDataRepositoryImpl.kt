@@ -30,12 +30,9 @@ class FitDataRepositoryImpl(
     }
 
     override fun saveFitData(data: MultipartFile): String {
-
         if (checkIfFileExists(data)) {
             throw DuplicateFitFileException("File already in-store!")
         }
-
-
 
         val metadata = BasicDBObject()
         metadata.append("hash", getSha256Digest(data.bytes))

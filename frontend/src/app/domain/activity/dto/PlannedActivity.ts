@@ -39,6 +39,24 @@ export interface PlannedActivitySplit {
   activity?: Activity;
 }
 
+export interface PlannedActivityEvent {
+  id: number;
+  name: string;
+  type: ActivityType;
+  interval: Interval;
+  withTrainer: boolean;
+  template: boolean;
+  note?: string;
+  date?: Date | number[];
+  estimatedDuration: number;
+  load?: Load;
+  createdBy: User;
+  createdFor?: Athlete;
+  activity?: Activity;
+  objectType: string;
+}
+
+
 export enum ActivityType {
   SWIM = 'SWIM',
   RUN = 'RUN',

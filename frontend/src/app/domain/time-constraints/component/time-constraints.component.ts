@@ -8,7 +8,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angu
 import { Subject } from 'rxjs';
 import { Calendarcolors } from "../../../common/util/calendar-colors";
 import { dateFormatString } from "../../../common/util/parsing/date-parsing"
-import { endOfDay, subDays, format, startOfDay, addDays } from "date-fns";
+import { endOfDay, subDays, format } from "date-fns";
 import { enUS } from "date-fns/locale";
 
 @Component({
@@ -114,8 +114,7 @@ export class TimeConstraintsComponent implements OnInit {
   }
 
   eventTimesChanged({ event, newStart, newEnd }: CalendarEventTimesChangedEvent): void {
-    if (newEnd.getDay() !== event.end.getDay()) newEnd = endOfDay(subDays(newEnd,1))
-    if (newStart.getDay() !== event.start.getDay()) newStart = startOfDay(addDays(newStart,1))
+    if (newEnd.getDay() !== newStart.getDay()) newEnd = endOfDay(subDays(newEnd,1))
     this.constraintService.getById(this.eventMap.get(event)).subscribe((constraint) => {
       if (constraint.constraint !== undefined) {
         constraint.constraint.weekday = (newStart.getDay() - 1 + 7) % 7

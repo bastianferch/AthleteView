@@ -20,4 +20,6 @@ interface ActivityService {
     fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity>
 
     fun createInterval(interval: Interval): Interval
+
+    fun getSingleActivityForUser(userId: Long, activityId: Long): Activity
 }

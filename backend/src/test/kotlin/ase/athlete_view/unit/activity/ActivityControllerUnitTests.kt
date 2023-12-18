@@ -1,6 +1,7 @@
 package ase.athlete_view.unit.activity
 
 import ase.athlete_view.AthleteViewApplication
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.config.SecurityConfig
 import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.activity.controller.ActivityController
@@ -15,6 +16,7 @@ import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -31,6 +33,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -108,5 +111,32 @@ class ActivityControllerUnitTests {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 
         verify(exactly = 1) { activityService.createPlannedActivity(any<PlannedActivity>(),any()) }
+    }
+
+    @Test
+    @WithCustomMockUser(id=-1)
+    fun fetchSingleActivityByIdForUser_shouldExistAndSucceed() {
+        every { activityService.getSingleActivityForUser(any<Long>(), any<Long>()) } returns ActivityCreator.getDefaultActivity()
+
+        mockMvc.perform(
+                get("/api/activity/finished/1").with(csrf())
+        )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+        verify (exactly = 1) { activityService.getSingleActivityForUser(-1, 1) }
+    }
+
+    @Test
+    @WithCustomMockUser(id=-1)
+    fun fetchSingleActivityByIdForUser_shouldNotExistAndThrow() {
+        every { activityService.getSingleActivityForUser(any<Long>(), any<Long>()) } throws NotFoundException("testing")
+
+        mockMvc.perform(
+                get("/api/activity/finished/10").with(csrf())
+        )
+                .andExpect(status().isNotFound)
+
+        verify (exactly = 1) { activityService.getSingleActivityForUser(-1, 10) }
     }
 }
