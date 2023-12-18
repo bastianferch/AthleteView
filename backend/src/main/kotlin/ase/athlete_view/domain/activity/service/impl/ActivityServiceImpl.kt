@@ -194,9 +194,9 @@ class ActivityServiceImpl(
             var powerSum = 0
             var hrSum = 0
             var calSum = 0
-            var totalDistance = 0.0
             var cadenceSum = 0
             var hrMax: Short = 0
+            var hrMin: Short = Short.MAX_VALUE
             var powerMax = 0
             var accuracySum = 0
             var intensityValueMissing = 0
@@ -338,13 +338,16 @@ class ActivityServiceImpl(
                 }
 
                 val hr = d.heartRate ?: 0
-                val dist = d.distance ?: 0.0f
                 val power = d.power ?: 0
                 val cal = d.calories ?: 0
                 val cadence = d.cadence ?: 0
 
                 if (hr > hrMax) {
-                    hrMax = hr.toShort()
+                    hrMax = hr
+                }
+
+                if (hr < hrMin) {
+                    hrMin = hr
                 }
 
                 if (power > powerMax) {
@@ -354,7 +357,6 @@ class ActivityServiceImpl(
                 calSum += cal
                 powerSum += power
                 hrSum += hr
-                totalDistance += dist
                 cadenceSum += cadence
             }
 
@@ -365,6 +367,8 @@ class ActivityServiceImpl(
             val avgPower = powerSum / totalElems
             val avgCadence = cadenceSum / totalElems
             val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
+            val newDistance = laps.map { it.distance ?: 0 }.reduce { acc, i -> acc + i }
+            val totalDistance = newDistance.toDouble()
 
             // if accuracy too low do not count as planned activity
 
@@ -377,6 +381,7 @@ class ActivityServiceImpl(
                 user.get(),
                 accuracy,
                 avgBpm,
+                hrMin.toInt(),
                 hrMax.toInt(),
                 totalDistance,
                 calSum,
@@ -482,6 +487,31 @@ class ActivityServiceImpl(
             interval.step = createStep(interval.step!!)
         }
         return this.intervalRepo.save(interval)
+    }
+
+    override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
+        logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
+
+        val user = this.userRepository.findById(userId)
+        if (!user.isPresent) {
+            throw NotFoundException("User not found")
+        }
+
+
+        val activity = this.activityRepo.findById(activityId)
+        if (!activity.isPresent) {
+            throw NotFoundException("No such activity")
+        }
+
+        val userObj = user.get()
+        val activityObj = activity.get()
+
+        if (userObj != activityObj.user) {
+            logger.debug { "Tried to fetch activity for user other than self!" }
+            throw NotFoundException("No activity with this id found for user")
+        }
+
+        return activityObj
     }
 
     private fun createStep(step: Step): Step {
