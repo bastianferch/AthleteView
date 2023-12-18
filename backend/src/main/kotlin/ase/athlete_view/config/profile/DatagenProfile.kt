@@ -1,5 +1,6 @@
 package ase.athlete_view.config.profile
 
+import ase.athlete_view.config.profile.datagen.ActivityDatagen
 import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
@@ -13,6 +14,8 @@ import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.serpro69.kfaker.Faker
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
@@ -26,11 +29,23 @@ import java.time.LocalTime
 
 @Component
 @Profile("datagen")
-class DatagenProfile(private val userService: UserService, private val tcService: TimeConstraintService, private val activityService: ActivityService, private val activityRepository: PlannedActivityRepository, @Autowired private val mongoTemplate: MongoTemplate)  {
+class DatagenProfile(
+    private val userService: UserService,
+    private val tcService: TimeConstraintService,
+    private val activityService: ActivityService,
+    private val plannedActivityRepo: PlannedActivityRepository,
+    @Autowired private val mongoTemplate: MongoTemplate,
+    private val datagenActivity: ActivityDatagen,
+) {
+
+    var log = KotlinLogging.logger {}
+    var faker = Faker()
+
     @PostConstruct
     fun init() {
         mongoTemplate.dropCollection("fs.files")
         mongoTemplate.dropCollection("fs.chunks")
+        log.debug { "Dropped mongodb" }
         val athlete = Athlete(
             1,
             "a@a",
@@ -38,7 +53,7 @@ class DatagenProfile(private val userService: UserService, private val tcService
             BCryptPasswordEncoder().encode("aaaaaaaa"),
             "Austria",
             "1050",
-            LocalDate.of(2000,1,1),
+            LocalDate.of(2000, 1, 1),
             1800,
             80000,
             null
@@ -82,7 +97,60 @@ class DatagenProfile(private val userService: UserService, private val tcService
             false,false, "", LocalDateTime.of(2023,9,30,12,10), 60,Load.MEDIUM,trainer,athlete, null)
 
         activityService.createInterval(plannedActivity.interval)
-        activityRepository.save(plannedActivity)
+        plannedActivityRepo.save(plannedActivity)
+
+        createTrainerAthleteRelations(2, 5, 3)
+        datagenActivity.changeFiles(1f,3)
 
     }
+
+    /**
+     * creates a number of trainers and athletes
+     *
+     * @param numTrainer how many trainers should be created
+     * @param ratio how many athletes should be created per trainer
+     */
+    fun createTrainerAthleteRelations(numTrainer: Int, ratio: Int, withActivities: Int) {
+        var id = 3L
+        var aId = 0
+        var tId = 0
+        for (i in 1..numTrainer) {
+
+            val trainer = Trainer(
+                id++,
+                "t${tId++}@t",
+                faker.name.name(),
+                BCryptPasswordEncoder().encode("tttttttt"),
+                faker.address.country(),
+                faker.address.postcode(),
+                "ABGVA$tId",
+                mutableSetOf()
+            )
+            trainer.isConfirmed = true
+            this.userService.save(trainer)
+
+            for (j in 1..ratio) {
+                val athlete = Athlete(
+                    id++,
+                    "a${aId++}@a",
+                    faker.name.name(),
+                    BCryptPasswordEncoder().encode("aaaaaaaa"),
+                    faker.address.country(),
+                    faker.address.postcode(),
+                    LocalDate.of(2000, 1, 1),
+                    1800,
+                    80000,
+                    trainer
+                )
+
+                athlete.isConfirmed = true
+                this.userService.save(athlete)
+                trainer.athletes.add(athlete)
+            }
+        }
+        log.debug { "Created $numTrainer trainers with $ratio athletes each, which leads to a total of ${numTrainer * ratio + numTrainer} users" }
+    }
+
+
+
 }

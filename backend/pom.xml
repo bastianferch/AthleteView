@@ -139,6 +139,11 @@
 			<artifactId>owasp-java-html-sanitizer</artifactId>
 			<version>20220608.1</version>
 		</dependency>
+		<dependency>
+			<groupId>io.github.serpro69</groupId>
+			<artifactId>kotlin-faker</artifactId>
+			<version>1.15.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
