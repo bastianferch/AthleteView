@@ -20,7 +20,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.hamcrest.Matchers.greaterThan
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -223,7 +222,6 @@ class ActivityControllerIntegrationTests : TestBase() {
     }
 
     @Test
-    @Disabled
     @WithCustomMockUser(id = -4)
     fun sendFitFileForPlannedTrainingAndSearchForTrainingInItsTimePeriod_shouldReturnTrainingWithAccuracy() {
         val filePath = Paths.get("src/test/resources/fit-files/7x(1km P2').fit").absolute()

@@ -78,32 +78,51 @@ class DatagenProfile(
         trainer.isConfirmed = true
         this.userService.save(trainer)
 
-        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting",
-            TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19,0), LocalTime.of(20,0))),
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, true, "JFX Meeting",
+                TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19, 0), LocalTime.of(20, 0))
+            ),
             //maybetodo change 1 from one
-            UserDTO(1, "", "", null, null, ""))
+            UserDTO(1, "", "", null, null, "")
+        )
 
 
-        val plannedActivity = PlannedActivity(1," 7x(1km P:1')", ActivityType.RUN,
-            Interval(null,1, listOf(
-                Interval(null,1,null,
-                    Step(null,StepType.WARMUP, StepDurationType.LAPBUTTON,null,null,null,null,null,null)),
-                Interval(null,7, listOf(
-                    Interval(null,1,null,
-                        Step(null,StepType.ACTIVE, StepDurationType.DISTANCE,1,StepDurationUnit.KM,StepTargetType.PACE,240,260,"")),
-                    Interval(null,1,null,
-                        Step(null,StepType.RECOVERY,StepDurationType.TIME,2,StepDurationUnit.MIN,null,null,null,null))),
-                    null),
-                Interval(null,1,null,
-                    Step(null,StepType.COOLDOWN,StepDurationType.LAPBUTTON,null,null,null,null,null,null))),null)
-                    ,
-            false,false, "", LocalDateTime.of(2023,9,30,12,10), 60,Load.MEDIUM,trainer,athlete, null)
+        val plannedActivity = PlannedActivity(
+            1, " 7x(1km P:1')", ActivityType.RUN,
+            Interval(
+                null, 1, listOf(
+                    Interval(
+                        null, 1, null,
+                        Step(null, StepType.WARMUP, StepDurationType.LAPBUTTON, null, null, null, null, null, null)
+                    ),
+                    Interval(
+                        null, 7, listOf(
+                            Interval(
+                                null, 1, null,
+                                Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 1, StepDurationUnit.KM, StepTargetType.PACE, 240, 260, "")
+                            ),
+                            Interval(
+                                null, 1, null,
+                                Step(null, StepType.RECOVERY, StepDurationType.TIME, 2, StepDurationUnit.MIN, null, null, null, null)
+                            )
+                        ),
+                        null
+                    ),
+                    Interval(
+                        null, 1, null,
+                        Step(null, StepType.COOLDOWN, StepDurationType.LAPBUTTON, null, null, null, null, null, null)
+                    )
+                ), null
+            ),
+            false, false, "", LocalDateTime.of(2023, 9, 30, 12, 10), 60, Load.MEDIUM, trainer, athlete, null
+        )
 
         activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)
 
         createTrainerAthleteRelations(2, 5, 3)
-        datagenActivity.changeFiles(1f,3)
+
 
     }
 
@@ -149,6 +168,7 @@ class DatagenProfile(
                 athlete.isConfirmed = true
                 this.userService.save(athlete)
                 trainer.athletes.add(athlete)
+                datagenActivity.changeFiles(faker.random.nextFloat() * 4 - 2, faker.random.nextInt(-10, 10), athlete)
             }
         }
         log.debug { "Created $numTrainer trainers with $ratio athletes each, which leads to a total of ${numTrainer * ratio + numTrainer} users" }
