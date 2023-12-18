@@ -60,3 +60,6 @@ VALUES (-1, FALSE, '0', FALSE, -3, -2, PARSEDATETIME('26-08-2023', 'dd-MM-yyyy')
        (-5, FALSE, '4', FALSE, -3, -2, PARSEDATETIME('26-10-2023', 'dd-MM-yyyy'), -3, 'test #5', 'test #5', '1', 60, null),
        (-6, FALSE, '5', FALSE, -3, -2, PARSEDATETIME('12-12-2023', 'dd-MM-yyyy'), -4, 'test #6', 'test #6', '1', 60, null),
        (-7, FALSE, '1', FALSE, -4, -4, PARSEDATETIME('30-09-2023', 'dd-MM-yyyy'), -12, 'test #7', '7x(1km P:1min)', '1', 60, null);
+
+INSERT INTO activity(id, user_id, accuracy, average_bpm, min_bpm, max_bpm, distance, spent_kcal, cadence, avg_power, max_power, start_time, end_time, activity_type)
+VALUES (-1, -1, 0, 100, 70, 120, 10000, 800, 80, 100, 120, PARSEDATETIME('18-12-2023 12:10', 'dd-MM-yyyy HH:mm'), PARSEDATETIME('18-12-2023 14:15', 'dd-MM-yyyy HH:mm'), 1)

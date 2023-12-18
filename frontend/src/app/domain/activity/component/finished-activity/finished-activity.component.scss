@@ -1,0 +1,145 @@
+.page-wrapper {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1.25em;
+}
+
+.title {
+    margin-top: 10px;
+    margin-left: 10px;
+    float: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 1em;
+}
+
+.title-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.name {
+    font-size: 1.5em;
+    font-weight: bolder;
+}
+
+.title > mat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 36px;
+}
+
+.content-wrapper {
+    width: inherit;
+    display: flex;
+    flex-direction: row;
+
+    @media screen and (max-width: 1050px) {
+        // for small devices, stack on top instead of side-by-side
+        flex-direction: column-reverse !important;
+        row-gap: 1em !important;
+    }
+
+    flex-grow: 1;
+}
+
+.graph-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    margin-top: 10px;
+}
+
+.activity-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    justify-items: center;
+    align-items: center;
+}
+
+.table-wrapper {
+    max-height: 75vh;
+    overflow: auto;
+}
+
+mat-tab-group {
+    width: 100%;
+}
+
+.rating-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-items: center;
+    align-items: center;
+    row-gap: 1em;
+    width: 100%;
+}
+
+textarea {
+    resize: none !important;
+    height: 60%;
+    width: 90%;
+
+    @media screen and (max-width: 1050px) {
+        // ensure usable min. size on small devices
+        min-height: 20vh;
+    }
+}
+
+.no-mobile {
+    // remove vertical-dividier if we're in view for small devices
+    @media screen and (max-width: 1050px) {
+        display: none;
+    }
+}
+
+.summary-info {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    min-height: 40px;
+    margin-bottom: 10px;
+    
+    > div {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        column-gap: 1em;
+    }
+
+    > mat-icon {
+        display: flex;
+    }
+
+    > span {
+        display: flex;
+    }
+}
+
+.duration-text-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-text {
+    font-size: 1.25em;
+}
+
+.sub-text {
+    font-weight: 150;
+}
+
+.additional-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

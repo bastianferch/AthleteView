@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.controller
 
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
@@ -140,6 +141,18 @@ class ActivityController(private val activityService: ActivityService) {
         val mapped = result.map { it.toDTO() }
         logger.debug { "After DTO-mapping, activities: $mapped"}
         return mapped
+    }
+
+    @GetMapping("/finished/{activityId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun getFinishedActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable activityId: Long): ActivityDTO {
+        logger.info { "C | getFinishedActivity($activityId)" }
+        if (user.id == null) {
+            throw NotFoundException("Invalid credentials")
+        }
+
+        return activityService.getSingleActivityForUser(user.id!!, activityId).toDTO()
     }
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {

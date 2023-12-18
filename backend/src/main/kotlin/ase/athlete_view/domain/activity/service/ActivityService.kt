@@ -22,5 +22,8 @@ interface ActivityService {
     fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity>
 
     fun createInterval(interval: Interval): Interval
+
     fun calculateStats(data: FitMessages, user: User, item: MultipartFile): Pair<Activity, String>
+
+    fun getSingleActivityForUser(userId: Long, activityId: Long): Activity
 }

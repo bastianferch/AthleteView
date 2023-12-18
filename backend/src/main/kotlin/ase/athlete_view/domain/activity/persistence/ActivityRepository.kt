@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
 @Repository
-interface ActivityRepository: JpaRepository<Activity, String> {
+interface ActivityRepository: JpaRepository<Activity, Long> {
     fun save(activity: Activity): Activity
     fun findActivitiesByUserId(uid: Long): List<Activity>
 

@@ -250,7 +250,35 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].accuracy", greaterThan(25)))
             .andExpect(jsonPath("$[0].activityType").value("RUN"))
+    }
 
+    @Test
+    @WithCustomMockUser(id = -1)
+    fun fetchSingleActivityForUserWithActivity_shouldReturnActivityAndOk() {
+        mockMvc.perform(
+                get("/api/activity/finished/-1").with(csrf())
+        )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isNotEmpty)
+                .andExpect(jsonPath("$.id").value(-1))
+    }
 
+    @Test
+    @WithCustomMockUser(id = -1)
+    fun fetchSingleActivityForUserWithInvalidActivityId_shouldReturnNotFound() {
+        mockMvc.perform(
+                get("/api/activity/finished/-999").with(csrf())
+        )
+                .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithCustomMockUser(id = -3)
+    fun fetchSingleActivityForUserWithoutActivity_shouldReturnNotFound() {
+        mockMvc.perform(
+                get("/api/activity/finished/-1").with(csrf())
+        )
+                .andExpect(status().isNotFound)
     }
 }

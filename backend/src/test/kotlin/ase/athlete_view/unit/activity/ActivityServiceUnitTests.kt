@@ -1,5 +1,6 @@
 package ase.athlete_view.unit.activity
 
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
@@ -127,6 +128,28 @@ class ActivityServiceUnitTests: TestBase() {
         assertThat(results.size).isEqualTo(3)
         assertThat(results).allMatch { it.createdFor == defaultAthlete && it.createdBy == defaultTrainer }
     }
+
+    @Test
+    fun fetchSingleActivityForUser_whoHasActivity_shouldReturnActivity() {
+        val result = activityService.getSingleActivityForUser(-1, -1)
+        assertThat(result).isNotNull
+        assertThat(result.user?.id).isEqualTo(-1)
+        assertThat(result.id).isEqualTo(-1)
+    }
+
+    @Test
+    fun fetchSingleActivityForUser_whoHasNoActivity_shouldThrowException() {
+        assertThrows<NotFoundException> {
+            // no activity with id -2
+            activityService.getSingleActivityForUser(-1, -2)
+        }
+
+        assertThrows<NotFoundException> {
+            // user -2 does not have activity -1
+            activityService.getSingleActivityForUser(-2, -1)
+        }
+    }
+
 
     private fun generateGenericPlannedActivities(count: Long = 5L, creator: Long = defaultTrainer.id!!, trainer: Trainer? = null, athlete: Athlete? = null, dateProvided: LocalDateTime? = null) {
         for (x in 1..count) {

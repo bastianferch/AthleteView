@@ -35,8 +35,6 @@ class FitDataRepositoryImpl(
             throw DuplicateFitFileException("File already in-store!")
         }
 
-
-
         val metadata = BasicDBObject()
 
         metadata.append("hash", getSha256Digest(data.readAllBytes()))

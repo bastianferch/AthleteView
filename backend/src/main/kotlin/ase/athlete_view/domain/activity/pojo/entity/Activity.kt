@@ -16,6 +16,7 @@ open class Activity(
     open var user: User?,
     open var accuracy: Int,
     open var averageBpm: Int,
+    open var minBpm: Int,
     open var maxBpm: Int,
     open var distance: Double,
     open var spentKcal: Int,
@@ -34,12 +35,12 @@ open class Activity(
     fun toDTO(withoutActivity: Boolean = false): ActivityDTO {
         if (withoutActivity) {
             return ActivityDTO(
-                id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
+                id, accuracy, averageBpm, minBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
                 null, laps.map { it.toDTO() }, activityType
             )
         } else {
             return ActivityDTO(
-                id, accuracy, averageBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
+                id, accuracy, averageBpm, minBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
                 plannedActivity?.toDTO(true), laps.map { it.toDTO() }, activityType
             )
         }
