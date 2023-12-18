@@ -54,19 +54,6 @@ class TestBase {
         txm.rollback(txStatus)
     }
 
-    protected fun resetDbWithIdIncrementor() {
-        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE ")
-        val tableNames = jdbcTemplate.query(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = SCHEMA()"
-        ) { rs: ResultSet, rowNum: Int -> rs.getString(1) }
-        tableNames.forEach(Consumer { tableName: String? ->
-            jdbcTemplate.execute(
-                String.format("TRUNCATE TABLE %s RESTART IDENTITY", tableName)
-            )
-        })
-        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE")
-    }
-
     protected fun createDefaultUserInDb(email: String = UserCreator.DEFAULT_ATHLETE_EMAIL): Athlete {
         val user = UserCreator.getAthlete(null)
         user.password = encoder.encode(user.password)
