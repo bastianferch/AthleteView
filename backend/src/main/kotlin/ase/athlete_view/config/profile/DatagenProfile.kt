@@ -13,6 +13,7 @@ import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.zone.service.ZoneService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -77,19 +78,19 @@ class DatagenProfile(
         )
         trainer.isConfirmed = true
         this.userService.save(trainer)
+        datagenActivity.createPlannedActivities(0, null, trainer)
 
         this.tcService.save(
             WeeklyTimeConstraintDto(
                 null, true, "JFX Meeting",
                 TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19, 0), LocalTime.of(20, 0))
             ),
-            //maybetodo change 1 from one
             UserDTO(1, "", "", null, null, "")
         )
 
 
         val plannedActivity = PlannedActivity(
-            1, " 7x(1km P:1')", ActivityType.RUN,
+            null, " 7x(1km P:1')", ActivityType.RUN,
             Interval(
                 null, 1, listOf(
                     Interval(
@@ -136,6 +137,8 @@ class DatagenProfile(
         var id = 3L
         var aId = 0
         var tId = 0
+        var filesCreated = 0
+        var plannedActivitiesCreated = 0
         for (i in 1..numTrainer) {
 
             val trainer = Trainer(
@@ -150,7 +153,8 @@ class DatagenProfile(
             )
             trainer.isConfirmed = true
             this.userService.save(trainer)
-
+            setDefaultAvailability(trainer)
+            datagenActivity.createPlannedActivities(0, null, trainer)
             for (j in 1..ratio) {
                 val athlete = Athlete(
                     id++,
@@ -168,9 +172,71 @@ class DatagenProfile(
                 athlete.isConfirmed = true
                 this.userService.save(athlete)
                 trainer.athletes.add(athlete)
-                datagenActivity.changeFiles(faker.random.nextFloat() * 4 - 2, faker.random.nextInt(-10, 10), athlete)
+                setDefaultAvailability(athlete)
+
+                if (i == 1) {
+                    val addSpeedInMS = faker.random.nextFloat() * 4 - 2
+                    val reducePaceInMinKm = faker.random.nextInt(-30,30)
+                    plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
+                    filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
+                }
             }
         }
         log.debug { "Created $numTrainer trainers with $ratio athletes each, which leads to a total of ${numTrainer * ratio + numTrainer} users" }
+        log.debug { "Created $plannedActivitiesCreated planned activities" }
+        log.debug { "Imported $filesCreated activities" }
+
+    }
+
+    fun setDefaultAvailability(user: User) {
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.TUESDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.WEDNESDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.FRIDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.SATURDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, false, "Normal Hours",
+                TimeFrame(DayOfWeek.SUNDAY, LocalTime.of(8, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
     }
 }

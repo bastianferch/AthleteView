@@ -280,139 +280,139 @@ class ActivityServiceImpl(
         var startTime: LocalDateTime? = null
         var endTime: LocalDateTime? = null
 
-            var recordMsgHolder: RecordMesg? = null
+        var recordMsgHolder: RecordMesg? = null
 
-            for (d in data.recordMesgs) {
-                if (startTime === null) {
-                    // https://developer.garmin.com/fit/cookbook/datetime/
-                    startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
-                }
+        for (d in data.recordMesgs) {
+            if (startTime === null) {
+                // https://developer.garmin.com/fit/cookbook/datetime/
+                startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
+            }
 
-                recordMsgHolder = d
-                // add every lap to the list for later saving in the repo
-                if (lap.timestamp < d.timestamp) {
-                    lastLap = lap
-                    lap = lapList[++i]
+            recordMsgHolder = d
+            // add every lap to the list for later saving in the repo
+            if (lap.timestamp < d.timestamp && i + 1 < lapList.size) {
+                lastLap = lap
+                lap = lapList[++i]
 
-                    laps.add(
-                        Lap(
-                            null, i, lap.totalTimerTime.toInt(), lap.totalDistance?.toInt(), lap.enhancedAvgSpeed, lap.avgPower?.toInt(),
-                            lap.maxPower?.toInt(), lap.avgHeartRate?.toInt(), lap.maxHeartRate?.toInt(), lap.avgCadence?.toInt(), lap.maxCadence?.toInt(),
-                            mapFitIntensityToStepType(lap.intensity)
-                        )
+                laps.add(
+                    Lap(
+                        null, i, lap.totalTimerTime.toInt(), lap.totalDistance?.toInt(), lap.enhancedAvgSpeed, lap.avgPower?.toInt(),
+                        lap.maxPower?.toInt(), lap.avgHeartRate?.toInt(), lap.maxHeartRate?.toInt(), lap.avgCadence?.toInt(), lap.maxCadence?.toInt(),
+                        mapFitIntensityToStepType(lap.intensity)
                     )
-                }
+                )
+            }
 
-                if (compare) {
-                    // get next lap if the intensity changes
-                    if (sameStructure) {
-                        if (curLapIntensity != lap.intensity) {
-                            curLapIntensity = lap.intensity
-                            j++
-                        }
-                    } else if (sameDurations) {
-                        if (lastLap.lapTrigger == stepList!![j].durationType) {
-                            j++
-                        }
+            if (compare) {
+                // get next lap if the intensity changes
+                if (sameStructure) {
+                    if (curLapIntensity != lap.intensity) {
+                        curLapIntensity = lap.intensity
+                        j++
                     }
-                    // get target type and check if the value is in the range
-                    if (stepList!![j].targetType == StepTargetType.CADENCE) {
-                        if (d.cadence == null) {
-                            intensityValueMissing++
-                        } else {
-                            accuracySum += isBetween(d.cadence.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
-                        }
-                    } else if (stepList[j].targetType == StepTargetType.HEARTRATE) {
-                        if (d.heartRate == null) {
-                            intensityValueMissing++
-                        } else {
-                            accuracySum += isBetween(d.heartRate.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
-                        }
-                    } else if (stepList[j].targetType == StepTargetType.PACE) {
-                        if (d.enhancedSpeed == null) {
-                            intensityValueMissing++
-                        } else {
-                            accuracySum += isBetween(
-                                convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed),
-                                stepList[j].targetFrom ?: 0,
-                                stepList[j].targetTo ?: 0
-                            )
-                        }
-                    } else if (stepList[j].targetType == StepTargetType.SPEED) {
-                        if (d.enhancedSpeed == null) {
-                            intensityValueMissing++
-                        } else {
-                            accuracySum += isBetween(
-                                convertMetersPerSecondToKilometerPerHour(d.enhancedSpeed),
-                                stepList[j].targetFrom ?: 0,
-                                stepList[j].targetTo ?: 0
-                            )
-                        }
-                    } else {
+                } else if (sameDurations) {
+                    if (lastLap.lapTrigger == stepList!![j].durationType) {
+                        j++
+                    }
+                }
+                // get target type and check if the value is in the range
+                if (stepList!![j].targetType == StepTargetType.CADENCE) {
+                    if (d.cadence == null) {
                         intensityValueMissing++
+                    } else {
+                        accuracySum += isBetween(d.cadence.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
                     }
+                } else if (stepList[j].targetType == StepTargetType.HEARTRATE) {
+                    if (d.heartRate == null) {
+                        intensityValueMissing++
+                    } else {
+                        accuracySum += isBetween(d.heartRate.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                    }
+                } else if (stepList[j].targetType == StepTargetType.PACE) {
+                    if (d.enhancedSpeed == null) {
+                        intensityValueMissing++
+                    } else {
+                        accuracySum += isBetween(
+                            convertMetersPerSecondToSecondsPerKilometer(d.enhancedSpeed),
+                            stepList[j].targetFrom ?: 0,
+                            stepList[j].targetTo ?: 0
+                        )
+                    }
+                } else if (stepList[j].targetType == StepTargetType.SPEED) {
+                    if (d.enhancedSpeed == null) {
+                        intensityValueMissing++
+                    } else {
+                        accuracySum += isBetween(
+                            convertMetersPerSecondToKilometerPerHour(d.enhancedSpeed),
+                            stepList[j].targetFrom ?: 0,
+                            stepList[j].targetTo ?: 0
+                        )
+                    }
+                } else {
+                    intensityValueMissing++
                 }
+            }
 
-                val hr = d.heartRate ?: 0
-                val power = d.power ?: 0
-                val cal = d.calories ?: 0
-                val cadence = d.cadence ?: 0
+            val hr = d.heartRate ?: 0
+            val power = d.power ?: 0
+            val cal = d.calories ?: 0
+            val cadence = d.cadence ?: 0
 
-                if (hr > hrMax) {
-                    hrMax = hr
-                }
+            if (hr > hrMax) {
+                hrMax = hr
+            }
 
-                if (hr < hrMin) {
-                    hrMin = hr
-                }
+            if (hr < hrMin) {
+                hrMin = hr
+            }
 
             if (power > powerMax) {
                 powerMax = power
             }
 
-                calSum += cal
-                powerSum += power
-                hrSum += hr
-                cadenceSum += cadence
-            }
+            calSum += cal
+            powerSum += power
+            hrSum += hr
+            cadenceSum += cadence
+        }
 
-            endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+        endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
 
-            val totalElems = data.recordMesgs.size
-            val avgBpm = hrSum / totalElems
-            val avgPower = powerSum / totalElems
-            val avgCadence = cadenceSum / totalElems
-            val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
-            val newDistance = laps.map { it.distance ?: 0 }.reduce { acc, i -> acc + i }
-            val totalDistance = newDistance.toDouble()
+        val totalElems = data.recordMesgs.size
+        val avgBpm = hrSum / totalElems
+        val avgPower = powerSum / totalElems
+        val avgCadence = cadenceSum / totalElems
+        val accuracy = ((accuracySum.toFloat() / (totalElems - intensityValueMissing)) * 100).toInt()
+        val newDistance = laps.map { it.distance ?: 0 }.reduce { acc, i -> acc + i }
+        val totalDistance = newDistance.toDouble()
 
-            // if accuracy too low do not count as planned activity
+        // if accuracy too low do not count as planned activity
 
-            plannedActivity = if (compare && accuracy < 25) null else plannedActivity
+        plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
-            val fitId: String = fitFileRepo.saveFitData(item)
+        val fitId: String = fitFileRepo.saveFitData(item.inputStream, item.name)
 
-            val activity = Activity(
-                null,
-                user.get(),
-                accuracy,
-                avgBpm,
-                hrMin.toInt(),
-                hrMax.toInt(),
-                totalDistance,
-                calSum,
-                avgCadence,
-                avgPower,
-                powerMax,
-                fitId,
-                startTime,
-                endTime,
-                plannedActivity,
-                laps,
-                data.recordMesgs[0].activityType?.let { mapFitActivityTypeToActivityType(it) }
-            )
-            plannedActivity?.activity = activity
-            laps.map { lapRepo.save(it) }
+        val activity = Activity(
+            null,
+            user,
+            accuracy,
+            avgBpm,
+            hrMin.toInt(),
+            hrMax.toInt(),
+            totalDistance,
+            calSum,
+            avgCadence,
+            avgPower,
+            powerMax,
+            fitId,
+            startTime,
+            endTime,
+            plannedActivity,
+            laps,
+            data.recordMesgs[0].activityType?.let { mapFitActivityTypeToActivityType(it) }
+        )
+        plannedActivity?.activity = activity
+        laps.map { lapRepo.save(it) }
 
         return activityRepo.save(activity) to fitId
     }
@@ -487,6 +487,32 @@ class ActivityServiceImpl(
     private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: ActivityType, startTime: LocalDateTime, endTime: LocalDateTime): List<PlannedActivity> {
         return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
     }
+
+    override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
+        logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
+
+        val user = this.userRepository.findById(userId)
+        if (!user.isPresent) {
+            throw NotFoundException("User not found")
+        }
+
+
+        val activity = this.activityRepo.findById(activityId)
+        if (!activity.isPresent) {
+            throw NotFoundException("No such activity")
+        }
+
+        val userObj = user.get()
+        val activityObj = activity.get()
+
+        if (userObj != activityObj.user) {
+            logger.debug { "Tried to fetch activity for user other than self!" }
+            throw NotFoundException("No activity with this id found for user")
+        }
+
+        return activityObj
+    }
+
 
     override fun createInterval(interval: Interval): Interval {
         if (interval.intervals?.isNotEmpty() == true) {

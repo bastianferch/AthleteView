@@ -12,7 +12,7 @@ class Interval(
 
     var repeat: Int,
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     var intervals: List<Interval>?,
 
     @OneToOne

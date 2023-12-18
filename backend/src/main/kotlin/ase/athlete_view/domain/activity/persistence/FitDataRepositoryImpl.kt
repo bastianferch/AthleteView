@@ -38,7 +38,6 @@ class FitDataRepositoryImpl(
         val metadata = BasicDBObject()
 
         metadata.append("hash", getSha256Digest(data.readAllBytes()))
-        log.debug { "Metadata ${metadata["hash"]}" }
         data.reset()
         val id: ObjectId = gridFsTemplate.store(data,filename, metadata)
         return id.toString()
