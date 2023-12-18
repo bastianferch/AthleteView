@@ -32,6 +32,13 @@ test-frontend:
       - frontend/dist
     expire_in: 1 hour
 
+test-mock-api:
+  stage: test
+  image: node:lts
+  script:
+    - cd garmin-mock
+    - node --test .\api-tests.js
+
 build-image:
   stage: build
   script:
