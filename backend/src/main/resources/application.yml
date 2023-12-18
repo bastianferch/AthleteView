@@ -22,7 +22,7 @@ spring:
   mail:
     host: mail.gmx.net
     username: athlete.view@gmx.at
-    password: fjsdokfasojksfaojlsafjlkfsa
+    password: ijfuaofadsqfasdjoikasjfsalkafsasfcsfda
     port: 587
     properties:
       mail:
@@ -44,3 +44,8 @@ security:
 app:
   scheduling:
     enable: true
+
+api:
+  mock:
+    url: http://localhost:8089
+    auth: 9579e55c-5522-4033-ae15-2c0aa4b2067e

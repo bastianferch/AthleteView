@@ -10,12 +10,15 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.DefaultTransactionDefinition
+import java.sql.ResultSet
+import java.util.function.Consumer
 
 @SpringBootTest
 @DirtiesContext
@@ -26,6 +29,9 @@ class TestBase {
 
     @Autowired
     private lateinit var ur: UserRepository
+
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     private lateinit var nr: NotificationRepository
@@ -55,6 +61,12 @@ class TestBase {
         user.trainer = null
         user.email = email
         return ur.save(user)
+    }
+
+    protected fun persistDefaultTrainer(id: Long): Trainer {
+        val trainer = UserCreator.getTrainer()
+        trainer.id = id
+        return ur.save(trainer)
     }
 
     protected fun addAthleteToTrainer(athlete: Athlete, trainer: Trainer): Trainer {

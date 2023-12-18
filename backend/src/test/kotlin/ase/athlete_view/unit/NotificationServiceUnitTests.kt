@@ -63,8 +63,6 @@ class NotificationServiceUnitTests {
     }
 
 
-
-
     // createEmitter
 
     @Test
@@ -78,18 +76,6 @@ class NotificationServiceUnitTests {
 
         // verify emitter is saved
         verify(exactly = 1) { emitterRepository.save(any(), any()) }
-    }
-
-    @Test
-    @Transactional
-    fun createEmitterForNonexistentUser_shouldCallEmitterRepositorySaveAndReturnEmitter() {
-        every { userRepository.findById(user.id!!) } returns Optional.of(user)
-        every { userRepository.findById(420) } returns Optional.empty()
-        every { emitterRepository.save(any<Long>(), any()) } returns Unit;
-        val emitter = notificationService.createEmitter(420)
-        assert(emitter == null)
-        // verify emitter is not saved
-        verify(exactly = 0) { emitterRepository.save(any(), any()) }
     }
 
 

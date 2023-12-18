@@ -11,7 +11,6 @@ import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.User
-import ase.athlete_view.domain.user.service.UserService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.owasp.html.PolicyFactory
 import org.owasp.html.Sanitizers
@@ -19,6 +18,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 import java.sql.Timestamp
+import java.util.concurrent.Executors
+
 
 @Service
 class NotificationServiceImpl(
@@ -29,15 +30,10 @@ class NotificationServiceImpl(
     ) : NotificationService {
 
     private val logger = KotlinLogging.logger {}
+    private val nonBlockingService = Executors.newCachedThreadPool()
 
     override fun createEmitter(userId: Long): SseEmitter? {
         logger.trace { "NotificationServiceImpl.createEmitter($userId)" }
-
-        // check if user exists
-        val user = userRepository.findById(userId)
-        if (!user.isPresent) {
-            return null;
-        }
 
         // this is a session timeout, so it's not affected by activity on the channel
         // We set it to 3h. If we set an infinite timeout, there will be more and more useless emitters stored.
@@ -50,7 +46,7 @@ class NotificationServiceImpl(
         emitter.onTimeout {
             emitterRepository.deleteById(userId)
         }
-        emitter.onError { e: Throwable? ->
+        emitter.onError { _: Throwable? ->
             // this means we tried to send a notification over an already closed connection.
             // in this case, we delete the emitter since the connection is closed anyway.
             emitterRepository.deleteById(userId)
@@ -86,13 +82,17 @@ class NotificationServiceImpl(
             val emitterOptional = emitterRepository.findById(userId)
             if (emitterOptional.isPresent) {
                 val emitter = emitterOptional.get()
-                try {
-                    emitter.send(notification.toSseEventBuilder())
-                } catch (e: IOException) {
-                    // this happens when the connection is closed by the client, but the emitter is still stored.
-                    // in this case, send an email instead (if email notifications are activated).
-                    if (preferences != null && preferences.emailNotifications) {
-                        sendNotificationEmail(userObj, notification);
+                nonBlockingService.execute {
+                    try {
+                        emitter.send(notification.toSseEventBuilder())
+                    } catch (e: IOException) {
+                        // this happens when the connection is closed by the client, but the emitter is still stored.
+                        // in this case, send an email instead (if email notifications are activated).
+                        if (preferences != null && preferences.emailNotifications) {
+                            sendNotificationEmail(userObj, notification);
+                        }
+                        // close the emitter and delete it
+                        emitterRepository.deleteById(userId)
                     }
                 }
             }
