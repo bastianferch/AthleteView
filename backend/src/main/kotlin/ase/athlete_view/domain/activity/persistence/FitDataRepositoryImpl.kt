@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.stereotype.Repository
-import org.springframework.web.multipart.MultipartFile
+import java.io.InputStream
 import java.security.MessageDigest
 
 
@@ -29,14 +29,17 @@ class FitDataRepositoryImpl(
         return digest.joinToString(separator = "") { "%02x".format(it) }
     }
 
-    override fun saveFitData(data: MultipartFile): String {
+    override fun saveFitData(data: InputStream, filename: String): String {
+
         if (checkIfFileExists(data)) {
             throw DuplicateFitFileException("File already in-store!")
         }
 
         val metadata = BasicDBObject()
-        metadata.append("hash", getSha256Digest(data.bytes))
-        val id: ObjectId = gridFsTemplate.store(data.inputStream, data.name, metadata)
+
+        metadata.append("hash", getSha256Digest(data.readAllBytes()))
+        data.reset()
+        val id: ObjectId = gridFsTemplate.store(data,filename, metadata)
         return id.toString()
     }
 
@@ -48,8 +51,9 @@ class FitDataRepositoryImpl(
         )
     }
 
-    private fun checkIfFileExists(data: MultipartFile): Boolean {
-        val hashValue = getSha256Digest(data.bytes)
+    private fun checkIfFileExists(data: InputStream): Boolean {
+        val hashValue = getSha256Digest(data.readAllBytes())
+        data.reset()
         log.debug { "Checking if file with hash $hashValue exists" }
         val file = gridFsTemplate.find(Query(Criteria.where("metadata.hash").`is`(hashValue))).firstOrNull()
         return file !== null

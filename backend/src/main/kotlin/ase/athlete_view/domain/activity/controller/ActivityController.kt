@@ -97,7 +97,7 @@ class ActivityController(private val activityService: ActivityService) {
     fun handleFileUpload(
         authentication: Authentication,
         @RequestParam("files") files: List<MultipartFile>
-    ): Unit {
+    ): Long? {
         logger.info { "File import detected" }
         if (files.isEmpty()) {
             throw HttpServerErrorException(HttpStatus.BAD_REQUEST)
@@ -108,7 +108,8 @@ class ActivityController(private val activityService: ActivityService) {
             throw BadCredentialsException("Not logged in!")
 
         }
-        activityService.importActivity(files, uid)
+        return activityService.importActivity(files, uid).id
+
     }
 
     @GetMapping("/finished")
