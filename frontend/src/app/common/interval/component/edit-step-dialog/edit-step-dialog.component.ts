@@ -79,8 +79,8 @@ export class EditStepDialogComponent implements OnInit {
     this.form.patchValue({
       type: this.stepCopy.type,
       durationType: this.stepCopy.durationType,
-      durationDistance: this.stepCopy.durationDistance,
-      durationDistanceUnit: this.stepCopy.durationDistanceUnit,
+      durationDistance: this.stepCopy.duration,
+      durationDistanceUnit: this.stepCopy.durationUnit,
       targetType: this.stepCopy.targetType,
       targetFrom: this.stepCopy.targetFrom,
       targetFrom2: this.service.convertToMinSec(this.stepCopy.targetFrom),
@@ -97,8 +97,8 @@ export class EditStepDialogComponent implements OnInit {
 
   prepareResult() {
     if (!this.showDurationSettings()) {
-      this.stepCopy.durationDistance = undefined;
-      this.stepCopy.durationDistanceUnit = undefined;
+      this.stepCopy.duration = undefined;
+      this.stepCopy.durationUnit = undefined;
     }
 
     if (!this.showIntensitySettings()) {

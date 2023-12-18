@@ -173,4 +173,16 @@ export class ActivityService {
 
     return params
   }
+
+  private parseDate(numbers: number[]): any {
+    const str: string[] = []
+    numbers.forEach((num) => {
+      if (num.toString().length === 1) {
+        str.push("0" + num.toString())
+      } else {
+        str.push(num.toString())
+      }
+    });
+    return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
+  }
 }

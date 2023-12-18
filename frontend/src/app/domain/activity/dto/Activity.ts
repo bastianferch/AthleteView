@@ -43,3 +43,4 @@ export interface ActivityEvent {
   plannedActivity?: PlannedActivity;
   objectType: string;
 }
+// TODO: this doesn't have a type, becomes problematic for tables....
