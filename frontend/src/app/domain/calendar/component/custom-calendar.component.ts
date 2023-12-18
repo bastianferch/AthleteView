@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivityService } from '../../activity/service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
@@ -31,7 +31,7 @@ import { PlannedActivityEvent } from '../../activity/dto/PlannedActivity';
   templateUrl: './custom-calendar.component.html',
   styleUrls: ['./custom-calendar.component.scss'],
 })
-export class CustomCalendarComponent {
+export class CustomCalendarComponent implements OnInit {
   viewDate: Date = new Date()
   viewType: CalendarView = CalendarView.Week
   // helper to check which view is open atm
@@ -52,7 +52,7 @@ export class CustomCalendarComponent {
   ) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadData()
   }
 
@@ -222,7 +222,7 @@ export class CustomCalendarComponent {
           }
           return {
             title: "Planned Activity",
-            start: activityStart,
+            start: x.date as Date,
             end: activityEnd,
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,
