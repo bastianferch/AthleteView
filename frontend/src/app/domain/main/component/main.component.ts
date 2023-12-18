@@ -7,6 +7,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { FitImportDialogComponent } from 'src/app/fit-import-dialog/fit-import-dialog.component';
 import { ActivityService } from '../../activity/service/activity.service';
 import { SnackbarService } from "../../../common/service/snackbar.service";
+import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zone-groups-dialog.component";
 
 @Component({
   selector: 'app-main',
@@ -58,6 +59,12 @@ export class MainComponent {
           },
         })
       }
+    });
+  }
+
+  openZoneDialog(): void {
+    this.dialog.open(ZoneGroupsDialogComponent, {
+      width: "60%",
     });
   }
 }

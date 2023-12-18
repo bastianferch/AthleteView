@@ -14,6 +14,7 @@ import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
+import ase.athlete_view.domain.zone.service.ZoneService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.serpro69.kfaker.Faker
 import jakarta.annotation.PostConstruct
@@ -36,6 +37,7 @@ class DatagenProfile(
     private val plannedActivityRepo: PlannedActivityRepository,
     @Autowired private val mongoTemplate: MongoTemplate,
     private val datagenActivity: ActivityDatagen,
+    private val zoneService: ZoneService,
 ) {
 
     var log = KotlinLogging.logger {}
@@ -59,7 +61,9 @@ class DatagenProfile(
             null
         )
 //        athlete.isConfirmed = true
-        this.userService.save(athlete)
+        val saved = this.userService.save(athlete)
+        this.zoneService.resetZones(saved.id!!)
+        this.tcService.createDefaultTimeConstraintsForUser(saved)
 
         val trainer = Trainer(
             2,
@@ -74,8 +78,7 @@ class DatagenProfile(
         trainer.isConfirmed = true
         this.userService.save(trainer)
 
-
-        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting", athlete,
+        this.tcService.save(WeeklyTimeConstraintDto(null, true, "JFX Meeting",
             TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19,0), LocalTime.of(20,0))),
             //maybetodo change 1 from one
             UserDTO(1, "", "", null, null, ""))
@@ -150,7 +153,4 @@ class DatagenProfile(
         }
         log.debug { "Created $numTrainer trainers with $ratio athletes each, which leads to a total of ${numTrainer * ratio + numTrainer} users" }
     }
-
-
-
 }

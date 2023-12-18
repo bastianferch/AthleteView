@@ -23,6 +23,7 @@ import { enUS } from 'date-fns/locale'
 import { Router } from '@angular/router';
 import { TimeConstraint } from "../../../common/dto/TimeConstraint";
 import { Calendarcolors } from "../../../common/util/calendar-colors";
+import { dateFormatString } from "../../../common/util/parsing/date-parsing";
 
 @Component({
   selector: 'app-custom-calendar',
@@ -65,11 +66,13 @@ export class CustomCalendarComponent {
   }
 
   handleEventClicked(ev: any) {
-    if (ev.title.includes("Planned")) {
-      this.router.navigateByUrl(`/activity/${ev.meta.id}`)
-    } else {
-      // TODO: implement redirection to Activity view once implemented
-      this.notifService.openSnackBar("Activity is not planned, thus cannot be opened...")
+    if (ev.title.includes("activity")) {
+      if (ev.title.includes("Planned")) {
+        this.router.navigateByUrl(`/activity/${ev.meta.id}`)
+      } else {
+        // TODO: implement redirection to Activity view once implemented
+        this.notifService.openSnackBar("Activity is not planned, thus cannot be opened...")
+      }
     }
   }
 
@@ -139,7 +142,6 @@ export class CustomCalendarComponent {
 
     // load initial calendar-events
     const uid = this.authService.currentUser.id
-    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx" // ISO format
 
     let startTime = ""
     let endTime = ""
