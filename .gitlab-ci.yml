@@ -37,7 +37,7 @@ test-mock-api:
   image: node:lts
   script:
     - cd garmin-mock
-    - node --test .\api-tests.js
+    - node --test api-tests.js
 
 build-image:
   stage: build
