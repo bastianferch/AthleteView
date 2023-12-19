@@ -5,7 +5,6 @@ import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
-import ase.athlete_view.domain.user.persistence.AthleteRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -16,15 +15,15 @@ import java.time.LocalDateTime
 
 @Service
 @Validated
-class ActivityValidator (private val athleteRepo: AthleteRepository){
+class ActivityValidator {
     val log = KotlinLogging.logger {}
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
         log.trace { "S | Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()
 
-        if (plannedActivity.name.isNotEmpty()) {
-            validationErrors.add("Name must not be null")
+        if (plannedActivity.name.isBlank()) {
+            validationErrors.add("Name must not be blank")
         }
 
 
@@ -36,20 +35,6 @@ class ActivityValidator (private val athleteRepo: AthleteRepository){
                 validationErrors.add("Athletes cannot create activities with trainer presence")
             }
         }
-
-        if (user is Trainer) {
-            val athletes = athleteRepo.findAllByTrainerId(user.id!!)
-            log.debug { "S | Athletes of trainer $athletes and createdFor ${plannedActivity.createdFor}" }
-            if (plannedActivity.createdFor != null) {
-                validationErrors.add("Trainers can only create templates for themselves")
-            }
-            if (athletes.contains(plannedActivity.createdFor)){
-                validationErrors.add("Trainers can only create Activities for their Athletes or templates")
-            }
-        }
-
-
-
 
         if (user is Trainer && !plannedActivity.template && plannedActivity.createdFor != null) {
             val athletes = user.athletes
