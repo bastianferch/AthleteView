@@ -7,6 +7,7 @@ import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/user")
-class UserController (private val userService: UserService,
-    private val userMapper: UserMapper){
+class UserController (private val userService: UserService, private val athleteService: AthleteService,
+                      private val userMapper: UserMapper){
     val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.OK)
@@ -31,6 +32,19 @@ class UserController (private val userService: UserService,
             this.userMapper.toDTO(user as Trainer);
         }
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/athlete")
+    fun getAthletes(@AuthenticationPrincipal userDTO: UserDTO): List<AthleteDTO> {
+        log.info { "GET ATHLETES FOR ${userDTO.email} BY SESSION " }
+        val athleteDtos = mutableListOf<AthleteDTO>()
+        val athletes = userDTO.id?.let { this.athleteService.getByTrainerId(it) } ?: throw ForbiddenException("You cannot get your profile")
+        for (i in athletes.indices){
+            athleteDtos.add(this.userMapper.toDTO(athletes[i]))
+        }
+        return athleteDtos
+    }
+
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/athlete")

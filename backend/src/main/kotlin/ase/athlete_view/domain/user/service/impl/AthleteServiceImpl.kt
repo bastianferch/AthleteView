@@ -9,9 +9,15 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
-class AthleteServiceImpl(val athleteRepository: AthleteRepository): AthleteService {
+class AthleteServiceImpl(val athleteRepository: AthleteRepository) : AthleteService {
 
     val log = KotlinLogging.logger {}
+
+    override fun getByTrainerId(id: Long): List<Athlete> {
+        log.trace { "getByTrainerId $id" }
+        return this.athleteRepository.findAllByTrainerId(id)
+    }
+
 
     override fun getById(id: Long): Athlete {
         log.trace { "getById $id" }
