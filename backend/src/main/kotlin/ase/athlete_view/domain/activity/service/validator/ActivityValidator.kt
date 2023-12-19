@@ -5,6 +5,7 @@ import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.user.persistence.AthleteRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -15,12 +16,17 @@ import java.time.LocalDateTime
 
 @Service
 @Validated
-class ActivityValidator {
+class ActivityValidator (private val athleteRepo: AthleteRepository){
     val log = KotlinLogging.logger {}
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
-        log.trace { "Validating new planned activity $plannedActivity" }
+        log.trace { "S | Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()
+
+        if (plannedActivity.name.isNotEmpty()) {
+            validationErrors.add("Name must not be null")
+        }
+
 
         if (user is Athlete) {
             if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
@@ -30,6 +36,18 @@ class ActivityValidator {
                 validationErrors.add("Athletes cannot create activities with trainer presence")
             }
         }
+
+        if (user is Trainer) {
+            val athletes = athleteRepo.findAllByTrainerId(user.id!!)
+            log.debug { "S | Athletes of trainer $athletes and createdFor ${plannedActivity.createdFor}" }
+            if (plannedActivity.createdFor != null) {
+                validationErrors.add("Trainers can only create templates for themselves")
+            }
+            if (athletes.contains(plannedActivity.createdFor)){
+                validationErrors.add("Trainers can only create Activities for their Athletes or templates")
+            }
+        }
+
 
 
 
@@ -80,7 +98,7 @@ class ActivityValidator {
     }
 
     fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User) {
-        log.trace { "Validating planned activity for edit $plannedActivity" }
+        log.trace { "S | Validating planned activity for edit $plannedActivity" }
         // check if the user is allowed to update this activity
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
@@ -111,7 +129,7 @@ class ActivityValidator {
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
         if (interval.intervals != null) {
-            if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
+            if (interval.step != null && interval.intervals!!.isNotEmpty()) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
             }
         }

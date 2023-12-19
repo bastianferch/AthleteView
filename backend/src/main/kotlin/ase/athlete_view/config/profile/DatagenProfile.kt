@@ -49,8 +49,22 @@ class DatagenProfile(
         mongoTemplate.dropCollection("fs.files")
         mongoTemplate.dropCollection("fs.chunks")
         log.debug { "Dropped mongodb" }
-        val athlete = Athlete(
+
+        val trainer = Trainer(
             1,
+            "t@t",
+            "trainer",
+            BCryptPasswordEncoder().encode("tttttttt"),
+            "Austria",
+            "1030",
+            "ABGVA",
+            mutableSetOf()
+        )
+        trainer.isConfirmed = true
+        this.userService.save(trainer)
+        this.setDefaultAvailability(trainer)
+        val athlete = Athlete(
+            2,
             "a@a",
             "athlete",
             BCryptPasswordEncoder().encode("aaaaaaaa"),
@@ -59,25 +73,16 @@ class DatagenProfile(
             LocalDate.of(2000, 1, 1),
             1800,
             80000,
-            null
+            trainer
         )
-//        athlete.isConfirmed = true
+        athlete.isConfirmed = true
         val saved = this.userService.save(athlete)
+        setDefaultAvailability(athlete)
         this.zoneService.resetZones(saved.id!!)
         this.tcService.createDefaultTimeConstraintsForUser(saved)
 
-        val trainer = Trainer(
-            2,
-            "t@t",
-            "trainer",
-            BCryptPasswordEncoder().encode("tttttttt"),
-            "Austria",
-            "1030",
-            "ABGVA",
-            mutableSetOf(athlete)
-        )
         trainer.isConfirmed = true
-        this.userService.save(trainer)
+        athlete.trainer = trainer
         datagenActivity.createPlannedActivities(0, null, trainer)
 
         this.tcService.save(

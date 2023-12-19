@@ -3,8 +3,12 @@
     <div>
       <p class="mat-headline-3 margin-bot"> {{heading}}</p>
       <div class="width-100">
-        <form>
-          <mat-form-field appearance="outline" class="dense-2" style="width: 300px">
+        <form class="row-space-between">
+          <mat-form-field class="dense-2 pd-0p275" style="width: 300px"  *ngIf="mode!==ActivityCreateEditViewMode.details" appearance="outline">
+            <mat-label>Workout name</mat-label>
+            <input matInput [(ngModel)]="plannedActivity.name" required name="name">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="dense-2 pd-0p275" style="width: 300px">
             <mat-label>Select activity type</mat-label>
             <mat-select [(ngModel)]="plannedActivity.type" name="activityType" disabled="{{mode===ActivityCreateEditViewMode.details}}">
               <mat-option *ngFor="let activityType of activityTypes" [value]="activityType">
@@ -39,7 +43,7 @@
         <div class="checkbox-container">
           <mat-form-field class="dense-2" appearance="outline" style="width:9rem">
             <a>Template?
-              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" checked="{{plannedActivity.template}}" name="template" disabled="{{this.mode===ActivityCreateEditViewMode.details}}"></mat-checkbox>
+              <mat-checkbox class="checkbox" [(ngModel)]="plannedActivity.template" (change)=loadAthletes() checked="{{plannedActivity.template}}" name="template" disabled="{{this.mode===ActivityCreateEditViewMode.details}}"></mat-checkbox>
               <input matInput style="width:0 !important"></a>
           </mat-form-field>
           <mat-form-field class="dense-2" appearance="outline" style="width:10rem">
@@ -54,10 +58,19 @@
             <input matInput type="datetime-local" [(ngModel)]="plannedActivity.date" placeholder="">
           </mat-form-field>
         </div>
+        <div *ngIf="!plannedActivity.template && ((!currentUser.isAthlete() && athletes !== undefined) || mode === ActivityCreateEditViewMode.details )">
+          <mat-form-field appearance="outline">
+            <mat-label>Choose your athlete</mat-label>
+            <mat-select [(ngModel)]="plannedActivity.createdFor" name="athlete" disabled="{{mode===ActivityCreateEditViewMode.details}}">
+              <mat-option *ngFor="let athlete of athletes" [value]="athlete">
+                {{athlete.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
     </div>
   </fieldset>
-
 
   <div
     *ngIf="mode === ActivityCreateEditViewMode.edit || mode === ActivityCreateEditViewMode.create"

@@ -17,7 +17,7 @@ export class UserService {
     private urlService: UrlService,
   ) {
     this.url = this.urlService.getBackendUrl() + 'user';
-    this.userAthleteBaseUri = this.url + '/athletes';
+    this.userAthleteBaseUri = this.url + '/athlete';
   }
 
   get(): Observable<User> {
