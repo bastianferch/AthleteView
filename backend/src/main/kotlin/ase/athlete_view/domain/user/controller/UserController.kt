@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/user")
-class UserController (private val userService: UserService, private val athleteService: AthleteService,
-                      private val userMapper: UserMapper){
+class UserController(
+    private val userService: UserService, private val athleteService: AthleteService,
+    private val userMapper: UserMapper
+) {
     val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.OK)
@@ -26,10 +28,10 @@ class UserController (private val userService: UserService, private val athleteS
     fun get(@AuthenticationPrincipal userDTO: UserDTO): UserDTO {
         log.info { "GET USER ${userDTO.email} BY SESSION " }
         val user = userDTO.id?.let { this.userService.getById(it) } ?: throw ForbiddenException("You cannot get your profile")
-        return if (user is Athlete){
-            this.userMapper.toDTO(user);
-        } else{
-            this.userMapper.toDTO(user as Trainer);
+        return if (user is Athlete) {
+            this.userMapper.toDTO(user)
+        } else {
+            this.userMapper.toDTO(user as Trainer)
         }
     }
 
@@ -37,10 +39,14 @@ class UserController (private val userService: UserService, private val athleteS
     @GetMapping("/athlete")
     fun getAthletes(@AuthenticationPrincipal userDTO: UserDTO): List<AthleteDTO> {
         log.info { "GET ATHLETES FOR ${userDTO.email} BY SESSION " }
+
+
         val athleteDtos = mutableListOf<AthleteDTO>()
-        val athletes = userDTO.id?.let { this.athleteService.getByTrainerId(it) } ?: throw ForbiddenException("You cannot get your profile")
-        for (i in athletes.indices){
-            athleteDtos.add(this.userMapper.toDTO(athletes[i]))
+        val athletes = userDTO.id?.let { this.athleteService.getByTrainerId(it) }
+        if (athletes != null) {
+            for (i in athletes.indices) {
+                athleteDtos.add(athletes[i].toAthleteDto())
+            }
         }
         return athleteDtos
     }
@@ -48,7 +54,7 @@ class UserController (private val userService: UserService, private val athleteS
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/athlete")
-    fun updateAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athleteDTO: AthleteDTO){
+    fun updateAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athleteDTO: AthleteDTO) {
         log.info { "PUT ATHLETE ${userDTO.email}" }
         athleteDTO.email = userDTO.email
         this.userService.updateAthlete(athleteDTO)
@@ -65,12 +71,12 @@ class UserController (private val userService: UserService, private val athleteS
     @GetMapping("/preferences")
     fun getPreferences(@AuthenticationPrincipal user: UserDTO): PreferencesDTO? {
         log.info { "GET PREFERENCES ${user.id}" }
-        return this.userService.getPreferences(user)?.toDTO();
+        return this.userService.getPreferences(user)?.toDTO()
     }
 
     @PatchMapping("/preferences")
     fun patchPreferences(@AuthenticationPrincipal user: UserDTO, @RequestBody preferencesDTO: PreferencesDTO): PreferencesDTO? {
         log.info { "PATCH PREFERENCES ${user.id} $preferencesDTO" }
-        return this.userService.patchPreferences(user, preferencesDTO)?.toDTO();
+        return this.userService.patchPreferences(user, preferencesDTO)?.toDTO()
     }
 }

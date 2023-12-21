@@ -65,6 +65,9 @@
               <mat-option *ngFor="let athlete of athletes" [value]="athlete">
                 {{athlete.name}}
               </mat-option>
+              <mat-option [value]="null">
+                None
+              </mat-option>
             </mat-select>
           </mat-form-field>
         </div>

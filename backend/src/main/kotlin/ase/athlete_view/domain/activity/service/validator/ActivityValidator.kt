@@ -24,6 +24,8 @@ class ActivityValidator {
 
         if (plannedActivity.name.isBlank()) {
             validationErrors.add("Name must not be blank")
+        } else if (plannedActivity.name.length > 255) {
+            validationErrors.add("Name must be shorter than 255 characters")
         }
 
 
@@ -31,23 +33,35 @@ class ActivityValidator {
             if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
                 validationErrors.add("Athletes can only create Activities for themselves")
             }
-            if (plannedActivity.withTrainer == true) {
+            if (plannedActivity.createdFor == null && plannedActivity.template) {
+                plannedActivity.createdFor = user
+            }
+            if (plannedActivity.withTrainer) {
                 validationErrors.add("Athletes cannot create activities with trainer presence")
             }
         }
 
-        if (user is Trainer && !plannedActivity.template && plannedActivity.createdFor != null) {
-            val athletes = user.athletes
-            var isForAthleteOfTrainer = false
-            for (athlete in athletes) {
-                if (plannedActivity.createdFor!!.id == athlete.id) {
-                    isForAthleteOfTrainer = true
-                    break
+        if (user is Trainer) {
+            if (plannedActivity.createdFor != null && plannedActivity.date == null) {
+                    validationErrors.add("Date must be set if activity is created for an athlete")
+            }
+            if (plannedActivity.createdFor == null && plannedActivity.date != null) {
+                validationErrors.add("Athlete must be set if date is set")
+            }
+
+                if (!plannedActivity.template && plannedActivity.createdFor != null) {
+                    val athletes = user.athletes
+                    var isForAthleteOfTrainer = false
+                    for (athlete in athletes) {
+                        if (plannedActivity.createdFor!!.id == athlete.id) {
+                            isForAthleteOfTrainer = true
+                            break
+                        }
+                    }
+                    if (!isForAthleteOfTrainer) {
+                        validationErrors.add("Trainers can only create Activities for their Athletes or templates")
+                    }
                 }
-            }
-            if (!isForAthleteOfTrainer) {
-                validationErrors.add("Trainers can only create Activities for their Athletes or templates")
-            }
         }
 
         if (plannedActivity.template) {
