@@ -63,4 +63,9 @@ export class UserService {
   }
 
 
+  resetCode() {
+    return this.http.post<void>(
+      this.url + '/trainer/code', { withCredentials: true },
+    )
+  }
 }

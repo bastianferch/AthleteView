@@ -69,8 +69,8 @@ class AuthenticationServiceImpl(
             return athlete
         }
         val trainer = this.trainerService.getByCode(dto.code!!) ?: return athlete
-        trainer.athletes += athlete
-        athlete.trainer = trainer
+        trainer.unacceptedAthletes += athlete // TODO send notification to trainer
+        // TODO check if athlete's trainer is also set
         this.userService.saveAll(listOf(trainer, athlete))
         return athlete
     }

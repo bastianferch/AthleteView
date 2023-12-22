@@ -7,6 +7,7 @@ import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
+import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("api/user")
 class UserController (private val userService: UserService,
-    private val userMapper: UserMapper){
+    private val userMapper: UserMapper, private val trainerService: TrainerService){
     val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.OK)
@@ -46,6 +47,13 @@ class UserController (private val userService: UserService,
         log.info { "PUT TRAINER ${userDTO.email}" }
         trainerDTO.email = userDTO.email
         this.userService.updateTrainer(trainerDTO)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/trainer/code") // TODO tests
+    fun resetCode(@AuthenticationPrincipal userDTO: UserDTO) {
+        log.info { "POST TRAINER CODE ${userDTO.email}" }
+        this.trainerService.resetCode(userDTO)
     }
 
     @GetMapping("/preferences")

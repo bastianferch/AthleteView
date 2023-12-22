@@ -74,7 +74,8 @@ class DatagenProfile(
             "Austria",
             "1030",
             "ABGVA",
-            mutableSetOf(athlete)
+            mutableSetOf(athlete),
+            mutableSetOf()
         )
         trainer.isConfirmed = true
         this.userService.save(trainer)
@@ -149,6 +150,7 @@ class DatagenProfile(
                 faker.address.country(),
                 faker.address.postcode(),
                 "ABGVA$tId",
+                mutableSetOf(),
                 mutableSetOf()
             )
             trainer.isConfirmed = true

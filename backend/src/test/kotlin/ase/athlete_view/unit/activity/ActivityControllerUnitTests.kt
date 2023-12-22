@@ -70,7 +70,7 @@ class ActivityControllerUnitTests {
 
     private var athlete = Athlete(1, "athelte@example.com", "Athlete Doe", "athletepassword","CountryName", "12345",LocalDate.now().minusYears(20),150,70000,null)
 
-    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345","", mutableSetOf(athlete))
+    private var trainer = Trainer(1, "test@example.com", "John Doe", "secretpassword", "CountryName", "12345","", mutableSetOf(athlete), mutableSetOf())
 
     // Create a test object for Step class
     private val step = Step(

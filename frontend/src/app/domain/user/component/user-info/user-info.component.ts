@@ -6,6 +6,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { defaultMinMaxValidator } from "../../../auth/component/registration/user-registration.component";
 import { SnackbarService } from "../../../../common/service/snackbar.service";
 import { PreferencesDto } from "../../dto/preferences-dto";
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../../../../common/component/dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-user-info',
@@ -19,7 +21,7 @@ export class UserInfoComponent implements OnInit {
 
   constructor(private userService: UserService,
     private authService: AuthService, private fb: FormBuilder,
-    private notificationService: SnackbarService,
+    private notificationService: SnackbarService, private dialog: MatDialog, private snackbarService: SnackbarService,
   ) {
   }
 
@@ -42,7 +44,7 @@ export class UserInfoComponent implements OnInit {
       form.addControl('weight', new FormControl(athlete.weight / 1000, { updateOn: 'change', validators: [Validators.required, Validators.min(0), Validators.max(700)] }));
     } else {
       const trainer = this.user as Trainer;
-      form.addControl('code', new FormControl(trainer.code, { updateOn: 'change' }));
+      form.addControl('code', new FormControl({ value: trainer.code, disabled: true }, { updateOn: 'change' }));
     }
     this.form = form;
   }
@@ -65,6 +67,34 @@ export class UserInfoComponent implements OnInit {
     } else {
       this.updateTrainer();
     }
+  }
+
+  openDialog(): void {
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        headline: 'Reset Invite Code',
+        content: 'Are you sure you want to reset your invite code? All your current invitations will be lost.',
+        action: 'Reset Code',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.userService.resetCode().subscribe({
+          next: () => {
+            this.snackbarService.openSnackBar('Your invite code was reset.')
+            this.userService.get().subscribe((data) => {
+              this.user = data
+              this.form.controls.code.setValue((this.user as Trainer).code)
+            })
+          },
+          error: (err) => {
+            this.snackbarService.openSnackBar(err.message.message);
+          },
+        })
+      }
+    })
   }
 
   private getPreferences() {
@@ -119,6 +149,7 @@ export class UserInfoComponent implements OnInit {
       }
     }
   }
+
 
 }
 

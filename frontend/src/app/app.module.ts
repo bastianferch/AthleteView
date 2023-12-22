@@ -23,6 +23,7 @@ import { ErrorInterceptor } from "./config/error-interceptor";
 import { FitImportDialogComponent } from './fit-import-dialog/fit-import-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { ConfirmationDialogComponent } from './common/component/dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { MatButtonModule } from '@angular/material/button';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     FitImportDialogComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,
