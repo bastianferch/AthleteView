@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import { UrlService } from '../../../config/service/UrlService';
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { IntervalSplit } from "../../../common/interval/dto/Interval";
-import { Activity } from "../../activity/dto/Activity"
+import { Activity } from '../dto/Activity'
 import { DateParsing } from 'src/app/common/util/parsing/date-parsing';
 
 @Injectable({
@@ -109,7 +109,9 @@ export class ActivityService {
   postProcessActivity(activity: PlannedActivitySplit) {
     if (activity.template) {
       activity.date = null;
+      activity.createdFor = null;
     }
+
 
     return activity;
   }

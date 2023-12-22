@@ -19,32 +19,49 @@ class ActivityValidator {
     val log = KotlinLogging.logger {}
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
-        log.trace { "Validating new planned activity $plannedActivity" }
+        log.trace { "S | Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()
+
+        if (plannedActivity.name.isBlank()) {
+            validationErrors.add("Name must not be blank")
+        } else if (plannedActivity.name.length > 255) {
+            validationErrors.add("Name must be shorter than 255 characters")
+        }
+
 
         if (user is Athlete) {
             if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
                 validationErrors.add("Athletes can only create Activities for themselves")
             }
-            if (plannedActivity.withTrainer == true) {
+            if (plannedActivity.createdFor == null && plannedActivity.template) {
+                plannedActivity.createdFor = user
+            }
+            if (plannedActivity.withTrainer) {
                 validationErrors.add("Athletes cannot create activities with trainer presence")
             }
         }
 
+        if (user is Trainer) {
+            if (plannedActivity.createdFor != null && plannedActivity.date == null) {
+                    validationErrors.add("Date must be set if activity is created for an athlete")
+            }
+            if (plannedActivity.createdFor == null && plannedActivity.date != null) {
+                validationErrors.add("Athlete must be set if date is set")
+            }
 
-
-        if (user is Trainer && !plannedActivity.template && plannedActivity.createdFor != null) {
-            val athletes = user.athletes
-            var isForAthleteOfTrainer = false
-            for (athlete in athletes) {
-                if (plannedActivity.createdFor!!.id == athlete.id) {
-                    isForAthleteOfTrainer = true
-                    break
+                if (!plannedActivity.template && plannedActivity.createdFor != null) {
+                    val athletes = user.athletes
+                    var isForAthleteOfTrainer = false
+                    for (athlete in athletes) {
+                        if (plannedActivity.createdFor!!.id == athlete.id) {
+                            isForAthleteOfTrainer = true
+                            break
+                        }
+                    }
+                    if (!isForAthleteOfTrainer) {
+                        validationErrors.add("Trainers can only create Activities for their Athletes or templates")
+                    }
                 }
-            }
-            if (!isForAthleteOfTrainer) {
-                validationErrors.add("Trainers can only create Activities for their Athletes or templates")
-            }
         }
 
         if (plannedActivity.template) {
@@ -80,7 +97,7 @@ class ActivityValidator {
     }
 
     fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User) {
-        log.trace { "Validating planned activity for edit $plannedActivity" }
+        log.trace { "S | Validating planned activity for edit $plannedActivity" }
         // check if the user is allowed to update this activity
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
@@ -111,7 +128,7 @@ class ActivityValidator {
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
         if (interval.intervals != null) {
-            if (interval.step != null && interval.intervals!!.isNotEmpty() == true) {
+            if (interval.step != null && interval.intervals!!.isNotEmpty()) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
             }
         }

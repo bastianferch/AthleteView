@@ -10,12 +10,14 @@ import { PreferencesDto } from "../dto/preferences-dto";
 })
 export class UserService {
   private readonly url;
+  private readonly userAthleteBaseUri;
 
   constructor(
     private http: HttpClient,
     private urlService: UrlService,
   ) {
     this.url = this.urlService.getBackendUrl() + 'user';
+    this.userAthleteBaseUri = this.url + '/athlete';
   }
 
   get(): Observable<User> {
@@ -62,6 +64,9 @@ export class UserService {
     )
   }
 
+  fetchAthletesForTrainer():Observable<User[]> {
+    return this.http.get<User[]>(this.userAthleteBaseUri,{ params: {},withCredentials: true })
+  }
 
   resetCode() {
     return this.http.post<void>(
