@@ -2,6 +2,9 @@ package ase.athlete_view.domain.user.service.impl
 
 import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.domain.mail.pojo.entity.Email
+import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.persistence.TrainerRepository
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -13,7 +16,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class TrainerServiceImpl(private val trainerRepository: TrainerRepository, private val userService: UserService) : TrainerService {
+class TrainerServiceImpl(private val trainerRepository: TrainerRepository, private val userService: UserService, private val mailService: MailService) : TrainerService {
     val log = KotlinLogging.logger {}
 
     override fun getByCode(code: String): Trainer? {
@@ -31,7 +34,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
                 throw NotFoundException("Athlete not found") // TODO check FE why user is logged out
             }
         }
-        val athlete = trainer.unacceptedAthletes.first { it.id == id}
+        val athlete = trainer.unacceptedAthletes.first { it.id == id }
         trainer.unacceptedAthletes.remove(athlete)
         trainer.athletes.add(athlete)
         athlete.trainer = trainer
@@ -49,5 +52,27 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
             }
         }
         trainerRepository.save(trainer)
+    }
+
+    override fun inviteAthletes(id: Long, emailList: List<String>) {
+        log.trace { "S | inviteAthletes $id $emailList" }
+        val trainer = trainerRepository.findByIdOrNull(id) ?: throw ForbiddenException("You are not allowed to use this service")
+        val invalidEmail = mutableListOf<String>()
+        for(email in emailList){
+            // TODO discuss with security engineer to prevent abuse
+            try {
+                mailService.sendSimpleMail(Email(email, "Invitation to Athlete View",
+                    "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}")) // TODO replace url for production
+            } catch (e: ValidationException){
+                invalidEmail.add(email)
+            }
+        }
+        if (invalidEmail.isNotEmpty()) {
+            if (invalidEmail.size == emailList.size)
+                throw ValidationException("Invalid email addresses: ${invalidEmail.joinToString(", ")}")
+            else {
+                throw ValidationException("Invalid email addresses: ${invalidEmail.joinToString(", ")}. Other emails have been sent.")
+            }
+        }
     }
 }

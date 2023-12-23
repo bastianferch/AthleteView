@@ -21,4 +21,14 @@ interface TrainerService {
      * @param athleteDTO the athlete.
      */
     fun acceptAthlete(userDTO: UserDTO, id: Long)
+
+    /**
+     * Invites athletes by a trainer.
+     *
+     * @param id of the trainer.
+     * @param emailList the list of emails of athletes.
+     */
+    fun inviteAthletes(id: Long, emailList: List<String>) {
+
+    }
 }
