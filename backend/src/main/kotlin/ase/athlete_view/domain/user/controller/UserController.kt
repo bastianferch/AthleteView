@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/user")
-class UserController (private val userService: UserService,
-    private val userMapper: UserMapper, private val trainerService: TrainerService,
+class UserController (private val trainerService: TrainerService,
     private val userService: UserService, private val athleteService: AthleteService,
     private val userMapper: UserMapper
 ) {
@@ -51,6 +50,13 @@ class UserController (private val userService: UserService,
             }
         }
         return athleteDtos
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/trainer/athlete")
+    fun acceptAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athlete: AthleteDTO) {
+        log.info { "POST ATHLETE ${userDTO.email}" }
+        this.trainerService.acceptAthlete(userDTO, athlete)
     }
 
 

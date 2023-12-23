@@ -8,7 +8,7 @@ import { IntervalContainerComponent } from "../../../../common/interval/componen
 import { Location } from '@angular/common';
 import { HttpStatusCode } from "@angular/common/http";
 import { UserService } from "../../../user/service/UserService";
-import { User } from "../../../user/dto/user";
+import { Athlete, User } from '../../../user/dto/user';
 import { AuthService } from "../../../auth/service/auth.service";
 
 export enum ActivityCreateEditViewMode {
@@ -189,5 +189,16 @@ export class CreateEditViewActivityComponent implements OnInit {
       }
     });
     return str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4]
+  }
+
+  testAccept() {
+    this.userService.acceptAthlete(this.athletes[0] as Athlete).subscribe({
+      next: () => {
+        this.snackbarService.openSnackBar("Athlete successfully accepted")
+      },
+      error: (err) => {
+        this.snackbarService.openSnackBar("Failed to accept athlete: " + err?.error?.message)
+      },
+    })
   }
 }

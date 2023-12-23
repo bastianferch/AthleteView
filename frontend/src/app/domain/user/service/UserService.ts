@@ -73,4 +73,10 @@ export class UserService {
       this.url + '/trainer/code', { withCredentials: true },
     )
   }
+
+  acceptAthlete(athlete: Athlete): Observable<void> {
+    return this.http.post<void>(
+      this.url + '/trainer/athlete', athlete, { withCredentials: true },
+    )
+  }
 }

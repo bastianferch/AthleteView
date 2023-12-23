@@ -58,6 +58,7 @@ class DatagenProfile(
             "Austria",
             "1030",
             "ABGVA",
+            mutableSetOf(),
             mutableSetOf()
         )
         trainer.isConfirmed = true
@@ -154,6 +155,7 @@ class DatagenProfile(
                 faker.address.country(),
                 faker.address.postcode(),
                 "ABGVA$tId",
+                mutableSetOf(),
                 mutableSetOf()
             )
             trainer.isConfirmed = true

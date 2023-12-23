@@ -28,6 +28,7 @@ export class UserRegistrationComponent implements OnInit {
 
   hidePassword = true;
   acceptedTerms = false;
+  code : string;
 
   constructor(
     private loginService: AuthService,
@@ -87,8 +88,7 @@ export class UserRegistrationComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.logout();
-    let code = this.route.snapshot.paramMap.get('code');
-    code = code?.length > 6 ? null : code;
+    this.code = this.route.snapshot.paramMap.get('code');
     this.form = this.fb.group({
       email: new FormControl(undefined, { validators: [Validators.required, Validators.email], updateOn: 'change' }),
       password: new FormControl(undefined, {
@@ -101,7 +101,7 @@ export class UserRegistrationComponent implements OnInit {
       height: new FormControl(undefined, { updateOn: 'change' }),
       dob: new FormControl(undefined, { updateOn: 'change' }),
       weight: new FormControl(undefined, { updateOn: 'change' }),
-      code: new FormControl(code),
+      code: new FormControl(this.code),
     });
     this.updateUserType('athlete')
   }

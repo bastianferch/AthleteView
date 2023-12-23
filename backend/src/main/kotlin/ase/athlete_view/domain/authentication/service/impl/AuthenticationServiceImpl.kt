@@ -11,6 +11,7 @@ import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
+import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.token.pojo.entity.TokenExpirationTime
 import ase.athlete_view.domain.token.service.TokenService
@@ -41,7 +42,8 @@ class AuthenticationServiceImpl(
     private val authValidationService: AuthValidationService,
     private val trainerService: TrainerService,
     private val timeConstraintService: TimeConstraintService,
-    private val zoneService: ZoneService
+    private val zoneService: ZoneService,
+    private val notificationService: NotificationService
 ) : AuthenticationService {
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
@@ -63,13 +65,14 @@ class AuthenticationServiceImpl(
     @Transactional
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
         this.authValidationService.validateAthleteDTO(dto)
-        val athlete =  this.registerUser(this.userMapper.toEntity(dto)) as Athlete
+        val athlete = this.registerUser(this.userMapper.toEntity(dto)) as Athlete
         this.zoneService.resetZones(athlete.id!!)
-        if (dto.code == null){
+        if (dto.code == null) {
             return athlete
         }
         val trainer = this.trainerService.getByCode(dto.code!!) ?: return athlete
-        trainer.unacceptedAthletes += athlete // TODO send notification to trainer
+        trainer.unacceptedAthletes += athlete
+        this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "")// TODO add link
         // TODO check if athlete's trainer is also set
         this.userService.saveAll(listOf(trainer, athlete))
         return athlete
@@ -79,7 +82,7 @@ class AuthenticationServiceImpl(
     override fun registerTrainer(dto: TrainerRegistrationDTO): User {
         this.authValidationService.validateTrainerDTO(dto)
         while (true) {
-            val code = UUID.randomUUID().toString().substring(0,5).replace('-',Random().nextInt().toChar())
+            val code = UUID.randomUUID().toString().substring(0, 5).replace('-', Random().nextInt().toChar())
             if (this.trainerService.getByCode(code) != null) {
                 continue
             }
@@ -110,9 +113,9 @@ class AuthenticationServiceImpl(
             if (!user.isConfirmed) {
                 throw ConflictException("Please confirm your email.")
             }
-            val dto:UserDTO = if (user is Athlete){
+            val dto: UserDTO = if (user is Athlete) {
                 this.userMapper.toDTO(user);
-            } else{
+            } else {
                 this.userMapper.toDTO(user as Trainer);
             }
             dto.token = this.userAuthProvider.createToken(dto)
