@@ -36,7 +36,7 @@ class AuthenticationController(
     fun registerTrainer(@Valid @RequestBody registrationDto: TrainerRegistrationDTO): UserDTO {
         logger.info { "POST TRAINER REGISTRATION ${registrationDto.email}" }
         val savedUser = this.authenticationService.registerTrainer(registrationDto)
-        return userMapper.toDTO(savedUser)
+        return savedUser.toUserDTO()
     }
 
     @ResponseStatus(HttpStatus.OK)

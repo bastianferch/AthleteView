@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.user.service
 
-import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 
@@ -21,5 +20,5 @@ interface TrainerService {
      * @param userDTO the trainer.
      * @param athleteDTO the athlete.
      */
-    fun acceptAthlete(userDTO: UserDTO, athleteDTO: AthleteDTO)
+    fun acceptAthlete(userDTO: UserDTO, id: Long)
 }

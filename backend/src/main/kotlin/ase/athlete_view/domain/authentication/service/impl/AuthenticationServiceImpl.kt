@@ -72,8 +72,7 @@ class AuthenticationServiceImpl(
         }
         val trainer = this.trainerService.getByCode(dto.code!!) ?: return athlete
         trainer.unacceptedAthletes += athlete
-        this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "")// TODO add link
-        // TODO check if athlete's trainer is also set
+        this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "action/acceptAthlete/${athlete.id}")
         this.userService.saveAll(listOf(trainer, athlete))
         return athlete
     }
@@ -113,10 +112,16 @@ class AuthenticationServiceImpl(
             if (!user.isConfirmed) {
                 throw ConflictException("Please confirm your email.")
             }
-            val dto: UserDTO = if (user is Athlete) {
-                this.userMapper.toDTO(user);
-            } else {
-                this.userMapper.toDTO(user as Trainer);
+            val dto: UserDTO = when (user) {
+                is Athlete -> {
+                    user.toAthleteDto()
+                }
+                is Trainer -> {
+                    user.toDto()
+                }
+                else -> {
+                    throw IllegalStateException("User is neither athlete nor trainer")
+                }
             }
             dto.token = this.userAuthProvider.createToken(dto)
             return dto

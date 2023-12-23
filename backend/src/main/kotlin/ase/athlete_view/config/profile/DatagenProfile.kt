@@ -7,6 +7,7 @@ import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
@@ -36,10 +37,17 @@ class DatagenProfile(
     private val tcService: TimeConstraintService,
     private val activityService: ActivityService,
     private val plannedActivityRepo: PlannedActivityRepository,
+    private val notificationService: NotificationService,
     @Autowired private val mongoTemplate: MongoTemplate,
     private val datagenActivity: ActivityDatagen,
     private val zoneService: ZoneService,
 ) {
+
+    val NUM_OF_TRAINER = 2
+    val NUM_OF_ATHLETE_PER_TRAINER = 5
+    val NUM_OF_ATHLETE_PER_TRAINER_WITH_ACTIVITIES = 3
+    val NUM_OF_TRAINER_WITH_ACTIVITIES = 1
+
 
     var log = KotlinLogging.logger {}
     var faker = Faker()
@@ -74,7 +82,8 @@ class DatagenProfile(
             LocalDate.of(2000, 1, 1),
             1800,
             80000,
-            trainer
+            trainer,
+            null
         )
         athlete.isConfirmed = true
         val saved = this.userService.save(athlete)
@@ -86,13 +95,6 @@ class DatagenProfile(
         athlete.trainer = trainer
         datagenActivity.createPlannedActivities(0, null, trainer)
 
-        this.tcService.save(
-            WeeklyTimeConstraintDto(
-                null, true, "JFX Meeting",
-                TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19, 0), LocalTime.of(20, 0))
-            ),
-            UserDTO(1, "", "", null, null, "")
-        )
 
 
         val plannedActivity = PlannedActivity(
@@ -128,7 +130,7 @@ class DatagenProfile(
         activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)
 
-        createTrainerAthleteRelations(2, 5, 3)
+        createTrainerAthleteRelations(NUM_OF_TRAINER, NUM_OF_ATHLETE_PER_TRAINER, NUM_OF_ATHLETE_PER_TRAINER_WITH_ACTIVITIES)
 
 
     }
@@ -173,19 +175,35 @@ class DatagenProfile(
                     LocalDate.of(2000, 1, 1),
                     1800,
                     80000,
-                    trainer
+                    trainer,
+                    null
                 )
+                if (j != ratio) {
+                    athlete.isConfirmed = true
+                    this.userService.save(athlete)
+                    this.zoneService.resetZones(athlete.id!!)
+                    trainer.athletes.add(athlete)
+                    setDefaultAvailability(athlete)
+                    this.userService.saveAll(listOf(trainer, athlete))
+                    if (i <= NUM_OF_TRAINER_WITH_ACTIVITIES) {
+                        if (j <= withActivities) {
+                            val addSpeedInMS = faker.random.nextFloat() * 4 - 2
+                            val reducePaceInMinKm = faker.random.nextInt(-30, 30)
+                            plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
+                            filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
+                        }
+                    }
+                } else {
+                    athlete.isConfirmed = true
+                    athlete.trainer = null
+                    athlete.trainerToBe = trainer
+                    this.userService.save(athlete)
+                    this.zoneService.resetZones(athlete.id!!)
+                    trainer.unacceptedAthletes += athlete
+                    addUnacceptedAthleteNotification(trainer, athlete)
+                    this.userService.saveAll(listOf(trainer, athlete))
+                    setDefaultAvailability(athlete)
 
-                athlete.isConfirmed = true
-                this.userService.save(athlete)
-                trainer.athletes.add(athlete)
-                setDefaultAvailability(athlete)
-
-                if (i == 1) {
-                    val addSpeedInMS = faker.random.nextFloat() * 4 - 2
-                    val reducePaceInMinKm = faker.random.nextInt(-30,30)
-                    plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
-                    filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
                 }
             }
         }
@@ -196,6 +214,14 @@ class DatagenProfile(
     }
 
     fun setDefaultAvailability(user: User) {
+
+        this.tcService.save(
+            WeeklyTimeConstraintDto(
+                null, true, "JFX Meeting",
+                TimeFrame(DayOfWeek.MONDAY, LocalTime.of(19, 0), LocalTime.of(20, 0))
+            ),
+            UserDTO(user.id, "", "", null, null, "")
+        )
         this.tcService.save(
             WeeklyTimeConstraintDto(
                 null, false, "Normal Hours",
@@ -245,5 +271,9 @@ class DatagenProfile(
             ),
             UserDTO(user.id, "", "", null, null, "")
         )
+    }
+
+    fun addUnacceptedAthleteNotification(trainer: Trainer, athlete: Athlete) {
+        this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "action/acceptAthlete/${athlete.id}")
     }
 }

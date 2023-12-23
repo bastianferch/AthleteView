@@ -47,6 +47,6 @@ open class User(
     }
 
     override fun toString(): String {
-        return "User(id=$id, email='$email', name='$name', password='$password', country=$country, zip=$zip, isConfirmed=$isConfirmed, activities=$activities, notifications=$notifications)"
+        return "User(id=$id, email='$email', name='$name', country=$country, zip=$zip, isConfirmed=$isConfirmed, activities=$activities, notifications=$notifications)"
     }
 }

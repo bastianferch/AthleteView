@@ -15,4 +15,7 @@ data class AthleteRegistrationDTO
     var code: String?
 ) :
     RegistrationDTO(email, name, password, country, zip) {
+    override fun toString(): String {
+        return "AthleteRegistrationDTO(email=$email, name=$name, country=$country, zip=$zip, dob=$dob, height=$height, weight=$weight, code=$code)"
+    }
 }

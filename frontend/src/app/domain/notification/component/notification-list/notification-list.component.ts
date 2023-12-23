@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NotificationService } from "../../service/notification.service";
+import { NotificationService } from '../../service/notification.service';
+import { UserService } from '../../../user/service/UserService';
+import { SnackbarService } from '../../../../common/service/snackbar.service';
 
 @Component({
   selector: 'app-notification-list',
@@ -8,16 +10,41 @@ import { NotificationService } from "../../service/notification.service";
 })
 export class NotificationListComponent implements OnInit {
 
-  constructor(protected notificationService: NotificationService) {
+  constructor(protected notificationService: NotificationService, private snackbarService: SnackbarService, private userService: UserService) {
   }
 
   deleteNotification(id: number) {
     this.notificationService.deleteNotification(id);
   }
 
-  navigateTo(route: string) {
-    this.notificationService.navigateTo(route);
+  navigateOrPerformAction(route: string) {
+    if (route.startsWith('action/')) {
+      this.performAction(route.substring(7));
+    } else {
+      this.notificationService.navigateTo(route);
+    }
+
   }
+
+  performAction(route: string) {
+    if (route.startsWith('acceptAthlete/')) {
+      this.accept(Number(route.substring(14)))
+
+    }
+  }
+
+
+  accept(id: number) {
+    this.userService.acceptAthlete(id).subscribe({
+      next: () => {
+        this.snackbarService.openSnackBar('Athlete successfully accepted')
+      },
+      error: (err) => {
+        this.snackbarService.openSnackBar('Failed to accept athlete: ' + err?.error?.message)
+      },
+    })
+  }
+
 
   deleteAllNotifications() {
     this.notificationService.deleteAllNotifications();

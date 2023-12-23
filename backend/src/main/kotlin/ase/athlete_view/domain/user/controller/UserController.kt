@@ -10,7 +10,6 @@ import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -19,8 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("api/user")
 class UserController (private val trainerService: TrainerService,
-    private val userService: UserService, private val athleteService: AthleteService,
-    private val userMapper: UserMapper
+    private val userService: UserService, private val athleteService: AthleteService
 ) {
     val log = KotlinLogging.logger {}
 
@@ -29,10 +27,18 @@ class UserController (private val trainerService: TrainerService,
     fun get(@AuthenticationPrincipal userDTO: UserDTO): UserDTO {
         log.info { "GET USER ${userDTO.email} BY SESSION " }
         val user = userDTO.id?.let { this.userService.getById(it) } ?: throw ForbiddenException("You cannot get your profile")
-        return if (user is Athlete) {
-            this.userMapper.toDTO(user)
-        } else {
-            this.userMapper.toDTO(user as Trainer)
+        return when (user) {
+            is Athlete -> {
+                user.toAthleteDto()
+            }
+
+            is Trainer -> {
+                user.toDto()
+            }
+
+            else -> {
+                user.toUserDTO()
+            }
         }
     }
 
@@ -54,9 +60,9 @@ class UserController (private val trainerService: TrainerService,
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/trainer/athlete")
-    fun acceptAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athlete: AthleteDTO) {
+    fun acceptAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody id: Long) {
         log.info { "POST ATHLETE ${userDTO.email}" }
-        this.trainerService.acceptAthlete(userDTO, athlete)
+        this.trainerService.acceptAthlete(userDTO, id)
     }
 
 
