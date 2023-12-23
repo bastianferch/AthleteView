@@ -6,7 +6,6 @@ import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import lombok.AllArgsConstructor
@@ -18,8 +17,7 @@ import java.util.*
 @AllArgsConstructor
 @RequestMapping("api/auth")
 class AuthenticationController(
-    private val authenticationService: AuthenticationService,
-    private val userMapper: UserMapper
+    private val authenticationService: AuthenticationService
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -28,7 +26,7 @@ class AuthenticationController(
     fun registerAthlete(@Valid @RequestBody registrationDto: AthleteRegistrationDTO): UserDTO {
         logger.info { "POST ATHLETE REGISTRATION $registrationDto" }
         val savedUser = this.authenticationService.registerAthlete(registrationDto)
-        return userMapper.toDTO(savedUser)
+        return savedUser.toUserDTO()
     }
 
     @ResponseStatus(HttpStatus.CREATED)

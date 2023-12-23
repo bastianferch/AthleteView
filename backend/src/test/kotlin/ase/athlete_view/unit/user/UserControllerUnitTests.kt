@@ -7,6 +7,7 @@ import ase.athlete_view.domain.authentication.controller.AuthenticationControlle
 import ase.athlete_view.domain.authentication.service.AuthenticationService
 import ase.athlete_view.domain.user.controller.UserController
 import ase.athlete_view.domain.user.service.AthleteService
+import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.UserCreator
@@ -42,6 +43,9 @@ class UserControllerUnitTests {
 
     @MockkBean
     lateinit var authService: AuthenticationService
+
+    @MockkBean
+    lateinit var trainerService: TrainerService
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider

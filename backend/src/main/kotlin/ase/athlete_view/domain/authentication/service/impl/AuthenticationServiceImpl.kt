@@ -65,7 +65,7 @@ class AuthenticationServiceImpl(
     @Transactional
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
         this.authValidationService.validateAthleteDTO(dto)
-        val athlete = this.registerUser(this.userMapper.toEntity(dto)) as Athlete
+        val athlete = this.registerUser(dto.toEntity()) as Athlete
         this.zoneService.resetZones(athlete.id!!)
         if (dto.code == null) {
             return athlete
@@ -99,7 +99,7 @@ class AuthenticationServiceImpl(
     }
 
     override fun createJwtToken(id: Long): String {
-        val user = this.userMapper.toDTO(this.userService.getById(id))
+        val user = this.userService.getById(id).toUserDTO()
         return this.userAuthProvider.createToken(user)
     }
 
