@@ -61,8 +61,9 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
         for(email in emailList){
             // TODO discuss with security engineer to prevent abuse
             try {
-                mailService.sendSimpleMail(Email(email, "Invitation to Athlete View",
-                    "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}")) // TODO replace url for production
+                mailService.sendSimpleMail(Email(email,
+                    "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}", // TODO replace url for production
+                    "Invitation to Athlete View"))
             } catch (e: ValidationException){
                 invalidEmail.add(email)
             }

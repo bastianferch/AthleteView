@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { UrlService } from "../../../config/service/UrlService";
-import { Observable } from "rxjs";
-import { Athlete, Trainer, User } from "../dto/user";
-import { PreferencesDto } from "../dto/preferences-dto";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { UrlService } from '../../../config/service/UrlService';
+import { Observable } from 'rxjs';
+import { Athlete, Trainer, User } from '../dto/user';
+import { PreferencesDto } from '../dto/preferences-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,7 @@ export class UserService {
     return this.http.get<User>(
       this.url,
       {
-        params: {},withCredentials: true,
+        params: {}, withCredentials: true,
       },
     ).pipe(User.serializeResponseMap());
   }
@@ -34,7 +34,7 @@ export class UserService {
       this.url + '/trainer',
       trainer,
       {
-        params: {},withCredentials: true,
+        params: {}, withCredentials: true,
       },
     ).pipe(User.serializeResponseMap());
   }
@@ -44,7 +44,7 @@ export class UserService {
       this.url + '/athlete',
       athlete,
       {
-        params: {},withCredentials: true,
+        params: {}, withCredentials: true,
       },
     ).pipe(User.serializeResponseMap());
   }
@@ -64,8 +64,8 @@ export class UserService {
     )
   }
 
-  fetchAthletesForTrainer():Observable<User[]> {
-    return this.http.get<User[]>(this.userAthleteBaseUri,{ params: {},withCredentials: true })
+  fetchAthletesForTrainer(): Observable<User[]> {
+    return this.http.get<User[]>(this.userAthleteBaseUri, { params: {}, withCredentials: true })
   }
 
   resetCode() {
@@ -77,6 +77,12 @@ export class UserService {
   acceptAthlete(id: number): Observable<void> {
     return this.http.post<void>(
       this.url + '/trainer/athlete', id, { withCredentials: true },
+    )
+  }
+
+  sendInvitations(emails: string[]) {
+    return this.http.post<void>(
+      this.url + '/trainer/invitation', emails, { withCredentials: true },
     )
   }
 }

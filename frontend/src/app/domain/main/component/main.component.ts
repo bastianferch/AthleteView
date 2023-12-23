@@ -10,6 +10,7 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
 import { HealthService } from "../../health/service/health.service";
 import { firstValueFrom } from "rxjs";
 import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zone-groups-dialog.component";
+import { InviteDialogComponent } from '../../invite-dialog/invite-dialog.component';
 
 @Component({
   selector: 'app-main',
@@ -18,6 +19,7 @@ import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zo
 })
 export class MainComponent {
   email: string = this.authService.currentUser.email
+  currentUserType = this.authService.currentUser.userType
   constructor(
     private authService: AuthService,
     private notificationService: NotificationService,
@@ -69,6 +71,12 @@ export class MainComponent {
         })
       }
     });
+  }
+
+  openInviteDialog(): void {
+    this.dialog.open(InviteDialogComponent, {
+      width: "60%",
+    })
   }
 
   openZoneDialog(): void {
