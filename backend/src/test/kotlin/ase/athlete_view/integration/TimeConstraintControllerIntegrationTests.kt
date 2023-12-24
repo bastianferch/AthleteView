@@ -3,7 +3,6 @@ package ase.athlete_view.integration
 import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.time_constraint.pojo.dto.DailyTimeConstraintDto
-import ase.athlete_view.domain.time_constraint.pojo.dto.TimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
@@ -353,7 +352,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
         val from = OffsetDateTime.of(2023,12,1,0,0,0,0, ZoneOffset.UTC)
         val until = OffsetDateTime.of(2023,12,7,23,59,0,0,ZoneOffset.UTC)
 
-        val result = mockMvc.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders.get("/api/constraints?type=daily&from=${from.format(format)}&until=${until.format(format)}")
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk)
