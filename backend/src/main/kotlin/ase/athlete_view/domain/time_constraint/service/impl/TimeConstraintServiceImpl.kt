@@ -126,10 +126,10 @@ class TimeConstraintServiceImpl(
         logger.trace { "TimeConstraintService.validate($constraint) " }
         when (constraint){
             is WeeklyTimeConstraint -> {
-                if (constraint.constraint.startTime.isAfter(constraint.constraint.endTime)) throw ValidationException("Start time cannot be before end time")
+                if (!constraint.constraint.endTime.isAfter(constraint.constraint.startTime)) throw ValidationException("End time must be after start time")
             }
             is DailyTimeConstraint -> {
-                if (constraint.startTime.isAfter(constraint.endTime)) throw ValidationException("Start time cannot be before end time")
+                if (!constraint.endTime.isAfter(constraint.startTime)) throw ValidationException("End time must be after start time")
             }
         }
     }
