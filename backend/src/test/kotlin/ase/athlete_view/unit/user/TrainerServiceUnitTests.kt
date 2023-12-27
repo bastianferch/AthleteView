@@ -22,40 +22,48 @@ class TrainerServiceUnitTests: TestBase() {
     @Autowired
     private lateinit var trainerService: TrainerService
 
-    @MockkBean
+    @Autowired
     private lateinit var trainerRepo: TrainerRepository
+
+    @MockkBean
+    private lateinit var trainerMockRepo: TrainerRepository
 
     @MockkBean
     private lateinit var mailService: MailService
 
     @Test
     fun resetCodeWithTrainer_ShouldNotThrow(){
-        every { trainerRepo.getTrainerByCode(any()) } returns null
-        every { trainerRepo.save(any()) } returns UserCreator.getTrainer()
-        every { trainerRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
+        every { trainerMockRepo.getTrainerByCode(any()) } returns null
+        every { trainerMockRepo.save(any()) } returns UserCreator.getTrainer()
+        every { trainerMockRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
         trainerService.resetCode(UserCreator.getTrainerDto())
-        verify(exactly = 1) { trainerRepo.getTrainerByCode(any()) }
-        verify(exactly = 1) { trainerRepo.save(any()) }
+        verify(exactly = 1) { trainerMockRepo.getTrainerByCode(any()) }
+        verify(exactly = 1) { trainerMockRepo.save(any()) }
     }
 
     @Test
     fun resetCodeWithAthleteShouldThrowForbiddenException(){
-        every { trainerRepo.getTrainerByCode(any()) } returns null
-        every { trainerRepo.save(any()) } returns UserCreator.getTrainer()
-        every { trainerRepo.findById(any()) } returns Optional.empty()
+        every { trainerMockRepo.getTrainerByCode(any()) } returns null
+        every { trainerMockRepo.save(any()) } returns UserCreator.getTrainer()
+        every { trainerMockRepo.findById(any()) } returns Optional.empty()
         assertThrows<ForbiddenException> { trainerService.resetCode(UserCreator.getTrainerDto()) }
     }
 
     @Test
     fun inviteAthletesWithInvalidEmail_ShouldThrowValidationException(){
-        every { trainerRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
+        every { trainerMockRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
         assertThrows<ValidationException> { trainerService.inviteAthletes(1, listOf("invalidEmail")) }
     }
 
     @Test
     fun inviteAthletesWithMultipleValidAndSingleInvalidEmail_ShouldThrowValidationException(){
-        every { trainerRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
+        every { trainerMockRepo.findById(any()) } returns Optional.of(UserCreator.getTrainer())
         every { mailService.sendSimpleMail(any()) } returns Unit
         assertThrows<ValidationException> { trainerService.inviteAthletes(1, listOf("test@gmail.com", "invalidEmail")) }
+    }
+
+    @Test
+    fun acceptAthleteAsTrainer_ShouldNotThrow(){
+        // use TrainerRepo instead of TrainerMockRepo
     }
 }

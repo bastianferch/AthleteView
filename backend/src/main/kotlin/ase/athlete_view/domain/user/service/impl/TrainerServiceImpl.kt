@@ -32,7 +32,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
             if (trainer.athletes.any { it.id == id }) {
                 throw ForbiddenException("You are already training this athlete")
             } else {
-                throw NotFoundException("Athlete not found") // TODO check FE why user is logged out
+                throw NotFoundException("Athlete not found")
             }
         }
         val athlete = trainer.unacceptedAthletes.first { it.id == id }
@@ -76,7 +76,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
                 mailService.sendSimpleMail(
                     Email(
                         email,
-                        "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}", // TODO replace url for production
+                        "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/auth/registration>/${trainer.code}", // TODO replace url for production
                         "Invitation to Athlete View"
                     )
                 )

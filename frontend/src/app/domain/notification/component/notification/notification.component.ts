@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NotificationDto } from "../../dto/notification-dto";
 
 @Component({
@@ -6,11 +6,18 @@ import { NotificationDto } from "../../dto/notification-dto";
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.scss'],
 })
-export class NotificationComponent {
+export class NotificationComponent implements OnInit {
 
   @Input() notification: NotificationDto
   @Output() deleteNotification = new EventEmitter<number>()
-  @Output() navigateTo = new EventEmitter<string>()
+  @Output() navigateTo = new EventEmitter<NotificationDto>()
+
+  actionName: string;
+  ngOnInit() {
+    if (this.notification.link.startsWith('action/')) {
+      this.setActionName(this.notification.link.substring(7));
+    }
+  }
 
   // returns a string representation of the notifications timestamp (as a localized date string)
   // instead of today's or yesterday's date, it returns "today" or "yesterday".
@@ -48,7 +55,13 @@ export class NotificationComponent {
 
   navigateLink() {
     if (this.notification.link) {
-      this.navigateTo.emit(this.notification.link)
+      this.navigateTo.emit(this.notification)
+    }
+  }
+
+  setActionName(link: string) {
+    if (link.startsWith('acceptAthlete/')) {
+      this.actionName = 'Accept';
     }
   }
 }

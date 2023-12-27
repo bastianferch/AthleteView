@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NotificationService } from '../../service/notification.service';
 import { UserService } from '../../../user/service/UserService';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
+import { NotificationDto } from "../../dto/notification-dto";
 
 @Component({
   selector: 'app-notification-list',
@@ -17,11 +18,12 @@ export class NotificationListComponent implements OnInit {
     this.notificationService.deleteNotification(id);
   }
 
-  navigateOrPerformAction(route: string) {
-    if (route.startsWith('action/')) {
-      this.performAction(route.substring(7));
+  navigateOrPerformAction(route: NotificationDto) {
+    if (route.link.startsWith('action/')) {
+      this.performAction(route.link.substring(7));
+      this.deleteNotification(route.id)
     } else {
-      this.notificationService.navigateTo(route);
+      this.notificationService.navigateTo(route.link);
     }
 
   }

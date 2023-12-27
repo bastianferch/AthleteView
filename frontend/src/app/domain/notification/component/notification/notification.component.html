@@ -11,7 +11,12 @@
         <p>{{notification.body}}</p>
       </mat-card-content>
       <mat-card-actions *ngIf="notification.link">
-        <button mat-button (click)="navigateLink()">show me</button>
+        <button mat-button (click)="navigateLink()">
+          <a *ngIf="!notification.link.startsWith('action/') else actionLink">show me</a>
+          <ng-template #actionLink>
+            <a>{{actionName}}</a>
+          </ng-template>
+        </button>
       </mat-card-actions>
     </div>
 

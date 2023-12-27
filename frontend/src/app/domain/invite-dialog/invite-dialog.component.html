@@ -3,13 +3,13 @@
   <mat-form-field>
     <mat-label>Email addresses of athletes</mat-label>
     <mat-chip-grid #chipGrid aria-label="Enter email addresses">
-      <mat-chip-row *ngFor="let fruit of emails"
-                    (removed)="remove(fruit)"
+      <mat-chip-row *ngFor="let email of emails"
+                    (removed)="remove(email)"
                     [editable]="true"
-                    (edited)="edit(fruit, $event)"
-                    [aria-description]="'press enter to edit ' + fruit">
-        {{fruit}}
-        <button matChipRemove [attr.aria-label]="'remove ' + fruit">
+                    (edited)="edit(email, $event)"
+                    [aria-description]="'press enter to edit ' + email">
+        {{email}}
+        <button matChipRemove [attr.aria-label]="'remove ' + email">
           <mat-icon>cancel</mat-icon>
         </button>
       </mat-chip-row>
