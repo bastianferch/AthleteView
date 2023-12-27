@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class TrainerServiceImpl(private val trainerRepository: TrainerRepository, private val userService: UserService, private val mailService: MailService) : TrainerService {
+class TrainerServiceImpl(private val trainerRepository: TrainerRepository, private val userService: UserService, private val mailService: MailService) :
+    TrainerService {
     val log = KotlinLogging.logger {}
 
     override fun getByCode(code: String): Trainer? {
@@ -58,22 +59,44 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
         log.trace { "S | inviteAthletes $id $emailList" }
         val trainer = trainerRepository.findByIdOrNull(id) ?: throw ForbiddenException("You are not allowed to use this service")
         val invalidEmail = mutableListOf<String>()
-        for(email in emailList){
+        val alreadyTrainingEmail = mutableListOf<String>()
+        val emailRegex = Regex("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+        var exceptionMessage = ""
+        for (email in emailList) {
             // TODO discuss with security engineer to prevent abuse
+            if (trainer.athletes.any { it.email == email } || trainer.unacceptedAthletes.any { it.email == email }) {
+                alreadyTrainingEmail.add(email)
+                continue
+            }
+            if (!emailRegex.matches(email)) {
+                invalidEmail.add(email)
+                continue
+            }
             try {
-                mailService.sendSimpleMail(Email(email,
-                    "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}", // TODO replace url for production
-                    "Invitation to Athlete View"))
-            } catch (e: ValidationException){
+                mailService.sendSimpleMail(
+                    Email(
+                        email,
+                        "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/register/${trainer.code}", // TODO replace url for production
+                        "Invitation to Athlete View"
+                    )
+                )
+            } catch (e: ValidationException) {
                 invalidEmail.add(email)
             }
         }
         if (invalidEmail.isNotEmpty()) {
-            if (invalidEmail.size == emailList.size)
-                throw ValidationException("Invalid email addresses: ${invalidEmail.joinToString(", ")}")
+            exceptionMessage += if (invalidEmail.size == emailList.size)
+                "Invalid email addresses: ${invalidEmail.joinToString(", ")}"
             else {
-                throw ValidationException("Invalid email addresses: ${invalidEmail.joinToString(", ")}. Other emails have been sent.")
+                "Invalid email addresses: ${invalidEmail.joinToString(", ")}. Other emails have been sent."
             }
         }
+
+        if (alreadyTrainingEmail.isNotEmpty()) {
+            exceptionMessage += "You are already training or have to accept these athletes ${alreadyTrainingEmail.joinToString(", ")}"
+        }
+
+        if (exceptionMessage != "")
+            throw ValidationException(exceptionMessage)
     }
 }

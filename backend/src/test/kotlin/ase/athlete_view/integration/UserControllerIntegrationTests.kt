@@ -1,12 +1,19 @@
 package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
+import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.controller.UserController
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.util.ATHLETE_ID
+import ase.athlete_view.util.TRAINER_ID
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.WithCustomMockUser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +24,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
@@ -44,9 +52,14 @@ class UserControllerIntegrationTests: TestBase(){
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @MockK
+    private lateinit var mailService: MailService
+
+    val objectMapper = ObjectMapper().registerModules(JavaTimeModule())
+
 
     @Test
-    @WithCustomMockUser(id=-3)
+    @WithCustomMockUser(TRAINER_ID)
     fun getAllAthletesByTrainerId_shouldReturnListOfAthletes() {
         mockMvc.perform(
             get("/api/user/athlete").with(csrf())
@@ -59,13 +72,57 @@ class UserControllerIntegrationTests: TestBase(){
     }
 
     @Test
-    @WithCustomMockUser(id=-2)
+    @WithCustomMockUser(ATHLETE_ID)
     fun getAllAthletesByTrainerIdWithAthleteId_shouldReturnForbidden() {
         mockMvc.perform(
             get("/api/user/athlete").with(csrf())
                 .contentType("application/json")
                 .characterEncoding("utf-8")
         ).andExpect(status().isForbidden())
+    }
 
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun resetCodeWithTrainer_shouldReturnNoContent() {
+        mockMvc.perform(
+            post("/api/user/trainer/code").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+        ).andExpect(status().isNoContent())
+    }
+
+    @Test
+    @WithCustomMockUser(ATHLETE_ID)
+    fun resetCodeWithAthlete_shouldReturnForbidden() {
+        mockMvc.perform(
+            post("/api/user/trainer/code").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+        ).andExpect(status().isForbidden())
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun sendInvitationWithTrainer_shouldReturnOk() {
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        val mailList = listOf("test@gmail.com", "test1@gmail.com")
+        mockMvc.perform(
+            post("/api/user/trainer/invitation").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(mailList))
+        ).andExpect(status().isOk())
+    }
+
+    @Test
+    @WithCustomMockUser(ATHLETE_ID)
+    fun sendInvitationWithAthlete_shouldReturnForbidden() {
+        val mailList = listOf("test@gmail.com", "test1@gmail.com")
+        mockMvc.perform(
+            post("/api/user/trainer/invitation").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(mailList))
+        ).andExpect(status().isForbidden())
     }
 }

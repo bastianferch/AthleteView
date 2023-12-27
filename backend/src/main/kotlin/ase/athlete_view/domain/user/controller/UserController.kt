@@ -83,14 +83,14 @@ class UserController (private val trainerService: TrainerService,
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/trainer/invitation") // TODO tests
+    @PostMapping("/trainer/invitation")
     fun inviteAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody emailList: List<String>) {
         log.info { "POST TRAINER INVITATION ${userDTO.email}" }
         this.trainerService.inviteAthletes(userDTO.id!!, emailList)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PostMapping("/trainer/code") // TODO tests
+    @PostMapping("/trainer/code")
     fun resetCode(@AuthenticationPrincipal userDTO: UserDTO) {
         log.info { "POST TRAINER CODE ${userDTO.email}" }
         this.trainerService.resetCode(userDTO)
