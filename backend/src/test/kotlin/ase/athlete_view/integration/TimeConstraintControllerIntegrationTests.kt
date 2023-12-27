@@ -38,8 +38,6 @@ import java.time.format.DateTimeFormatter
 @ActiveProfiles("test")
 class TimeConstraintControllerIntegrationTests: TestBase() {
 
-    val logger = KotlinLogging.logger {}
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -263,7 +261,6 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
             .andReturn().response.contentAsString
 
-        logger.info { result }
         // should work with all dates at time of testing, checks localtime at the end
         val dailyMatch = "\"title\":\"daily\",\"startTime\":\\[[0-9]{4},[0-9]+,[0-9]+,11,0".toRegex()
         val convertTest = "\"title\":\"daily\",\"constraint\":\\{\"weekday\":\"TUESDAY\",\"startTime\":\\[11,0],".toRegex()
@@ -294,8 +291,6 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray)
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(4))
             .andReturn().response.contentAsString
-
-        logger.info { result }
 
         assertAll(
             { assert(result.contains("weekly\",\"constraint\":{\"weekday\":\"MONDAY\",\"startTime\":[11,0]")) },
