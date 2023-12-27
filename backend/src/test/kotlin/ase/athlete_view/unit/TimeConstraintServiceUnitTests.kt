@@ -15,6 +15,7 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.verify
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -105,6 +106,16 @@ class TimeConstraintServiceUnitTests {
             { assert(list[0] is WeeklyTimeConstraintDto) },
             { assert(asDaily[0] is DailyTimeConstraintDto) }
         )
+    }
+
+    @Test
+    fun createDefaultTimeConstraints_shouldSaveSevenWeeklyConstraintsForUser(){
+
+        every { weeklyRepo.save(any()) } returns weeklyConstraint
+
+        service.createDefaultTimeConstraintsForUser(user)
+
+        verify(exactly = 7) { weeklyRepo.save(any<WeeklyTimeConstraint>()) }
     }
 
 }

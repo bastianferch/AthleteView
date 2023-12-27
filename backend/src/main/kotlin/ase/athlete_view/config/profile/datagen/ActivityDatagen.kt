@@ -46,7 +46,7 @@ class ActivityDatagen(
     fun init() {
         val currentDirectory = System.getProperty("user.dir")
         val dir: Path = if (currentDirectory.contains("backend")) {
-            Paths.get("/src/main/resources/fit-files/")
+            Paths.get("src/main/resources/fit-files/")
         } else {
             Paths.get("backend/src/main/resources/fit-files/")
         }

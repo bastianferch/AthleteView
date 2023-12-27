@@ -33,7 +33,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     }
 
     @PutMapping("/dailies/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     fun putDaily(@RequestBody constraint: DailyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
         logger.info { "PUT time constraint by ${userDto.name}" }
