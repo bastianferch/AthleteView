@@ -1,7 +1,5 @@
 package ase.athlete_view.domain.user.pojo.entity
 
-import ase.athlete_view.domain.notification.pojo.entity.Notification
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.DiscriminatorValue
@@ -32,12 +30,17 @@ class Athlete(
     @JoinColumn(name = "trainer_id")
     @JsonBackReference
     var trainer: Trainer?,
+
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonBackReference
+    var trainerToBe: Trainer?
 ) : User(
     id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
 ) {
 
-    fun toAthleteDto(include_trainer: Boolean = true): AthleteDTO {
-        return if (include_trainer) {
+    fun toAthleteDto(includeTrainer: Boolean = true): AthleteDTO {
+        return if (includeTrainer) {
             AthleteDTO(
                     id,
                     email,
@@ -48,6 +51,7 @@ class Athlete(
                     height,
                     weight,
                     trainer?.toDto(),
+                    trainerToBe?.toDto(),
                     "",
                     "athlete"
             )
@@ -61,6 +65,7 @@ class Athlete(
                     dob,
                     height,
                     weight,
+                    null,
                     null,
                     "",
                     "athlete"

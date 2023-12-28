@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.user.pojo.dto
 
-import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 
 class TrainerDTO(
@@ -12,7 +11,8 @@ class TrainerDTO(
     var code: String,
     token: String?,
     userType: String = "trainer",
-    var athletes: List<AthleteDTO> = ArrayList()
+    var athletes: List<AthleteDTO> = ArrayList(),
+    var unacceptedAthletes: List<AthleteDTO> = ArrayList(),
 ): UserDTO(
     id,name,email, null, token, userType
 ){
@@ -25,6 +25,7 @@ class TrainerDTO(
             country,
             zip,
             code,
+            mutableSetOf(),
             mutableSetOf()
         )
         val athletes = athletes.map { it.toEntity() }.toMutableSet()

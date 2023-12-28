@@ -23,6 +23,10 @@ import { ErrorInterceptor } from "./config/error-interceptor";
 import { FitImportDialogComponent } from './fit-import-dialog/fit-import-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { ConfirmationDialogComponent } from './common/component/dialog/confirmation-dialog.component';
+import { InviteDialogComponent } from './domain/invite-dialog/invite-dialog.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   declarations: [
@@ -33,6 +37,8 @@ import { MatButtonModule } from '@angular/material/button';
     ForgotPasswordComponent,
     ResetPasswordComponent,
     FitImportDialogComponent,
+    ConfirmationDialogComponent,
+    InviteDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +52,8 @@ import { MatButtonModule } from '@angular/material/button';
     SharedModule,
     MatFormFieldModule,
     MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
   ],
   exports: [
     SpinnerComponent,

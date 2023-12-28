@@ -11,7 +11,7 @@
       *ngFor="let notification of notificationService.notifications"
       [notification]="notification"
       (deleteNotification)="deleteNotification($event)"
-      (navigateTo)="navigateTo($event)">
+      (navigateTo)="navigateOrPerformAction($event)">
     </app-notification>
     <button mat-raised-button color="warn" (click)="deleteAllNotifications()">
       clear all

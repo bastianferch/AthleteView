@@ -1,6 +1,5 @@
 package ase.athlete_view.domain.user.pojo.entity
 
-import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
@@ -22,6 +21,9 @@ class Trainer(
     @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST], mappedBy = "trainer", fetch = FetchType.LAZY)
     @JsonManagedReference
     var athletes: MutableSet<Athlete>,
+
+    @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST], fetch = FetchType.LAZY)
+    var unacceptedAthletes: MutableSet<Athlete>,
 ) : User(
     id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
 ) {
@@ -35,6 +37,7 @@ class Trainer(
             code,
             "",
             "trainer",
+            listOf(),
             listOf()
         )
         val athletes = athletes.map { it.toAthleteDto(false) }

@@ -7,4 +7,5 @@ export interface RegisterDto {
   height?: number,
   weight?: number,
   dob?: Date | string,
+  code: string
 }

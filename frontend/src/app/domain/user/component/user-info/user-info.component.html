@@ -52,6 +52,18 @@
           </mat-form-field>
         </div>
       </ng-container>
+      <ng-container *ngIf="user.userType === 'trainer'">
+        <div style="width:100%">
+          <mat-form-field>
+            <mat-label>Invite Code</mat-label>
+            <input matInput formControlName="code" >
+            <button mat-icon-button matSuffix type="button" (click)="openDialog()">
+              <mat-icon>autorenew</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+      </ng-container>
     </form>
 
     <div *ngIf="preferences">

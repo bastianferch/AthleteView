@@ -7,6 +7,9 @@ import { SnackbarService } from '../../../../common/service/snackbar.service';
 import { IntervalContainerComponent } from "../../../../common/interval/component/interval-container/interval-container.component";
 import { Location } from '@angular/common';
 import { HttpStatusCode } from "@angular/common/http";
+import { UserService } from "../../../user/service/UserService";
+import { User } from '../../../user/dto/user';
+import { AuthService } from "../../../auth/service/auth.service";
 
 export enum ActivityCreateEditViewMode {
   create,
@@ -28,6 +31,8 @@ export class CreateEditViewActivityComponent implements OnInit {
 
   protected activityMapper
   plannedActivity: PlannedActivity = undefined;
+  athletes: User[] = undefined;
+  currentUser: User = undefined;
 
   mode: ActivityCreateEditViewMode;
 
@@ -38,7 +43,6 @@ export class CreateEditViewActivityComponent implements OnInit {
       case ActivityCreateEditViewMode.edit:
         return 'Edit Activity';
       case ActivityCreateEditViewMode.details:
-        // return 'Activity name';
         return this.plannedActivity.name
       default:
         return '?';
@@ -51,8 +55,11 @@ export class CreateEditViewActivityComponent implements OnInit {
     private activityService: ActivityService,
     private snackbarService: SnackbarService,
     private changeDetector: ChangeDetectorRef,
-    private location: Location) {
+    private location: Location,
+    private userService: UserService,
+    private authService: AuthService) {
     this.activityMapper = ActivityNameMapper;
+    this.currentUser = this.authService.currentUser;
   }
 
   ngOnInit(): void {
@@ -65,6 +72,9 @@ export class CreateEditViewActivityComponent implements OnInit {
           if (this.plannedActivity.date !== null) {
             this.plannedActivity.date = this.parseDate(this.plannedActivity.date as number[])
           }
+          if (this.mode === ActivityCreateEditViewMode.details && !this.plannedActivity.template) {
+            this.athletes = [this.plannedActivity.createdFor]
+          }
         },
         (error) => {
           if (error.status === HttpStatusCode.NotFound) {
@@ -74,9 +84,10 @@ export class CreateEditViewActivityComponent implements OnInit {
         });
       } else {
         // if this is the create screen, initialize the activity with a default one.
+        this.currentUser = this.authService.currentUser
         this.plannedActivity = {
           id: null,
-          name: undefined,
+          name: "default activity",
           interval: undefined,
           template: false,
           type: ActivityType.RUN,
@@ -89,6 +100,9 @@ export class CreateEditViewActivityComponent implements OnInit {
           createdFor: null,
           activity: null,
         }
+      }
+      if (this.mode !== ActivityCreateEditViewMode.details) {
+        this.loadAthletes()
       }
     });
   }
@@ -116,12 +130,32 @@ export class CreateEditViewActivityComponent implements OnInit {
         });
       } else if (this.mode === ActivityCreateEditViewMode.edit) {
         this.activityService.editPlannedActivity(planned).subscribe({
-          next: () => this.snackbarService.openSnackBar("Activity successfully edited "),
+          next: () => {
+            this.snackbarService.openSnackBar("Activity successfully edited ")
+            this.redirectToActivity(planned.id);
+          },
           error: (err) => this.snackbarService.openSnackBar("Activity edit failed with " + err?.error?.message),
         })
       }
     } else {
       this.snackbarService.openSnackBar("Activity creation failed \n Check all input fields")
+    }
+  }
+
+  loadAthletes() {
+    if (!this.currentUser.isAthlete() && this.athletes === undefined) {
+      this.userService.fetchAthletesForTrainer().subscribe({
+        next: (athletes) => {
+          this.athletes = athletes;
+          // somehow the createdFor is not recognized as the same object
+          this.athletes = this.athletes.map((athlete) =>
+            (athlete.id === this.plannedActivity.createdFor.id ? this.plannedActivity.createdFor : athlete),
+          );
+        },
+        error: (err) => {
+          this.snackbarService.openSnackBar("Failed to fetch athletes for trainer: " + err?.error?.message)
+        },
+      })
     }
   }
 

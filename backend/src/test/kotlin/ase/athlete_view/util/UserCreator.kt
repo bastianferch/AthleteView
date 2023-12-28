@@ -39,13 +39,13 @@ class UserCreator {
         fun getTrainer(): Trainer {
             return Trainer(id = DEFAULT_TRAINER_ID, email = DEFAULT_TRAINER_EMAIL, name = DEFAULT_TRAINER_NAME,
                 password = DEFAULT_TRAINER_PASSWORD, country = DEFAULT_TRAINER_COUNTRY, zip = DEFAULT_TRAINER_ZIP,
-                code = DEFAULT_TRAINER_CODE, athletes = mutableSetOf())
+                code = DEFAULT_TRAINER_CODE, athletes = mutableSetOf(), unacceptedAthletes = mutableSetOf())
         }
 
         fun getAthleteDTO(): AthleteDTO{
             return AthleteDTO(id = DEFAULT_ATHLETE_ID, email = DEFAULT_ATHLETE_EMAIL, name = DEFAULT_ATHLETE_NAME,
                 country = DEFAULT_ATHLETE_COUNTRY, zip = DEFAULT_ATHLETE_ZIP, dob = DEFAULT_ATHLETE_DOB,
-                height = DEFAULT_ATHLETE_HEIGHT, weight = DEFAULT_ATHLETE_WEIGHT, trainer = getTrainerDto(), token = "")
+                height = DEFAULT_ATHLETE_HEIGHT, weight = DEFAULT_ATHLETE_WEIGHT, trainer = getTrainerDto(), token = "", trainerToBe = null)
         }
 
         fun getAthlete(id:Long?): Athlete {
@@ -53,7 +53,7 @@ class UserCreator {
                 id = id ?: DEFAULT_ATHLETE_ID, email = DEFAULT_ATHLETE_EMAIL, name = DEFAULT_ATHLETE_NAME,
                 password = DEFAULT_ATHLETE_PASSWORD, country = DEFAULT_ATHLETE_COUNTRY, zip = DEFAULT_ATHLETE_ZIP,
                 dob = DEFAULT_ATHLETE_DOB, height = DEFAULT_ATHLETE_HEIGHT, weight = DEFAULT_ATHLETE_WEIGHT,
-                trainer = getTrainer()
+                trainer = getTrainer(), trainerToBe = null
             )
         }
     }

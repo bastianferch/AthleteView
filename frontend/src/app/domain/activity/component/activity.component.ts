@@ -24,7 +24,7 @@ export class ActivityComponent implements OnInit {
 
   // default view columns
   private doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
-  private draftColumns = ['activityIcon', 'readableName', 'activitySummary', 'activityDate'];
+  private draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate'];
 
   columnsToDisplay = this.draftColumns
   viewDataSet: object[] = []

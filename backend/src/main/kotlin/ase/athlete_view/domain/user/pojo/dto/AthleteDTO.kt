@@ -13,6 +13,7 @@ class AthleteDTO (
     var height: Int,
     var weight: Int,
     var trainer: TrainerDTO?,
+    var trainerToBe: TrainerDTO?,
     token: String?,
     userType: String = "athlete",
 ): UserDTO(
@@ -29,7 +30,8 @@ class AthleteDTO (
             dob,
             height,
             weight,
-            trainer?.toEntity()
+            trainer?.toEntity(),
+            trainerToBe?.toEntity()
         )
     }
 }
