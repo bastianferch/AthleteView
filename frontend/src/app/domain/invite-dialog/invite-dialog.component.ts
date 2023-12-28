@@ -26,7 +26,7 @@ export class InviteDialogComponent {
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
 
-    // Add our fruit
+    // Add our email
     if (value) {
       this.emails.push(value);
     }
@@ -48,13 +48,13 @@ export class InviteDialogComponent {
   edit(value: string, event: MatChipEditedEvent) {
     const val = event.value.trim();
 
-    // Remove fruit if it no longer has a name
+    // Remove email if it no longer has a name
     if (!val) {
       this.remove(value);
       return;
     }
 
-    // Edit existing fruit
+    // Edit existing email
     const index = this.emails.indexOf(value);
     if (index >= 0) {
       this.emails[index] = val;
