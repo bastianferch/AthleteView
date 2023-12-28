@@ -28,6 +28,7 @@ app:
 
 logging:
   level:
+    ase: TRACE
     de:
       flapdoodle:
         embed:

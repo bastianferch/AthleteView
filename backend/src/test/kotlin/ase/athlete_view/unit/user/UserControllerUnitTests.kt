@@ -134,4 +134,27 @@ class UserControllerUnitTests {
                 .content(objectMapper.writeValueAsString(mailList))
         ).andExpect(status().isForbidden())
     }
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun acceptAthlete_shouldReturnNoContent() {
+        every { trainerService.acceptAthlete(any(),any()) } returns Unit
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/user/trainer/athlete").with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(1L))
+        ).andExpect(status().isNoContent)
+    }
+
+    @Test
+    @WithCustomMockUser(ATHLETE_ID)
+    fun acceptAcceptedAthlete_shouldReturnForbidden() {
+        every { trainerService.acceptAthlete(any(),any()) } throws ForbiddenException("You are already training this athlete")
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/user/trainer/athlete").with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(1000L))
+        ).andExpect(status().isForbidden)
+    }
 }

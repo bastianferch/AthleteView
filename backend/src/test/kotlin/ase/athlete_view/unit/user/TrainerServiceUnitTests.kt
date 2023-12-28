@@ -1,18 +1,23 @@
 package ase.athlete_view.unit.user
 
 import ase.athlete_view.common.exception.entity.ForbiddenException
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.persistence.TrainerRepository
 import ase.athlete_view.domain.user.service.TrainerService
+import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import io.mockk.verifyAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
 
@@ -22,8 +27,8 @@ class TrainerServiceUnitTests: TestBase() {
     @Autowired
     private lateinit var trainerService: TrainerService
 
-    @Autowired
-    private lateinit var trainerRepo: TrainerRepository
+    @MockkBean
+    private lateinit var userService: UserService
 
     @MockkBean
     private lateinit var trainerMockRepo: TrainerRepository
@@ -64,6 +69,45 @@ class TrainerServiceUnitTests: TestBase() {
 
     @Test
     fun acceptAthleteAsTrainer_ShouldNotThrow(){
-        // use TrainerRepo instead of TrainerMockRepo
+        val trainer = UserCreator.getTrainer()
+        val athlete = UserCreator.getAthlete(1)
+        athlete.trainer = null
+        trainer.unacceptedAthletes += athlete
+
+        every { trainerMockRepo.findByIdOrNull(any()) } returns trainer
+        every { userService.saveAll(any()) } returnsArgument 0
+
+        trainerService.acceptAthlete(UserCreator.getTrainerDto(), 1)
+
+        verifyAll {
+            trainerMockRepo.findByIdOrNull(any())
+            userService.saveAll(listOf(trainer, athlete))
+        }
+
+        assertAll(
+            { assert(trainer.unacceptedAthletes.size == 0) },
+            { assert(trainer.athletes.size == 1) },
+            { assert(athlete.trainer == trainer) }
+        )
+    }
+
+    @Test
+    fun acceptAthleteAsTrainerWithAthleteAlreadyAccepted_ShouldThrowForbidden() {
+        val trainer = UserCreator.getTrainer()
+        trainer.athletes += UserCreator.getAthlete(1)
+
+        every { trainerMockRepo.findByIdOrNull(any()) } returns trainer
+
+        assertThrows<ForbiddenException> { trainerService.acceptAthlete(UserCreator.getTrainerDto(), 1) }
+    }
+
+    @Test
+    fun acceptAthleteAsTrainerWithWrongAthlete_ShouldThrowNotFound() {
+        val trainer = UserCreator.getTrainer()
+        trainer.unacceptedAthletes += UserCreator.getAthlete(1)
+
+        every { trainerMockRepo.findByIdOrNull(any()) } returns trainer
+
+        assertThrows<NotFoundException> { trainerService.acceptAthlete(UserCreator.getTrainerDto(), 1000) }
     }
 }

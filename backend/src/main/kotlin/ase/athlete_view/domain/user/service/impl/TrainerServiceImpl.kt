@@ -76,7 +76,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
                 mailService.sendSimpleMail(
                     Email(
                         email,
-                        "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/auth/registration>/${trainer.code}", // TODO replace url for production
+                        "You have been invited to Athlete View by ${trainer.name}.\nPlease register at http://localhost:4200/auth/registration/${trainer.code}", // TODO replace url for production
                         "Invitation to Athlete View"
                     )
                 )

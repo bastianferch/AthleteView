@@ -3,12 +3,11 @@ package ase.athlete_view.integration
 import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.controller.UserController
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
-import ase.athlete_view.util.ATHLETE_ID
-import ase.athlete_view.util.TRAINER_ID
-import ase.athlete_view.util.TestBase
-import ase.athlete_view.util.WithCustomMockUser
+import ase.athlete_view.util.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -57,6 +56,18 @@ class UserControllerIntegrationTests: TestBase(){
 
     val objectMapper = ObjectMapper().registerModules(JavaTimeModule())
 
+    @Test
+    @WithCustomMockUser(ATHLETE_ID)
+    fun getAthlete_shouldReturnOk() {
+        mockMvc.perform(
+            get("/api/user").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+        ).andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("id").value(-2))
+            .andExpect(jsonPath("email").value("b@a.com"))
+    }
 
     @Test
     @WithCustomMockUser(TRAINER_ID)
@@ -124,5 +135,42 @@ class UserControllerIntegrationTests: TestBase(){
                 .characterEncoding("utf-8")
                 .content(objectMapper.writeValueAsString(mailList))
         ).andExpect(status().isForbidden())
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun acceptAthleteWithoutInvitation_shouldReturnNotFound(){
+        mockMvc.perform(
+            post("/api/user/trainer/athlete").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(1000L))
+        ).andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun acceptAthleteAccepted_shouldReturnForbidden(){
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        mockMvc.perform(
+            post("/api/user/trainer/athlete").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(ATHLETE_ID))
+        ).andExpect(status().isForbidden)
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun acceptAthlete_shouldReturnNoContent(){
+        val trainer = userService.getById(TRAINER_ID) as Trainer
+        trainer.unacceptedAthletes.add(userService.getById(-4) as Athlete)
+        userService.save(trainer)
+        mockMvc.perform(
+            post("/api/user/trainer/athlete").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(-4))
+        ).andExpect(status().isNoContent)
     }
 }
