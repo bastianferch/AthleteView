@@ -12,7 +12,7 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import org.springframework.security.authentication.BadCredentialsException
 import java.util.*
 
-interface AuthenticationService {
+interface AuthService {
     /**
      * Validates the given user (e.x. if the email already exists)
      * Encrypts the password with the BCrypt and saves the entity.

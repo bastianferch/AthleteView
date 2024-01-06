@@ -64,6 +64,15 @@ class TestBase {
         return ur.save(user)
     }
 
+    protected fun createDefaultUnconfirmedAthlete(): Athlete{
+        val user = UserCreator.getAthlete(null)
+        user.password = encoder.encode(user.password)
+        user.isConfirmed = false
+        user.trainer = null
+        user.email = UserCreator.DEFAULT_NEW_ATHLETE_EMAIL
+        return ur.save(user)
+    }
+
     protected fun persistDefaultTrainer(id: Long): Trainer {
         val trainer = UserCreator.getTrainer()
         trainer.id = id
@@ -88,11 +97,11 @@ class TestBase {
         trainer.isConfirmed = true
         trainer.athletes = mutableSetOf(athlete)
 
-        val ares = ur.save(athlete)
+        var ares = ur.save(athlete)
         val tres = ur.save(trainer)
 
         ares.trainer = tres
-        ur.save(ares)
+        ares = ur.save(ares)
 
         return ares to tres
     }

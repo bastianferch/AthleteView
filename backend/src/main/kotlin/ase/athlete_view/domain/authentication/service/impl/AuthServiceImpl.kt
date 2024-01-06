@@ -8,7 +8,7 @@ import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
 import ase.athlete_view.domain.authentication.service.AuthValidationService
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.notification.service.NotificationService
@@ -23,6 +23,7 @@ import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.domain.zone.service.ZoneService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.RequiredArgsConstructor
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -33,7 +34,7 @@ import kotlin.collections.ArrayList
 
 @Service
 @RequiredArgsConstructor
-class AuthenticationServiceImpl(
+class AuthServiceImpl(
     private val userService: UserService,
     private val userMapper: UserMapper,
     private val userAuthProvider: UserAuthProvider,
@@ -44,11 +45,13 @@ class AuthenticationServiceImpl(
     private val timeConstraintService: TimeConstraintService,
     private val zoneService: ZoneService,
     private val notificationService: NotificationService
-) : AuthenticationService {
+) : AuthService {
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
+    val log = KotlinLogging.logger {}
 
     @Transactional
     override fun registerUser(user: User): User {
+        log.trace { "registerUser" }
         try {
             userService.getByEmail(user.email)
             throw ConflictException("User with provided email already exists!")
@@ -64,6 +67,8 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
+        log.trace { "registerAthlete" }
+
         this.authValidationService.validateAthleteDTO(dto)
         val athlete = this.registerUser(dto.toEntity()) as Athlete
         this.zoneService.resetZones(athlete.id!!)
@@ -79,19 +84,23 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun registerTrainer(dto: TrainerRegistrationDTO): User {
+        log.trace { "registerTrainer" }
+
         this.authValidationService.validateTrainerDTO(dto)
         while (true) {
             val code = UUID.randomUUID().toString().substring(0, 5).replace('-', Random().nextInt().toChar())
             if (this.trainerService.getByCode(code) != null) {
                 continue
             }
-            return this.registerUser(this.userMapper.toEntity(dto, code, ArrayList()))
+            return this.registerUser(this.userMapper.toEntity(dto, code, ArrayList(), ArrayList()))
         }
 
     }
 
     @Transactional
     override fun confirmRegistration(uuid: UUID) {
+        log.trace { "confirmRegistration" }
+
         val user = this.tokenService.getUserByToken(uuid)
         user.isConfirmed = true
         this.userService.save(user)
@@ -99,11 +108,15 @@ class AuthenticationServiceImpl(
     }
 
     override fun createJwtToken(id: Long): String {
+        log.trace { "createJwtToken" }
+
         val user = this.userService.getById(id).toUserDTO()
         return this.userAuthProvider.createToken(user)
     }
 
     override fun authenticateUser(loginDTO: LoginDTO): UserDTO {
+        log.trace { "authenticateUser" }
+
         try {
             val user = this.userService.getByEmail(loginDTO.email)
             if (!encoder.matches(loginDTO.password, user.password)) {
@@ -134,6 +147,8 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun sendNewConfirmationToken(loginDTO: LoginDTO) {
+        log.trace { "sendNewConfirmationToken" }
+
         try {
             this.authenticateUser(loginDTO)
         } catch (e: ConflictException) {
@@ -143,6 +158,8 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun forgotPassword(email: String) {
+        log.trace { "forgotPassword" }
+
         try {
             val user = this.userService.getByEmail(email)
             user.id?.let { this.tokenService.deleteAllPasswordResetTokensByUser(it) }
@@ -159,6 +176,8 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun setNewPassword(dto: ResetPasswordDTO) {
+        log.trace { "setNewPassword" }
+
         val user = this.tokenService.getUserByToken(dto.token)
         user.password = BCryptPasswordEncoder().encode(dto.password)
         this.authValidationService.validateUser(user)
@@ -169,6 +188,8 @@ class AuthenticationServiceImpl(
 
     @Transactional
     override fun createConfirmationTokenToUser(user: User) {
+        log.trace { "createConfirmationTokenToUser" }
+
         user.id?.let { this.tokenService.deleteAllRegistrationTokensByUser(it) }
         val token = this.tokenService.createEmailConfirmationToken(TokenExpirationTime.ONE_HOUR, user).uuid
         val mail = Email()

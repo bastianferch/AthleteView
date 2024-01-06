@@ -7,7 +7,7 @@ import jakarta.persistence.*
 @Table(name = "preferences")
 open class Preferences(
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long?,
     open var emailNotifications: Boolean = false,
 ) {
