@@ -3,8 +3,8 @@ package ase.athlete_view.domain.authentication.dto
 import java.util.*
 
 class LoginDTO(
-    val email: String,
-    val password: String,
+    var email: String,
+    var password: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) {

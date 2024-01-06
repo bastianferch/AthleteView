@@ -1,13 +1,15 @@
 package ase.athlete_view.integration
 
-import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.controller.UserController
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
-import ase.athlete_view.util.*
+import ase.athlete_view.util.ATHLETE_ID
+import ase.athlete_view.util.TRAINER_ID
+import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -17,7 +19,6 @@ import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ActiveProfiles
@@ -27,10 +28,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
-@SpringBootTest(
-    classes=[AthleteViewApplication::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class UserControllerIntegrationTests: TestBase(){

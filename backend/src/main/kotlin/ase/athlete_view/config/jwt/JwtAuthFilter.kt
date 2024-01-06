@@ -1,6 +1,6 @@
 package ase.athlete_view.config.jwt
 
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KLogger
 import jakarta.servlet.FilterChain
@@ -12,7 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class JwtAuthFilter(
     private val userAuthProvider: UserAuthProvider,
-    private val authenticationService: AuthenticationService,
+    private val authService: AuthService,
     private val log: KLogger
 ) : OncePerRequestFilter() {
 
@@ -46,6 +46,6 @@ class JwtAuthFilter(
     private fun updateJwtHeader(userId: Long, response: HttpServletResponse) {
         // otherwise, the front end http interceptors cannot read the new token
         response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "authorization")
-        response.setHeader(HttpHeaders.AUTHORIZATION, this.authenticationService.createJwtToken(userId))
+        response.setHeader(HttpHeaders.AUTHORIZATION, this.authService.createJwtToken(userId))
     }
 }

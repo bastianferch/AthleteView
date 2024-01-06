@@ -4,7 +4,7 @@ import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.config.SecurityConfig
 import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.health.controller.HealthController
 import ase.athlete_view.domain.health.service.HealthService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
@@ -38,7 +38,7 @@ class HealthControllerIntegrationTest {
     private lateinit var webContext: WebApplicationContext
 
     @MockkBean
-    lateinit var authService: AuthenticationService
+    lateinit var authService: AuthService
 
     @MockkBean
     lateinit var healthService: HealthService

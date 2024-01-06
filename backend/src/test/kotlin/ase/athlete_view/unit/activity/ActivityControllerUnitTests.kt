@@ -12,7 +12,7 @@ import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.mapper.UserMapper
@@ -56,7 +56,7 @@ class ActivityControllerUnitTests {
     private lateinit var activityService: ActivityService
 
     @MockkBean
-    lateinit var authService: AuthenticationService
+    lateinit var authService: AuthService
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider

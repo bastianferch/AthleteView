@@ -21,26 +21,28 @@ abstract class UserMapper {
     @Mapping(source = "zip", target = ".", ignore = true)
     @Mapping(source = "notifications", target = ".", ignore = true)
     @Mapping(source = "password", target = "password", ignore = true)
-    abstract fun toDTO(user: User): UserDTO
+    abstract fun toUserDTO(user: User): UserDTO
 
     @Mapping(target = "activities", expression = "java(getEmptyActivityList())")
     abstract fun toEntity(athleteRegistrationDTO: AthleteRegistrationDTO): Athlete
 
     @Mapping(source = "password", target = "password", ignore = true)
     @Mapping(target = "athletes", expression = "java(athletesFromTrainer(trainer))")
-    abstract fun toDTO(trainer: Trainer): TrainerDTO
+    abstract fun toTrainerDTO(trainer: Trainer): TrainerDTO
 
     @Mapping(source = "password", target = "password", ignore = true)
     @Mapping(target = "trainer", expression = "java(trainerFromAthlete(athlete))")
-    abstract fun toDTO(athlete: Athlete): AthleteDTO
+    abstract fun toAthleteDTO(athlete: Athlete): AthleteDTO
 
 
     @Mapping(source = "code", target = "code")
     @Mapping(source = "athletes", target = "athletes")
+    @Mapping(source = "unacceptedAthletes", target = "unacceptedAthletes")
     abstract fun toEntity(
         trainerRegistrationDTO: TrainerRegistrationDTO,
         code: String,
-        athletes: List<Athlete>
+        athletes: List<Athlete>,
+        unacceptedAthletes: List<Athlete>
     ): Trainer
 
     @Mapping(source = "password", target = "password", ignore = true)
@@ -67,7 +69,7 @@ abstract class UserMapper {
     // used by the mappings. Fixes stack overflow of circular dependencies.
     fun trainerFromAthlete(athlete: Athlete): TrainerDTO? {
         if (athlete.trainer != null) {
-            return this.toDTO(athlete.trainer!!)
+            return this.toTrainerDTO(athlete.trainer!!)
         }
         return null;
     }
@@ -77,7 +79,7 @@ abstract class UserMapper {
     fun athletesFromTrainer(trainer: Trainer): List<AthleteDTO> {
         return trainer.athletes.stream().map { athlete ->
             athlete.trainer = null
-            val dto = toDTO(athlete)
+            val dto = toAthleteDTO(athlete)
             athlete.trainer = trainer
             return@map dto
         }.toList()

@@ -27,6 +27,14 @@ class GlobalExceptionHandler {
         return ExceptionResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY, ex.message)
     }
 
+    @ExceptionHandler(NullPointerException::class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    fun handleNullPointerException(ex: NullPointerException): ExceptionResponseDTO {
+        logger.warn { "NullPointerException exception: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.message)
+    }
+
     @ExceptionHandler(NotFoundException::class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody

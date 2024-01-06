@@ -5,7 +5,7 @@ import ase.athlete_view.common.exception.entity.ForbiddenException
 import ase.athlete_view.config.SecurityConfig
 import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.user.controller.UserController
 import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.user.service.TrainerService
@@ -49,7 +49,7 @@ class UserControllerUnitTests {
     private lateinit var athleteService: AthleteService
 
     @MockkBean
-    lateinit var authService: AuthenticationService
+    lateinit var authService: AuthService
 
     @MockkBean
     lateinit var trainerService: TrainerService

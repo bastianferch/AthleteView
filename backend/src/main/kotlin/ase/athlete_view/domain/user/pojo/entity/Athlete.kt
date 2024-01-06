@@ -2,6 +2,7 @@ package ase.athlete_view.domain.user.pojo.entity
 
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
 import com.fasterxml.jackson.annotation.JsonBackReference
+import jakarta.persistence.CascadeType
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
@@ -25,7 +26,7 @@ class Athlete(
     var height: Int, // mm
     var weight: Int, // g
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "trainer_id")
     @JsonBackReference
