@@ -94,7 +94,7 @@ export class CreateEditViewActivityComponent implements OnInit {
           withTrainer: false,
           note: "",
           date: new Date(),
-          estimatedDuration: 0,
+          estimatedDuration: 120,
           load: undefined,
           createdBy: null, // stays. Will be ignored by the backend anyway
           createdFor: null,

@@ -36,7 +36,7 @@ class Athlete(
     @JsonBackReference
     var trainerToBe: Trainer?
 ) : User(
-    id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
+    id, email, mutableListOf(), name, password, country, zip, false, mutableSetOf(),
 ) {
 
     fun toAthleteDto(includeTrainer: Boolean = true): AthleteDTO {

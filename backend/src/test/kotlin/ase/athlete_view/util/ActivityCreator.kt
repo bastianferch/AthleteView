@@ -41,6 +41,12 @@ class ActivityCreator {
                 )
             }
 
+
+            fun getTemplatePlannedActivity(trainer: Trainer): PlannedActivity {
+                return PlannedActivity(null,"default",ActivityType.RUN, getDefaultInterval(),true,true,"Sample template activity",
+                        null,3,Load.LOW,trainer,null,null);
+            }
+
             fun get7Times1KmPlannedActivity(createdBy: User, createdFor: Athlete?):PlannedActivity{
                 return PlannedActivity(1," 7x(1km P:1')", ActivityType.RUN,
                     Interval(null,1, listOf(
@@ -56,6 +62,7 @@ class ActivityCreator {
                             Step(null,StepType.COOLDOWN,StepDurationType.LAPBUTTON,null,null,null,null,null,null))),null)
                     ,
                     false,false, "", LocalDateTime.of(2023,9,30,12,10), 60,Load.MEDIUM,createdBy,createdFor, null)
+
 
             }
 

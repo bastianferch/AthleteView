@@ -143,6 +143,23 @@ class ActivityController(private val activityService: ActivityService) {
         return mapped
     }
 
+    @GetMapping("/templates")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun fetchTemplatesForUser(
+        @AuthenticationPrincipal user: UserDTO,
+    ): List<PlannedActivityDTO> {
+        logger.info { "Fetching template activities for user ${user.id}" }
+        // can be sure that logged-in user has an id
+        val result = activityService.getAllTemplates(user.id!!)
+        logger.debug { "Fetched activities: $result" }
+        val mapped = result.map { it.toDTO() }
+        logger.debug { "After DTO-mapping, activities: $mapped"}
+        return mapped
+    }
+
+
+
     @GetMapping("/finished/{activityId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

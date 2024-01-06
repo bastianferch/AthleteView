@@ -38,6 +38,20 @@ class Step(
         )
     }
 
+    fun copy(): Step {
+        return Step(
+                null,
+                this.type,
+                this.durationType,
+                this.durationDistance,
+                this.durationDistanceUnit,
+                this.targetType,
+                this.targetFrom,
+                this.targetTo,
+                this.note
+        )
+    }
+
     override fun toString(): String{
         return "Step(id=$id, type=$type, durationType=$durationType, durationDistance=$durationDistance, durationDistanceUnit=$durationDistanceUnit, targetType=$targetType, targetFrom=$targetFrom, targetTo=$targetTo, note=$note)"
     }

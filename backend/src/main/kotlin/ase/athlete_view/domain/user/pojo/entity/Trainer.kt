@@ -25,7 +25,7 @@ class Trainer(
     @OneToMany(cascade = [CascadeType.MERGE, CascadeType.PERSIST], fetch = FetchType.LAZY)
     var unacceptedAthletes: MutableSet<Athlete>,
 ) : User(
-    id, email, mutableListOf(), name, password, country, zip, true, mutableSetOf(),
+    id, email, mutableListOf(), name, password, country, zip, false, mutableSetOf(),
 ) {
     fun toDto(): TrainerDTO {
         val trainer =  TrainerDTO(

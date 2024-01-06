@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.user.service
 
+import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 
 interface AthleteService {

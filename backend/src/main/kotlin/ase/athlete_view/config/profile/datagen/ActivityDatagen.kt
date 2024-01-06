@@ -70,30 +70,30 @@ class ActivityDatagen(
             240 - reduceSecondsPerKm,
             trainer,
             athlete,
-            LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[0])).withHour(faker.random.nextInt(6, 18))
+            if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[0])).withHour(faker.random.nextInt(6, 18))
         )
         createRunInterval7times1kmWith2MinRecovery(
             240 - reduceSecondsPerKm,
             trainer,
             athlete,
-            LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[1])).withHour(faker.random.nextInt(6, 18))
+                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[1])).withHour(faker.random.nextInt(6, 18))
         )
         createBike21MinTest(
             40 - reduceSecondsPerKm,
             trainer,
             athlete,
-            LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[2])).withHour(faker.random.nextInt(6, 18))
+                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[2])).withHour(faker.random.nextInt(6, 18))
         )
         createBike90km(
             40 - reduceSecondsPerKm,
             trainer,
             athlete,
-            LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[3])).withHour(faker.random.nextInt(6, 18))
+                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[3])).withHour(faker.random.nextInt(6, 18))
         )
         createSwim2h(
             trainer,
             athlete,
-            LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[4])).withHour(faker.random.nextInt(6, 18))
+                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[4])).withHour(faker.random.nextInt(6, 18))
         )
         if (athlete != null) {
             createSwim2h(

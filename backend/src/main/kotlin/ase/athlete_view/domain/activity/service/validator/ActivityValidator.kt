@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 class ActivityValidator {
     val log = KotlinLogging.logger {}
 
-    fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User) {
+    fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User, isCsp: Boolean = false) {
         log.trace { "S | Validating new planned activity $plannedActivity" }
         val validationErrors: MutableList<String> = ArrayList()
 
@@ -42,9 +42,12 @@ class ActivityValidator {
         }
 
         if (user is Trainer) {
-            if (plannedActivity.createdFor != null && plannedActivity.date == null) {
+            if(!isCsp){
+                if (plannedActivity.createdFor != null && plannedActivity.date == null) {
                     validationErrors.add("Date must be set if activity is created for an athlete")
+                }
             }
+
             if (plannedActivity.createdFor == null && plannedActivity.date != null) {
                 validationErrors.add("Athlete must be set if date is set")
             }

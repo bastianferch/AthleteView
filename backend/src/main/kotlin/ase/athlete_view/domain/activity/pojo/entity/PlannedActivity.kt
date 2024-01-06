@@ -80,6 +80,24 @@ open class PlannedActivity(
         }
     }
 
+    fun copyWithNewCreatedForAndWithTrainer(newCreatedFor: Athlete, withTrainer: Boolean): PlannedActivity {
+        return PlannedActivity(
+                id = null,
+                type = this.type,
+                interval = this.interval.copy(),
+                withTrainer = withTrainer,
+                template = false, // Set to non template
+                note = this.note,
+                date = this.date,
+                createdBy = this.createdBy,
+                estimatedDuration = this.estimatedDuration,
+                name = this.name,
+                activity =  this.activity,
+                load = this.load,
+                createdFor = newCreatedFor // Set to the new Athlete
+        )
+    }
+
     override fun toString(): String {
         return "PlannedActivity(id=$id, type=$type, interval=$interval, withTrainer=$withTrainer, template=$template, note=$note, date=$date, createdBy=${createdBy?.id}, createdFor=${createdFor?.id})"
     }
