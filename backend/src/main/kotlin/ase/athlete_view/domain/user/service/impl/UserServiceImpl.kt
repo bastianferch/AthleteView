@@ -21,10 +21,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class UserServiceImpl(private val userRepository: UserRepository,
-                      private val validationService: AuthValidationService,
-                      private val preferencesRepository: PreferencesRepository,
-    private val userMapper: UserMapper) : UserService {
+class UserServiceImpl(
+    private val userRepository: UserRepository,
+    private val validationService: AuthValidationService,
+    private val preferencesRepository: PreferencesRepository,
+    private val userMapper: UserMapper
+) : UserService {
     val log = KotlinLogging.logger {}
 
     @Transactional
@@ -32,7 +34,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
         log.trace { "save ${user.email}" }
         // store new preferences object if not already present
         if (user.preferences == null) {
-            val genericPreferences = Preferences(user.id);
+            val genericPreferences = Preferences(id = null);
             user.preferences = preferencesRepository.save(genericPreferences);
         }
         return this.userRepository.save(user)
@@ -43,7 +45,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
         log.trace { "saveAll ${users.map { user: User -> user.email }}" }
         users.iterator().forEach { user ->
             if (user.preferences == null) {
-               user.preferences = preferencesRepository.save(Preferences(user.id));
+                user.preferences = preferencesRepository.save(Preferences(id = null));
             }
         }
         return this.userRepository.saveAll(users)
@@ -63,11 +65,11 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun updateTrainer(trainerDTO: TrainerDTO) {
         log.trace { "updateTrainer ${trainerDTO.email}" }
         val trainer = this.userRepository.findByEmail(trainerDTO.email)
-        if (trainer is Trainer){
+        if (trainer is Trainer) {
             this.userMapper.toEntity(trainer, trainerDTO)
             this.validationService.validateUser(trainer)
             this.save(trainer)
-        } else{
+        } else {
             throw ConflictException("Could not update trainer by being the athlete")
         }
     }
@@ -76,11 +78,11 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun updateAthlete(athleteDTO: AthleteDTO) {
         log.trace { "updateAthlete ${athleteDTO.email}" }
         val athlete = this.userRepository.findByEmail(athleteDTO.email)
-        if (athlete is Athlete){
+        if (athlete is Athlete) {
             this.userMapper.toEntity(athlete, athleteDTO)
             this.validationService.validateUser(athlete)
             this.save(athlete)
-        } else{
+        } else {
             throw ConflictException("Could not update athlete by being the trainer")
         }
     }

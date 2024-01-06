@@ -125,6 +125,32 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+			<version>3.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.0.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents.core5</groupId>
+					<artifactId>httpcore5-h2</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java</artifactId>
+			<version>3.3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-transport-httpclient5</artifactId>
+			<version>3.3.4</version>
+		</dependency>
+		<dependency>
 			<groupId>com.garmin</groupId>
 			<artifactId>fit</artifactId>
 			<version>21.120.2</version>

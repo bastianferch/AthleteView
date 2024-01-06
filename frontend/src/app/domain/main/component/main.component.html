@@ -21,8 +21,11 @@
           <button mat-flat-button color="primary" [routerLink]="'/calendar'">
             Calendar
           </button>
-        </div>
 
+          <button mat-flat-button *ngIf="currentUserType==='trainer'" color="primary"  [routerLink]="'/trainingsplan'">
+            Trainingsplan
+          </button>
+        </div>
         <div class="btn-group">
           <button
             mat-icon-button

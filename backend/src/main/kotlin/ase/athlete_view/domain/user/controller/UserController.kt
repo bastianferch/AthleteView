@@ -65,7 +65,6 @@ class UserController (private val trainerService: TrainerService,
         this.trainerService.acceptAthlete(userDTO, id)
     }
 
-
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/athlete")
     fun updateAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athleteDTO: AthleteDTO) {

@@ -45,7 +45,7 @@ class ActivityServiceImpl(
     private val logger = KotlinLogging.logger {}
 
     @Transactional
-    override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
+    override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long, isCsp: Boolean): PlannedActivity {
         logger.trace { "S | createPlannedActivity \n $plannedActivity" }
 
         // get the logged-in user
@@ -56,7 +56,7 @@ class ActivityServiceImpl(
 
         // activity is always created by the logged-in user
         val usr = user.get()
-        validator.validateNewPlannedActivity(plannedActivity, usr)
+        validator.validateNewPlannedActivity(plannedActivity, usr, isCsp)
         plannedActivity.createdBy = usr
 
         // verify if `createdFor` actually exists?
@@ -76,6 +76,7 @@ class ActivityServiceImpl(
         return this.plannedActivityRepo.save(plannedActivity)
     }
 
+    @Transactional
     override fun getPlannedActivity(id: Long, userId: Long): PlannedActivity {
         logger.trace { "S | getPlannedActivity $id" }
 
@@ -117,7 +118,7 @@ class ActivityServiceImpl(
         return activity
     }
 
-    @Transactional
+
     override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
         logger.trace { "S | getAllPlannedActivities" }
 
@@ -156,6 +157,12 @@ class ActivityServiceImpl(
         return activities.toList()
     }
 
+    override fun getAllTemplates(uid: Long): List<PlannedActivity> {
+        logger.trace { "S | getAllTemplates" }
+        return plannedActivityRepo.findAllTemplatesForUid(uid);
+    }
+
+    @Transactional
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
         logger.trace { "S | updatePlannedActivity $id $plannedActivity" }
 
@@ -203,6 +210,14 @@ class ActivityServiceImpl(
             return respData
         } else {
             throw NotImplementedError("Health fit files are currently not supported")
+        }
+    }
+
+    @Transactional
+    override fun deletePlannedActivities(activities: List<PlannedActivity>){
+        logger.trace { "S | deleteActivities" }
+        for (elem in activities){
+            plannedActivityRepo.delete(elem)
         }
     }
 
@@ -447,6 +462,7 @@ class ActivityServiceImpl(
         }
     }
 
+
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
         var i = 0
         for (step in stepList) { // go through all steps
@@ -488,6 +504,23 @@ class ActivityServiceImpl(
         return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
     }
 
+
+    override fun createInterval(interval: Interval): Interval {
+        if (interval.intervals?.isNotEmpty() == true) {
+            interval.intervals!!.forEach { createInterval(it) }
+        }
+        if (interval.step != null) {
+            interval.step = createStep(interval.step!!)
+        }
+        return this.intervalRepo.save(interval)
+    }
+
+    @Transactional
+    override fun createStep(step: Step): Step {
+        return this.stepRepo.save(step)
+    }
+
+
     override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
         logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
 
@@ -513,20 +546,6 @@ class ActivityServiceImpl(
         return activityObj
     }
 
-
-    override fun createInterval(interval: Interval): Interval {
-        if (interval.intervals?.isNotEmpty() == true) {
-            interval.intervals!!.forEach { createInterval(it) }
-        }
-        if (interval.step != null) {
-            interval.step = createStep(interval.step!!)
-        }
-        return this.intervalRepo.save(interval)
-    }
-
-    private fun createStep(step: Step): Step {
-        return this.stepRepo.save(step)
-    }
 
 
     // TODO find the different kind of sports and why rowing and crosscountryskiing are not existing in FitActivityType

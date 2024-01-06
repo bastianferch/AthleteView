@@ -68,7 +68,18 @@ export enum ActivityType {
 export enum Load {
   EASY = 'EASY',
   MEDIUM = 'MEDIUM',
-  HARD = 'HARD'
+  HARD = 'HIGH'
+}
+
+export function convertLoadToInt(load:Load):number {
+  switch (load) {
+    case Load.HARD:
+      return 2
+    case Load.MEDIUM:
+      return 1
+    case Load.EASY:
+      return 0
+  }
 }
 
 export const ActivityNameMapper = new Map<ActivityType, string>([

@@ -82,4 +82,13 @@ class GlobalExceptionHandler {
         logger.warn { "DuplicateFitFileException : ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.CONFLICT, "File already in-store!")
     }
+
+    @ExceptionHandler(AlreadyExistsException::class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    @ResponseBody
+    fun handleAlreadyExists(ex: AlreadyExistsException): ExceptionResponseDTO {
+        logger.warn { "AlreadyExistsException : ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.CONFLICT, ex.message)
+    }
+
 }

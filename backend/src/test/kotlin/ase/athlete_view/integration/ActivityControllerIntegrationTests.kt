@@ -82,6 +82,11 @@ class ActivityControllerIntegrationTests : TestBase() {
         "Sample planned activity", LocalDateTime.now().plusDays(5), 60, Load.MEDIUM, UserCreator.getTrainer(), null, null
     )
 
+    val template = PlannedActivity(
+        null, "tempalte test", ActivityType.RUN, interval, false, true,
+        "Sample template activity", null, 60, Load.MEDIUM, UserCreator.getTrainer(), null, null
+    )
+
     private lateinit var defaultAthlete: Athlete
     private lateinit var defaultTrainer: Trainer
 
@@ -188,7 +193,7 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$").isArray)
-            .andExpect(jsonPath("$.length()").value(6))
+            .andExpect(jsonPath("$.length()").value(10))
     }
 
     @Test
@@ -280,5 +285,27 @@ class ActivityControllerIntegrationTests : TestBase() {
                 get("/api/activity/finished/-1").with(csrf())
         )
                 .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @WithCustomMockUser(id = 2)
+    fun getTemplatesForTrainer_shouldReturnAllTemplates() {
+        val templateActivityDto = template.toDTO()
+        val result = mockMvc.perform(
+            post("/api/activity/planned").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(templateActivityDto))
+        ).andExpect(status().isOk)
+
+        mockMvc.perform(
+            get("/api/activity/templates")
+        )
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].template").value(true))
+            .andExpect(jsonPath("$[0].date").value(null))
     }
 }

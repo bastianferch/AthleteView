@@ -211,7 +211,7 @@ export class CustomCalendarComponent implements OnInit {
           const activityEnd = add(x.date as Date, { minutes: est })
           if (new Date().getTime() >= activityStart.getTime()) {
             return {
-              title: "Planned Activity",
+              title: x.name,
               start: activityStart,
               end: activityEnd,
               resizable: { beforeStart: false, afterEnd: false },
@@ -221,8 +221,8 @@ export class CustomCalendarComponent implements OnInit {
             }
           }
           return {
-            title: "Planned Activity",
-            start: x.date as Date,
+            title: x.name,
+            start: activityStart,
             end: activityEnd,
             resizable: { beforeStart: false, afterEnd: false },
             draggable: false,

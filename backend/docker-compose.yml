@@ -2,6 +2,7 @@ version: '3.1'
 services:
   postgres:
     image: 'postgres:latest'
+    hostname: 'postgres'
     restart: always
     ports:
       - '5432:5432'
@@ -23,6 +24,18 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=mongousr
       - MONGO_INITDB_ROOT_PASSWORD=1mongo3mongo3mongo7
       - MONGO_INITDB_DATABASE=athlete_view
+  rabbitmq:
+    image: 'rabbitmq:management-alpine'
+    hostname: 'rabbit'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - "RABBITMQ_DEFAULT_USER=guest"
+      - "RABBITMQ_DEFAULT_PASS=guest"
 volumes:
   pgvol:
   mongovol:
+networks:
+  default:
+    name: athlete_view

@@ -1,0 +1,5 @@
+redis
+pika
+python-dotenv
+pytest
+timeout-decorator

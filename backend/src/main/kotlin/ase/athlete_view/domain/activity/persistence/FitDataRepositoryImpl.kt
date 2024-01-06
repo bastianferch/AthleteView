@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.gridfs.GridFsOperations
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.stereotype.Repository
+import java.io.BufferedInputStream
 import java.io.InputStream
 import java.security.MessageDigest
 
@@ -30,15 +31,16 @@ class FitDataRepositoryImpl(
     }
 
     override fun saveFitData(data: InputStream, filename: String): String {
-
-        if (checkIfFileExists(data)) {
+        val bin = BufferedInputStream(data)
+        if (checkIfFileExists(bin)) {
             throw DuplicateFitFileException("File already in-store!")
         }
 
         val metadata = BasicDBObject()
 
-        metadata.append("hash", getSha256Digest(data.readAllBytes()))
-        data.reset()
+        bin.mark(Integer.MAX_VALUE)
+        metadata.append("hash", getSha256Digest(bin.readAllBytes()))
+        bin.reset()
         val id: ObjectId = gridFsTemplate.store(data,filename, metadata)
         return id.toString()
     }
@@ -51,7 +53,8 @@ class FitDataRepositoryImpl(
         )
     }
 
-    private fun checkIfFileExists(data: InputStream): Boolean {
+    private fun checkIfFileExists(data: BufferedInputStream): Boolean {
+        data.mark(Integer.MAX_VALUE)
         val hashValue = getSha256Digest(data.readAllBytes())
         data.reset()
         log.debug { "Checking if file with hash $hashValue exists" }

@@ -16,4 +16,7 @@ interface PlannedActivityRepository : JpaRepository<PlannedActivity, Long> {
     fun findActivitiesByUserIdTypeAndDateWithoutActivity(@Param("userId") userId: Long, @Param("activityType") activityType: ActivityType, @Param("startDate") startDate: LocalDateTime, @Param("endDate") endDate: LocalDateTime): List<PlannedActivity>
 
     fun findAllByCreatedForId(uid: Long): List<PlannedActivity>
+
+    @Query("SELECT p FROM PlannedActivity p WHERE p.createdBy.id = :uid AND p.template = true")
+    fun findAllTemplatesForUid(uid:Long): List<PlannedActivity>
 }
