@@ -3,9 +3,8 @@ package ase.athlete_view.unit.csp
 import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.config.SecurityConfig
 import ase.athlete_view.config.jwt.UserAuthProvider
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
-import ase.athlete_view.domain.authentication.service.AuthenticationService
+import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.csp.controller.CspController
 import ase.athlete_view.domain.csp.pojo.dto.CspActivityDto
 import ase.athlete_view.domain.csp.pojo.dto.CspDto
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.just
-import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,8 +34,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @WebMvcTest(controllers = [CspController::class, AuthenticationController::class])
 @ContextConfiguration(classes = [SecurityConfig::class, AthleteViewApplication::class])
@@ -51,7 +46,7 @@ class CspControllerUnitTests {
     private lateinit var cspService: CspService
 
     @MockkBean
-    lateinit var authService: AuthenticationService
+    lateinit var authService: AuthService
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider
