@@ -39,7 +39,7 @@
 
     @media screen and (max-width: 1050px) {
         // for small devices, stack on top instead of side-by-side
-        flex-direction: column-reverse !important;
+        flex-direction: column !important;
         row-gap: 1em !important;
     }
 
@@ -71,14 +71,18 @@ mat-tab-group {
     width: 100%;
 }
 
-.rating-wrapper {
+.rating-comments-wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
     justify-items: center;
-    align-items: center;
     row-gap: 1em;
     width: 100%;
+
+  .comments-wrapper {
+    flex: 1;
+    width: 100%;
+  }
 }
 
 textarea {
@@ -107,7 +111,7 @@ textarea {
     align-items: center;
     min-height: 40px;
     margin-bottom: 10px;
-    
+
     > div {
         display: flex;
         flex: 1;

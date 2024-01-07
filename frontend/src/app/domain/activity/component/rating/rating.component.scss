@@ -1,0 +1,16 @@
+.ratingGroup {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+mat-card {
+  margin: 10px;
+}
+
+.nowrap {
+  min-width: fit-content;
+  display: inline-block;
+  white-space: nowrap;
+}

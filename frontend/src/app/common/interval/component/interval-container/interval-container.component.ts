@@ -189,10 +189,4 @@ export class IntervalContainerComponent implements OnInit {
     } }
     this.addInterval(i);
   }
-
-  logInterval() {
-    // eslint-disable-next-line no-console
-    console.log(this.interval)
-  }
-
 }

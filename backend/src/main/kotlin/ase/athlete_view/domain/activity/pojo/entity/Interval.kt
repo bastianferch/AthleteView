@@ -15,7 +15,7 @@ class Interval(
     @OneToMany(fetch = FetchType.EAGER)
     var intervals: List<Interval>?,
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     var step: Step?
 ) {
     fun toDTO(): IntervalDTO {

@@ -37,7 +37,7 @@ export class FinishedActivityComponent implements OnInit {
   //   this.ds.paginator = v
   // }
 
-  private activity: Activity
+  protected activity: Activity
 
   constructor(
     private activityService: ActivityService,

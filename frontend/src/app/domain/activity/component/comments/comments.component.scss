@@ -1,0 +1,59 @@
+@import "/src/app/style/color-palette";
+
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30vw;
+  height: 100%;
+
+  @media screen and (max-width: 1050px) {
+    // for small devices
+    max-width: 100%;
+    max-height: 30vh;
+  }
+
+}
+
+.comments-list {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.comments-input {
+  padding: 10px 10px 0;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.comment-bubble {
+  margin: 5px;
+  padding: 5px 10px;
+
+  width: fit-content;
+  max-width: 75%;
+  overflow-wrap: break-word;
+}
+
+.user-chatbubble {
+  background-color: $mat-accent-v1;
+  align-self: flex-end;
+}
+
+.other-chatbubble {
+  align-self: flex-start;
+}
+
+.comment-date {
+  text-align: end;
+  font-size: smaller;
+  color: gray;
+}

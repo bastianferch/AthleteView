@@ -3,6 +3,7 @@ package ase.athlete_view.util
 import ase.athlete_view.domain.notification.persistence.NotificationRepository
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.AfterEach
@@ -61,6 +62,7 @@ class TestBase {
         user.isConfirmed = true
         user.trainer = null
         user.email = email
+        user.preferences = Preferences(null)
         return ur.save(user)
     }
 

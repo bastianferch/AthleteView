@@ -22,7 +22,7 @@
             Calendar
           </button>
 
-          <button mat-flat-button *ngIf="currentUserType==='trainer'" color="primary"  [routerLink]="'/trainingsplan'">
+          <button mat-flat-button *ngIf="currentUserType === 'trainer'" color="primary"  [routerLink]="'/trainingsplan'">
             Trainingsplan
           </button>
         </div>
@@ -63,6 +63,10 @@
           <button *ngIf="currentUserType==='trainer'" mat-menu-item (click)="openInviteDialog()">
             <mat-icon>person_add</mat-icon>
             Invite athletes
+          </button>
+          <button mat-menu-item (click)="openPreferencesDialog()">
+            <mat-icon>settings</mat-icon>
+            Preferences
           </button>
           <button mat-menu-item (click)="openZoneDialog()">Edit Zones</button>
           <button mat-menu-item (click)="logout()">

@@ -7,6 +7,7 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
 import { IntervalSplit } from "../../../common/interval/dto/Interval";
 import { Activity } from '../dto/Activity'
 import { DateParsing } from 'src/app/common/util/parsing/date-parsing';
+import { CommentDTO } from "../dto/Comment";
 
 @Injectable({
   providedIn: 'root',
@@ -102,6 +103,27 @@ export class ActivityService {
 
         return item
       }))
+  }
+
+  commentActivity(aid: number, comment: string) {
+    return this.httpClient.patch<CommentDTO>(
+      this.activityBaseUri + `/finished/${aid}`,
+      {
+        id: null,
+        text: comment,
+        author: null,
+        date: null,
+      },
+      { withCredentials: true },
+    );
+  }
+
+  rateActivity(aid: number, rating: number) {
+    return this.httpClient.patch(
+      this.activityBaseUri + `/finished/rate/${aid}/${rating}`,
+      null,
+      { withCredentials: true },
+    );
   }
 
   // do some post-processing on the activity

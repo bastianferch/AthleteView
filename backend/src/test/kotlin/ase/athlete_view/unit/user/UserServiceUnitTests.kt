@@ -2,6 +2,7 @@ package ase.athlete_view.unit.user
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
+import java.util.*
 
 
 @SpringBootTest
@@ -26,7 +28,6 @@ class UserServiceUnitTests {
     private lateinit var userRepo: UserRepository
 
     @Autowired
-
     private lateinit var userService: UserService
 
     @MockkBean
@@ -119,6 +120,54 @@ class UserServiceUnitTests {
 
         assertThrows<NotFoundException> { userService.getById(1) }
         verify(exactly = 1) { userRepo.findByIdOrNull(1) }
+    }
+
+    @Test
+    fun getPreferences_returnsPreferences() {
+        //repo returns athlete with preferences
+        val athlete = UserCreator.getAthlete(null)
+        val originalPrefs = Preferences(athlete.id)
+        athlete.preferences = originalPrefs
+        every { userRepo.findById(any()) } returns Optional.of(athlete)
+
+        // get preferences
+        val prefs = userService.getPreferences(athlete.toUserDTO())
+        verify(exactly = 1) { userRepo.findById(any()) }
+
+        // should be the same as original preferences
+        assertAll(
+            { assert(prefs != null) },
+            { assert(prefs?.emailNotifications == originalPrefs.emailNotifications) },
+            { assert(prefs?.commentNotifications == originalPrefs.commentNotifications) },
+            { assert(prefs?.ratingNotifications == originalPrefs.ratingNotifications) },
+            { assert(prefs?.otherNotifications == originalPrefs.otherNotifications) },
+        )
+    }
+
+    @Test
+    fun updatePreferences_returnsNewPreferences() {
+        //repo returns athlete with preferences
+        val athlete = UserCreator.getAthlete(null)
+        val originalPrefs = Preferences(athlete.id)
+        athlete.preferences = originalPrefs
+        every { userRepo.findById(any()) } returns Optional.of(athlete)
+        every { userRepo.save(any()) } returns athlete
+
+        //new preferences with other values than original ones
+        val newPreferencesDto = UserCreator.getPreferencesDto()
+
+        // get preferences
+        val prefs = userService.patchPreferences(athlete.toUserDTO(), newPreferencesDto)
+        verify(exactly = 1) { userRepo.findById(any()) }
+
+        // should be the same as original preferences
+        assertAll(
+            { assert(prefs != null) },
+            { assert(prefs?.emailNotifications == newPreferencesDto.emailNotifications) },
+            { assert(prefs?.commentNotifications == newPreferencesDto.commentNotifications) },
+            { assert(prefs?.ratingNotifications == newPreferencesDto.ratingNotifications) },
+            { assert(prefs?.otherNotifications == newPreferencesDto.otherNotifications) },
+        )
     }
 
 }

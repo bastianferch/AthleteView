@@ -1,0 +1,61 @@
+<h1 mat-dialog-title>Preferences</h1>
+<div mat-dialog-content class="dialog-content">
+  <hr/>
+  <div *ngIf="preferences">
+    <h1>Notifications</h1>
+
+    <form [formGroup]="form" class="notification-form">
+
+      <div class="settings-line">
+        <span>Send Email Notifications when I am online</span>
+        <div>
+          <mat-slide-toggle formControlName="email"></mat-slide-toggle>
+          <textarea matInput hidden></textarea>
+        </div>
+      </div>
+
+      <div class="settings-line">
+        <span>Comments</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="comment" [(value)]="preferences.commentNotifications">
+            <mat-option *ngFor="let prefType of preferenceNotificationType" [value]="prefType">
+              {{preferenceNotificationMapper.get(prefType)}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="settings-line">
+        <span>Ratings</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="rating" [(value)]="preferences.ratingNotifications">
+            <mat-option *ngFor="let prefType of preferenceNotificationType" [value]="prefType">
+              {{preferenceNotificationMapper.get(prefType)}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="settings-line">
+        <span>Other</span>
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="other" [(value)]="preferences.otherNotifications">
+            <mat-option *ngFor="let prefType of preferenceNotificationType" [value]="prefType">
+              {{preferenceNotificationMapper.get(prefType)}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+
+    </form>
+
+
+
+
+  </div>
+</div>
+<div mat-dialog-actions class="dialog-footer">
+  <button mat-button color="warn" (click)="handleCancel()">Cancel</button>
+  <button mat-button color="primary" (click)="patchPreferences()">Save</button>
+</div>

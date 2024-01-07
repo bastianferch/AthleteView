@@ -2,6 +2,7 @@ package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
+import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
@@ -171,6 +172,39 @@ class ActivityController(private val activityService: ActivityService) {
 
         return activityService.getSingleActivityForUser(user.id!!, activityId).toDTO()
     }
+
+
+    @PatchMapping("/finished/{activityId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun commentFinishedActivity(
+        @AuthenticationPrincipal user: UserDTO,
+        @PathVariable activityId: Long,
+        @RequestBody comment: CommentDTO): CommentDTO {
+        logger.info { "C | commentFinishedActivity($activityId, $comment)" }
+        if (user.id == null) {
+            throw NotFoundException("Invalid credentials")
+        }
+
+        return activityService.commentActivityWithUser(user.id!!, activityId, comment).toDTO()
+    }
+
+    @PatchMapping("/finished/rate/{activityId}/{rating}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun rateFinishedActivity(
+        @AuthenticationPrincipal user: UserDTO,
+        @PathVariable activityId: Long,
+        @PathVariable rating: Int): Unit {
+        logger.info { "C | rateFinishedActivity($activityId, $rating)" }
+        if (user.id == null) {
+            throw NotFoundException("Invalid credentials")
+        }
+
+        activityService.rateActivityWithUser(user.id!!, activityId, rating)
+    }
+
+
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {
         return LocalDateTime.parse(strInput, DateTimeFormatter.ISO_OFFSET_DATE_TIME)

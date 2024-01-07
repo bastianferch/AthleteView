@@ -2,6 +2,7 @@ package ase.athlete_view.domain.activity.service.validator
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.domain.activity.pojo.entity.Comment
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
@@ -17,6 +18,7 @@ import java.time.LocalDateTime
 @Validated
 class ActivityValidator {
     val log = KotlinLogging.logger {}
+    val commentTextLength = 1000 // characters
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User, isCsp: Boolean = false) {
         log.trace { "S | Validating new planned activity $plannedActivity" }
@@ -33,7 +35,7 @@ class ActivityValidator {
             if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
                 validationErrors.add("Athletes can only create Activities for themselves")
             }
-            if (plannedActivity.createdFor == null && plannedActivity.template) {
+            if (plannedActivity.createdFor == null && !plannedActivity.template) {
                 plannedActivity.createdFor = user
             }
             if (plannedActivity.withTrainer) {
@@ -127,6 +129,19 @@ class ActivityValidator {
         }
 
         validateNewPlannedActivity(plannedActivity, user)
+    }
+
+    fun validateComment(comment: Comment) {
+        if (comment.text.length > commentTextLength) {
+            throw ValidationException("Comments must have length <= 1000 characters")
+        }
+    }
+
+    fun validateRating(rating: Int) {
+        val r = rating.toInt()
+        if (r > 5 || r < 0) {
+            throw ValidationException("Rating must be between 0 and 5")
+        }
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
