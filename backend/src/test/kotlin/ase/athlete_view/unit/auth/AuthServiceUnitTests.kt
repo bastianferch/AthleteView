@@ -22,7 +22,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -73,6 +72,7 @@ class AuthServiceUnitTests : TestBase() {
     @Test
     fun loginWithCorrectCredentials() {
         val athlete = UserCreator.getAthlete(1)
+        athlete.isConfirmed = true
         athlete.password = encoder.encode(athlete.password)
         every { userService.getByEmail(any()) } returns athlete
         every { userAuthProvider.createToken(any()) } returns UUID.randomUUID().toString()
@@ -80,9 +80,11 @@ class AuthServiceUnitTests : TestBase() {
         val login = UserCreator.getAthleteLoginDto()
 
         val user = this.authService.authenticateUser(login)
-        Assertions.assertThat(user.id).isNotZero()
-        Assertions.assertThat(user.name).isEqualTo(UserCreator.DEFAULT_ATHLETE_NAME)
-        Assertions.assertThat(user.token).isNotNull()
+        assertAll(
+            { assertThat(user.id).isNotZero() },
+            { assertThat(user.name).isEqualTo(UserCreator.DEFAULT_ATHLETE_NAME) },
+            { assertThat(user.token).isNotNull() },
+        )
     }
 
     @Test
@@ -98,7 +100,7 @@ class AuthServiceUnitTests : TestBase() {
         assertThrows<BadCredentialsException> { this.authService.authenticateUser(login1) }
 
         val login2 = UserCreator.getAthleteLoginDto()
-        Assertions.assertThat(login2.password).isNotEmpty()
+        assertThat(login2.password).isNotEmpty()
         login2.password = ""
         assertThrows<BadCredentialsException> { this.authService.authenticateUser(login2) }
     }
@@ -388,6 +390,7 @@ class AuthServiceUnitTests : TestBase() {
     @Test
     fun sendNewConfirmationLinkForAlreadyConfirmedUser_Returns204() {
         val athlete = UserCreator.getAthlete(1)
+        athlete.isConfirmed = true
         athlete.password = encoder.encode(athlete.password)
         val dto = LoginDTO(athlete.email, password = UserCreator.DEFAULT_ATHLETE_PASSWORD)
         every { dto.email.let { userService.getByEmail(it) } } returns athlete
