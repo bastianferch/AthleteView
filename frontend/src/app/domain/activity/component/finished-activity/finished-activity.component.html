@@ -9,7 +9,7 @@
     </div>
     <div class="content-wrapper">
         <div class="activity-wrapper">
-            <mat-tab-group mat-stretch-tabs="true"> 
+            <mat-tab-group mat-stretch-tabs="true">
                 <mat-tab label="Graphs">
                     <div class="graph-wrapper">
                         <!-- TODO: placeholders for later sprint-task -->
@@ -124,14 +124,17 @@
                         </mat-paginator> -->
                     </div>
                 </mat-tab>
-            </mat-tab-group>              
+            </mat-tab-group>
         </div>
         <mat-divider [vertical]="true" class="no-mobile"></mat-divider>
-        <div class="rating-wrapper">
-            <h2>Rating</h2>
-            <label for="rating-comment">Comment on your training</label>
-            <textarea name="comment" id="rating-comment"></textarea>
-            <button mat-raised-button color="primary">Comment</button>
+        <div class="rating-comments-wrapper">
+            <div>
+                <app-rating [activity]="activity"></app-rating>
+            </div>
+          <mat-divider></mat-divider>
+            <div class="comments-wrapper">
+                <app-comments [activity]="activity"></app-comments>
+            </div>
         </div>
     </div>
 </div>

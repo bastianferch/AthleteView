@@ -4,9 +4,11 @@ import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
 import ase.athlete_view.domain.user.pojo.dto.AthleteDTO
+import ase.athlete_view.domain.user.pojo.dto.PreferencesDTO
 import ase.athlete_view.domain.user.pojo.dto.TrainerDTO
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.NotificationPreferenceType
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import java.time.LocalDate
 
@@ -99,6 +101,15 @@ class UserCreator {
             return UserDTO(
                 id = DEFAULT_TRAINER_ID, email = DEFAULT_TRAINER_EMAIL, name = DEFAULT_TRAINER_NAME,
                 password = null, userType = "trainer", token = "legit-jwt-token"
+            )
+        }
+
+        fun getPreferencesDto(): PreferencesDTO {
+            return PreferencesDTO(
+                emailNotifications = true,
+                commentNotifications = NotificationPreferenceType.NONE,
+                ratingNotifications = NotificationPreferenceType.NONE,
+                otherNotifications = NotificationPreferenceType.NONE,
             )
         }
 

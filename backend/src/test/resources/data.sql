@@ -1,8 +1,14 @@
-INSERT INTO users (id, name, password, country, email, zip, is_confirmed)
-VALUES (-1, 'Josef', 'testpwd', 'Austria', 'a@b.com', '1337', TRUE),
-       (-2, 'Mustermann', 'testpwd', 'Bustria', 'b@a.com', '6942', TRUE),
-       (-3, 'Mustertrainer', 'testpwd', 'Germany', 'train@best.er', '4201', TRUE),
-       (-4, 'Real trainings user', 'testpwd', 'Austria', 'a@trainer.co', '1337', TRUE);
+INSERT INTO preferences (id, email_notifications, comment_notifications, rating_notifications, other_notifications)
+VALUES (-1, FALSE, '1', '1', '1'),
+       (-2, FALSE, '1', '1', '1'),
+       (-3, FALSE, '1', '1', '1'),
+       (-4, FALSE, '1', '1', '1');
+
+INSERT INTO users (id, name, password, country, email, zip, is_confirmed, preferences_id)
+VALUES (-1, 'Josef', 'testpwd', 'Austria', 'a@b.com', '1337', TRUE, -1),
+       (-2, 'Mustermann', 'testpwd', 'Bustria', 'b@a.com', '6942', TRUE, -2),
+       (-3, 'Mustertrainer', 'testpwd', 'Germany', 'train@best.er', '4201', TRUE, -3),
+       (-4, 'Real trainings user', 'testpwd', 'Austria', 'a@trainer.co', '1337', TRUE, -4);
 
 INSERT INTO trainer (id, code)
 VALUES (-3, '203');
@@ -86,4 +92,5 @@ VALUES (-1,0,'08:00:00','20:00:00'),
        (-4,0,'12:00:00','13:00:00');
 
 INSERT INTO activity(id, user_id, accuracy, average_bpm, min_bpm, max_bpm, distance, spent_kcal, cadence, avg_power, max_power, start_time, end_time, activity_type)
-VALUES (-1, -1, 0, 100, 70, 120, 10000, 800, 80, 100, 120, PARSEDATETIME('18-12-2023 12:10', 'dd-MM-yyyy HH:mm'), PARSEDATETIME('18-12-2023 14:15', 'dd-MM-yyyy HH:mm'), 1)
+VALUES (-1, -1, 0, 100, 70, 120, 10000, 800, 80, 100, 120, PARSEDATETIME('18-12-2023 12:10', 'dd-MM-yyyy HH:mm'), PARSEDATETIME('18-12-2023 14:15', 'dd-MM-yyyy HH:mm'), 1),
+       (-2, -2, 0, 100, 70, 120, 10000, 800, 80, 100, 120, PARSEDATETIME('18-12-2023 12:10', 'dd-MM-yyyy HH:mm'), PARSEDATETIME('18-12-2023 14:15', 'dd-MM-yyyy HH:mm'), 1)

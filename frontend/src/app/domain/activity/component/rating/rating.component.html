@@ -1,0 +1,74 @@
+<div *ngIf="loggedInUser !== null">
+   <div *ngIf="isAthlete()">
+
+     <mat-card class="example-card">
+       <mat-card-header>
+         <mat-card-subtitle>You:</mat-card-subtitle>
+       </mat-card-header>
+       <mat-card-content>
+         <div class="ratingGroup">
+           <div class="nowrap">
+             <button mat-icon-button color="accent" *ngFor="let ratingId of ratingArr;index as i" [id]="'star_'+i" (click)="onClick(i+1)">
+               <mat-icon>
+                 {{showIcon(i, currentRating)}}
+               </mat-icon>
+             </button>
+           </div>
+           <button mat-button (click)="saveRating()" [disabled]="(currentRating === 0)">Rate!</button>
+         </div>
+       </mat-card-content>
+     </mat-card>
+
+     <mat-card class="example-card">
+       <mat-card-header>
+         <mat-card-subtitle>Trainer:</mat-card-subtitle>
+       </mat-card-header>
+       <mat-card-content>
+         <button mat-icon-button color="accent" *ngFor="let ratingId of ratingArr;index as i" [id]="'star_other_'+i" disabled>
+           <mat-icon>
+             {{showIcon(i, activity.ratingTrainer)}}
+           </mat-icon>
+         </button>
+       </mat-card-content>
+     </mat-card>
+    </div>
+
+
+  <div *ngIf="!isAthlete()">
+
+    <mat-card class="example-card">
+      <mat-card-header>
+        <mat-card-subtitle>Athlete:</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <button mat-icon-button color="accent" *ngFor="let ratingId of ratingArr;index as i" [id]="'star_other_'+i" disabled>
+          <mat-icon>
+            {{showIcon(i, activity.ratingAthlete)}}
+          </mat-icon>
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+
+    <mat-card class="example-card">
+      <mat-card-header>
+        <mat-card-subtitle>You:</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="ratingGroup">
+          <div  class="nowrap">
+            <button mat-icon-button color="accent" *ngFor="let ratingId of ratingArr;index as i" [id]="'star_'+i" (click)="onClick(i+1)">
+              <mat-icon>
+                {{showIcon(i, currentRating)}}
+              </mat-icon>
+            </button>
+          </div>
+          <button mat-button (click)="saveRating()" [disabled]="(currentRating === 0)">Rate!</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+</div>
+

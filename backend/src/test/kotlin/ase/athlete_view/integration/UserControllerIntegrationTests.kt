@@ -2,14 +2,13 @@ package ase.athlete_view.integration
 
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.user.controller.UserController
+import ase.athlete_view.domain.user.persistence.PreferencesRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.NotificationPreferenceType
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.domain.user.service.mapper.UserMapper
-import ase.athlete_view.util.ATHLETE_ID
-import ase.athlete_view.util.TRAINER_ID
-import ase.athlete_view.util.TestBase
-import ase.athlete_view.util.WithCustomMockUser
+import ase.athlete_view.util.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -17,14 +16,14 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
@@ -41,6 +40,9 @@ class UserControllerIntegrationTests: TestBase(){
 
     @Autowired
     private lateinit var athleteService: UserService
+
+    @Autowired
+    private lateinit var preferencesRepository: PreferencesRepository
 
     @Autowired
     private lateinit var userMapper: UserMapper
@@ -169,5 +171,61 @@ class UserControllerIntegrationTests: TestBase(){
                 .characterEncoding("utf-8")
                 .content(objectMapper.writeValueAsString(-4))
         ).andExpect(status().isNoContent)
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun getPreferences_returnsDefaultPreferences(){
+        val user = userService.getById(TRAINER_ID)
+        mockMvc.perform(
+            get("/api/user/preferences").with(csrf())
+        ).andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.emailNotifications").value(false))
+            .andExpect(jsonPath("$.commentNotifications").value("PUSH"))
+            .andExpect(jsonPath("$.ratingNotifications").value("PUSH"))
+            .andExpect(jsonPath("$.otherNotifications").value("PUSH"))
+
+        //assert that it is really stored in the repository
+        val prefsId = user.preferences?.id
+        assert(prefsId != null)
+        val newPrefs = preferencesRepository.getReferenceById(prefsId!!)
+        assertAll(
+            { assert(!newPrefs.emailNotifications) },
+            { assert(newPrefs.commentNotifications == NotificationPreferenceType.PUSH) },
+            { assert(newPrefs.ratingNotifications == NotificationPreferenceType.PUSH) },
+            { assert(newPrefs.otherNotifications == NotificationPreferenceType.PUSH) },
+        )
+    }
+
+    @Test
+    @WithCustomMockUser(TRAINER_ID)
+    fun patchPreferences_returnsNewPreferences(){
+        val user = userService.getById(TRAINER_ID)
+        // new preferences (different from default prefs)
+        val prefsDto = UserCreator.getPreferencesDto()
+        mockMvc.perform(
+            patch("/api/user/preferences").with(csrf())
+                .contentType("application/json")
+                .characterEncoding("utf-8")
+                .content(objectMapper.writeValueAsString(prefsDto))
+        ).andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.emailNotifications").value(prefsDto.emailNotifications))
+            .andExpect(jsonPath("$.commentNotifications").value("NONE"))
+            .andExpect(jsonPath("$.ratingNotifications").value("NONE"))
+            .andExpect(jsonPath("$.otherNotifications").value("NONE"))
+
+        //assert that it is really stored in the repository
+        val prefsId = user.preferences?.id
+        assert(prefsId != null)
+        val newPrefs = preferencesRepository.getReferenceById(prefsId!!)
+
+        assertAll(
+            { assert(newPrefs.emailNotifications) },
+            { assert(newPrefs.commentNotifications == NotificationPreferenceType.NONE) },
+            { assert(newPrefs.ratingNotifications == NotificationPreferenceType.NONE) },
+            { assert(newPrefs.otherNotifications == NotificationPreferenceType.NONE) },
+        )
     }
 }

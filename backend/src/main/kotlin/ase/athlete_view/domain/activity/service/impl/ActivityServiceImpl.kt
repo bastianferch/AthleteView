@@ -1,7 +1,9 @@
 package ase.athlete_view.domain.activity.service.impl
 
 import  ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.activity.persistence.*
+import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
 import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.activity.pojo.util.StepDurationType
@@ -10,6 +12,8 @@ import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
 import ase.athlete_view.domain.activity.util.FitParser
+import ase.athlete_view.domain.notification.pojo.entity.NotificationType
+import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -40,7 +44,9 @@ class ActivityServiceImpl(
     private val validator: ActivityValidator,
     private val fitParser: FitParser,
     private val activityRepo: ActivityRepository,
-    private val fitFileRepo: FitDataRepositoryImpl
+    private val fitFileRepo: FitDataRepositoryImpl,
+    private val sanitizer: Sanitizer,
+    private val notificationService: NotificationService,
 ) : ActivityService {
     private val logger = KotlinLogging.logger {}
 
@@ -450,19 +456,37 @@ class ActivityServiceImpl(
         return true
     }
 
+    @Transactional
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
         logger.trace { "S | getAllActivities" }
-        val user = userRepository.findById(uid).getOrNull()
+        val userObject = userRepository.findById(uid).getOrNull()
             ?: throw NotFoundException("No such user!")
 
-        return if (startDate != null && endDate != null) {
-            activityRepo.findActivitiesByUserAndDateRange(user.id!!, startDate, endDate)
-        } else {
-            activityRepo.findActivitiesByUserId(uid)
+        var activities: MutableSet<Activity> = mutableSetOf()
+
+        // Athletes can only see their own activities
+        if (userObject is Athlete) {
+            if (startDate != null && endDate != null) {
+                activities = activityRepo.findActivitiesByUserAndDateRange(userObject.id!!, startDate, endDate).toMutableSet()
+            } else {
+                activities = activityRepo.findActivitiesByUserId(uid).toMutableSet()
+            }
+        } else if (userObject is Trainer) {
+            // Trainers see activities of their Athletes
+            for (athlete in userObject.athletes) {
+                if (startDate != null && endDate != null) {
+                    activities += activityRepo.findActivitiesByUserAndDateRange(athlete.id!!, startDate, endDate).toSet()
+                } else {
+                    activities += activityRepo.findActivitiesByUserId(athlete.id!!).toSet()
+                }
+            }
         }
+
+        return activities.toList()
+
     }
 
-
+    @Transactional
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
         var i = 0
         for (step in stepList) { // go through all steps
@@ -521,6 +545,7 @@ class ActivityServiceImpl(
     }
 
 
+    @Transactional
     override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
         logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
 
@@ -532,20 +557,143 @@ class ActivityServiceImpl(
 
         val activity = this.activityRepo.findById(activityId)
         if (!activity.isPresent) {
-            throw NotFoundException("No such activity")
+            throw NotFoundException("No activity with this id found for user")
         }
+
+        //check if user has access to this activity
 
         val userObj = user.get()
         val activityObj = activity.get()
 
-        if (userObj != activityObj.user) {
-            logger.debug { "Tried to fetch activity for user other than self!" }
-            throw NotFoundException("No activity with this id found for user")
+        // Athletes can only see their own activities
+        if (userObj is Athlete) {
+            val activitiesForUser = activityRepo.findActivitiesByUserId(userObj.id!!)
+            if (activitiesForUser.none { it.id == activityObj.id!! }) {
+                logger.debug { "Tried to fetch activity for user other than self!" }
+                throw NotFoundException("No activity with this id found for user")
+            }
+        } else if (userObj is Trainer) {
+            // Trainers see activities of their Athletes
+            var isForAthleteOfTrainer = false
+            for (athlete in userObj.athletes) {
+                val activitiesForAthlete = activityRepo.findActivitiesByUserId(athlete.id!!)
+                if (activitiesForAthlete.any { it.id == activityObj.id!! }) {
+                    isForAthleteOfTrainer = true
+                }
+            }
+            if (!isForAthleteOfTrainer) {
+                logger.debug { "Tried to fetch activity for user other than self!" }
+                throw NotFoundException("No activity with this id found for user")
+            }
         }
-
         return activityObj
     }
 
+    override fun commentActivityWithUser(userId: Long, activityId: Long, comment: CommentDTO): Comment {
+        logger.trace { "S | commentActivityWithUser($userId, $activityId, $comment)" }
+
+        // check if user exists
+        val userObj = userExists(userId)
+
+        // check if activity exists
+        val activityObj = activityExists(activityId);
+
+        // check if user can access activity
+        canUserAccessActivity(userId, activityId)
+
+        val commentObj = comment.toEntity()
+
+        // author is the currently logged-in user
+        commentObj.author = userObj
+        commentObj.date = LocalDateTime.now()
+        commentObj.text = sanitizer.sanitizeText(commentObj.text)
+
+        validator.validateComment(commentObj)
+
+        activityObj.comments.add(commentObj)
+        activityRepo.saveAndFlush(activityObj)
+
+        // send notification to the other involved party (trainer if athlete comments, athlete if trainer comments)
+        val notificationHeader = "new comment"
+        val commentText = if (comment.text.length > 100) comment.text.substring(0,100) + "..." else comment.text;
+        val notificationBody = userObj.name + " commented on your activity: " + commentText
+        val notificationLink = "activity/finished/" + activityObj.id
+        val notificationType = NotificationType.COMMENT
+
+        sendNotificationToOtherParty(userId, activityObj, userObj, notificationHeader, notificationBody, notificationLink, notificationType)
+
+        return commentObj
+    }
+
+    override fun rateActivityWithUser(userId: Long, activityId: Long, rating: Int) {
+        logger.trace { "S | rateActivityWithUser($userId, $activityId, $rating)" }
+
+        // check if user exists
+        val userObj = userExists(userId)
+
+        // check if activity exists
+        val activityObj = activityExists(activityId);
+
+        // check if user can access activity
+        canUserAccessActivity(userId, activityId)
+
+        validator.validateRating(rating)
+
+        if (userObj is Athlete) {
+            activityObj.ratingAthlete = rating.toInt();
+        } else if (userObj is Trainer) {
+            activityObj.ratingTrainer = rating.toInt();
+        }
+
+        activityRepo.saveAndFlush(activityObj)
+
+        // send notification to the other involved party (trainer if athlete comments, athlete if trainer comments)
+        val notificationHeader = "new rating"
+        val notificationBody = userObj.name + " rated your activity"
+        val notificationLink = "activity/finished/" + activityObj.id
+        val notificationType = NotificationType.RATING
+
+        sendNotificationToOtherParty(userId, activityObj, userObj, notificationHeader, notificationBody, notificationLink, notificationType)
+    }
+
+    // send notification to other user when commenting/rating an activity
+    // notify trainer when user comments and vice versa
+    private fun sendNotificationToOtherParty(
+        userId: Long,
+        activityObj: Activity,
+        userObj: User,
+        notificationHeader: String,
+        notificationBody: String,
+        notificationLink: String,
+        notificationType: NotificationType) {
+
+        if (userId == activityObj.user?.id && userObj is Athlete) {
+            // get the trainer of the user
+            val trainerId = userObj.trainer?.id
+            if (trainerId != null) {
+                notificationService.sendNotification(
+                    trainerId,
+                    notificationHeader,
+                    notificationBody,
+                    notificationLink,
+                    notificationType)
+            }
+        } else if (userObj is Trainer) {
+            // if the commenting/rating user is a trainer, send the notification to the athlete who owns the activity
+            val activityUser = activityObj.user
+            if (activityUser != null && activityUser is Athlete) {
+                val activityUserId = activityUser.id
+                if (activityUser.trainer?.id == userId && activityUserId != null) {
+                    notificationService.sendNotification(
+                        activityUserId,
+                        notificationHeader,
+                        notificationBody,
+                        notificationLink,
+                        notificationType)
+                }
+            }
+        }
+    }
 
 
     // TODO find the different kind of sports and why rowing and crosscountryskiing are not existing in FitActivityType
@@ -583,5 +731,30 @@ class ActivityServiceImpl(
 
     fun isBetween(value: Int, from: Int, to: Int): Int {
         return if (value in from..to) 1 else 0
+    }
+
+    private fun userExists(userId: Long): User {
+        val user = this.userRepository.findById(userId)
+        if (!user.isPresent) {
+            throw NotFoundException("User not found")
+        }
+        return user.get()
+    }
+
+    private fun activityExists(activityId: Long): Activity {
+        val activity = this.activityRepo.findById(activityId)
+        if (!activity.isPresent) {
+            logger.debug { "Tried to fetch nonexistent activity" }
+            throw NotFoundException("No such activity")
+        }
+        return activity.get()
+    }
+
+    private fun canUserAccessActivity(userId: Long, activityId: Long) {
+        val activities = getAllActivities(userId, null, null)
+        if (!activities.map { it.id }.contains(activityId)) {
+            logger.debug { "Tried to fetch activity for user who has no access to it" }
+            throw NotFoundException("No activity with this id found for user")
+        }
     }
 }

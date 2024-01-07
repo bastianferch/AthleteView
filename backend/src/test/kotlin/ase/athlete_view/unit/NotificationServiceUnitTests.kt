@@ -6,8 +6,10 @@ import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.notification.persistence.EmitterRepository
 import ase.athlete_view.domain.notification.persistence.NotificationRepository
 import ase.athlete_view.domain.notification.pojo.entity.Notification
+import ase.athlete_view.domain.notification.pojo.entity.NotificationType
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.domain.user.pojo.entity.NotificationPreferenceType
 import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.util.UserCreator
 import com.ninjasquad.springmockk.MockkBean
@@ -21,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.sql.Timestamp
 import java.util.*
 
@@ -59,7 +62,16 @@ class NotificationServiceUnitTests {
 
     @BeforeEach
     fun beforeEach() {
+        // set preferences of test user
         user.preferences = preferences
+    }
+
+    fun getEmitter(): SseEmitter {
+        val emitter = SseEmitter(600000)
+        emitter.onCompletion {}
+        emitter.onTimeout {}
+        emitter.onError {}
+        return emitter
     }
 
 
@@ -99,36 +111,225 @@ class NotificationServiceUnitTests {
 
     @Test
     @Transactional
-    fun sendValidNotificationForUserWithEmailPreferencesFalse_shouldSendNoMail() {
+    fun sendValidNotificationForOfflineUserWithNotificationPreferencesPushOnly_shouldSendNoMailAndStoreNotification() {
+
+        // user only wants push notifications
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = false,
+            commentNotifications = NotificationPreferenceType.PUSH,
+            ratingNotifications = NotificationPreferenceType.PUSH,
+            otherNotifications = NotificationPreferenceType.PUSH
+        )
+
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
         every { emitterRepository.existsById(any<Long>()) } returns false;
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
 
-        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
 
         // verify no email was sent
         verify(exactly = 0) { mailService.sendSimpleMail(any()) }
+
+        // verify that notifications were stored
+        verify(exactly = 3) { notificationRepository.saveAndFlush(any()) }
     }
 
     @Test
     @Transactional
-    fun sendValidNotificationForUserWithEmailPreferencesTrue_shouldSendMail() {
-        // user wants to be notified via mail
-        user.preferences = Preferences(user.id!!, true);
-        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+    fun sendValidNotificationForOfflineUserWithNotificationPreferencesEmailOnly_shouldSendMailsAndNotStoreNotifications() {
 
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = false,
+            commentNotifications = NotificationPreferenceType.EMAIL,
+            ratingNotifications = NotificationPreferenceType.EMAIL,
+            otherNotifications = NotificationPreferenceType.EMAIL
+        )
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
         every { emitterRepository.existsById(any<Long>()) } returns false;
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
 
-        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
 
-        // verify email was sent
-        verify(exactly = 1) { mailService.sendSimpleMail(any()) }
+        // verify emails were sent
+        verify(exactly = 3) { mailService.sendSimpleMail(any()) }
+
+        // verify that no notifications were stored
+        verify(exactly = 0) { notificationRepository.saveAndFlush(any()) }
     }
+
+    @Test
+    @Transactional
+    fun sendValidNotificationForOfflineUserWithNotificationPreferencesEmailAndPush_shouldSendMailsAndStoreNotifications() {
+
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = false,
+            commentNotifications = NotificationPreferenceType.BOTH,
+            ratingNotifications = NotificationPreferenceType.BOTH,
+            otherNotifications = NotificationPreferenceType.BOTH
+        )
+
+        val emitter = SseEmitter(600000)
+        emitter.onCompletion {}
+        emitter.onTimeout {}
+        emitter.onError {}
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+        // user is offline
+        every { emitterRepository.existsById(any<Long>()) } returns false;
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { notificationRepository.saveAndFlush(any()) } returns notification
+
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
+
+        // verify emails were sent
+        verify(exactly = 3) { mailService.sendSimpleMail(any()) }
+
+        // verify that notifications were stored
+        verify(exactly = 3) { notificationRepository.saveAndFlush(any()) }
+    }
+
+    @Test
+    @Transactional
+    fun sendValidNotificationForOnlineUserWithNotificationPreferencesEmailAndPushButNoMailsWhenOnline_shouldNotSendMailsAndStoreNotifications() {
+
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = false,
+            commentNotifications = NotificationPreferenceType.BOTH,
+            ratingNotifications = NotificationPreferenceType.BOTH,
+            otherNotifications = NotificationPreferenceType.BOTH
+        )
+
+        val emitter = getEmitter()
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+        // user is offline
+        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { notificationRepository.saveAndFlush(any()) } returns notification
+
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
+
+        // verify no emails were sent
+        verify(exactly = 0) { mailService.sendSimpleMail(any()) }
+
+        // verify that notifications were stored
+        verify(exactly = 3) { notificationRepository.saveAndFlush(any()) }
+    }
+
+    @Test
+    @Transactional
+    fun sendValidNotificationForOnlineUserWithNotificationPreferencesEmailAndPush_shouldSendMailsAndStoreNotifications() {
+
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = true,
+            commentNotifications = NotificationPreferenceType.BOTH,
+            ratingNotifications = NotificationPreferenceType.BOTH,
+            otherNotifications = NotificationPreferenceType.BOTH
+        )
+
+        val emitter = getEmitter()
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+        // user is offline
+        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { notificationRepository.saveAndFlush(any()) } returns notification
+
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
+
+        // verify emails were sent
+        verify(exactly = 3) { mailService.sendSimpleMail(any()) }
+
+        // verify that notifications were stored
+        verify(exactly = 3) { notificationRepository.saveAndFlush(any()) }
+    }
+
+    @Test
+    @Transactional
+    fun sendValidNotificationForOnlineUserWithNotificationPreferencesEmail_shouldSendMailsAndNotStoreNotifications() {
+
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = true,
+            commentNotifications = NotificationPreferenceType.EMAIL,
+            ratingNotifications = NotificationPreferenceType.EMAIL,
+            otherNotifications = NotificationPreferenceType.EMAIL
+        )
+
+        val emitter = getEmitter()
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+        // user is offline
+        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { notificationRepository.saveAndFlush(any()) } returns notification
+
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
+
+        // verify emails were sent
+        verify(exactly = 3) { mailService.sendSimpleMail(any()) }
+
+        // verify that no notifications were stored
+        verify(exactly = 0) { notificationRepository.saveAndFlush(any()) }
+    }
+
+    @Test
+    @Transactional
+    fun sendValidNotificationForOnlineUserWithNotificationPreferencesNone_shouldNotSendMailsAndStoreNoNotifications() {
+
+        user.preferences = Preferences(
+            id = user.id,
+            emailNotifications = true,
+            commentNotifications = NotificationPreferenceType.NONE,
+            ratingNotifications = NotificationPreferenceType.NONE,
+            otherNotifications = NotificationPreferenceType.NONE
+        )
+
+        val emitter = getEmitter()
+
+        every { userRepository.findById(any<Long>()) } returns Optional.of(user)
+        // user is offline
+        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
+        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { notificationRepository.saveAndFlush(any()) } returns notification
+
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.DEFAULT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.COMMENT) }
+        assertDoesNotThrow { notificationService.sendNotification(user.id!!, header, body, link, NotificationType.RATING) }
+
+        // verify no emails were sent
+        verify(exactly = 0) { mailService.sendSimpleMail(any()) }
+
+        // verify that no notifications were stored
+        verify(exactly = 0) { notificationRepository.saveAndFlush(any()) }
+    }
+
 
 
     // getAllNotifications

@@ -24,6 +24,9 @@ import { MatGridListModule } from "@angular/material/grid-list";
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { CommentsComponent } from '../component/comments/comments.component'
+import { RatingComponent } from '../component/rating/rating.component';
+import { MatCardModule } from "@angular/material/card";
 
 
 const routes: Routes = [
@@ -39,6 +42,8 @@ const routes: Routes = [
     ActivityComponent,
     CreateEditViewActivityComponent,
     FinishedActivityComponent,
+    CommentsComponent,
+    RatingComponent,
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -63,6 +68,7 @@ const routes: Routes = [
     MatTabsModule,
     MatDividerModule,
     MatPaginatorModule,
+    MatCardModule,
   ],
   exports: [RouterModule],
 })

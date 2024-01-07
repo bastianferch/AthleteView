@@ -30,6 +30,38 @@ export class DateParsing {
     return new Date(str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4])
   }
 
+
+  // returns a string representation of the notifications timestamp (as a localized date string)
+  // instead of today's or yesterday's date, it returns "today" or "yesterday".
+  // exact time is only returned if timestamp is from today or yesterday.
+  getDateAwareString(d: number | Date) {
+    const date = new Date(d);
+    const now = new Date();
+
+    let dateString = "";
+    // format: "hh:mm"
+    let timeString = new Intl.DateTimeFormat(
+      undefined,
+      { hour: '2-digit', minute: '2-digit', hour12: false },
+    ).format(date);
+
+    if (now.getDate() === date.getDate()
+      && now.getMonth() === date.getMonth()
+      && now.getFullYear() === date.getFullYear()) {
+      dateString = "today";
+    } else if (now.getDate() === date.getDate() + 1
+      && now.getMonth() === date.getMonth()
+      && now.getFullYear() === date.getFullYear()) {
+      dateString = "yesterday";
+    } else {
+      dateString = new Intl.DateTimeFormat().format(date);
+      timeString = "";
+    }
+
+    return (`${dateString}${timeString === '' ? '' : ', ' + timeString}`)
+  }
+
+
   /**
    * Provides a date with a type "2022-06-31"
    *

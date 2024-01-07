@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NotificationDto } from "../../dto/notification-dto";
+import { DateParsing } from "../../../../common/util/parsing/date-parsing";
 
 @Component({
   selector: 'app-notification',
@@ -13,40 +14,19 @@ export class NotificationComponent implements OnInit {
   @Output() navigateTo = new EventEmitter<NotificationDto>()
 
   actionName: string;
+
+  constructor(
+    private dateParser: DateParsing,
+  ) {}
+
   ngOnInit() {
     if (this.notification.link.startsWith('action/')) {
       this.setActionName(this.notification.link.substring(7));
     }
   }
 
-  // returns a string representation of the notifications timestamp (as a localized date string)
-  // instead of today's or yesterday's date, it returns "today" or "yesterday".
-  // exact time is only returned if timestamp is from today or yesterday.
   getTimestampString() {
-    const date = new Date(this.notification.timestamp);
-    const now = new Date();
-
-    let dateString = "";
-    // format: "hh:mm"
-    let timeString = new Intl.DateTimeFormat(
-      undefined,
-      { hour: '2-digit', minute: '2-digit', hour12: false },
-    ).format(date);
-
-    if (now.getDate() === date.getDate()
-      && now.getMonth() === date.getMonth()
-      && now.getFullYear() === date.getFullYear()) {
-      dateString = "today";
-    } else if (now.getDate() === date.getDate() + 1
-      && now.getMonth() === date.getMonth()
-      && now.getFullYear() === date.getFullYear()) {
-      dateString = "yesterday";
-    } else {
-      dateString = new Intl.DateTimeFormat().format(date);
-      timeString = "";
-    }
-
-    return (`${dateString}${timeString === '' ? '' : ', ' + timeString}`)
+    return this.dateParser.getDateAwareString(this.notification.timestamp)
   }
 
   delete() {

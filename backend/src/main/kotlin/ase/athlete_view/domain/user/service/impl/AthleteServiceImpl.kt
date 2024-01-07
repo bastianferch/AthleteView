@@ -10,6 +10,7 @@ import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.AthleteService
 import io.github.oshai.kotlinlogging.KotlinLogging
 
+
 @Service
 class AthleteServiceImpl(val athleteRepository: AthleteRepository, val trainerRepo: TrainerRepository) : AthleteService {
 

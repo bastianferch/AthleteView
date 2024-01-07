@@ -1,0 +1,21 @@
+.notification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.settings-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  span {
+    flex: 1;
+  }
+
+  mat-form-field {
+    width: fit-content;
+  }
+}

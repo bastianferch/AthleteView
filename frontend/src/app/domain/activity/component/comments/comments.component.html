@@ -1,0 +1,27 @@
+<div class="comments-container">
+
+  <div class="comments-list">
+    <mat-card *ngFor="let comment of commentList"
+              [class]="['comment-bubble', isFromLoggedInUser(comment) ? 'user-chatbubble' : 'other-chatbubble']">
+      <div>{{comment.text}}</div>
+      <div class="comment-date">{{getDateString(getDateOfComment(comment))}}</div>
+    </mat-card>
+  </div>
+
+  <div class="comments-input">
+    <mat-form-field appearance="outline">
+      <textarea name="comment"
+                placeholder="Type away champ"
+                id="rating-comment"
+                [formControl]="commentFormControl"
+                matInput
+                cdkTextareaAutosize
+                #autosize="cdkTextareaAutosize"
+                cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="5">
+      </textarea>
+      <mat-error *ngIf="commentFormControl.errors">{{commentFormControl.errors['message']}}</mat-error>
+    </mat-form-field>
+    <button mat-fab color="primary" (click)="commentActivity()"><mat-icon>send</mat-icon></button>
+  </div>
+</div>

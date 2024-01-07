@@ -2,6 +2,7 @@ package ase.athlete_view.domain.notification.service
 
 import ase.athlete_view.domain.notification.pojo.dto.NotificationDTO
 import ase.athlete_view.domain.notification.pojo.entity.Notification
+import ase.athlete_view.domain.notification.pojo.entity.NotificationType
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
 interface NotificationService {
@@ -18,18 +19,19 @@ interface NotificationService {
 
     /**
      * Sends notifications to a user, either per push notification or per mail.
-     * If the user is online, they receive push notifications in-app
-     * Otherwise they receive the notification per email, except if email notifications are disabled via the Preferences object.
-     * The new notification is stored in the repository after being validated and sanitized (potentially harmful html is removed).
+     * Users receive push notifications in-app if they are online and want to receive push notifications of this type
+     * Users receive emails in-app if they want to receive email notifications of this type.
+     * If users opted out of emails when they are online, no emails are sent.
      *
      * @param userId of the user the notification should be sent to.
      * @param header of the notification. Should be <= 255 characters.
      * @param body (optional) text of the notification. Should be <= 255 characters.
      * @param link (optional) where the notification should lead the user. Should be <= 255 characters. Should be of the form "path/to/page". Examples: "activity", "activity/42". Don't use leading "/", don't specify the whole URL.
+     * @param type (optional) type of notification. Used to check if user wants to receive notifications of this type.
      * @throws ValidationException if lengths of fields are greater than 255 chars.
      * @return the stored notification
      */
-    fun sendNotification(userId: Long, header: String, body: String? = null, link: String? = null): Notification?;
+    fun sendNotification(userId: Long, header: String, body: String? = null, link: String? = null, type: NotificationType = NotificationType.DEFAULT): Notification?;
 
     /**
      * Fetches all notifications of a user.

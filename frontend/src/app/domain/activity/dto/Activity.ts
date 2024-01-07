@@ -1,5 +1,6 @@
 import { Lap } from "src/app/common/interval/dto/Lap";
 import { ActivityType, PlannedActivity } from "./PlannedActivity";
+import { CommentDTO } from "./Comment";
 
 export interface Activity {
   id: number;
@@ -20,6 +21,9 @@ export interface Activity {
   activityType?: ActivityType;
   laps?: Lap[];
   plannedActivity?: PlannedActivity;
+  comments: CommentDTO[],
+  ratingTrainer: number;
+  ratingAthlete: number;
 }
 
 export interface ActivityEvent {

@@ -19,7 +19,7 @@ open class PlannedActivity(
 
     open val type: ActivityType,
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     open var interval: Interval,
 
     open val withTrainer: Boolean,

@@ -107,8 +107,10 @@ class UserServiceImpl(
                 val userObj = user.get()
                 val oldPreferences = userObj.preferences;
 
-                // update the preferences using the method in the mapper
                 oldPreferences?.emailNotifications = preferencesDTO.emailNotifications
+                oldPreferences?.commentNotifications = preferencesDTO.commentNotifications
+                oldPreferences?.ratingNotifications = preferencesDTO.ratingNotifications
+                oldPreferences?.otherNotifications = preferencesDTO.otherNotifications
 
                 val newPreferences = this.preferencesRepository.save(oldPreferences!!)
                 userObj.preferences = newPreferences

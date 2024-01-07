@@ -2,6 +2,7 @@ package ase.athlete_view.integration
 
 import ase.athlete_view.AthleteViewApplication
 import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
+import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
 import ase.athlete_view.domain.activity.pojo.dto.IntervalDTO
 import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.dto.StepDTO
@@ -89,6 +90,8 @@ class ActivityControllerIntegrationTests : TestBase() {
 
     private lateinit var defaultAthlete: Athlete
     private lateinit var defaultTrainer: Trainer
+
+    val commentDto = CommentDTO(null, "test comment")
 
     @BeforeEach
     fun setupUser() {

@@ -40,3 +40,9 @@ open class Notification(
 
 
 }
+
+enum class NotificationType {
+    COMMENT,
+    RATING,
+    DEFAULT
+}

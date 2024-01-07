@@ -2,23 +2,24 @@ package ase.athlete_view.domain.notification.service.impl
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.mail.pojo.entity.Email
 import ase.athlete_view.domain.mail.service.MailService
 import ase.athlete_view.domain.notification.persistence.EmitterRepository
 import ase.athlete_view.domain.notification.persistence.NotificationRepository
 import ase.athlete_view.domain.notification.pojo.dto.NotificationDTO
 import ase.athlete_view.domain.notification.pojo.entity.Notification
+import ase.athlete_view.domain.notification.pojo.entity.NotificationType
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.persistence.UserRepository
+import ase.athlete_view.domain.user.pojo.entity.NotificationPreferenceType
+import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.User
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.owasp.html.PolicyFactory
-import org.owasp.html.Sanitizers
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 import java.sql.Timestamp
-import java.util.concurrent.Executors
 
 
 @Service
@@ -27,10 +28,10 @@ class NotificationServiceImpl(
     private val notificationRepository: NotificationRepository,
     private val userRepository: UserRepository,
     private val mailService: MailService,
+    private val sanitizer: Sanitizer,
     ) : NotificationService {
 
     private val logger = KotlinLogging.logger {}
-    private val nonBlockingService = Executors.newCachedThreadPool()
 
     override fun createEmitter(userId: Long): SseEmitter? {
         logger.trace { "NotificationServiceImpl.createEmitter($userId)" }
@@ -56,10 +57,7 @@ class NotificationServiceImpl(
         return emitter
     }
 
-    /** Use this to send notifications to users.
-
-     */
-    override fun sendNotification(userId: Long, header: String, body: String?, link: String?): Notification? {
+    override fun sendNotification(userId: Long, header: String, body: String?, link: String?, type: NotificationType): Notification? {
         logger.trace { "NotificationServiceImpl.sendNotification($userId, $header, $body, $link)" }
 
         val user = userRepository.findById(userId)
@@ -68,41 +66,66 @@ class NotificationServiceImpl(
         }
 
         val userObj = user.get();
-
-        val tempNotification = sanitizeNotification(Notification(null, userObj, false, Timestamp(System.currentTimeMillis()), header, body, link));
-        validateNotification(tempNotification);
-        val notification = notificationRepository.saveAndFlush(tempNotification);
-
         val preferences = user.get().preferences;
 
-        // get the emitter for the user
-        if (emitterRepository.existsById(userId)) {
-            // this means the user is currently online, because we already have an emitter for this id.
-            // we can send notifications directly to the user. No need for emails.
-            val emitterOptional = emitterRepository.findById(userId)
-            if (emitterOptional.isPresent) {
-                val emitter = emitterOptional.get()
-                nonBlockingService.execute {
+        var notification = sanitizeNotification(Notification(null, userObj, false, Timestamp(System.currentTimeMillis()), header, body, link));
+        validateNotification(notification);
+
+        // if user does not want this push notification or per mail, return
+        if (!canSendEmail(preferences, type) && !canSendPush(preferences, type)) {
+            logger.debug { "cant send notification as push nor per mail" }
+            return null;
+        }
+
+        // tracks if the notification was delivered in some way or stored to be delivered when user logs in next time
+        var deliveredOrStored = false;
+
+        // tracks if a push notification was sent.
+        // important because users can opt out of emails if push notification was already delivered.
+        // This prevents emails when users are online anyway
+        var pushDelivered = false;
+
+
+        // if the user wants to receive push notifications of this type
+        if (canSendPush(preferences, type)) {
+            // only save the notification if the user wants to receive push notifications
+            // otherwise they would get it the next time they log in / refresh the page
+            notification = notificationRepository.saveAndFlush(notification);
+            deliveredOrStored = true
+            // get the emitter for the user
+            if (emitterRepository.existsById(userId)) {
+                // this means the user is currently online, because we already have an emitter for this id.
+                // we can send notifications directly to the user. No need for emails.
+                val emitterOptional = emitterRepository.findById(userId)
+                if (emitterOptional.isPresent) {
+                    val emitter = emitterOptional.get()
                     try {
                         emitter.send(notification.toSseEventBuilder())
+                        pushDelivered = true
                     } catch (e: IOException) {
                         // this happens when the connection is closed by the client, but the emitter is still stored.
-                        // in this case, send an email instead (if email notifications are activated).
-                        if (preferences != null && preferences.emailNotifications) {
-                            sendNotificationEmail(userObj, notification);
-                        }
                         // close the emitter and delete it
                         emitterRepository.deleteById(userId)
                     }
                 }
             }
-        } else {
-            // if the user is not online, send an email (if email notifications are activated).
-            if (preferences != null && preferences.emailNotifications) {
+        }
+
+        // if the user wants email notifications about this type of notification
+        if (canSendEmail(preferences, type)) {
+            // if the push notification was already delivered and users opted out of emails in this case, send nothing
+            if (!(pushDelivered && preferences != null && !preferences.emailNotifications)) {
                 sendNotificationEmail(userObj, notification);
+                deliveredOrStored = true;
             }
         }
-        return notification
+
+        // only return the notification object if something was delivered
+        return if (deliveredOrStored) {
+            notification
+        } else {
+            null
+        }
     }
 
     private fun validateNotification(notification: Notification) {
@@ -123,15 +146,18 @@ class NotificationServiceImpl(
     //remove html tags except for styling such as <b> or <i>.
     private fun sanitizeNotification(notification: Notification): Notification {
         logger.trace { "NotificationServiceImpl.sanitizeNotification($notification)" }
-        // only allow formatting tags in header and body
-        val policy: PolicyFactory = Sanitizers.FORMATTING;
+        var newBody: String? = null
+        if (notification.body != null) {
+            newBody = sanitizer.sanitizeText(notification.body!!)
+        }
+
         return Notification(
             notification.id,
             notification.recipient,
             notification.read,
             notification.timestamp,
-            policy.sanitize(notification.header),
-            policy.sanitize(notification.body),
+            sanitizer.sanitizeText(notification.header),
+            newBody,
             notification.link);
     }
 
@@ -142,6 +168,65 @@ class NotificationServiceImpl(
         val mailBody = "Hi ${user.name}!\nYou have a new notification:\n\n${notification.header}\n${notification.body}\n\nClick the following link to log in: http://localhost:4200/"
         val notificationMail = Email(recipient = user.email, body = mailBody, subject = subject);
         mailService.sendSimpleMail(notificationMail)
+    }
+
+    private fun canSendEmail(preferences: Preferences?, notificationType: NotificationType): Boolean {
+
+        if (preferences == null) {
+            return false
+        }
+
+        if (notificationType == NotificationType.DEFAULT) {
+            if (preferences.otherNotifications == NotificationPreferenceType.NONE
+                || preferences.otherNotifications == NotificationPreferenceType.PUSH) {
+                return false
+            }
+        }
+
+        if (notificationType == NotificationType.COMMENT) {
+            if (preferences.commentNotifications == NotificationPreferenceType.NONE
+                || preferences.commentNotifications == NotificationPreferenceType.PUSH) {
+                return false
+            }
+        }
+
+        if (notificationType == NotificationType.RATING) {
+            if (preferences.ratingNotifications == NotificationPreferenceType.NONE
+                || preferences.ratingNotifications == NotificationPreferenceType.PUSH) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private fun canSendPush(preferences: Preferences?, notificationType: NotificationType): Boolean {
+        if (preferences == null) {
+            return false
+        }
+
+        if (notificationType == NotificationType.DEFAULT) {
+            if (preferences.otherNotifications == NotificationPreferenceType.NONE
+                || preferences.otherNotifications == NotificationPreferenceType.EMAIL) {
+                return false
+            }
+        }
+
+        if (notificationType == NotificationType.COMMENT) {
+            if (preferences.commentNotifications == NotificationPreferenceType.NONE
+                || preferences.commentNotifications == NotificationPreferenceType.EMAIL) {
+                return false
+            }
+        }
+
+        if (notificationType == NotificationType.RATING) {
+            if (preferences.ratingNotifications == NotificationPreferenceType.NONE
+                || preferences.ratingNotifications == NotificationPreferenceType.EMAIL) {
+                return false
+            }
+        }
+
+        return true
     }
 
     override fun getAllNotifications(userId: Long): List<NotificationDTO> {

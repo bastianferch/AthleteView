@@ -5,7 +5,6 @@ import { Athlete, Trainer, User } from "../../dto/user";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { defaultMinMaxValidator } from "../../../auth/component/registration/user-registration.component";
 import { SnackbarService } from "../../../../common/service/snackbar.service";
-import { PreferencesDto } from "../../dto/preferences-dto";
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../../../common/component/dialog/confirmation-dialog.component';
 
@@ -16,7 +15,6 @@ import { ConfirmationDialogComponent } from '../../../../common/component/dialog
 })
 export class UserInfoComponent implements OnInit {
   user: User;
-  preferences: PreferencesDto;
   form!: UserInfoFormGroup;
 
   constructor(private userService: UserService,
@@ -26,7 +24,6 @@ export class UserInfoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getPreferences();
     this.user = this.authService.currentUser;
     const form: UserInfoFormGroup = this.fb.group({
       email: new FormControl({ value: this.user.email, disabled: true }, { updateOn: 'change' }),
@@ -58,9 +55,6 @@ export class UserInfoComponent implements OnInit {
   }
 
   performUpdate(): void {
-    // update preferences like email notifications
-    this.patchPreferences();
-
     // update the actual user data
     if (this.user.isAthlete()) {
       this.updateAthlete();
@@ -97,21 +91,6 @@ export class UserInfoComponent implements OnInit {
     })
   }
 
-  private getPreferences() {
-    this.userService.getPreferences().subscribe((data) => {
-      if (data !== null && data !== undefined) {
-        this.preferences = data;
-      }
-    })
-  }
-
-  private patchPreferences() {
-    this.userService.patchPreferences(this.preferences).subscribe((data) => {
-      if (data !== null && data !== undefined) {
-        this.preferences = data;
-      }
-    })
-  }
 
   private updateAthlete(): void {
     const athlete = this.form.getRawValue() as Athlete;
@@ -149,7 +128,6 @@ export class UserInfoComponent implements OnInit {
       }
     }
   }
-
 
 }
 
