@@ -15,7 +15,6 @@ import ase.athlete_view.domain.authentication.controller.AuthenticationControlle
 import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -60,9 +59,6 @@ class ActivityControllerUnitTests {
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider
-
-    @MockkBean
-    private lateinit var userMapper: UserMapper
 
     val objectMapper = ObjectMapper().registerModules(JavaTimeModule())
 

@@ -3,10 +3,7 @@ package ase.athlete_view.domain.authentication.service.impl
 import ase.athlete_view.common.exception.entity.ConflictException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.config.jwt.UserAuthProvider
-import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
-import ase.athlete_view.domain.authentication.dto.LoginDTO
-import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
-import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
+import ase.athlete_view.domain.authentication.dto.*
 import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.mail.pojo.entity.Email
@@ -21,7 +18,6 @@ import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.TrainerService
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.domain.zone.service.ZoneService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.RequiredArgsConstructor
@@ -30,13 +26,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import kotlin.collections.ArrayList
 
 @Service
 @RequiredArgsConstructor
 class AuthServiceImpl(
     private val userService: UserService,
-    private val userMapper: UserMapper,
     private val userAuthProvider: UserAuthProvider,
     private val tokenService: TokenService,
     private val mailService: MailService,
@@ -92,7 +86,7 @@ class AuthServiceImpl(
             if (this.trainerService.getByCode(code) != null) {
                 continue
             }
-            return this.registerUser(this.userMapper.toEntity(dto, code, ArrayList(), ArrayList()))
+            return this.registerUser(dto.toEntity(code))
         }
 
     }

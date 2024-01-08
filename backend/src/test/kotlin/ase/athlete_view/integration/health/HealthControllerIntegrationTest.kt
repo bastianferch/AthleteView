@@ -7,7 +7,6 @@ import ase.athlete_view.domain.authentication.controller.AuthenticationControlle
 import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.health.controller.HealthController
 import ase.athlete_view.domain.health.service.HealthService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -45,9 +44,6 @@ class HealthControllerIntegrationTest {
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider
-
-    @MockkBean
-    private lateinit var userMapper: UserMapper
 
     private lateinit var mockMvc: MockMvc
 

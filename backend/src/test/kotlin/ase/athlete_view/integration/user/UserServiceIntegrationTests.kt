@@ -3,7 +3,6 @@ package ase.athlete_view.integration.user
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import org.assertj.core.api.Assertions.assertThat
@@ -22,9 +21,6 @@ class UserServiceIntegrationTests : TestBase() {
 
     @Autowired
     private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var userMapper: UserMapper
 
     @Test
     fun saveAthleteWithoutTrainer() {
@@ -61,8 +57,8 @@ class UserServiceIntegrationTests : TestBase() {
     fun saveTrainerWithAthlete() {
         val athleteWithTrainer = UserCreator.getAthlete(null)
         athleteWithTrainer.trainer?.athletes = mutableSetOf(athleteWithTrainer)
-        athleteWithTrainer.trainer?.id = null;
-        athleteWithTrainer.id = null;
+        athleteWithTrainer.trainer?.id = null
+        athleteWithTrainer.id = null
 
         val persistedUser = userService.save(athleteWithTrainer)
 

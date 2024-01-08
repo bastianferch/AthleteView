@@ -14,7 +14,6 @@ import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -24,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 class UserServiceImpl(
     private val userRepository: UserRepository,
     private val validationService: AuthValidationService,
-    private val preferencesRepository: PreferencesRepository,
-    private val userMapper: UserMapper
+    private val preferencesRepository: PreferencesRepository
 ) : UserService {
     val log = KotlinLogging.logger {}
 
@@ -34,8 +32,8 @@ class UserServiceImpl(
         log.trace { "save ${user.email}" }
         // store new preferences object if not already present
         if (user.preferences == null) {
-            val genericPreferences = Preferences(id = null);
-            user.preferences = preferencesRepository.save(genericPreferences);
+            val genericPreferences = Preferences(id = null)
+            user.preferences = preferencesRepository.save(genericPreferences)
         }
         return this.userRepository.save(user)
     }
@@ -45,7 +43,7 @@ class UserServiceImpl(
         log.trace { "saveAll ${users.map { user: User -> user.email }}" }
         users.iterator().forEach { user ->
             if (user.preferences == null) {
-                user.preferences = preferencesRepository.save(Preferences(id = null));
+                user.preferences = preferencesRepository.save(Preferences(id = null))
             }
         }
         return this.userRepository.saveAll(users)
@@ -66,7 +64,7 @@ class UserServiceImpl(
         log.trace { "updateTrainer ${trainerDTO.email}" }
         val trainer = this.userRepository.findByEmail(trainerDTO.email)
         if (trainer is Trainer) {
-            this.userMapper.toEntity(trainer, trainerDTO)
+            trainer.updateFromDto(trainerDTO)
             this.validationService.validateUser(trainer)
             this.save(trainer)
         } else {
@@ -79,7 +77,7 @@ class UserServiceImpl(
         log.trace { "updateAthlete ${athleteDTO.email}" }
         val athlete = this.userRepository.findByEmail(athleteDTO.email)
         if (athlete is Athlete) {
-            this.userMapper.toEntity(athlete, athleteDTO)
+            athlete.updateFromDto(athleteDTO)
             this.validationService.validateUser(athlete)
             this.save(athlete)
         } else {
@@ -90,7 +88,7 @@ class UserServiceImpl(
     override fun getPreferences(userDTO: UserDTO): Preferences? {
         log.trace { "getPreferences ${userDTO.email}" }
         if (userDTO.id != null) {
-            val user = this.userRepository.findById(userDTO.id!!);
+            val user = this.userRepository.findById(userDTO.id!!)
             if (user.isPresent) {
                 return user.get().preferences
             }
@@ -101,11 +99,11 @@ class UserServiceImpl(
     override fun patchPreferences(userDTO: UserDTO, preferencesDTO: PreferencesDTO): Preferences? {
         log.trace { "patchPreferences ${userDTO.email}, $preferencesDTO" }
         if (userDTO.id != null) {
-            val user = this.userRepository.findById(userDTO.id!!);
+            val user = this.userRepository.findById(userDTO.id!!)
             if (user.isPresent) {
                 // get user object and its preferences
                 val userObj = user.get()
-                val oldPreferences = userObj.preferences;
+                val oldPreferences = userObj.preferences
 
                 oldPreferences?.emailNotifications = preferencesDTO.emailNotifications
                 oldPreferences?.commentNotifications = preferencesDTO.commentNotifications
@@ -115,7 +113,7 @@ class UserServiceImpl(
                 val newPreferences = this.preferencesRepository.save(oldPreferences!!)
                 userObj.preferences = newPreferences
                 this.userRepository.save(userObj)
-                return newPreferences;
+                return newPreferences
             }
         }
         return null

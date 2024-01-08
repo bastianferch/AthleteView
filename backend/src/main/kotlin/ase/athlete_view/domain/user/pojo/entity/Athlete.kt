@@ -40,6 +40,15 @@ class Athlete(
     id, email, mutableListOf(), name, password, country, zip, false, mutableSetOf(),
 ) {
 
+    fun updateFromDto(dto: AthleteDTO) {
+        name = dto.name
+        country = dto.country
+        zip = dto.zip
+        dob = dto.dob
+        height = dto.height
+        weight = dto.weight
+    }
+
     fun toAthleteDto(includeTrainer: Boolean = true): AthleteDTO {
         return if (includeTrainer) {
             AthleteDTO(

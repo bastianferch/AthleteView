@@ -45,6 +45,14 @@ class Trainer(
         return trainer
     }
 
+    fun updateFromDto(dto: TrainerDTO) {
+        name = dto.name
+        country = dto.country
+        zip = dto.zip
+        code = dto.code
+
+    }
+
     override fun getUserType(): String {
         return "trainer"
     }
