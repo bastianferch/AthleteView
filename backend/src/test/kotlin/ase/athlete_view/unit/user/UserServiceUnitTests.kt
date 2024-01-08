@@ -5,7 +5,6 @@ import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Preferences
 import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.UserCreator
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -29,9 +28,6 @@ class UserServiceUnitTests {
 
     @Autowired
     private lateinit var userService: UserService
-
-    @MockkBean
-    private lateinit var userMapper: UserMapper
 
     @Test
     fun saveUser() {

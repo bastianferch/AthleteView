@@ -12,7 +12,6 @@ import ase.athlete_view.domain.csp.pojo.dto.CspMappingDto
 import ase.athlete_view.domain.csp.pojo.entity.CspJob
 import ase.athlete_view.domain.csp.service.CspService
 import ase.athlete_view.domain.user.pojo.entity.Trainer
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -50,9 +49,6 @@ class CspControllerUnitTests {
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider
-
-    @MockkBean
-    private lateinit var userMapper: UserMapper
 
     val objectMapper = ObjectMapper().registerModules(JavaTimeModule())
 

@@ -7,7 +7,6 @@ import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.NotificationPreferenceType
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -43,9 +42,6 @@ class UserControllerIntegrationTests: TestBase(){
 
     @Autowired
     private lateinit var preferencesRepository: PreferencesRepository
-
-    @Autowired
-    private lateinit var userMapper: UserMapper
 
     @Autowired
     private lateinit var mockMvc: MockMvc

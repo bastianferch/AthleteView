@@ -7,7 +7,6 @@ import ase.athlete_view.domain.authentication.controller.AuthenticationControlle
 import ase.athlete_view.domain.authentication.dto.LoginDTO
 import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
 import ase.athlete_view.domain.authentication.service.AuthService
-import ase.athlete_view.domain.user.service.mapper.UserMapper
 import ase.athlete_view.util.UserCreator.Companion.DEFAULT_ATHLETE_EMAIL
 import ase.athlete_view.util.UserCreator.Companion.DEFAULT_ATHLETE_ID
 import ase.athlete_view.util.UserCreator.Companion.DEFAULT_ATHLETE_PASSWORD
@@ -16,10 +15,8 @@ import ase.athlete_view.util.UserCreator.Companion.getAthlete
 import ase.athlete_view.util.UserCreator.Companion.getAthleteDTO
 import ase.athlete_view.util.UserCreator.Companion.getAthleteLoginDto
 import ase.athlete_view.util.UserCreator.Companion.getAthleteRegistrationDTO
-import ase.athlete_view.util.UserCreator.Companion.getAthleteUser
 import ase.athlete_view.util.UserCreator.Companion.getTrainer
 import ase.athlete_view.util.UserCreator.Companion.getTrainerRegistrationDTO
-import ase.athlete_view.util.UserCreator.Companion.getTrainerUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -57,10 +54,6 @@ class AuthControllerUnitTests {
 
     @MockkBean
     lateinit var authService: AuthService
-
-    // required cuz injected
-    @MockkBean
-    private lateinit var userMapper: UserMapper
 
     @MockkBean
     lateinit var authProvider: UserAuthProvider
@@ -113,7 +106,6 @@ class AuthControllerUnitTests {
     @Test
     fun registerAthleteWithTrainer_Returns201() {
         every { authService.registerAthlete(any()) } returns getAthlete(null)
-        every { userMapper.toUserDTO(any()) } returns getAthleteUser()
 
         val dto = getAthleteRegistrationDTO(null)
 
@@ -133,7 +125,6 @@ class AuthControllerUnitTests {
     @Test
     fun registerTrainer_Returns201() {
         every { authService.registerTrainer(any()) } returns getTrainer()
-        every { userMapper.toUserDTO(any()) } returns getTrainerUser()
 
         val dto = getTrainerRegistrationDTO()
 
