@@ -12,6 +12,13 @@ There is a `docker-compose.yml` which configures the databases and networks etc.
 To build and start the containers, use `docker-compose up --build -d`.
 The databases (postgres/mongodb) have to be started for production run before the application is started!
 
+### Worker
+Navigate into the `worker` folder.
+Run the following command: `./bin/build.sh` to build the image.
+Activate the `local-worker` profile in IntelliJ (like `datagen`) or append the profile to your application startup command.
+This will automatically start 1 worker with a working configuration for you on backend startup.
+Please note that your docker has to have the option 'Expose daemon on tcp://localhost:2375 without TLS' enabled in the settings for this to work.
+
 ### Application
 - run `mvn clean install -DskipTests` to install all required maven dependencies
 - run `mvn clean packagee` to generate a runnable JAR from the POM
