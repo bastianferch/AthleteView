@@ -13,7 +13,7 @@
         <ng-container matColumnDef="activityIcon">
           <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
           <td mat-cell *matCellDef="let act">
-            <mat-icon>{{ getIconNameForActivity(act.type) }}</mat-icon>
+            <mat-icon>{{ activityParsing.getIconNameForActivity(act.type) }}</mat-icon>
           </td>
         </ng-container>
 
@@ -24,7 +24,7 @@
 
         <ng-container matColumnDef="readableName">
           <th mat-header-cell *matHeaderCellDef>Activity</th>
-          <td mat-cell *matCellDef="let act">{{ getReadableNameForActivity(act.type) }}</td>
+          <td mat-cell *matCellDef="let act">{{ activityParsing.getReadableNameForActivity(act.type) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="activityDate">
@@ -55,13 +55,13 @@
 
         <ng-container matColumnDef="finishedActivityReadableName">
           <th mat-header-cell *matHeaderCellDef>Activity</th>
-          <td mat-cell *matCellDef="let act">{{ getReadableNameForActivity(act.activityType) }}</td>
+          <td mat-cell *matCellDef="let act">{{ activityParsing.getReadableNameForActivity(act.activityType) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="finishedActivityIcon">
           <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
           <td mat-cell *matCellDef="let act">
-            <mat-icon>{{ getIconNameForActivity(act.activityType) }}</mat-icon>
+            <mat-icon>{{ activityParsing.getIconNameForActivity(act.activityType) }}</mat-icon>
           </td>
         </ng-container>
 

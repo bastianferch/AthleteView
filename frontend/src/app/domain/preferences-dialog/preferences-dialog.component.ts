@@ -54,6 +54,7 @@ export class PreferencesDialogComponent implements OnInit {
           comment: new FormControl(data.commentNotifications),
           rating: new FormControl(data.ratingNotifications),
           other: new FormControl(data.otherNotifications),
+          health: new FormControl(data.shareHealthWithTrainer),
         })
         this.preferences = data;
       }
@@ -62,10 +63,11 @@ export class PreferencesDialogComponent implements OnInit {
 
   patchPreferences() {
     const newPrefs: PreferencesDto = {
-      emailNotifications: this.form.controls['email'].value ? this.form.controls['email'].value : this.preferences.emailNotifications,
+      emailNotifications: this.form.controls['email'].value,
       commentNotifications: this.form.controls['comment'].value ? this.form.controls['comment'].value : this.preferences.commentNotifications,
       ratingNotifications: this.form.controls['rating'].value ? this.form.controls['rating'].value : this.preferences.ratingNotifications,
       otherNotifications: this.form.controls['other'].value ? this.form.controls['other'].value : this.preferences.otherNotifications,
+      shareHealthWithTrainer: this.form.controls['health'].value,
     }
 
     this.userService.patchPreferences(newPrefs).subscribe((data) => {

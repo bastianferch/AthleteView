@@ -14,13 +14,15 @@ open class Preferences(
     open var commentNotifications: NotificationPreferenceType = NotificationPreferenceType.PUSH,
     open var ratingNotifications: NotificationPreferenceType = NotificationPreferenceType.PUSH,
     open var otherNotifications: NotificationPreferenceType = NotificationPreferenceType.PUSH,
+
+    open var shareHealthWithTrainer: Boolean = false
 ) {
     open fun toDTO(): PreferencesDTO {
-        return PreferencesDTO(emailNotifications, commentNotifications, ratingNotifications, otherNotifications);
+        return PreferencesDTO(emailNotifications, commentNotifications, ratingNotifications, otherNotifications, shareHealthWithTrainer)
     }
 
     override fun toString(): String {
-        return "Preferences(id=$id, emailNotifications=$emailNotifications, commentNotifications=$commentNotifications, ratingNotifications=$ratingNotifications, otherNotifications=$otherNotifications)"
+        return "Preferences(id=$id, emailNotifications=$emailNotifications, commentNotifications=$commentNotifications, ratingNotifications=$ratingNotifications, otherNotifications=$otherNotifications, shareHealthWithTrainer=$shareHealthWithTrainer)"
     }
 
 

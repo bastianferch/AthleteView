@@ -2,12 +2,13 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivityService } from '../service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { Activity } from '../dto/Activity';
-import { ActivityType, PlannedActivity } from '../dto/PlannedActivity';
+import { PlannedActivity } from '../dto/PlannedActivity';
 import { MatTable } from '@angular/material/table';
 import { SpinnerService } from '../../main/service/spinner.service';
 import { IntervalSplit } from 'src/app/common/interval/dto/Interval';
 import { StepDurationType } from 'src/app/common/interval/dto/Step';
 import { format } from 'date-fns';
+import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
 
 export enum TOGGLESTATE {
   DRAFT = "draft",
@@ -42,6 +43,7 @@ export class ActivityComponent implements OnInit {
     private activityService: ActivityService,
     private authService: AuthService,
     private spinner: SpinnerService,
+    public activityParsing: ActivityParsing,
   ) {}
 
   ngOnInit(): void {
@@ -113,42 +115,6 @@ export class ActivityComponent implements OnInit {
     }
 
     return summaryString.trim()
-  }
-
-  getReadableNameForActivity(activityType: string): string {
-    switch (activityType) {
-      case ActivityType.BIKE:
-        return "Cycling"
-      case ActivityType.CROSSCOUNTRYSKIING:
-        return "Cross-country Skiing"
-      case ActivityType.ROW:
-        return "Rowing"
-      case ActivityType.RUN:
-        return "Running"
-      case ActivityType.SWIM:
-        return "Swimming"
-      default:
-        // shouldn't occur
-        return ""
-    }
-  }
-
-  getIconNameForActivity(activityType: string): string {
-    switch (activityType) {
-      case ActivityType.BIKE:
-        return "directions_bike"
-      case ActivityType.CROSSCOUNTRYSKIING:
-        return "downhill_skiing"
-      case ActivityType.ROW:
-        return "rowing"
-      case ActivityType.RUN:
-        return "directions_run"
-      case ActivityType.SWIM:
-        return "pool"
-      default:
-        // shouldn't occur
-        return "sync-problem"
-    }
   }
 
   getRouterLink(activity: any): string {

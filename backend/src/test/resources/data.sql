@@ -1,8 +1,8 @@
-INSERT INTO preferences (id, email_notifications, comment_notifications, rating_notifications, other_notifications)
-VALUES (-1, FALSE, '1', '1', '1'),
-       (-2, FALSE, '1', '1', '1'),
-       (-3, FALSE, '1', '1', '1'),
-       (-4, FALSE, '1', '1', '1');
+INSERT INTO preferences (id, email_notifications, comment_notifications, rating_notifications, other_notifications, share_health_with_trainer)
+VALUES (-1, FALSE, '1', '1', '1', FALSE),
+       (-2, FALSE, '1', '1', '1', TRUE),
+       (-3, FALSE, '1', '1', '1', FALSE),
+       (-4, FALSE, '1', '1', '1', FALSE);
 
 INSERT INTO users (id, name, password, country, email, zip, is_confirmed, preferences_id)
 VALUES (-1, 'Josef', 'testpwd', 'Austria', 'a@b.com', '1337', TRUE, -1),

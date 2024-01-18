@@ -39,7 +39,7 @@ export class TimeConstraintService {
     if (type) params = params.append("type", type)
     if (from) params = params.append("from", from)
     if (until) params = params.append("until", until)
-    return this.httpClient.get<any>(this.timeConstraintBaseUri, { params });
+    return this.httpClient.get<TimeConstraint[]>(this.timeConstraintBaseUri, { params });
   }
 
   delete(id: number) {

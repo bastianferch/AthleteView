@@ -40,12 +40,12 @@ open class Activity(
         if (withoutActivity) {
             return ActivityDTO(
                 id, accuracy, averageBpm, minBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
-                null, laps.map { it.toDTO() }, activityType, comments.toList().map { it.toDTO() }, ratingTrainer, ratingAthlete
+                null, laps.map { it.toDTO() }, activityType, comments.toList().map { it.toDTO() }, ratingTrainer, ratingAthlete, user?.id
             )
         } else {
             return ActivityDTO(
                 id, accuracy, averageBpm, minBpm, maxBpm, distance, spentKcal, cadence, avgPower, maxPower, fitData, startTime, endTime,
-                plannedActivity?.toDTO(true), laps.map { it.toDTO() }, activityType, comments.toList().map { it.toDTO() }, ratingTrainer, ratingAthlete
+                plannedActivity?.toDTO(true), laps.map { it.toDTO() }, activityType, comments.toList().map { it.toDTO() }, ratingTrainer, ratingAthlete, user?.id
             )
         }
     }

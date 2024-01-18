@@ -3,8 +3,6 @@ import { CustomCalendarComponent } from "../component/custom-calendar.component"
 import { RouterModule, Routes } from "@angular/router";
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatButtonModule } from '@angular/material/button';
 
 
 const routes: Routes = [
@@ -12,12 +10,11 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [CustomCalendarComponent],
+  declarations: [],
   imports: [
     RouterModule.forChild(routes),
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
-    MatButtonToggleModule,
-    MatButtonModule,
+    CustomCalendarComponent,
   ],
   exports: [RouterModule],
 })

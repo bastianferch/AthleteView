@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.health.pojo.entity
 
+import ase.athlete_view.domain.health.pojo.dto.HealthDTO
 import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
@@ -25,5 +26,9 @@ data class Health(
     @Override
     override fun toString(): String {
         return this::class.simpleName + "(id = $id , date = $date , avgSteps = $avgSteps , avgBPM = $avgBPM , avgSleepDuration = $avgSleepDuration )"
+    }
+
+    fun toDTO(): HealthDTO {
+        return HealthDTO(id, date, avgSteps, avgBPM, avgSleepDuration)
     }
 }
