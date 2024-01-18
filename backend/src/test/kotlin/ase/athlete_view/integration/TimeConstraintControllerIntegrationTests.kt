@@ -12,6 +12,7 @@ import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -72,7 +73,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("End time must be after start time"))
+        assertTrue(result.contains("End time must be after start time"))
     }
 
     @Test
@@ -92,7 +93,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("title").value("test"))
             .andReturn().response.contentAsString
 
-        assert(result.contains("[2023,12,12,14,0]"))
+        assertTrue(result.contains("[2023,12,12,14,0]"))
     }
 
     @Test
@@ -110,7 +111,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("End time must be after start time"))
+        assertTrue(result.contains("End time must be after start time"))
     }
 
     @Test
@@ -130,7 +131,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("title").value("test"))
             .andReturn().response.contentAsString
 
-        assert(result.contains("weekday\":"))
+        assertTrue(result.contains("weekday\":"))
     }
 
     @Test
@@ -153,7 +154,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andReturn().response.contentAsString
 
         //correct end time
-        assert(result.contains("[2023,12,12,16,0]"))
+        assertTrue(result.contains("[2023,12,12,16,0]"))
     }
 
     @Test
@@ -175,7 +176,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andReturn().response.contentAsString
 
 
-        assert(result.contains("Cannot edit time constraint from different user"))
+        assertTrue(result.contains("Cannot edit time constraint from different user"))
     }
 
     @Test
@@ -197,7 +198,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andReturn().response.contentAsString
 
         //correct end time
-        assert(result.contains("[16,0]"))
+        assertTrue(result.contains("[16,0]"))
     }
 
     @Test
@@ -218,7 +219,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("End time must be after start time"))
+        assertTrue(result.contains("End time must be after start time"))
     }
 
     @Test
@@ -240,9 +241,9 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
 
         assertAll(
             // no weeklyDto in list
-            { assert(!result.contains("weekday\":")) },
+            { assertTrue(!result.contains("weekday\":")) },
             // weekly constraint converted correctly
-            { assert(result.contains(weeklyMatch)) }
+            { assertTrue(result.contains(weeklyMatch)) }
         )
     }
 
@@ -266,11 +267,11 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
 
         assertAll(
             // weeklyDto in list
-            { assert(result.contains("weekday\":")) },
+            { assertTrue(result.contains("weekday\":")) },
             // no daily constraint in list
-            { assert(!result.contains(dailyMatch)) },
+            { assertTrue(!result.contains(dailyMatch)) },
             // daily converted correctly
-            { assert(result.contains(convertTest)) }
+            { assertTrue(result.contains(convertTest)) }
         )
     }
 
@@ -292,10 +293,10 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andReturn().response.contentAsString
 
         assertAll(
-            { assert(result.contains("weekly\",\"constraint\":{\"weekday\":\"MONDAY\",\"startTime\":[11,0]")) },
-            { assert(result.contains("\"weekly2\",\"constraint\":{\"weekday\":\"SUNDAY\"")) },
-            { assert(result.contains("daily\",\"startTime\":[2023,12,12,11,0]")) },
-            { assert(result.contains("daily2\",\"startTime\":[2023,12,13,11,0]")) },
+            { assertTrue(result.contains("weekly\",\"constraint\":{\"weekday\":\"MONDAY\",\"startTime\":[11,0]")) },
+            { assertTrue(result.contains("\"weekly2\",\"constraint\":{\"weekday\":\"SUNDAY\"")) },
+            { assertTrue(result.contains("daily\",\"startTime\":[2023,12,12,11,0]")) },
+            { assertTrue(result.contains("daily2\",\"startTime\":[2023,12,13,11,0]")) },
         )
     }
 
@@ -333,7 +334,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(5))
             .andReturn().response.contentAsString
 
-        assert(!result.contains("weekday\":"))
+        assertTrue(!result.contains("weekday\":"))
     }
 
     @Test
@@ -368,7 +369,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("title").value("test"))
             .andReturn().response.contentAsString
 
-        assert(result.contains("[2023,12,12,14,0]"))
+        assertTrue(result.contains("[2023,12,12,14,0]"))
     }
 
     @Test
@@ -384,7 +385,7 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("Could not find constraint by given id"))
+        assertTrue(result.contains("Could not find constraint by given id"))
     }
 
     @Test
@@ -416,6 +417,6 @@ class TimeConstraintControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("Cannot delete time constraint from different user"))
+        assertTrue(result.contains("Cannot delete time constraint from different user"))
     }
 }

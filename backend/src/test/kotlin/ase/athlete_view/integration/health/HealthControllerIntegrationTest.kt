@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -80,7 +81,7 @@ class HealthControllerIntegrationTest {
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
         verify(exactly = 1) { healthService.getAllByCurrentUser() }
-        assert(result.contains("-1"))
+        assertTrue(result.contains("-1"))
     }
 
     @Test
@@ -95,8 +96,8 @@ class HealthControllerIntegrationTest {
             .andReturn().response.contentAsString
         verify(exactly = 1) { healthService.getAllByCurrentUser() }
         assertAll(
-            { assert(result.contains(":2,")) },
-            { assert(!result.contains(":4,")) }
+            { assertTrue(result.contains(":2,")) },
+            { assertTrue(!result.contains(":4,")) }
         )
 
     }
@@ -113,8 +114,8 @@ class HealthControllerIntegrationTest {
             .andReturn().response.contentAsString
         verify(exactly = 1) { healthService.getAllFromAthlete(-2) }
         assertAll(
-            { assert(result.contains(":2,")) },
-            { assert(!result.contains(":4,")) }
+            { assertTrue(result.contains(":2,")) },
+            { assertTrue(!result.contains(":4,")) }
         )
 
     }

@@ -16,6 +16,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.slot
 import io.mockk.verify
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -136,9 +137,9 @@ class ActivityServiceMongoUnitTests {
         activityService.importActivity(arrayListOf(resultFile), -4L)
         verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) }
         assertAll("Activity",
-            { assert(slot.captured.accuracy > 25) },
-            { assert(slot.captured.activityType == ActivityType.RUN) },
-            { assert(slot.captured.plannedActivity != null) }
+            { assertTrue(slot.captured.accuracy > 25) },
+            { assertEquals(slot.captured.activityType, ActivityType.RUN) },
+            { assertNotNull(slot.captured.plannedActivity) }
         )
     }
 
@@ -167,9 +168,9 @@ class ActivityServiceMongoUnitTests {
         activityService.importActivity(arrayListOf(resultFile), -4L)
         verify(exactly = 1) { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) }
         assertAll("Activity",
-            { assert(slot.captured.accuracy == 0) },
-            { assert(slot.captured.activityType == ActivityType.RUN) },
-            { assert(slot.captured.plannedActivity == null) }
+            { assertEquals(slot.captured.accuracy, 0) },
+            { assertEquals(slot.captured.activityType, ActivityType.RUN) },
+            { assertNull(slot.captured.plannedActivity) }
         )
     }
 }

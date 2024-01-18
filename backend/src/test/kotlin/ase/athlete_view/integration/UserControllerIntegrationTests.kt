@@ -14,6 +14,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import org.hamcrest.Matchers.hasSize
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -184,13 +185,13 @@ class UserControllerIntegrationTests: TestBase(){
 
         //assert that it is really stored in the repository
         val prefsId = user.preferences?.id
-        assert(prefsId != null)
+        assertNotNull(prefsId)
         val newPrefs = preferencesRepository.getReferenceById(prefsId!!)
         assertAll(
-            { assert(!newPrefs.emailNotifications) },
-            { assert(newPrefs.commentNotifications == NotificationPreferenceType.PUSH) },
-            { assert(newPrefs.ratingNotifications == NotificationPreferenceType.PUSH) },
-            { assert(newPrefs.otherNotifications == NotificationPreferenceType.PUSH) },
+            { assertTrue(!newPrefs.emailNotifications) },
+            { assertEquals(newPrefs.commentNotifications, NotificationPreferenceType.PUSH) },
+            { assertEquals(newPrefs.ratingNotifications, NotificationPreferenceType.PUSH) },
+            { assertEquals(newPrefs.otherNotifications, NotificationPreferenceType.PUSH) },
         )
     }
 
@@ -214,14 +215,14 @@ class UserControllerIntegrationTests: TestBase(){
 
         //assert that it is really stored in the repository
         val prefsId = user.preferences?.id
-        assert(prefsId != null)
+        assertNotNull(prefsId)
         val newPrefs = preferencesRepository.getReferenceById(prefsId!!)
 
         assertAll(
-            { assert(newPrefs.emailNotifications) },
-            { assert(newPrefs.commentNotifications == NotificationPreferenceType.NONE) },
-            { assert(newPrefs.ratingNotifications == NotificationPreferenceType.NONE) },
-            { assert(newPrefs.otherNotifications == NotificationPreferenceType.NONE) },
+            { assertTrue(newPrefs.emailNotifications) },
+            { assertEquals(newPrefs.commentNotifications, NotificationPreferenceType.NONE) },
+            { assertEquals(newPrefs.ratingNotifications, NotificationPreferenceType.NONE) },
+            { assertEquals(newPrefs.otherNotifications, NotificationPreferenceType.NONE) },
         )
     }
 }

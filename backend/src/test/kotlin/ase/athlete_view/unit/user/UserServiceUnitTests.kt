@@ -10,6 +10,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
@@ -132,11 +134,11 @@ class UserServiceUnitTests {
 
         // should be the same as original preferences
         assertAll(
-            { assert(prefs != null) },
-            { assert(prefs?.emailNotifications == originalPrefs.emailNotifications) },
-            { assert(prefs?.commentNotifications == originalPrefs.commentNotifications) },
-            { assert(prefs?.ratingNotifications == originalPrefs.ratingNotifications) },
-            { assert(prefs?.otherNotifications == originalPrefs.otherNotifications) },
+            { assertNotNull(prefs) },
+            { assertEquals(prefs?.emailNotifications, originalPrefs.emailNotifications) },
+            { assertEquals(prefs?.commentNotifications, originalPrefs.commentNotifications) },
+            { assertEquals(prefs?.ratingNotifications, originalPrefs.ratingNotifications) },
+            { assertEquals(prefs?.otherNotifications, originalPrefs.otherNotifications) },
         )
     }
 
@@ -158,11 +160,11 @@ class UserServiceUnitTests {
 
         // should be the same as original preferences
         assertAll(
-            { assert(prefs != null) },
-            { assert(prefs?.emailNotifications == newPreferencesDto.emailNotifications) },
-            { assert(prefs?.commentNotifications == newPreferencesDto.commentNotifications) },
-            { assert(prefs?.ratingNotifications == newPreferencesDto.ratingNotifications) },
-            { assert(prefs?.otherNotifications == newPreferencesDto.otherNotifications) },
+            { assertNotNull(prefs) },
+            { assertEquals(prefs?.emailNotifications, newPreferencesDto.emailNotifications) },
+            { assertEquals(prefs?.commentNotifications, newPreferencesDto.commentNotifications) },
+            { assertEquals(prefs?.ratingNotifications, newPreferencesDto.ratingNotifications) },
+            { assertEquals(prefs?.otherNotifications, newPreferencesDto.otherNotifications) },
         )
     }
 

@@ -17,6 +17,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
@@ -103,8 +104,8 @@ class TimeConstraintServiceUnitTests {
         assertAll(
             { assertEquals(list[0].id, weeklyConstraint.toDto().id) },
             { assertEquals(list[0].title, weeklyConstraint.toDto().title) },
-            { assert(list[0] is WeeklyTimeConstraintDto) },
-            { assert(asDaily[0] is DailyTimeConstraintDto) }
+            { assertTrue(list[0] is WeeklyTimeConstraintDto) },
+            { assertTrue(asDaily[0] is DailyTimeConstraintDto) }
         )
     }
 

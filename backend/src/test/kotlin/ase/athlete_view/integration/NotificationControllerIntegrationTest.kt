@@ -12,6 +12,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.every
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -24,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-const val TEST_USER_ID = -1L;
+const val TEST_USER_ID = -1L
 
 @SpringBootTest(
     classes = [AthleteViewApplication::class],
@@ -33,7 +34,7 @@ const val TEST_USER_ID = -1L;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class NotificationControllerIntegrationTest: TestBase() {
+class NotificationControllerIntegrationTest : TestBase() {
 
     val logger = KotlinLogging.logger {}
 
@@ -54,16 +55,16 @@ class NotificationControllerIntegrationTest: TestBase() {
 
     @AfterEach
     fun wipeEmitterRepo() {
-        emitterRepository.deleteAll();
+        emitterRepository.deleteAll()
     }
 
     @AfterEach
     fun wipeNotificationRepo() {
-        notificationRepository.deleteAll();
+        notificationRepository.deleteAll()
     }
 
     fun sendUserNotification(userId: Long): Notification? {
-        return notificationService.sendNotification(userId, "header", "body", "link");
+        return notificationService.sendNotification(userId, "header", "body", "link")
     }
 
     @Test
@@ -74,7 +75,7 @@ class NotificationControllerIntegrationTest: TestBase() {
         ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // check if there is an emitter for this user now
-        assert(emitterRepository.existsById(TEST_USER_ID))
+        assertTrue(emitterRepository.existsById(TEST_USER_ID))
     }
 
     @Test
@@ -90,14 +91,14 @@ class NotificationControllerIntegrationTest: TestBase() {
         ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // check if there is an emitter for this user now
-        assert(emitterRepository.existsById(TEST_USER_ID))
+        assertTrue(emitterRepository.existsById(TEST_USER_ID))
     }
 
 
     @Test
     @WithCustomMockUser(id = TEST_USER_ID)
     fun getAllNotifications_shouldReturnEmptyListAndOk() {
-        val result = mockMvc.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders.get("/api/notification").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -113,15 +114,15 @@ class NotificationControllerIntegrationTest: TestBase() {
         every { mailService.sendSimpleMail(any()) } returns Unit
 
         // send user a notification
-        notificationService.sendNotification(TEST_USER_ID, "header", "body", "link");
+        notificationService.sendNotification(TEST_USER_ID, "header", "body", "link")
 
         val notifications = notificationService.getAllNotifications(TEST_USER_ID)
 
         logger.info { notifications }
 
-        assert(notifications.size == 1)
+        assertEquals(notifications.size, 1)
 
-        val result= mockMvc.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders.get("/api/notification").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -142,7 +143,8 @@ class NotificationControllerIntegrationTest: TestBase() {
         }
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/notification/$nonexistentNotificationId").with(SecurityMockMvcRequestPostProcessors.csrf())
+            MockMvcRequestBuilders.delete("/api/notification/$nonexistentNotificationId")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isNotFound())
     }
 
@@ -150,14 +152,15 @@ class NotificationControllerIntegrationTest: TestBase() {
     @WithCustomMockUser(TEST_USER_ID)
     fun deleteNotification_shouldDeleteNotificationAndReturnOk() {
         val notification = sendUserNotification(TEST_USER_ID)
-        assert(notification != null)
+        assertNotNull(notification)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/notification/${notification!!.id}").with(SecurityMockMvcRequestPostProcessors.csrf())
+            MockMvcRequestBuilders.delete("/api/notification/${notification!!.id}")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // check if really deleted
-        assert(!notificationRepository.existsById(notification.id!!))
+        assertTrue(!notificationRepository.existsById(notification.id!!))
     }
 
     @Test
@@ -167,14 +170,15 @@ class NotificationControllerIntegrationTest: TestBase() {
         val notification2 = sendUserNotification(TEST_USER_ID)
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/notification/${notification!!.id}").with(SecurityMockMvcRequestPostProcessors.csrf())
+            MockMvcRequestBuilders.delete("/api/notification/${notification!!.id}")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // assert that notification was deleted
-        assert(!notificationRepository.existsById(notification.id!!))
+        assertTrue(!notificationRepository.existsById(notification.id!!))
 
-        // assert that notiication2 was not deleted
-        assert(notificationRepository.existsById(notification2!!.id!!))
+        // assert that notification2 was not deleted
+        assertTrue(notificationRepository.existsById(notification2!!.id!!))
     }
 
     @Test
@@ -188,7 +192,7 @@ class NotificationControllerIntegrationTest: TestBase() {
             MockMvcRequestBuilders.delete("/api/notification").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk())
 
-        assert(notificationRepository.count() == 0L)
+        assertEquals(notificationRepository.count(), 0L)
     }
 
     @Test
@@ -206,9 +210,9 @@ class NotificationControllerIntegrationTest: TestBase() {
 
         // check if notifications were marked as read
         val notifs = notificationService.getAllNotifications(TEST_USER_ID)
-        assert(notifs.size == 2)
-        assert(notifs[0].read)
-        assert(notifs[1].read)
+        assertEquals(notifs.size, 2)
+        assertTrue(notifs[0].read)
+        assertTrue(notifs[1].read)
     }
 
     @Test
@@ -226,9 +230,9 @@ class NotificationControllerIntegrationTest: TestBase() {
 
         // check if notifications were marked as read
         val notifs = notificationService.getAllNotifications(TEST_USER_ID)
-        assert(notifs.size == 2)
-        assert(!notifs[0].read)
-        assert(!notifs[1].read)
+        assertEquals(notifs.size, 2)
+        assertTrue(!notifs[0].read)
+        assertTrue(!notifs[1].read)
     }
 
     @Test
@@ -249,8 +253,8 @@ class NotificationControllerIntegrationTest: TestBase() {
 
         // check if notifications were marked as read
         val notifications = notificationService.getAllNotifications(TEST_USER_ID)
-        assert(notifications.size == 2)
-        assert(notifications[0].read)
-        assert(notifications[1].read)
+        assertEquals(notifications.size, 2)
+        assertTrue(notifications[0].read)
+        assertTrue(notifications[1].read)
     }
 }

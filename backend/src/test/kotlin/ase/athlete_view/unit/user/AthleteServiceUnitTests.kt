@@ -8,6 +8,7 @@ import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
@@ -40,10 +41,10 @@ class AthleteServiceUnitTests: TestBase() {
         val athletes = athleteService.getByTrainerId(1)
 
         assertAll(
-            { assert(athletes.size == 3) },
-            { assert(athletes[0].id == 1L) },
-            { assert(athletes[1].id == 2L) },
-            { assert(athletes[2].id == 3L) }
+            { assertEquals(athletes.size, 3) },
+            { assertEquals(athletes[0].id, 1L) },
+            { assertEquals(athletes[1].id, 2L) },
+            { assertEquals(athletes[2].id, 3L) }
         )
     }
 

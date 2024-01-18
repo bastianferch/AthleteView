@@ -16,13 +16,11 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import jakarta.transaction.Transactional
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.sql.Timestamp
 import java.util.*
@@ -57,7 +55,7 @@ class NotificationServiceUnitTests {
     private val link = "link"
 
     private val notification = Notification(0, user, false, Timestamp(System.currentTimeMillis()), header, body, link)
-    private val otherNotification = Notification(420, user,false, Timestamp(System.currentTimeMillis()), "","","");
+    private val otherNotification = Notification(420, user,false, Timestamp(System.currentTimeMillis()), "","","")
 
 
     @BeforeEach
@@ -81,10 +79,10 @@ class NotificationServiceUnitTests {
     @Transactional
     fun createEmitterForUser_shouldCallEmitterRepositorySaveAndReturnEmitter() {
         every { userRepository.findById(user.id!!) } returns Optional.of(user)
-        every { emitterRepository.save(any<Long>(), any()) } returns Unit;
+        every { emitterRepository.save(any<Long>(), any()) } returns Unit
         val emitter = notificationService.createEmitter(user.id!!)
 
-        assert(emitter != null)
+        assertNotNull(emitter)
 
         // verify emitter is saved
         verify(exactly = 1) { emitterRepository.save(any(), any()) }
@@ -124,7 +122,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns false;
+        every { emitterRepository.existsById(any<Long>()) } returns false
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
 
@@ -153,7 +151,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns false;
+        every { emitterRepository.existsById(any<Long>()) } returns false
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
 
@@ -187,7 +185,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns false;
+        every { emitterRepository.existsById(any<Long>()) } returns false
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
 
@@ -218,7 +216,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.existsById(any<Long>()) } returns true
         every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
@@ -250,7 +248,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.existsById(any<Long>()) } returns true
         every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
@@ -282,7 +280,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.existsById(any<Long>()) } returns true
         every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
@@ -314,7 +312,7 @@ class NotificationServiceUnitTests {
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(user)
         // user is offline
-        every { emitterRepository.existsById(any<Long>()) } returns true;
+        every { emitterRepository.existsById(any<Long>()) } returns true
         every { emitterRepository.findById(any<Long>()) } returns Optional.of(emitter)
         every { mailService.sendSimpleMail(any()) } returns Unit
         every { notificationRepository.saveAndFlush(any()) } returns notification
@@ -346,8 +344,8 @@ class NotificationServiceUnitTests {
         val allNotificationsUser = notificationService.getAllNotifications(user.id!!)
         val allNotificationsTrainer = notificationService.getAllNotifications(trainer.id!!)
 
-        assert(allNotificationsUser.size == 2)
-        assert(allNotificationsTrainer.size == 1)
+        assertEquals(allNotificationsUser.size, 2)
+        assertEquals(allNotificationsTrainer.size, 1)
     }
 
     @Test
@@ -365,7 +363,7 @@ class NotificationServiceUnitTests {
 
         val allNotificationsNonexistent = notificationService.getAllNotifications(420)
 
-        assert(allNotificationsNonexistent.isEmpty())
+        assertTrue(allNotificationsNonexistent.isEmpty())
     }
 
 
