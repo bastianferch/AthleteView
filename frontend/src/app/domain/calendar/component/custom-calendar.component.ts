@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ActivityService } from '../../activity/service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
-import { CalendarEvent, CalendarView } from 'angular-calendar';
+import { CalendarModule, CalendarEvent, CalendarView } from 'angular-calendar';
 import { Activity, ActivityEvent } from '../../activity/dto/Activity'
 import { SnackbarService } from 'src/app/common/service/snackbar.service';
 import { TimeConstraintService } from '../../time-constraints/service/time-constraints.service'
+import { RouterModule, Router, ActivatedRoute } from "@angular/router";
 import {
   add,
   addMonths,
@@ -20,20 +21,26 @@ import {
   subWeeks,
 } from 'date-fns'
 import { enUS } from 'date-fns/locale'
-import { Router } from '@angular/router';
 import { TimeConstraint } from "../../../common/dto/TimeConstraint";
 import { Calendarcolors } from "../../../common/util/calendar-colors";
 import { DateParsing, dateFormatString } from "../../../common/util/parsing/date-parsing";
 import { PlannedActivityEvent } from '../../activity/dto/PlannedActivity';
+import { MatButtonModule } from "@angular/material/button";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { NgIf } from "@angular/common";
 
 @Component({
   selector: 'app-custom-calendar',
   templateUrl: './custom-calendar.component.html',
   styleUrls: ['./custom-calendar.component.scss'],
+  imports: [RouterModule, CalendarModule, MatButtonModule, MatButtonToggleModule, NgIf],
+  standalone: true,
 })
 export class CustomCalendarComponent implements OnInit {
+
   viewDate: Date = new Date()
-  viewType: CalendarView = CalendarView.Week
+  @Input() viewType: CalendarView = CalendarView.Month
+  @Input() home = false
   // helper to check which view is open atm
   CalendarView = CalendarView
   cropStartHour = 5
@@ -49,10 +56,17 @@ export class CustomCalendarComponent implements OnInit {
     private notifService: SnackbarService,
     private router: Router,
     private dateParser: DateParsing,
+    private route: ActivatedRoute,
   ) {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      const date = new Date(params['date']);
+      if (!isNaN(date.getTime())) {
+        this.viewDate = date;
+      }
+    });
     this.loadData()
   }
 
@@ -60,6 +74,7 @@ export class CustomCalendarComponent implements OnInit {
     if (view === 'week') {
       // don't need to fetch data
       this.viewType = CalendarView.Week
+      this.loadData()
     } else if (view === 'month') {
       this.viewType = CalendarView.Month
       this.loadData()

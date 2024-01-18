@@ -110,6 +110,7 @@ class UserCreator {
                 commentNotifications = NotificationPreferenceType.NONE,
                 ratingNotifications = NotificationPreferenceType.NONE,
                 otherNotifications = NotificationPreferenceType.NONE,
+                shareHealthWithTrainer = false
             )
         }
 

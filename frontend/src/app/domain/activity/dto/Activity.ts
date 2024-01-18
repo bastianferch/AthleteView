@@ -24,6 +24,7 @@ export interface Activity {
   comments: CommentDTO[],
   ratingTrainer: number;
   ratingAthlete: number;
+  athleteId?: number;
 }
 
 export interface ActivityEvent {

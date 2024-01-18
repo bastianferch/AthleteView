@@ -7,6 +7,7 @@ import ase.athlete_view.domain.health.service.HealthService
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.HealthCreator
 import ase.athlete_view.util.TestBase
+import ase.athlete_view.util.UserCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -101,6 +102,21 @@ class HealthServiceIntegrationTest : TestBase() {
             )
         )
         assertThat(this.healthService.getAllByCurrentUser()).hasSize(1)
+    }
+
+    @Test
+    @WithCustomMockUser(id = USER_ID)
+    fun getAllFromAthleteWithValidPreferences_ReturnsList() {
+        healthRepository.save(Health(null, UserCreator.getAthlete(-2),LocalDate.now(),1,1,1))
+        assertThat(this.healthService.getAllFromAthlete(-2)).hasSize(1)
+    }
+
+    @Test
+    @WithCustomMockUser(id = USER_ID)
+    fun getAllFromAthleteWithInValidPreferences_ReturnsEmptyList() {
+        healthRepository.save(Health(null, UserCreator.getAthlete(-2),LocalDate.now(),1,1,1))
+        userService.patchPreferences(UserCreator.getAthleteDTO(),UserCreator.getPreferencesDto())
+        assertThat(this.healthService.getAllFromAthlete(-4)).hasSize(0)
     }
 
     companion object {

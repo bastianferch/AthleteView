@@ -21,13 +21,13 @@ class NotificationController(private val notificationService: NotificationServic
         if (userId != null) {
             return notificationService.createEmitter(userId)
         }
-        return null;
+        return null
     }
 
     @GetMapping
     fun getAllNotifications(@AuthenticationPrincipal user: UserDTO): List<NotificationDTO> {
         logger.info { "GET all notifications by user with id ${user.id}" }
-        if (user.id == null) return listOf();
+        if (user.id == null) return listOf()
         return notificationService.getAllNotifications(user.id!!)
     }
 
@@ -54,17 +54,4 @@ class NotificationController(private val notificationService: NotificationServic
             notificationService.markAllNotificationsAsRead(user.id!!)
         }
     }
-
-
-
-    // TODO this endpoint is just for testing! remove this!
-    @PostMapping("/{id}")
-    fun testSendNotification(@PathVariable(value="id") id: Long) {
-        logger.info { "TEST-ONLY POST send test notifications to user with id $id" }
-        notificationService.sendNotification(id, "<script>alert(1)</script> script", "<b>bold</b> not bold <script>alert(2)</script> script");
-        notificationService.sendNotification(id, "Minimal notification, only the title");
-        notificationService.sendNotification(id, "Notification with title...", "... and body");
-        notificationService.sendNotification(id, "Full notification with body and link", "The button takes you to the Create Activity page :)", "activity/create");
-    }
-
 }

@@ -23,6 +23,13 @@ interface HealthService {
     fun getAllByCurrentUser(): List<Health>
 
     /**
+     * Provides all Health data from athlete if athlete allows data to be shared.
+     *
+     * @throws NotFoundException when current authenticated user could not be fetched from db.
+     */
+    fun getAllFromAthlete(athleteId: Long): List<Health>
+
+    /**
      * Simple crud save.
      */
     fun save(health: Health): Health

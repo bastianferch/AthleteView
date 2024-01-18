@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { UrlService } from "../../../config/service/UrlService";
-import { User } from "../../user/dto/user";
 import { AuthService } from "../../auth/service/auth.service";
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { NotificationDto } from "../dto/notification-dto";
@@ -93,15 +92,6 @@ export class NotificationService {
   navigateTo(route: string) {
     this.notificationDrawer.close();
     this.router.navigate([route]);
-  }
-
-  // TODO this function is just for testing! remove this later!
-  testPostNotification() {
-    return this.http.post<User>(
-      this.url + "/1",
-      null,
-      { withCredentials: true },
-    ).subscribe();
   }
 
   private sortNotifications() {

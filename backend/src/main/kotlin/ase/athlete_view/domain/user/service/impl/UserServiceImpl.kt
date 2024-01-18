@@ -109,6 +109,7 @@ class UserServiceImpl(
                 oldPreferences?.commentNotifications = preferencesDTO.commentNotifications
                 oldPreferences?.ratingNotifications = preferencesDTO.ratingNotifications
                 oldPreferences?.otherNotifications = preferencesDTO.otherNotifications
+                oldPreferences?.shareHealthWithTrainer = preferencesDTO.shareHealthWithTrainer
 
                 val newPreferences = this.preferencesRepository.save(oldPreferences!!)
                 userObj.preferences = newPreferences

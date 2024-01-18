@@ -6,7 +6,9 @@ import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
 import ase.athlete_view.domain.authentication.service.AuthService
 import ase.athlete_view.domain.health.controller.HealthController
+import ase.athlete_view.domain.health.pojo.entity.Health
 import ase.athlete_view.domain.health.service.HealthService
+import ase.athlete_view.util.UserCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -15,6 +17,7 @@ import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
@@ -28,6 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.time.LocalDate
 
 @ActiveProfiles("test")
 @WebMvcTest(controllers = [HealthController::class, AuthenticationController::class])
@@ -65,5 +69,53 @@ class HealthControllerIntegrationTest {
                 .characterEncoding("utf-8")
         ).andExpect(MockMvcResultMatchers.status().isOk())
         verify(exactly = 1) { healthService.mock() }
+    }
+
+    @Test
+    @WithCustomMockUser
+    fun getHealth_returnsHealthDTO(){
+        every { healthService.getAllByCurrentUser() } returns listOf()
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/health/stats").with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn().response.contentAsString
+        verify(exactly = 1) { healthService.getAllByCurrentUser() }
+        assert(result.contains("-1"))
+    }
+
+    @Test
+    @WithCustomMockUser
+    fun getHealthWithData_returnsHealthDTO(){
+        every { healthService.getAllByCurrentUser() } returns listOf(
+            Health(null, UserCreator.getAthlete(1),LocalDate.now(),2,2,2),
+            Health(null, UserCreator.getAthlete(1),LocalDate.now().minusDays(1),4,4,4))
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/health/stats").with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn().response.contentAsString
+        verify(exactly = 1) { healthService.getAllByCurrentUser() }
+        assertAll(
+            { assert(result.contains(":2,")) },
+            { assert(!result.contains(":4,")) }
+        )
+
+    }
+
+    @Test
+    @WithCustomMockUser(-3)
+    fun getHealthFromAthlete_returnsHealthDTO(){
+        every { healthService.getAllFromAthlete(-2) } returns listOf(
+            Health(null, UserCreator.getAthlete(-2),LocalDate.now(),2,2,2),
+            Health(null, UserCreator.getAthlete(-2),LocalDate.now().minusDays(1),4,4,4))
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/health/stats/-2").with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn().response.contentAsString
+        verify(exactly = 1) { healthService.getAllFromAthlete(-2) }
+        assertAll(
+            { assert(result.contains(":2,")) },
+            { assert(!result.contains(":4,")) }
+        )
+
     }
 }

@@ -8,14 +8,15 @@ class PreferencesDTO (
     var commentNotifications: NotificationPreferenceType,
     var ratingNotifications: NotificationPreferenceType,
     var otherNotifications: NotificationPreferenceType,
+    var shareHealthWithTrainer: Boolean
 
     ) {
     fun toEntity(id: Long?): Preferences {
-        return Preferences(id, emailNotifications, commentNotifications, ratingNotifications, otherNotifications)
+        return Preferences(id, emailNotifications, commentNotifications, ratingNotifications, otherNotifications, shareHealthWithTrainer)
     }
 
     override fun toString(): String {
-        return "PreferencesDTO(emailNotifications=$emailNotifications, commentNotifications=$commentNotifications, ratingNotifications=$ratingNotifications, otherNotifications=$otherNotifications)"
+        return "PreferencesDTO(emailNotifications=$emailNotifications, commentNotifications=$commentNotifications, ratingNotifications=$ratingNotifications, otherNotifications=$otherNotifications, shareHealthWithTrainer=$shareHealthWithTrainer)"
     }
 
 }

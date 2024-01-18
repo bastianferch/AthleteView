@@ -1,7 +1,7 @@
 
 <div class="wrapper">
   <div class="cal-utils">
-    <mat-button-toggle-group #group="matButtonToggleGroup" (change)="handleViewSwitch(group.value)" [value]="viewType">
+    <mat-button-toggle-group *ngIf="!home" #group="matButtonToggleGroup" (change)="handleViewSwitch(group.value)" [value]="viewType">
       <mat-button-toggle [value]="CalendarView.Week">Week</mat-button-toggle>
       <mat-button-toggle [value]="CalendarView.Month">Month</mat-button-toggle>
     </mat-button-toggle-group>
@@ -34,9 +34,10 @@
       [hourSegments]="1"
       [precision]="'minutes'"
       [events]="events"
+      [weekStartsOn]="1"
       (eventClicked)="handleEventClicked($event.event)"
     >
     </mwl-calendar-week-view>
   </div>
-  <button mat-raised-button routerLink="/time-constraints" class="constraints">Edit time constraints</button>
+  <button mat-raised-button routerLink="/time-constraints" class="constraints" *ngIf="!home">Edit time constraints</button>
 </div>

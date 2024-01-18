@@ -149,7 +149,7 @@ export class CreateEditViewActivityComponent implements OnInit {
           this.athletes = athletes;
           // somehow the createdFor is not recognized as the same object
           this.athletes = this.athletes.map((athlete) =>
-            (athlete.id === this.plannedActivity.createdFor.id ? this.plannedActivity.createdFor : athlete),
+            (athlete.id === this.plannedActivity.createdFor?.id ? this.plannedActivity.createdFor : athlete),
           );
         },
         error: (err) => {

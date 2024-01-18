@@ -20,7 +20,7 @@ export class NotificationComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.notification.link.startsWith('action/')) {
+    if (this.notification.link?.startsWith('action/')) {
       this.setActionName(this.notification.link.substring(7));
     }
   }

@@ -3,6 +3,7 @@ export interface PreferencesDto {
   commentNotifications: PreferenceNotificationType,
   ratingNotifications: PreferenceNotificationType,
   otherNotifications: PreferenceNotificationType,
+  shareHealthWithTrainer: boolean,
 }
 
 

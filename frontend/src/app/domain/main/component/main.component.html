@@ -68,7 +68,10 @@
             <mat-icon>settings</mat-icon>
             Preferences
           </button>
-          <button mat-menu-item (click)="openZoneDialog()">Edit Zones</button>
+          <button mat-menu-item (click)="openZoneDialog()" *ngIf="currentUserType === 'athlete'">
+            <mat-icon>monitor_heart</mat-icon>
+            Edit Zones
+          </button>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             Logout
