@@ -13,6 +13,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import io.mockk.verifyAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
@@ -85,9 +86,9 @@ class TrainerServiceUnitTests: TestBase() {
         }
 
         assertAll(
-            { assert(trainer.unacceptedAthletes.size == 0) },
-            { assert(trainer.athletes.size == 1) },
-            { assert(athlete.trainer == trainer) }
+            { assertEquals(trainer.unacceptedAthletes.size, 0) },
+            { assertEquals(trainer.athletes.size, 1) },
+            { assertEquals(athlete.trainer, trainer) }
         )
     }
 

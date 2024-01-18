@@ -10,6 +10,7 @@ import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,7 +75,7 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(5))
             .andReturn().response.contentAsString
 
-        assert(result.contains("\"toBPM\":212}]"))
+        assertTrue(result.contains("\"toBPM\":212}]"))
     }
 
     @Test
@@ -98,8 +99,8 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andReturn().response.contentAsString
 
         assertAll(
-            { assert(start.containsMatchIn(result)) },
-            { assert(end.containsMatchIn(result)) }
+            { assertTrue(start.containsMatchIn(result)) },
+            { assertTrue(end.containsMatchIn(result)) }
         )
     }
 
@@ -118,7 +119,7 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
 
-        assert(result.contains("Zones not covering full range"))
+        assertTrue(result.contains("Zones not covering full range"))
     }
 
     @Test
@@ -139,7 +140,7 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(5))
             .andReturn().response.contentAsString
 
-        assert(resultMatch.containsMatchIn(result))
+        assertTrue(resultMatch.containsMatchIn(result))
     }
 
     @Test

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.hamcrest.Matchers.greaterThan
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -115,8 +116,8 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andReturn().response.contentAsString
         assertAll(result,
-            { assert(!idRegexPattern.containsMatchIn(result)) },
-            { assert(activityTypeRegexPattern.containsMatchIn(result)) }
+            { assertTrue(!idRegexPattern.containsMatchIn(result)) },
+            { assertTrue(activityTypeRegexPattern.containsMatchIn(result)) }
         )
     }
 
@@ -147,8 +148,8 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andReturn().response.contentAsString
         log.info { "Result: $result" }
         assertAll(result,
-            { assert(validationFailedRegex.containsMatchIn(result)) },
-            { assert(dateErrorRegex.containsMatchIn(result)) }
+            { assertTrue(validationFailedRegex.containsMatchIn(result)) },
+            { assertTrue(dateErrorRegex.containsMatchIn(result)) }
         )
     }
 
@@ -294,7 +295,7 @@ class ActivityControllerIntegrationTests : TestBase() {
     @WithCustomMockUser(id = 2)
     fun getTemplatesForTrainer_shouldReturnAllTemplates() {
         val templateActivityDto = template.toDTO()
-        val result = mockMvc.perform(
+        mockMvc.perform(
             post("/api/activity/planned").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")

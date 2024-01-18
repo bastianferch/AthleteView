@@ -20,6 +20,8 @@ import io.mockk.every
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ActiveProfiles
 
@@ -64,15 +66,15 @@ class ActivityServiceUnitTests: TestBase() {
     fun createValidPlannedActivity_ShouldReturnCategory() {
         val newPlannedActivity = activityService.createPlannedActivity(plannedActivity, defaultAthlete.id!!)
         assertAll(
-            { assert(newPlannedActivity.id != null) },
-            { assert(newPlannedActivity.type == plannedActivity.type) },
-            { assert(newPlannedActivity.interval == plannedActivity.interval) },
-            { assert(newPlannedActivity.withTrainer == plannedActivity.withTrainer) },
-            { assert(newPlannedActivity.template == plannedActivity.template) },
-            { assert(newPlannedActivity.note == plannedActivity.note) },
-            { assert(newPlannedActivity.date == plannedActivity.date) },
-            { assert(newPlannedActivity.createdBy == plannedActivity.createdBy) },
-            { assert(newPlannedActivity.createdFor == plannedActivity.createdFor) }
+            { assertNotNull(newPlannedActivity.id) },
+            { assertEquals(newPlannedActivity.type, plannedActivity.type) },
+            { assertEquals(newPlannedActivity.interval, plannedActivity.interval) },
+            { assertEquals(newPlannedActivity.withTrainer, plannedActivity.withTrainer) },
+            { assertEquals(newPlannedActivity.template, plannedActivity.template) },
+            { assertEquals(newPlannedActivity.note, plannedActivity.note) },
+            { assertEquals(newPlannedActivity.date, plannedActivity.date) },
+            { assertEquals(newPlannedActivity.createdBy, plannedActivity.createdBy) },
+            { assertEquals(newPlannedActivity.createdFor, plannedActivity.createdFor) }
         )
     }
 
@@ -178,14 +180,14 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun commentOnNonExistentActivity_shouldThrowException() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         assertThrows<NotFoundException> { activityService.commentActivityWithUser(-1, 9999, commentDto) }
         verify(exactly = 0) { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) }
     }
 
     @Test
     fun commentOnActivityWithUserWhoHasNoAccessToActivity_shouldThrowNotFound() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -2 has no access to activity -1
         assertThrows<NotFoundException> { activityService.commentActivityWithUser(-2, -1, commentDto) }
         verify(exactly = 0) { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) }
@@ -193,15 +195,15 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun commentOnActivityWithUserWhoOwnsActivity_shouldStoreCommentAndSendNotificationToTrainer() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -2 has access to activity -2
         var commentResult: Comment? = null
         assertDoesNotThrow { commentResult = activityService.commentActivityWithUser(-2, -2, commentDto) }
 
         assertAll(
-            { assert(commentResult != null) },
-            { assert(commentResult!!.text == commentDto.text) },
-            { assert(commentResult!!.author!!.id == -2L) },
+            { assertNotNull(commentResult) },
+            { assertEquals(commentResult!!.text, commentDto.text) },
+            { assertEquals(commentResult!!.author!!.id, -2L) },
         )
 
         // should send notification to trainer because -2 owns the activity and -3 is the trainer of -2
@@ -210,14 +212,14 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun commentOnActivityWithTrainerOfAthleteWhoOwnsActivity_shouldStoreCommentAndSendNotificationToAthlete() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -3 has access to activity -2
         var commentResult: Comment? = null
         assertAll(
             { assertDoesNotThrow { commentResult = activityService.commentActivityWithUser(-3, -2, commentDto) } },
-            { assert(commentResult != null) },
-            { assert(commentResult!!.text == commentDto.text) },
-            { assert(commentResult!!.author!!.id == -3L) },
+            { assertNotNull(commentResult) },
+            { assertEquals(commentResult!!.text, commentDto.text) },
+            { assertEquals(commentResult!!.author!!.id, -3L) },
         )
 
         // should send notification to athlete -2 because -2 owns the activity and -3 is the trainer of -2
@@ -226,14 +228,14 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun commentOnActivityWithTrainerWhoHasAccessToActivity_shouldStoreCommentAndSendNotification() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -3 is trainer of -2, who owns activity -2
         var commentResult: Comment? = null
         assertAll(
             { assertDoesNotThrow { commentResult = activityService.commentActivityWithUser(-3, -2, commentDto) } },
-            { assert(commentResult != null) },
-            { assert(commentResult!!.text == commentDto.text) },
-            { assert(commentResult!!.author!!.id == -3L) },
+            { assertNotNull(commentResult) },
+            { assertEquals(commentResult!!.text, commentDto.text) },
+            { assertEquals(commentResult!!.author!!.id, -3L) },
         )
 
         // should send notification
@@ -242,7 +244,7 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun commentOnActivityWithTooLongComment_shouldThrowValidationException() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -1 has access to activity -1
         assertThrows<ValidationException> { activityService.commentActivityWithUser(-1, -1, commentDtoTooLong) }
         verify(exactly = 0) { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) }
@@ -253,14 +255,14 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun rateNonExistentActivity_shouldThrowException() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         assertThrows<NotFoundException> { activityService.rateActivityWithUser(-1, 9999, 0) }
         verify(exactly = 0) { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) }
     }
 
     @Test
     fun rateActivityWithUserWhoHasNoAccessToActivity_shouldThrowNotFound() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -2 has no access to activity -1
         assertThrows<NotFoundException> { activityService.rateActivityWithUser(-2, -1, 0) }
         verify(exactly = 0) { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) }
@@ -268,7 +270,7 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun rateActivityWithUserWhoOwnsActivity_shouldSendNotificationToTrainer() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -2 has access to activity -2
         assertDoesNotThrow { activityService.rateActivityWithUser(-2, -2, 0) }
         // should not send notification because -2 owns the activity and also comments on it
@@ -277,7 +279,7 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun rateActivityWithTrainerOfUserWhoOwnsActivity_shouldSendNotificationToUser() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -3 has access to activity -2
         assertDoesNotThrow { activityService.rateActivityWithUser(-3, -2, 0) }
         // should not send notification because -2 owns the activity their trainer -3 comments on it
@@ -286,7 +288,7 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun rateActivityWithTrainerWhoHasAccessToActivity_shouldSendNotification() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -3 is trainer of -2, who owns activity -2
         assertDoesNotThrow { activityService.rateActivityWithUser(-3, -2, 0) }
         // should send notification
@@ -295,7 +297,7 @@ class ActivityServiceUnitTests: TestBase() {
 
     @Test
     fun rateActivityWithInvalidRating_shouldThrowValidationException() {
-        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null;
+        every { notificationService.sendNotification(any<Long>(), any(), any(), any(), any()) } returns null
         // -1 has access to activity -1
         assertAll(
             { assertThrows<ValidationException> { activityService.rateActivityWithUser(-1, -1, 10) } },

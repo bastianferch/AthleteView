@@ -42,7 +42,7 @@ class ZoneServiceUnitTests {
 
         assertAll(
             { assertEquals(list.size, 5) },
-            { assertTrue(list[0].fromBPM == 0) },
+            { assertEquals(list[0].fromBPM, 0) },
             { assertTrue(list[4].fromBPM > list[3].fromBPM) },
         )
     }
