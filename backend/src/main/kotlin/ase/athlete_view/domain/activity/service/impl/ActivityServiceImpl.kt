@@ -779,11 +779,11 @@ class ActivityServiceImpl(
     }
 
     private fun calculateTimeAndLoad(plannedActivity: PlannedActivity): PlannedActivity {
-        val result = calculateTimeAndLoad(plannedActivity.interval, plannedActivity.type, 0, Load.MEDIUM)
+        val result = calculateTimeAndLoad(plannedActivity.interval, plannedActivity.type, 0, Load.LOW)
 
         plannedActivity.estimatedDuration = timeDateUtil.roundTime(result.first)
         plannedActivity.load = result.second
-        logger.debug { "Calculated time and load for activity: ${plannedActivity.load} ${plannedActivity.estimatedDuration}"}
+
 
         return plannedActivity
     }
@@ -795,12 +795,18 @@ class ActivityServiceImpl(
             for (subInterval in interval.intervals!!) {
                 val result = calculateTimeAndLoad(subInterval, activityType, totalTime, totalLoad)
                 time += result.first * subInterval.repeat
+                if (result.second > stepLoad) {
+                    stepLoad = result.second
+                }
             }
         } else if (interval.step != null) {
             val step = interval.step!!
             val baseSpeed = timeDateUtil.getBaseSpeed(activityType)
             val stepTime = calculateTime(step, baseSpeed)
-            stepLoad = calculateLoad(totalLoad, step, baseSpeed)
+            val tmpLoad = calculateLoad(totalLoad, step, baseSpeed)
+            if (tmpLoad > stepLoad) {
+                stepLoad = tmpLoad
+            }
             time = totalTime + stepTime * interval.repeat
         }
         return Pair(time, stepLoad)
@@ -847,7 +853,7 @@ class ActivityServiceImpl(
 
             null -> {}
         }
-        if(totalLoad > currentLoad) {
+        if(totalLoad > currentLoad) { // we only want the highest load
             currentLoad = totalLoad
         }
         return currentLoad
