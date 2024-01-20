@@ -58,7 +58,7 @@ export class TrainingsplanComponent implements OnInit {
 
   getColor(activity:PlannedActivity):string {
     const colorMapping: { [key in Load]: string } = {
-      [Load.EASY]: '#82e010',
+      [Load.LOW]: '#82e010',
       [Load.MEDIUM]: '#f0d807',
       [Load.HARD]: '#de2b0b',
     };
