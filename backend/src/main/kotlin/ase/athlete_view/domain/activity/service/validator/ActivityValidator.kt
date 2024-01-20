@@ -23,7 +23,7 @@ class ActivityValidator {
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User, isCsp: Boolean = false) {
         log.trace { "S | Validating new planned activity $plannedActivity" }
-        var validationErrors: MutableList<String> = ArrayList()
+        val validationErrors: MutableList<String> = ArrayList()
 
         if (plannedActivity.name.isBlank()) {
             validationErrors.add("Name must not be blank")

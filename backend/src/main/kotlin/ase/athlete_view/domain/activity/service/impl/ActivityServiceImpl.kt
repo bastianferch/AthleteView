@@ -166,7 +166,7 @@ class ActivityServiceImpl(
 
     override fun getAllTemplates(uid: Long): List<PlannedActivity> {
         logger.trace { "S | getAllTemplates" }
-        return plannedActivityRepo.findAllTemplatesForUid(uid);
+        return plannedActivityRepo.findAllTemplatesForUid(uid)
     }
 
     @Transactional
@@ -618,7 +618,7 @@ class ActivityServiceImpl(
         val userObj = userExists(userId)
 
         // check if activity exists
-        val activityObj = activityExists(activityId);
+        val activityObj = activityExists(activityId)
 
         // check if user can access activity
         canUserAccessActivity(userId, activityId)
@@ -637,7 +637,7 @@ class ActivityServiceImpl(
 
         // send notification to the other involved party (trainer if athlete comments, athlete if trainer comments)
         val notificationHeader = "new comment"
-        val commentText = if (comment.text.length > 100) comment.text.substring(0, 100) + "..." else comment.text;
+        val commentText = if (comment.text.length > 100) comment.text.substring(0, 100) + "..." else comment.text
         val notificationBody = userObj.name + " commented on your activity: " + commentText
         val notificationLink = "activity/finished/" + activityObj.id
         val notificationType = NotificationType.COMMENT
@@ -654,7 +654,7 @@ class ActivityServiceImpl(
         val userObj = userExists(userId)
 
         // check if activity exists
-        val activityObj = activityExists(activityId);
+        val activityObj = activityExists(activityId)
 
         // check if user can access activity
         canUserAccessActivity(userId, activityId)
@@ -662,9 +662,9 @@ class ActivityServiceImpl(
         validator.validateRating(rating)
 
         if (userObj is Athlete) {
-            activityObj.ratingAthlete = rating.toInt();
+            activityObj.ratingAthlete = rating.toInt()
         } else if (userObj is Trainer) {
-            activityObj.ratingTrainer = rating.toInt();
+            activityObj.ratingTrainer = rating.toInt()
         }
 
         activityRepo.saveAndFlush(activityObj)

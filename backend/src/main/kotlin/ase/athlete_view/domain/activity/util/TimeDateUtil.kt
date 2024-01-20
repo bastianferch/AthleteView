@@ -20,6 +20,7 @@ class TimeDateUtil {
      * @return LocalDateTime
      */
     fun convertToLocalDateTime(date: Long): LocalDateTime {
+        log.trace { "S | convertToLocalDateTime $date" }
         return LocalDateTime.ofEpochSecond(date + GARMIN_OFFSET_S, 0, ZoneOffset.UTC)
     }
 
@@ -27,6 +28,7 @@ class TimeDateUtil {
      * Returns the basic Speed for each activity type in m/min
      */
     fun getBaseSpeed(activityType: ActivityType): Double {
+        log.trace { "S | getBaseSpeed $activityType" }
         when (activityType) {
             ActivityType.SWIM -> return (5 / 6.0) * 60 // 2 min/100m
             ActivityType.RUN -> return (2 + 7 / 9.0) * 60 // 6 min/km
@@ -42,6 +44,7 @@ class TimeDateUtil {
      * Returns the rounded value of the given time
      */
     fun roundTime(time: Int): Int? {
+        log.trace { "S | roundTime $time" }
         if (time % timeSteps == 0) {
             return time
         }
