@@ -33,7 +33,7 @@ class ActivityValidator {
 
 
         if (user is Athlete) {
-            if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {// TODO fix error which occurs during updating of planned activity, no specific action needed
+            if (plannedActivity.createdFor != null && plannedActivity.createdFor!!.id != user.id) {
                 validationErrors.add("Athletes can only create Activities for themselves")
             }
             if (plannedActivity.createdFor == null && !plannedActivity.template) {

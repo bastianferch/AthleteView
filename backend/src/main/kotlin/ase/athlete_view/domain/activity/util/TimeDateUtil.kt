@@ -1,7 +1,6 @@
 package ase.athlete_view.domain.activity.util
 
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.ZoneOffset
