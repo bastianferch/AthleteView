@@ -30,9 +30,9 @@ open class PlannedActivity(
 
     open val date: LocalDateTime?,
 
-    open val estimatedDuration: Int?,
+    open var estimatedDuration: Int?,
 
-    open val load: Load?,
+    open var load: Load?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     open var createdBy: User?,
