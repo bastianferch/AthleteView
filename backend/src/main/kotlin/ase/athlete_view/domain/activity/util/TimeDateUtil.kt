@@ -31,7 +31,7 @@ class TimeDateUtil {
             ActivityType.BIKE -> return (8 + 2 / 3.0) * 60  // 30km/h
             ActivityType.ROW -> return (3.7) * 60 // 2:15 min/500m
             ActivityType.CROSSCOUNTRYSKIING -> (4 + 4 / 9.0) * 60 // 16km/h
-            ActivityType.OTHER -> return 0.0 // no base speed
+            ActivityType.OTHER -> return 1.0 // no base speed
         }
         return 0.0
     }
