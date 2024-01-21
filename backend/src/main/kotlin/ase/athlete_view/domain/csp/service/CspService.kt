@@ -1,9 +1,7 @@
 package ase.athlete_view.domain.csp.service
 
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.csp.pojo.dto.CspDto
 import ase.athlete_view.domain.csp.pojo.entity.CspJob
-import ase.athlete_view.domain.user.pojo.entity.Trainer
 
 interface CspService {
 

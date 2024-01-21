@@ -20,15 +20,15 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import ase.athlete_view.domain.user.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.*
 import java.time.format.DateTimeFormatter
 
 @Service
-class CspServiceImpl(private val cspRepository: CspRepository, private val mapper: ObjectMapper, private val queueSender: QueueRequestSender, private val constraintService: TimeConstraintService, private val userService: UserService, private val activityService: ActivityService): CspService{
+class CspServiceImpl(private val cspRepository: CspRepository, private val mapper: ObjectMapper, private val queueSender: QueueRequestSender, private val constraintService: TimeConstraintService, private val userService: UserService, private val activityService: ActivityService) : CspService {
     private val logger = KotlinLogging.logger {}
+
     companion object {
         const val SLOT_DURATION = 15 // Duration of each time slot in minutes
         const val SLOTS_PER_HOUR = 60 / SLOT_DURATION // Number of slots per hour
@@ -36,30 +36,30 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     @Transactional
-    override fun accept(cspDto: CspDto, userId: Long){
-        logger.trace{"S | accepting new CSP job"}
-        val validation = validate(cspDto,userId);
+    override fun accept(cspDto: CspDto, userId: Long) {
+        logger.trace { "S | accepting new CSP job" }
+        val validation = validate(cspDto, userId);
 
-        if(getJob(userId) != null){
+        if (getJob(userId) != null) {
             throw AlreadyExistsException("Job already exists for next week")
         }
 
 
-        if(validation.size>0){
+        if (validation.size > 0) {
             throw ValidationException(validation.joinToString(" "))
         }
 
 
-        val jsonObject = createJsonAndPersist(cspDto,userId)
+        val jsonObject = createJsonAndPersist(cspDto, userId)
 
         queueSender.sendMessage(mapper.writeValueAsString(jsonObject))
     }
 
     @Transactional
     override fun revertJob(userId: Long) {
-        logger.trace{"S | reverting CSP job"}
+        logger.trace { "S | reverting CSP job" }
         val temp = getJob(userId)
-        if (temp == null){
+        if (temp == null) {
             throw NotFoundException("There is no Job for next week.")
         }
 
@@ -68,10 +68,10 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     override fun getJob(userId: Long): CspJob? {
-        logger.trace{"S | fetching CSP job"}
-        try{
+        logger.trace { "S | fetching CSP job" }
+        try {
             val trainer = userService.getById(userId)
-            if(trainer.getUserType() != "trainer"){
+            if (trainer.getUserType() != "trainer") {
                 throw ValidationException("User $userId is not a trainer.")
             }
 
@@ -82,25 +82,24 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
             val formattedNextMonday = nextMonday.format(formatter)
 
-            val temp = cspRepository.findJobByTrainerAndDate(trainer as Trainer,formattedNextMonday)
+            val temp = cspRepository.findJobByTrainerAndDate(trainer as Trainer, formattedNextMonday)
 
-            return if(temp != null && temp.isNotEmpty()){
-                if (temp.size > 1){
+            return if (temp != null && temp.isNotEmpty()) {
+                if (temp.size > 1) {
                     throw InternalException("Multiple Jobs exist for next week.")
                 }
                 temp[0]
-            }
-            else {
+            } else {
                 null
             }
 
-        }catch(e: NotFoundException){
+        } catch (e: NotFoundException) {
             throw ValidationException("User $userId could not be found.")
         }
     }
 
-    fun validate(cspDto:CspDto, userId: Long): MutableList<String> {
-        logger.trace{"S | validating CSP job"}
+    fun validate(cspDto: CspDto, userId: Long): MutableList<String> {
+        logger.trace { "S | validating CSP job" }
 
         val errors: MutableList<String> = ArrayList()
 
@@ -109,23 +108,23 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
         val nextMonday = today.with(DayOfWeek.MONDAY).plusWeeks(1).withHour(0).withMinute(0).withSecond(0).withNano(0)
         val followingMonday = nextMonday.plusWeeks(1)
 
-        try{
+        try {
             val trainer = userService.getById(userId)
-            if(trainer.getUserType() != "trainer"){
+            if (trainer.getUserType() != "trainer") {
                 errors.add("User $userId is not a trainer.")
             }
 
-            val trainerTableSum = createConstraintTable(trainer,nextMonday,followingMonday,true).flatten().count{ it } * SLOT_DURATION
+            val trainerTableSum = createConstraintTable(trainer, nextMonday, followingMonday, true).flatten().count { it } * SLOT_DURATION
             var trainerDurationSum = 0
-            for(mapping in cspDto.mappings){
-                if (mapping.activities.size > 7){
+            for (mapping in cspDto.mappings) {
+                if (mapping.activities.size > 7) {
                     errors.add("Athlete " + mapping.userId + " can not have more than 1 activitiy assigned per day (7 a week).")
                 }
 
                 try {
                     val athlete = userService.getById(mapping.userId)
 
-                    val tableSum = createConstraintTable(athlete,nextMonday,followingMonday,false).flatten().count{ it } * SLOT_DURATION
+                    val tableSum = createConstraintTable(athlete, nextMonday, followingMonday, false).flatten().count { it } * SLOT_DURATION
 
                     var intensitySum = 0
                     var durationSum = 0
@@ -133,24 +132,24 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                     for (activity in mapping.activities) {
                         try {
                             val tempActivity = activityService.getPlannedActivity(activity.id, userId)
-                            if (tempActivity.template){
-                                if(tempActivity.load == Load.HIGH){
+                            if (tempActivity.template) {
+                                if (tempActivity.load == Load.HIGH) {
                                     intensitySum++
                                 }
 
-                                if(tempActivity.estimatedDuration != null){
-                                    durationSum+=tempActivity.estimatedDuration!!
+                                if (tempActivity.estimatedDuration != null) {
+                                    durationSum += tempActivity.estimatedDuration!!
                                 }
 
-                                if(activity.withTrainer && tempActivity.estimatedDuration != null){
-                                    trainerDurationSum+=tempActivity.estimatedDuration!!
+                                if (activity.withTrainer && tempActivity.estimatedDuration != null) {
+                                    trainerDurationSum += tempActivity.estimatedDuration!!
                                 }
 
-                                if(tempActivity.createdBy?.id != userId){
+                                if (tempActivity.createdBy?.id != userId) {
                                     errors.add("Activity ${activity.id} was not created by Trainer $userId.")
                                 }
 
-                                if(!(trainer as Trainer).athletes.contains(athlete)){
+                                if (!(trainer as Trainer).athletes.contains(athlete)) {
                                     errors.add("Athlete ${athlete.id} is not assigned to Trainer $userId.")
                                 }
 
@@ -161,11 +160,11 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                     }
 
 
-                    if(intensitySum > 4){
+                    if (intensitySum > 4) {
                         errors.add("Athlete ${athlete.id} has too much intensity.")
                     }
 
-                    if(durationSum > tableSum){
+                    if (durationSum > tableSum) {
                         errors.add("Athlete ${athlete.id} does not have enough timeslots.")
                     }
 
@@ -174,10 +173,10 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                 }
             }
 
-            if(trainerDurationSum > trainerTableSum){
+            if (trainerDurationSum > trainerTableSum) {
                 errors.add("Trainer does not have enough timeslots.")
             }
-        }catch(e: NotFoundException){
+        } catch (e: NotFoundException) {
             errors.add("User $userId could not be found.")
         }
 
@@ -185,7 +184,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     fun createJsonAndPersist(cspDto: CspDto, userId: Long): Map<String, Any> {
-        logger.trace{"S | creating json for CSP job"}
+        logger.trace { "S | creating json for CSP job" }
         val currentTimestamp = Instant.now().toEpochMilli()
         val today = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTimestamp), ZoneId.systemDefault())
         val nextMonday = today.with(DayOfWeek.MONDAY).plusWeeks(1).withHour(0).withMinute(0).withSecond(0).withNano(0)
@@ -196,7 +195,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
         val athleteTables = mutableMapOf<String, List<List<Boolean>>>()
 
         val trainer = userService.getById(userId)
-        trainerTable.addAll(createConstraintTable(trainer,nextMonday,followingMonday,true))
+        trainerTable.addAll(createConstraintTable(trainer, nextMonday, followingMonday, true))
 
         val activityEntities: MutableList<PlannedActivity> = ArrayList()
 
@@ -204,18 +203,18 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
             val athlete = userService.getById(mapping.userId)
 
-            athleteTables[mapping.userId.toString()] = createConstraintTable(athlete,nextMonday,followingMonday, false)
+            athleteTables[mapping.userId.toString()] = createConstraintTable(athlete, nextMonday, followingMonday, false)
 
             for (activity in mapping.activities) {
                 val templateActivity = activityService.getPlannedActivity(activity.id, userId);
-                val duplicatedActivity = activityService.createPlannedActivity(templateActivity.copyWithNewCreatedForAndWithTrainer(athlete as Athlete,activity.withTrainer),userId,isCsp = true);
+                val duplicatedActivity = activityService.createPlannedActivity(templateActivity.copyWithNewCreatedForAndWithTrainer(athlete as Athlete, activity.withTrainer), userId, isCsp = true);
                 activityEntities.add(duplicatedActivity)
-                if(!templateActivity.template){
+                if (!templateActivity.template) {
                     continue
                 }
                 val duplicatedActivityJson = mapOf(
-                        "duration" to ((duplicatedActivity.estimatedDuration as Int)/SLOT_DURATION) as Any,
-                        "intensity" to loadToInteger(duplicatedActivity.load!!)  as Any,
+                        "duration" to ((duplicatedActivity.estimatedDuration as Int) / SLOT_DURATION) as Any,
+                        "intensity" to loadToInteger(duplicatedActivity.load!!) as Any,
                         "withTrainer" to duplicatedActivity.withTrainer as Any, //type boolean
                         "athlete" to mapping.userId as Any, // type int
                         "id" to duplicatedActivity.id as Any // type int
@@ -228,7 +227,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
         val formattedNextMonday = nextMonday.format(formatter)
 
-        val job: CspJob = CspJob(null, activityEntities,trainer as Trainer,formattedNextMonday)
+        val job: CspJob = CspJob(null, activityEntities, trainer as Trainer, formattedNextMonday)
         cspRepository.save(job)
 
         return mapOf(
@@ -251,16 +250,16 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
         }
     }
 
-    fun createConstraintTable(user: User, nextMonday: ZonedDateTime , followingMonday: ZonedDateTime , trainer: Boolean): List<List<Boolean>>{
+    fun createConstraintTable(user: User, nextMonday: ZonedDateTime, followingMonday: ZonedDateTime, trainer: Boolean): List<List<Boolean>> {
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx")
 
         val formattedNextMonday = nextMonday.format(formatter)
         val formattedFollowingMonday = followingMonday.format(formatter)
 
-        val ret :MutableList<List<Boolean>> = mutableListOf()
+        val ret: MutableList<List<Boolean>> = mutableListOf()
 
-        val constraints = (constraintService.getAll(user.toUserDTO(),"weekly",formattedNextMonday,formattedFollowingMonday)) as List<WeeklyTimeConstraintDto>
+        val constraints = (constraintService.getAll(user.toUserDTO(), "weekly", formattedNextMonday, formattedFollowingMonday)) as List<WeeklyTimeConstraintDto>
         for (dayOfWeek in DayOfWeek.values()) {
 
             val filteredElements = constraints.filter { it.constraint.weekday == dayOfWeek }
@@ -277,7 +276,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                 }
             }
 
-            blockedConstraints.forEach{
+            blockedConstraints.forEach {
                 val startSlot = it.constraint.startTime.hour * SLOTS_PER_HOUR + it.constraint.startTime.minute / SLOT_DURATION
                 val endSlot = it.constraint.endTime.hour * SLOTS_PER_HOUR + it.constraint.endTime.minute / SLOT_DURATION
                 for (i in startSlot until endSlot) {
@@ -285,16 +284,16 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                 }
             }
 
-            activityService.getAllPlannedActivities(user.id!!, nextMonday.toLocalDateTime(),followingMonday.toLocalDateTime()).forEach{
-                if(it.date == null){
+            activityService.getAllPlannedActivities(user.id!!, nextMonday.toLocalDateTime(), followingMonday.toLocalDateTime()).forEach {
+                if (it.date == null) {
                     return@forEach
                 }
 
-                if(it.template){
+                if (it.template) {
                     return@forEach
                 }
 
-                if(!trainer || trainer && it.withTrainer){
+                if (!trainer || trainer && it.withTrainer) {
                     val startSlot = (it.date!!.hour * SLOTS_PER_HOUR) + (it.date!!.minute / SLOT_DURATION)
                     val endSlot = ((it.date!!.hour + (it.estimatedDuration!! / 60)) * SLOTS_PER_HOUR) + ((it.date!!.minute + (it.estimatedDuration!! % 60)) / SLOT_DURATION)
                     for (i in startSlot until endSlot) {

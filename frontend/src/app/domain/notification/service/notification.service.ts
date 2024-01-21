@@ -91,7 +91,7 @@ export class NotificationService {
 
   navigateTo(route: string) {
     this.notificationDrawer.close();
-    this.router.navigate([route]);
+    this.router.navigateByUrl(route);
   }
 
   private sortNotifications() {

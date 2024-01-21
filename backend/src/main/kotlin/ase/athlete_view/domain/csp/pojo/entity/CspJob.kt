@@ -8,7 +8,7 @@ import jakarta.persistence.*
 @Table(name = "csp_job",
         uniqueConstraints = [
             UniqueConstraint(
-                    columnNames = ["trainer_id","date"],
+                    columnNames = ["trainer_id", "date"],
                     name = "uc_trainer_date"
             )
         ])

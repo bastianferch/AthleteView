@@ -18,6 +18,7 @@ Run the following command: `./bin/build.sh` to build the image.
 Activate the `local-worker` profile in IntelliJ (like `datagen`) or append the profile to your application startup command.
 This will automatically start 1 worker with a working configuration for you on backend startup.
 Please note that your docker has to have the option 'Expose daemon on tcp://localhost:2375 without TLS' enabled in the settings for this to work.
+The configuration can be changed in `backend/src/main/resources/application.yml`
 
 ### Application
 - run `mvn clean install -DskipTests` to install all required maven dependencies
