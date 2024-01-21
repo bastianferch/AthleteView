@@ -53,3 +53,16 @@ api:
   mock:
     url: http://localhost:8089
     auth: 9579e55c-5522-4033-ae15-2c0aa4b2067e
+
+worker:
+  image_name: athlete-view-worker
+  network_name: athlete_view
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    user: guest
+    password: guest
+    request_queue: athlete_view_request
+    response_queue: athlete_view_response
+  max_timeout: 60
+  count: 1

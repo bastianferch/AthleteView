@@ -65,10 +65,10 @@ class CspControllerUnitTests {
     @Test
     @WithCustomMockUser
     fun testAcceptCspReturnsAccepted() {
-        val cspActivityDto : CspActivityDto = CspActivityDto(1,true)
-        val cspMappingDto : CspMappingDto = CspMappingDto(1,listOf(cspActivityDto))
-        val cspDto : CspDto = CspDto(listOf(cspMappingDto))
-        every {cspService.accept(any<CspDto>(),any<Long>()) } returns Unit
+        val cspActivityDto: CspActivityDto = CspActivityDto(1, true)
+        val cspMappingDto: CspMappingDto = CspMappingDto(1, listOf(cspActivityDto))
+        val cspDto: CspDto = CspDto(listOf(cspMappingDto))
+        every { cspService.accept(any<CspDto>(), any<Long>()) } returns Unit
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/csp").with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -77,46 +77,46 @@ class CspControllerUnitTests {
                         .content(objectMapper.writeValueAsString(cspDto))
         ).andExpect(MockMvcResultMatchers.status().isAccepted())
 
-        verify(exactly = 1) { cspService.accept(any<CspDto>(),any<Long>())  }
+        verify(exactly = 1) { cspService.accept(any<CspDto>(), any<Long>()) }
     }
 
     @Test
     @WithCustomMockUser
     fun testGetJobReturnsTrue() {
-        val trainer: Trainer = Trainer(1,"test@test.com","testerman","test","Austria","4760","ABCD", mutableSetOf(),mutableSetOf())
-        val job:CspJob = CspJob(1, mutableListOf(),trainer,"2023-12-31")
-        every {cspService.getJob(any<Long>()) } returns job
+        val trainer: Trainer = Trainer(1, "test@test.com", "testerman", "test", "Austria", "4760", "ABCD", mutableSetOf(), mutableSetOf())
+        val job: CspJob = CspJob(1, mutableListOf(), trainer, "2023-12-31")
+        every { cspService.getJob(any<Long>()) } returns job
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/csp").with(SecurityMockMvcRequestPostProcessors.csrf())
-        ) .andExpect(MockMvcResultMatchers.status().isOk)
+        ).andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.content().string("true"))
 
-        verify(exactly = 1) { cspService.getJob(any<Long>())  }
+        verify(exactly = 1) { cspService.getJob(any<Long>()) }
     }
 
     @Test
     @WithCustomMockUser
     fun testGetJobReturnsFalse() {
-        every {cspService.getJob(any<Long>()) } returns null
+        every { cspService.getJob(any<Long>()) } returns null
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/csp").with(SecurityMockMvcRequestPostProcessors.csrf())
-        ) .andExpect(MockMvcResultMatchers.status().isOk)
+        ).andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.content().string("false"))
 
-        verify(exactly = 1) { cspService.getJob(any<Long>())  }
+        verify(exactly = 1) { cspService.getJob(any<Long>()) }
     }
 
     @Test
     @WithCustomMockUser
     fun testRevertJobReturns() {
-        every {cspService.revertJob(any<Long>()) } returns Unit
+        every { cspService.revertJob(any<Long>()) } returns Unit
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/csp").with(SecurityMockMvcRequestPostProcessors.csrf())
-        ) .andExpect(MockMvcResultMatchers.status().isOk)
-        verify(exactly = 1) { cspService.revertJob(any<Long>())  }
+        ).andExpect(MockMvcResultMatchers.status().isOk)
+        verify(exactly = 1) { cspService.revertJob(any<Long>()) }
     }
 }

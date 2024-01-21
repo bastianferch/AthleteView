@@ -49,7 +49,6 @@ class CspServiceUnitTests : TestBase() {
     }
 
     fun checkJson(msg: String) {
-        println(msg)
         val resultMap: Map<String, Any> = objectMapper.readValue(msg)
         val activities: List<Map<String, Any>> = resultMap["activities"] as List<Map<String, Any>>
         val countWrongId = activities.filter { it["id"] == "-8" || it["id"] == "-9" }

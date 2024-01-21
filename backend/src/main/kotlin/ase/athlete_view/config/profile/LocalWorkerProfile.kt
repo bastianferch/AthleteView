@@ -8,15 +8,27 @@ import com.github.dockerjava.core.DockerClientBuilder
 import com.github.dockerjava.core.DockerClientConfig
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import jakarta.annotation.PostConstruct
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 @Component
 @Profile("local-worker")
-class LocalWorkerProfile {
+class LocalWorkerProfile(
+        @Value("\${worker.image_name}") private val imageName: String,
+        @Value("\${worker.network_name}") private val networkName: String,
+        @Value("\${worker.rabbitmq.host}") private val rmqHost: String,
+        @Value("\${worker.rabbitmq.port}") private val rmqPort: String,
+        @Value("\${worker.rabbitmq.user}") private val rmqUser: String,
+        @Value("\${worker.rabbitmq.password}") private val rmqPassword: String,
+        @Value("\${worker.rabbitmq.request_queue}") private val rmqRequestQueue: String,
+        @Value("\${worker.rabbitmq.response_queue}") private val rmqResponseQueue: String,
+        @Value("\${worker.max_timeout}") private val maxTimeout: String,
+        @Value("\${worker.count}") private val workerCount: Int
+) {
 
     @PostConstruct
-    fun startWorkerContainers(){
+    fun startWorkerContainers() {
         val dockerClientConfig: DockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost("tcp://localhost:2375")
                 .withDockerTlsVerify(false)
@@ -31,20 +43,21 @@ class LocalWorkerProfile {
 
         // Creating containers in the "ase" network
         val env = listOf(
-                "RMQ_HOST=$RMQ_HOST",
-                "RMQ_PORT=$RMQ_PORT",
-                "RMQ_USER=$RMQ_USER",
-                "RMQ_PASSWORD=$RMQ_PASSWORD",
-                "RMQ_REQUESTQUEUE=$RMQ_REQUESTQUEUE",
-                "RMQ_RESPONSEQUEUE=$RMQ_RESPONSEQUEUE",
-                "MAX_TIMEOUT=$MAX_TIMEOUT"
-
+                "RMQ_HOST=$rmqHost",
+                "RMQ_PORT=$rmqPort",
+                "RMQ_USER=$rmqUser",
+                "RMQ_PASSWORD=$rmqPassword",
+                "RMQ_REQUESTQUEUE=$rmqRequestQueue",
+                "RMQ_RESPONSEQUEUE=$rmqResponseQueue",
+                "MAX_TIMEOUT=$maxTimeout"
         )
-        for (i in 1..1) {
-            if (!doesContainerExist(dockerClient,"worker-$i")){
-                val container = dockerClient.createContainerCmd(IMAGE_NAME)
+
+        for (i in 1..workerCount) {
+            cleanup(dockerClient, "worker-$i")
+            if (!exists(dockerClient, "worker-$i")) {
+                val container = dockerClient.createContainerCmd(imageName)
                         .withName("worker-$i")
-                        .withNetworkMode(NETWORK_NAME)
+                        .withNetworkMode(networkName)
                         .withEnv(env)
                         .exec()
 
@@ -56,27 +69,27 @@ class LocalWorkerProfile {
         dockerClient.close()
     }
 
-    private fun doesContainerExist(dockerClient: DockerClient, containerName: String): Boolean {
+    private fun exists(dockerClient: DockerClient, containerName: String): Boolean {
         val listContainersCmd: ListContainersCmd = dockerClient.listContainersCmd().withShowAll(true)
         val containers: List<Container> = listContainersCmd.exec()
 
         for (container in containers) {
-            if (container.names.contains("/$containerName")) {
-                return true // Container with the specified name exists
+            if (container.names.contains("/$containerName") && container.state == "running") {
+                return true
             }
         }
-        return false // Container does not exist
+        return false
     }
 
-    companion object {
-        const val IMAGE_NAME = "athlete-view-worker";
-        const val NETWORK_NAME = "athlete_view"
-        const val RMQ_HOST = "rabbitmq"
-        const val RMQ_PORT = "5672"
-        const val RMQ_USER = "guest"
-        const val RMQ_PASSWORD = "guest"
-        const val RMQ_REQUESTQUEUE = "athlete_view_request"
-        const val RMQ_RESPONSEQUEUE ="athlete_view_response"
-        const val MAX_TIMEOUT= "60"
+    private fun cleanup(dockerClient: DockerClient, containerName: String) {
+        val listContainersCmd: ListContainersCmd = dockerClient.listContainersCmd().withShowAll(true)
+        val containers: List<Container> = listContainersCmd.exec()
+
+        for (container in containers) {
+            if (container.names.contains("/$containerName") && container.state != "running") {
+                dockerClient.removeContainerCmd(container.id).exec()
+            }
+        }
     }
+
 }

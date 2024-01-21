@@ -1,2 +1,2 @@
 #! /bin/sh
-docker build . -t athlete-view-worker
+docker build . -t athlete-view-worker --no-cache

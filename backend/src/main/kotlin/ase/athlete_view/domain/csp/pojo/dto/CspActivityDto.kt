@@ -1,7 +1,7 @@
 package ase.athlete_view.domain.csp.pojo.dto
 
-class CspActivityDto (
+class CspActivityDto(
         var id: Long,
         var withTrainer: Boolean
-){
+) {
 }

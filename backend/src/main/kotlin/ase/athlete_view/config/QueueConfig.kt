@@ -9,25 +9,24 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 
 @Configuration
-class QueueConfig (private val objectMapper: ObjectMapper){
-    companion object {
-        const val QUEUE_IN = "athlete_view_response"
-        const val QUEUE_OUT = "athlete_view_request"
-    }
+class QueueConfig(private val objectMapper: ObjectMapper,
+                  @Value("\${worker.rabbitmq.request_queue}") private val rmqRequestQueue: String,
+                  @Value("\${worker.rabbitmq.response_queue}") private val rmqResponseQueue: String) {
 
     @Bean
     fun queueIn(): Queue {
-        return Queue(QUEUE_IN, false)
+        return Queue(rmqResponseQueue, false)
     }
 
     @Bean
     fun queueOut(): Queue {
-        return Queue(QUEUE_OUT, false)
+        return Queue(rmqRequestQueue, false)
     }
 
     @Bean
@@ -35,7 +34,7 @@ class QueueConfig (private val objectMapper: ObjectMapper){
                   listenerAdapter: MessageListenerAdapter?): SimpleMessageListenerContainer {
         val container = SimpleMessageListenerContainer()
         container.connectionFactory = connectionFactory!!
-        container.setQueueNames(QUEUE_IN)
+        container.setQueueNames(rmqResponseQueue)
         container.setMessageListener(listenerAdapter!!)
         return container
     }

@@ -5,9 +5,6 @@ import ase.athlete_view.domain.csp.service.CspService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -16,16 +13,17 @@ import org.springframework.web.bind.annotation.*
 class CspController(private val cspService: CspService) {
 
     private val logger = KotlinLogging.logger {}
+
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun postJob(
             @AuthenticationPrincipal user: UserDTO,
             @RequestBody cspDto: CspDto
-    ){
+    ) {
         logger.info { "POST CSP Scheduling job" }
 
-        if(user.id != null) {
-            cspService.accept(cspDto,user.id!!);
+        if (user.id != null) {
+            cspService.accept(cspDto, user.id!!);
         }
     }
 
@@ -38,9 +36,9 @@ class CspController(private val cspService: CspService) {
     }
 
     @GetMapping
-    fun checkJobExists(@AuthenticationPrincipal user: UserDTO):Boolean{
-        logger.info {"GET if job for next week for ${user.id} exists"}
-        if(user.id!= null){
+    fun checkJobExists(@AuthenticationPrincipal user: UserDTO): Boolean {
+        logger.info { "GET if job for next week for ${user.id} exists" }
+        if (user.id != null) {
             return cspService.getJob(user.id!!) != null
         }
         return false
