@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Interval } from "../../dto/Interval";
-import { Step, StepDurationDistanceUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
+import { Step, StepDurationUnit, StepDurationType, StepTargetType, StepType } from "../../dto/Step";
 import { ActivityType } from "../../../../domain/activity/dto/PlannedActivity";
 
 @Component({
@@ -43,7 +43,7 @@ export class IntervalContainerComponent implements OnInit {
               type: StepType.ACTIVE,
               durationType: StepDurationType.DISTANCE,
               duration: 1,
-              durationUnit: StepDurationDistanceUnit.KM,
+              durationUnit: StepDurationUnit.KM,
               targetType: StepTargetType.CADENCE,
               targetFrom: 170,
               targetTo: 175,
@@ -138,15 +138,6 @@ export class IntervalContainerComponent implements OnInit {
     this.addIdToInterval(this.interval);
     // emit the default or given interval right away
     this.changeInterval.emit(this.interval);
-  }
-
-
-  // TODO look for better workaround and look how to edit injected data
-  manuallyLoadInterval(interval:Interval) {
-    if (this.interval !== undefined) {
-      this.interval = Object.assign({}, interval);
-      this.addIdToInterval(this.interval);
-    }
   }
 
   addInterval(newInterval?: Interval) {

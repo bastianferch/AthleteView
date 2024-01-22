@@ -21,7 +21,6 @@ import { UserService } from "../../user/service/UserService";
 })
 export class MainComponent {
   email: string = this.authService.currentUser.email
-  // TODO check if called "isAthlete" in html
   currentUserType = this.authService.currentUser.userType
   constructor(
     private authService: AuthService,

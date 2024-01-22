@@ -155,10 +155,6 @@ export class ActivityService {
       return false;
     }
 
-    // TODO if the logged in user is a trainer, check that only templates are created!
-
-    // TODO if the logged in user is an athlete, check that the activity has withTrainer === false
-
     return true;
   }
 
@@ -180,7 +176,6 @@ export class ActivityService {
         this.snackbarService.openSnackBar(`Notes cannot be longer than ${maxNoteLength} characters`);
         return false
       }
-      // TODO other validations
       return true;
     }
     return false;

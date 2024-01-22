@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   Step,
-  StepDurationDistanceUnitMapper,
+  StepDurationUnitMapper,
   StepDurationMapper,
   StepDurationType,
   StepNameMapper,
@@ -34,14 +34,14 @@ export class StepComponent {
   protected activityMapper;
   protected stepNameMapper;
   protected stepDurationMapper;
-  protected stepDurationDistanceUnitMapper;
+  protected stepDurationUnitMapper;
   protected stepTargetMapper;
 
   constructor(public dialog: MatDialog, protected service: IntervalService) {
     this.activityMapper = ActivityNameMapper;
     this.stepNameMapper = StepNameMapper;
     this.stepDurationMapper = StepDurationMapper;
-    this.stepDurationDistanceUnitMapper = StepDurationDistanceUnitMapper;
+    this.stepDurationUnitMapper = StepDurationUnitMapper;
     this.stepTargetMapper = StepTargetMapper;
   }
 

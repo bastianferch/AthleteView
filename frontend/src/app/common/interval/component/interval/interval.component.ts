@@ -18,6 +18,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { NgForOf, NgIf, NgStyle } from "@angular/common";
 import { MatDividerModule } from "@angular/material/divider";
 import { ActivityType } from "../../../../domain/activity/dto/PlannedActivity";
+import { SnackbarService } from "../../../service/snackbar.service";
 
 @Component({
   selector: 'app-interval',
@@ -40,7 +41,11 @@ export class IntervalComponent implements OnInit, OnChanges {
   // keeps track of the IDs of the other (nested) drag&drop lists, so they can be connected.
   allDragNDropIDs: string[] = [];
 
-  constructor(public dialog: MatDialog, protected service: IntervalService) {}
+  constructor(
+    public dialog: MatDialog,
+    protected service: IntervalService,
+    private snackbarService: SnackbarService,
+  ) {}
 
   ngOnInit(): void {
     this.resetIdArray();
@@ -73,18 +78,20 @@ export class IntervalComponent implements OnInit, OnChanges {
   drop(event: CdkDragDrop<Interval[], Interval[]>): void {
     // cant drag an interval into the 2nd level
     if (this.level >= this.maxNesting && Array.isArray(event.item.data.steps)) {
+      this.notifyMaxNesting()
       return;
     }
 
     // cant drag anything into the 3rd level
     if (this.level > this.maxNesting) {
+      this.notifyMaxNesting()
       return;
     }
 
     // cant pre-nest items and then drag them into another interval if the overall level would be > 2
     const containerMaxLevel = this.getMaxLevel(event.item.data.id)
     if (this.level + containerMaxLevel - 1 > this.maxNesting) {
-      // TODO notify user that max nesting limit is reached
+      this.notifyMaxNesting()
       return;
     }
 
@@ -152,15 +159,6 @@ export class IntervalComponent implements OnInit, OnChanges {
     this.changeInterval.emit(newInterval);
   }
 
-  // converts allIDs to strings and assigns the result to allDragNDropIDs.
-  // allDragNDropIDs is used by the cdkDropList elements to connect the different lists.
-  // Note: since the order of this list is important, reverse() is necessary.
-  resetIdArray() {
-    this.allDragNDropIDs = this.allIDs
-      .map((num) => `${num}`)
-      .reverse()
-  }
-
   // only render the interval card if it has more than one child components
   displayIntervalCard(): boolean {
     return !this.topLevelInterval && Array.isArray(this.interval.steps);
@@ -184,6 +182,19 @@ export class IntervalComponent implements OnInit, OnChanges {
       return this.interval.steps;
     }
     return null;
+  }
+
+  // converts allIDs to strings and assigns the result to allDragNDropIDs.
+  // allDragNDropIDs is used by the cdkDropList elements to connect the different lists.
+  // Note: since the order of this list is important, reverse() is necessary.
+  private resetIdArray() {
+    this.allDragNDropIDs = this.allIDs
+      .map((num) => `${num}`)
+      .reverse()
+  }
+
+  private notifyMaxNesting() {
+    this.snackbarService.openSnackBar("Maximum nesting reached!")
   }
 }
 

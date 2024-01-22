@@ -466,8 +466,6 @@ class NotificationServiceUnitTests {
 
         // give existing user a notification
         user.notifications = listOf(notification)
-
-        // TODO can we check that the arguments have read == true?
         this.notificationService.markAllNotificationsAsRead(user.id!!)
         verify(exactly = 1) { notificationRepository.saveAllAndFlush(any<List<Notification>>()) }
     }
