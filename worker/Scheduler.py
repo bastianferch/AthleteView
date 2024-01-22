@@ -53,6 +53,8 @@ def generateFullSchedules(schedule: Schedule, activities: List[Activity], thresh
         return ret
     return tmp
 
+
+# calculates a score for a given TimeTable for all activities
 def tableScoringFunction(timeTable:TimeTable):
     score = 0
     for day in timeTable.weekDays:
@@ -60,34 +62,16 @@ def tableScoringFunction(timeTable:TimeTable):
             if slot.hasActicity():
                 if not slot.wasFree():
                     score = score - (MAX_ACTIVITY_DUARION / slot.getActivity().duration)
-    return score
-        
+    return score    
 
 # calculates a score for a given assignment (schedule)
-def scheduleScoringFunction(schedule: Schedule):
-    score = 0
-    dayIter = zip(
-        range(0, len(schedule.trainerTable.weekDays)), schedule.trainerTable.weekDays
-    )
-    for dayNumber, day in dayIter:
-        slotIter = zip(range(0, len(day.slots)), day.slots)
-        for slotNumber, slot in slotIter:
-            activity = slot.getActivity()
-            if activity:
-                athlete = activity.getAthlete()
-                athleteTable = schedule.getAthleteTable(athlete)
-                athleteSlot = athleteTable.getDay(dayNumber).getSlot(slotNumber)
-                if not athleteSlot.free:
-                    score = score - (MAX_ACTIVITY_DUARION / activity.duration)
-    return score
-
-
 def scoringFunction(schedule:Schedule):
     score = 0
-    score = score + scheduleScoringFunction(schedule)
     for at_key in schedule.athleteTables.keys():
         score = score + tableScoringFunction(schedule.athleteTables.get(at_key))
     return score
+
+
 # makes sure the given list of activities can even be schedule given the
 # intensity constraint 
 def checkIntensities(activities: List[Activity]):
