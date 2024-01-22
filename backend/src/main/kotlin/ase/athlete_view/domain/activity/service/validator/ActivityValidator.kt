@@ -6,6 +6,7 @@ import ase.athlete_view.domain.activity.pojo.entity.Comment
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.activity.pojo.util.StepDurationType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -32,7 +33,7 @@ class ActivityValidator {
 
 
         if (user is Athlete) {
-            if (plannedActivity.createdFor != null && plannedActivity.createdFor != user) {
+            if (plannedActivity.createdFor != null && plannedActivity.createdFor!!.id != user.id) {
                 validationErrors.add("Athletes can only create Activities for themselves")
             }
             if (plannedActivity.createdFor == null && !plannedActivity.template) {
@@ -86,10 +87,6 @@ class ActivityValidator {
         if (plannedActivity.interval.intervals?.isNotEmpty() == true) {
             getDepth(plannedActivity.interval.intervals!!, 0)
             validateInterval(plannedActivity.interval, validationErrors)
-            plannedActivity.interval.intervals!!.forEach { validateInterval(it, validationErrors) }
-        }
-        if (plannedActivity.interval.step != null) {
-            validateStep(plannedActivity.interval.step!!, validationErrors)
         }
         if (plannedActivity.note != null) {
             if (plannedActivity.note!!.length > 255) {
@@ -149,70 +146,74 @@ class ActivityValidator {
             if (interval.step != null && interval.intervals!!.isNotEmpty()) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
             }
+            interval.intervals!!.forEach { validateInterval(it, validationErrors) }
+        }
+        if (interval.step != null) {
+            validateStep(interval.step!!, validationErrors)
         }
     }
 
     private fun validateStep(step: Step, validationErrors: MutableList<String>) {
         if (step.durationDistance != null) {
             if (step.durationDistanceUnit == null) {
-                validationErrors.add("Duration distance unit must be set if duration distance is set")
+                validationErrors.add("Duration distance unit must be set if duration distance is set for ${step.type}")
             }
             if (step.durationType == null) {
-                validationErrors.add("Duration type must be set if duration distance is set")
+                validationErrors.add("Duration type must be set if duration distance is set for ${step.type}")
             }
         }
-        if (step.durationType != null) {
+        if (step.durationType != null && step.durationType != StepDurationType.LAPBUTTON) {
             if (step.durationDistance == null) {
-                validationErrors.add("Duration distance must be set if duration type is set")
+                validationErrors.add("Duration distance must be set if duration type is set for ${step.type}")
             }
             if (step.durationDistanceUnit == null) {
-                validationErrors.add("Duration distance unit must be set if duration type is set")
+                validationErrors.add("Duration distance unit must be set if duration type is set for ${step.type}")
             }
         }
         if (step.durationDistanceUnit != null) {
             if (step.durationDistance == null) {
-                validationErrors.add("Duration distance must be set if duration distance unit is set")
+                validationErrors.add("Duration distance must be set if duration distance unit is set for ${step.type}")
             }
             if (step.durationType == null) {
-                validationErrors.add("Duration type must be set if duration distance unit is set")
+                validationErrors.add("Duration type must be set if duration distance unit is set for ${step.type}")
             }
         }
         if (step.targetType != null) {
             if (step.targetFrom == null) {
-                validationErrors.add("Target from must be set if target type is set")
+                validationErrors.add("Target from must be set if target type is set for ${step.type}")
             }
             if (step.targetTo == null) {
-                validationErrors.add("Target to must be set if target type is set")
+                validationErrors.add("Target to must be set if target type is set for ${step.type}")
             }
         }
         if (step.targetFrom != null) {
             if (step.targetFrom!! < 0) {
-                validationErrors.add("Target from must be greater than 0")
+                validationErrors.add("Target from must be greater than 0 for ${step.type}")
             }
             if (step.targetTo == null) {
-                validationErrors.add("Target to must be set if target from is set")
+                validationErrors.add("Target to must be set if target from is set for ${step.type}")
             }
             if (step.targetTo != null) {
                 if (step.targetFrom!! > step.targetTo!!) {
-                    validationErrors.add("Target from must be smaller than target to")
+                    validationErrors.add("Target from must be smaller than target to for ${step.type}")
                 }
             }
         }
         if (step.targetTo != null) {
             if (step.targetTo!! < 0) {
-                validationErrors.add("Target to must be greater than 0")
+                validationErrors.add("Target to must be greater than 0 for ${step.type}")
             }
             if (step.targetFrom == null) {
-                validationErrors.add("Target from must be set if target to is set")
+                validationErrors.add("Target from must be set if target to is set for ${step.type}")
             }
             if (step.targetType == null) {
-                validationErrors.add("Target type must be set if target to is set")
+                validationErrors.add("Target type must be set if target to is set for ${step.type}")
             }
         }
 
         if (step.note != null) {
             if (step.note!!.length > 255) {
-                validationErrors.add("Note must be shorter than 255 characters")
+                validationErrors.add("Note must be shorter than 255 characters for ${step.type} ")
             }
         }
 

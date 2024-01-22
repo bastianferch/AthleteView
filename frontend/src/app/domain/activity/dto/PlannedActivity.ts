@@ -66,7 +66,7 @@ export enum ActivityType {
 }
 
 export enum Load {
-  EASY = 'EASY',
+  LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HARD = 'HIGH'
 }
@@ -77,7 +77,7 @@ export function convertLoadToInt(load:Load):number {
       return 2
     case Load.MEDIUM:
       return 1
-    case Load.EASY:
+    case Load.LOW:
       return 0
   }
 }

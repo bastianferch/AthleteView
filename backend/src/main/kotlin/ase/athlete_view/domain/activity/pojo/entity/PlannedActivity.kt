@@ -8,7 +8,6 @@ import ase.athlete_view.domain.user.pojo.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-// TODO calculate duration and add load(High, Medium, Low)
 @Entity
 open class PlannedActivity(
     @Id
@@ -28,11 +27,11 @@ open class PlannedActivity(
 
     open val note: String?,
 
-    open val date: LocalDateTime?,
+    open var date: LocalDateTime?,
 
-    open val estimatedDuration: Int?,
+    open var estimatedDuration: Int?,
 
-    open val load: Load?,
+    open var load: Load?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     open var createdBy: User?,

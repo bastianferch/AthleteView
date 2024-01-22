@@ -5,13 +5,12 @@ import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.activity.persistence.*
 import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
 import ase.athlete_view.domain.activity.pojo.entity.*
+import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
-import ase.athlete_view.domain.activity.pojo.util.StepDurationType
-import ase.athlete_view.domain.activity.pojo.util.StepTargetType
-import ase.athlete_view.domain.activity.pojo.util.StepType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
 import ase.athlete_view.domain.activity.util.FitParser
+import ase.athlete_view.domain.activity.util.TimeDateUtil
 import ase.athlete_view.domain.notification.pojo.entity.NotificationType
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.persistence.UserRepository
@@ -23,15 +22,14 @@ import com.garmin.fit.Intensity
 import com.garmin.fit.LapMesg
 import com.garmin.fit.LapTrigger
 import com.garmin.fit.RecordMesg
+import com.garmin.fit.Sport
 import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
-import com.garmin.fit.ActivityType as FitActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -47,6 +45,7 @@ class ActivityServiceImpl(
     private val fitFileRepo: FitDataRepositoryImpl,
     private val sanitizer: Sanitizer,
     private val notificationService: NotificationService,
+    private val timeDateUtil: TimeDateUtil
 ) : ActivityService {
     private val logger = KotlinLogging.logger {}
 
@@ -63,6 +62,8 @@ class ActivityServiceImpl(
         // activity is always created by the logged-in user
         val usr = user.get()
         validator.validateNewPlannedActivity(plannedActivity, usr, isCsp)
+        calculateTimeAndLoad(plannedActivity)
+
         plannedActivity.createdBy = usr
 
         // verify if `createdFor` actually exists?
@@ -165,7 +166,7 @@ class ActivityServiceImpl(
 
     override fun getAllTemplates(uid: Long): List<PlannedActivity> {
         logger.trace { "S | getAllTemplates" }
-        return plannedActivityRepo.findAllTemplatesForUid(uid);
+        return plannedActivityRepo.findAllTemplatesForUid(uid)
     }
 
     @Transactional
@@ -184,6 +185,9 @@ class ActivityServiceImpl(
 
         // check if the user can edit this activity and if the new one is valid
         validator.validateEditPlannedActivity(plannedActivity, oldPlannedActivity, user.get())
+        val result = calculateTimeAndLoad(plannedActivity)
+        plannedActivity.load = result.load
+        plannedActivity.estimatedDuration = result.estimatedDuration
         plannedActivity.interval = createInterval(plannedActivity.interval)
         return this.plannedActivityRepo.save(plannedActivity)
     }
@@ -227,7 +231,9 @@ class ActivityServiceImpl(
         }
     }
 
+    @Transactional
     override fun calculateStats(data: FitMessages, user: User, item: MultipartFile): Pair<Activity, String> {
+        logger.trace { "S | calculateStats" }
         var powerSum = 0
         var hrSum = 0
         var calSum = 0
@@ -246,6 +252,7 @@ class ActivityServiceImpl(
         val laps: MutableList<Lap> = mutableListOf()
         var curLapIntensity: Intensity? = lap.intensity
 
+        // add first lap
         laps.add(
             Lap(
                 null,
@@ -267,20 +274,28 @@ class ActivityServiceImpl(
         var sameDurations = false
         var stepList: List<Step>? = null
         var plannedActivity: PlannedActivity? = null
+        val fitSportType = if (data.sessionMesgs.size > 0) data.sessionMesgs[0].sport else Sport.GENERIC
 
+        /*
+         * if the activity type is set, we can compare the activity to the planned activity
+         * this happens in two steps:
+         * 1. check if the structure of the activity matches the structure of the planned activity
+         * 2. check if the durations of the laps match the durations of the steps
+         */
         if (compare) {
-            val fitActivityType = data.recordMesgs[0].activityType
-            val startTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+
+
+            val startTime = timeDateUtil.convertToLocalDateTime(data.recordMesgs[0].timestamp.timestamp)
                 .withHour(0)
                 .withMinute(0)
                 .withSecond(0)
                 .withNano(0)
-            val endTime = LocalDateTime.ofEpochSecond(data.recordMesgs[0].timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+            val endTime = timeDateUtil.convertToLocalDateTime(data.recordMesgs[0].timestamp.timestamp)
                 .withHour(23)
                 .withMinute(59)
                 .withSecond(59)
                 .withNano(0)
-            val activityType = mapFitActivityTypeToActivityType(fitActivityType)
+            val activityType = mapFitActivityTypeToActivityType(fitSportType)
 
             val plannedActivityList = getPlannedActivityByTypeUserIdAndDate(user.id!!, activityType, startTime, endTime)
             plannedActivity = if (plannedActivityList.isNotEmpty()) plannedActivityList[0] else null
@@ -303,10 +318,13 @@ class ActivityServiceImpl(
 
         var recordMsgHolder: RecordMesg? = null
 
+        /*
+        * go through all record messages and calculate the stats
+        *
+         */
         for (d in data.recordMesgs) {
             if (startTime === null) {
-                // https://developer.garmin.com/fit/cookbook/datetime/
-                startTime = LocalDateTime.ofEpochSecond(d.timestamp!!.timestamp + 631065600, 0, ZoneOffset.UTC)
+                startTime = timeDateUtil.convertToLocalDateTime(d.timestamp!!.timestamp)
             }
 
             recordMsgHolder = d
@@ -324,6 +342,11 @@ class ActivityServiceImpl(
                 )
             }
 
+            /*
+             * if the activity type is set, we can compare the activity to the planned activity
+             * if structure or durations match, we use this to go to the next rounds
+             * in the next if block any datapoint inside the planned activity is added to the accuracy sum if it is in the correct range
+             */
             if (compare) {
                 // get next lap if the intensity changes
                 if (sameStructure) {
@@ -336,6 +359,7 @@ class ActivityServiceImpl(
                         j++
                     }
                 }
+
                 // get target type and check if the value is in the range
                 if (stepList!![j].targetType == StepTargetType.CADENCE) {
                     if (d.cadence == null) {
@@ -397,7 +421,8 @@ class ActivityServiceImpl(
             cadenceSum += cadence
         }
 
-        endTime = LocalDateTime.ofEpochSecond(recordMsgHolder!!.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
+        // final calculation steps
+        endTime = timeDateUtil.convertToLocalDateTime(recordMsgHolder!!.timestamp!!.timestamp)
 
         val totalElems = data.recordMesgs.size
         val avgBpm = hrSum / totalElems
@@ -430,7 +455,7 @@ class ActivityServiceImpl(
             endTime,
             plannedActivity,
             laps,
-            data.recordMesgs[0].activityType?.let { mapFitActivityTypeToActivityType(it) }
+            mapFitActivityTypeToActivityType(fitSportType)
         )
         plannedActivity?.activity = activity
         laps.map { lapRepo.save(it) }
@@ -456,7 +481,7 @@ class ActivityServiceImpl(
         return true
     }
 
-    @Transactional
+
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
         logger.trace { "S | getAllActivities" }
         val userObject = userRepository.findById(uid).getOrNull()
@@ -481,12 +506,9 @@ class ActivityServiceImpl(
                 }
             }
         }
-
         return activities.toList()
-
     }
 
-    @Transactional
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
         var i = 0
         for (step in stepList) { // go through all steps
@@ -529,6 +551,7 @@ class ActivityServiceImpl(
     }
 
 
+    @Transactional
     override fun createInterval(interval: Interval): Interval {
         if (interval.intervals?.isNotEmpty() == true) {
             interval.intervals!!.forEach { createInterval(it) }
@@ -545,7 +568,6 @@ class ActivityServiceImpl(
     }
 
 
-    @Transactional
     override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
         logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
 
@@ -596,7 +618,7 @@ class ActivityServiceImpl(
         val userObj = userExists(userId)
 
         // check if activity exists
-        val activityObj = activityExists(activityId);
+        val activityObj = activityExists(activityId)
 
         // check if user can access activity
         canUserAccessActivity(userId, activityId)
@@ -615,7 +637,7 @@ class ActivityServiceImpl(
 
         // send notification to the other involved party (trainer if athlete comments, athlete if trainer comments)
         val notificationHeader = "new comment"
-        val commentText = if (comment.text.length > 100) comment.text.substring(0,100) + "..." else comment.text;
+        val commentText = if (comment.text.length > 100) comment.text.substring(0, 100) + "..." else comment.text
         val notificationBody = userObj.name + " commented on your activity: " + commentText
         val notificationLink = "activity/finished/" + activityObj.id
         val notificationType = NotificationType.COMMENT
@@ -632,7 +654,7 @@ class ActivityServiceImpl(
         val userObj = userExists(userId)
 
         // check if activity exists
-        val activityObj = activityExists(activityId);
+        val activityObj = activityExists(activityId)
 
         // check if user can access activity
         canUserAccessActivity(userId, activityId)
@@ -640,9 +662,9 @@ class ActivityServiceImpl(
         validator.validateRating(rating)
 
         if (userObj is Athlete) {
-            activityObj.ratingAthlete = rating.toInt();
+            activityObj.ratingAthlete = rating.toInt()
         } else if (userObj is Trainer) {
-            activityObj.ratingTrainer = rating.toInt();
+            activityObj.ratingTrainer = rating.toInt()
         }
 
         activityRepo.saveAndFlush(activityObj)
@@ -695,15 +717,13 @@ class ActivityServiceImpl(
         }
     }
 
-
-    // TODO find the different kind of sports and why rowing and crosscountryskiing are not existing in FitActivityType
-    fun mapFitActivityTypeToActivityType(fitActivityType: FitActivityType): MyActivityType {
-        return when (fitActivityType) {
-            FitActivityType.SWIMMING -> MyActivityType.SWIM
-            FitActivityType.RUNNING -> MyActivityType.RUN
-            FitActivityType.CYCLING -> MyActivityType.BIKE
-            FitActivityType.FITNESS_EQUIPMENT -> MyActivityType.ROW
-            FitActivityType.GENERIC -> MyActivityType.CROSSCOUNTRYSKIING
+    fun mapFitActivityTypeToActivityType(sport: Sport): MyActivityType {
+        return when (sport) {
+            Sport.SWIMMING -> MyActivityType.SWIM
+            Sport.RUNNING -> MyActivityType.RUN
+            Sport.CYCLING -> MyActivityType.BIKE
+            Sport.CROSS_COUNTRY_SKIING -> MyActivityType.CROSSCOUNTRYSKIING
+            Sport.ROWING -> MyActivityType.ROW
             else -> MyActivityType.OTHER
         }
     }
@@ -757,4 +777,114 @@ class ActivityServiceImpl(
             throw NotFoundException("No activity with this id found for user")
         }
     }
+
+    private fun calculateTimeAndLoad(plannedActivity: PlannedActivity): PlannedActivity {
+        val result = calculateTimeAndLoad(plannedActivity.interval, plannedActivity.type, 0, Load.LOW)
+
+        plannedActivity.estimatedDuration = timeDateUtil.roundTime(result.first)
+        plannedActivity.load = result.second
+
+
+        return plannedActivity
+    }
+
+    private fun calculateTimeAndLoad(interval: Interval, activityType: ActivityType, totalTime: Int, totalLoad: Load): Pair<Int, Load> {
+        var time = totalTime
+        var stepLoad = totalLoad
+        if (interval.intervals?.isNotEmpty() == true) {
+            for (subInterval in interval.intervals!!) {
+                val result = calculateTimeAndLoad(subInterval, activityType, totalTime, totalLoad)
+                time += result.first * subInterval.repeat
+                if (result.second > stepLoad) {
+                    stepLoad = result.second
+                }
+            }
+        } else if (interval.step != null) {
+            val step = interval.step!!
+            val baseSpeed = timeDateUtil.getBaseSpeed(activityType)
+            val stepTime = calculateTime(step, baseSpeed)
+            val tmpLoad = calculateLoad(totalLoad, step, baseSpeed)
+            if (tmpLoad > stepLoad) {
+                stepLoad = tmpLoad
+            }
+            time = totalTime + stepTime * interval.repeat
+        }
+        return Pair(time, stepLoad)
+    }
+
+    private fun calculateLoad(totalLoad: Load, step: Step, baseSpeed: Double): Load {
+        var currentLoad = Load.LOW
+        when (step.targetType) {
+            StepTargetType.CADENCE -> {
+                if (step.targetFrom!! > 90) {
+                    currentLoad = Load.HIGH
+                } else if (step.targetFrom!! > 70) {
+                    currentLoad = Load.MEDIUM
+                }
+            }
+
+            StepTargetType.HEARTRATE -> {
+                if (step.targetFrom!! > 170) {
+                    currentLoad = Load.HIGH
+                } else if (step.targetFrom!! > 150) {
+                    currentLoad = Load.MEDIUM
+                }
+            }
+
+            StepTargetType.PACE -> {
+                if (step.targetFrom!! > baseSpeed * 1.2) {
+                    currentLoad = Load.HIGH
+                } else if (step.targetFrom!! < baseSpeed * 0.8) {
+                    currentLoad = Load.LOW
+                } else {
+                    currentLoad = Load.MEDIUM
+                }
+            }
+
+            StepTargetType.SPEED -> {
+                if (step.targetFrom!! < baseSpeed * 1.2) {
+                    currentLoad = Load.HIGH
+                } else if (step.targetFrom!! < baseSpeed * 0.8) {
+                    currentLoad = Load.LOW
+                } else {
+                    currentLoad = Load.MEDIUM
+                }
+            }
+
+            null -> {}
+        }
+        if(totalLoad > currentLoad) { // we only want the highest load
+            currentLoad = totalLoad
+        }
+        return currentLoad
+    }
+
+    private fun calculateTime(step: Step, baseSpeed: Double): Int {
+
+        when (step.durationType) {
+            StepDurationType.DISTANCE -> {
+                if (step.durationDistanceUnit == StepDurationUnit.KM) {
+                    return (step.durationDistance!! * 1000 / baseSpeed).toInt()
+                } else {
+                    return (step.durationDistance!! / baseSpeed).toInt()
+                }
+            }
+
+            StepDurationType.TIME -> {
+                return if (step.durationDistanceUnit == StepDurationUnit.MIN) {
+                    step.durationDistance!!
+                } else {
+                    step.durationDistance!! / 60
+                }
+            }
+
+            StepDurationType.LAPBUTTON -> {
+                return 10
+            }
+
+            null -> return 0
+        }
+    }
+
+
 }

@@ -70,30 +70,36 @@ class ActivityDatagen(
             240 - reduceSecondsPerKm,
             trainer,
             athlete,
-            if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[0])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[0])).withHour(faker.random.nextInt(6, 18))
         )
         createRunInterval7times1kmWith2MinRecovery(
             240 - reduceSecondsPerKm,
             trainer,
             athlete,
-                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[1])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[1])).withHour(faker.random.nextInt(6, 18))
         )
         createBike21MinTest(
             40 - reduceSecondsPerKm,
             trainer,
             athlete,
-                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[2])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[2])).withHour(faker.random.nextInt(6, 18))
         )
         createBike90km(
             40 - reduceSecondsPerKm,
             trainer,
             athlete,
-                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[3])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[3])).withHour(faker.random.nextInt(6, 18))
         )
         createSwim2h(
             trainer,
             athlete,
-                if (athlete==null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[4])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[4])).withHour(faker.random.nextInt(6, 18))
+        )
+        createRun60Min(
+            340 - reduceSecondsPerKm,
+            trainer,
+            athlete,
+            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[5])).withHour(faker.random.nextInt(6, 18))
         )
         if (athlete != null) {
             createSwim2h(
@@ -101,8 +107,10 @@ class ActivityDatagen(
                 athlete,
                 LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[5])).withHour(faker.random.nextInt(6, 18))
             )
+            return 6
         }
-        return 6
+        return 5
+
     }
 
 
@@ -201,7 +209,7 @@ class ActivityDatagen(
                     )
                 ), null
             ),
-            withTrainer, !withTrainer, "", date, 60, Load.MEDIUM, createdBy, createdFor, null
+            withTrainer, !withTrainer, "", date, 90, Load.HIGH, createdBy, createdFor, null
         )
         plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)
@@ -249,12 +257,49 @@ class ActivityDatagen(
                     )
                 ), null
             ),
-            withTrainer, !withTrainer, "", date, 120, Load.MEDIUM, createdBy, createdFor, null
+            withTrainer, !withTrainer, "", date, 60, Load.MEDIUM, createdBy, createdFor, null
         )
 
         plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)
     }
+
+    private fun createRun60Min(targetPace: Int, createdBy: User, createdFor: Athlete?, date: LocalDateTime?) {
+        var withTrainer = true
+        if (createdFor == null) {
+            withTrainer = false
+        }
+        val plannedActivity = PlannedActivity(
+            null, "60' ", ActivityType.RUN,
+            Interval(
+                null, 1, listOf(
+                    Interval(
+                        null, 1, listOf(
+                            Interval(
+                                null, 1, null,
+                                Step(
+                                    null,
+                                    StepType.ACTIVE,
+                                    StepDurationType.TIME,
+                                    60,
+                                    StepDurationUnit.MIN,
+                                    StepTargetType.PACE,
+                                    targetPace + 20,
+                                    targetPace + 40,
+                                    ""
+                                )
+                            )
+                        ),
+                        null
+                    ),
+                ), null
+            ),
+            withTrainer, !withTrainer, "", date, 60, Load.LOW, createdBy, createdFor, null
+        )
+        plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
+        plannedActivityRepo.save(plannedActivity)
+    }
+
 
     private fun createBike21MinTest(targetPace: Int, createdBy: User, createdFor: Athlete?, date: LocalDateTime?) {
         var withTrainer = true
@@ -330,7 +375,7 @@ class ActivityDatagen(
                     ),
                 ), null
             ),
-            withTrainer, !withTrainer, "", date, 60, Load.MEDIUM, createdBy, createdFor, null
+            withTrainer, !withTrainer, "", date, 180, Load.HIGH, createdBy, createdFor, null
         )
         plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)
@@ -366,7 +411,7 @@ class ActivityDatagen(
                     ),
                 ), null
             ),
-            withTrainer, !withTrainer, "", date, 60, Load.MEDIUM, createdBy, createdFor, null
+            withTrainer, !withTrainer, "", date, 120, Load.MEDIUM, createdBy, createdFor, null
         )
         plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)

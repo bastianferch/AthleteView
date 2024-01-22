@@ -3,10 +3,7 @@ package ase.athlete_view.unit.activity
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
-import ase.athlete_view.domain.activity.pojo.entity.Comment
-import ase.athlete_view.domain.activity.pojo.entity.Interval
-import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
-import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.notification.service.NotificationService
@@ -85,6 +82,18 @@ class ActivityServiceUnitTests: TestBase() {
         assertThrows<ValidationException> {
             activityService.createPlannedActivity(invalidPlannedActivity,defaultTrainer.id!!)
         }
+    }
+
+    @Test
+    fun createPlannedActivity_ShouldReturnActivityWithEstimatedDurationAndLoad(){
+        var newPlannedActivity = ActivityCreator.get7Times1KmPlannedActivity(defaultAthlete,defaultAthlete)
+        newPlannedActivity.date = LocalDateTime.now().plusDays(5)
+        newPlannedActivity = activityService.createPlannedActivity(newPlannedActivity, defaultAthlete.id!!)
+        assertAll(
+            { assertNotNull(newPlannedActivity.id) },
+            { assertEquals(newPlannedActivity.estimatedDuration, 90) },
+            { assertEquals(newPlannedActivity.load, Load.HIGH) }
+        )
     }
 
     @Test
