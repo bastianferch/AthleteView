@@ -28,17 +28,19 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
                             private val userService: UserService,
                             private val constraintService: TimeConstraintService) {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     fun receiveMessage(message: String) {
-        logger.debug { "Received response through queue in wrong format: $message" }
+        log.trace { "Util | receiveMessage($message)" }
+        log.debug { "Received response through queue in wrong format: $message" }
     }
 
     fun receiveMessage(message: ByteArray) {
+        log.trace { "Util | receiveMessage($message)" }
         var trainerId: Long? = null
         try {
             var messageBody = String(message, StandardCharsets.UTF_8)
-            logger.debug { "Received response through queue: $messageBody" }
+            log.debug { "Received response through queue: $messageBody" }
 
             val resultMap: Map<String, Any> = objectMapper.readValue(messageBody)
 
@@ -47,7 +49,7 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
             val activities: List<Map<String, Any>> = resultMap["activities"] as List<Map<String, Any>>
 
             if (!(resultMap["success"] as Boolean)) {
-                logger.error { "Received error response from queue: ${resultMap["error"]}" }
+                log.error { "Received error response from queue: ${resultMap["error"]}" }
                 notificationService.sendNotification(trainerId, "Scheduling Job failed", resultMap["error"] as String, "/trainingsplan")
                 cspService.revertJob(trainerId)
                 return
@@ -77,7 +79,7 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
                 val date = days[scheduledDay]
                 val dateTime = LocalDateTime.of(date, time)
                 var temp = activityService.getPlannedActivity(elemId, trainerId)
-                logger.info { "Updating activity with id $elemId with scheduled time." }
+                log.debug { "Updating activity with id $elemId with scheduled time." }
                 temp = activityService.updatePlannedActivity(elemId, PlannedActivity(
                         temp.id,
                         temp.name,
@@ -119,7 +121,7 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
             }
 
         } catch (e: Exception) {
-            logger.error { "Error reading incoming response from queue: ${e.message}" }
+            log.error { "Error reading incoming response from queue: ${e.message}" }
             if (trainerId != null) {
                 notificationService.sendNotification(trainerId, "Error during scheduling", "There was an error during scheduling. Please try again", "/trainingsplan")
                 cspService.revertJob(trainerId)
@@ -193,10 +195,12 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
     }
 
     fun receiveMessage(message: Message) {
-        logger.debug { "Received response through queue in wrong format: ${message.body}" }
+        log.trace { "Util | receiveMessage($message)" }
+        log.debug { "Received response through queue in wrong format: ${message.body}" }
     }
 
     fun getDatesForFollowingWeek(timestamp: Long): List<LocalDate> {
+        log.trace { "Util | getDatesForFollowingWeek($timestamp)" }
         val today = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
         val nextMonday = today.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(0).withMinute(0).withSecond(0).withNano(0)
 

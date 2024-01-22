@@ -77,7 +77,7 @@ class AuthControllerIntegrationTests : TestBase() {
     fun registerAthleteWithTrainer_Returns201() {
         every { mailService.sendSimpleMail(any()) } just runs
 
-        val existingTrainer = super.persistDefaultTrainer(100);
+        val existingTrainer = super.persistDefaultTrainer(100)
         val dto = UserCreator.getAthleteRegistrationDTO(existingTrainer.code)
 
         mockMvc.perform(

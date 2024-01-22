@@ -11,19 +11,19 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class ZoneController(val zoneService: ZoneService) {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @PutMapping
     fun putZones(@RequestBody zones: List<ZoneDto>, @AuthenticationPrincipal userDto: UserDTO): List<ZoneDto> {
 
-        logger.info { "PUT zones: $zones by ${userDto.name}" }
+        log.info { "PUT | putZones($zones)" }
         return zoneService.edit(userDto.id!!, zones)
     }
 
     @GetMapping
     fun getZones(@AuthenticationPrincipal userDto: UserDTO): List<ZoneDto> {
 
-        logger.info { "GET zones by $userDto" }
+        log.info { "GET | getZones()" }
         return zoneService.getAll(userDto.id!!)
     }
 
@@ -31,7 +31,7 @@ class ZoneController(val zoneService: ZoneService) {
     fun resetZones(@RequestParam(required = false, name = "maxHR") maxHR: Int?,
                    @AuthenticationPrincipal userDto: UserDTO): List<ZoneDto> {
 
-        logger.info { "DELETE zones by $userDto, maxHR: $maxHR" }
+        log.info { "DELETE | resetZones($maxHR)" }
         return zoneService.resetZones(userDto.id!!, maxHR)
     }
 }

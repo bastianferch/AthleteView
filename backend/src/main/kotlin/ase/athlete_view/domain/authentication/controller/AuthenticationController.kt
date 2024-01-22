@@ -19,12 +19,12 @@ import java.util.*
 class AuthenticationController(
     private val authService: AuthService
 ) {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registration/athlete")
     fun registerAthlete(@Valid @RequestBody registrationDto: AthleteRegistrationDTO): UserDTO {
-        logger.info { "POST ATHLETE REGISTRATION $registrationDto" }
+        log.info { "POST | registerAthlete($registrationDto)" }
         val savedUser = this.authService.registerAthlete(registrationDto)
         return savedUser.toUserDTO()
     }
@@ -32,7 +32,7 @@ class AuthenticationController(
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registration/trainer")
     fun registerTrainer(@Valid @RequestBody registrationDto: TrainerRegistrationDTO): UserDTO {
-        logger.info { "POST TRAINER REGISTRATION ${registrationDto.email}" }
+        log.info { "POST | registerTrainer($registrationDto)" }
         val savedUser = this.authService.registerTrainer(registrationDto)
         return savedUser.toUserDTO()
     }
@@ -40,35 +40,35 @@ class AuthenticationController(
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     fun login(@RequestBody dto: LoginDTO): UserDTO {
-        logger.info { "POST LOGIN FOR USER ${dto.email}" }
+        log.info { "POST | login($dto)" }
         return this.authService.authenticateUser(dto)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/confirmation")
     fun confirmRegistration(@RequestParam token: UUID) {
-        logger.info { "POST CONFIRM REGISTRATION: $token" }
+        log.info { "POST | confirmRegistration($token)" }
         this.authService.confirmRegistration(token)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/confirmation/new")
     fun sendNewConfirmationLink(@RequestBody dto: LoginDTO) {
-        logger.info { "POST SEND NEW TOKEN TO EMAIL: $dto" }
+        log.info { "POST | sendNewConfirmationLink($dto)" }
         this.authService.sendNewConfirmationToken(dto)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/forgot-password")
     fun forgotPassword(@RequestBody email: String) {
-        logger.info { "POST FORGOT PASSWORD FOR : $email" }
+        log.info { "POST | forgotPassword($email)" }
         this.authService.forgotPassword(email)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/password")
     fun updateNewPassword(@RequestBody dto: ResetPasswordDTO) {
-        logger.info { "POST SET NEW PASSWORD: $dto" }
+        log.info { "POST | updateNewPassword($dto)" }
         this.authService.setNewPassword(dto)
     }
 

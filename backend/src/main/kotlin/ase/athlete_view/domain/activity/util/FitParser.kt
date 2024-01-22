@@ -13,10 +13,11 @@ import java.io.InputStream
 
 @Component
 class FitParser {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
     private var parser: FitDecoder = FitDecoder()
 
     fun decode(filename: InputStream): FitMessages {
+        log.trace { "Util | decode()" }
         val bufferedInputStream = BufferedInputStream(filename)
         bufferedInputStream.mark(0)
         val decoder = Decode()
@@ -28,18 +29,18 @@ class FitParser {
                 return parser.decode(bufferedInputStream)
             }
         } catch (e: FitRuntimeException) {
-            logger.error { "Something went wrong processing the file" }
-            logger.error { e }
+            log.error { "Something went wrong processing the file" }
+            log.error { e }
             throw InvalidFitFileException("File $filename is not a valid .fit-File!")
         } catch (e: IOException) {
-            logger.error { "IOException during processing!" }
-            logger.error { e }
+            log.error { "IOException during processing!" }
+            log.error { e }
         } catch (e: Exception) {
-            logger.error { "Exception during processing!" }
-            logger.error { e }
+            log.error { "Exception during processing!" }
+            log.error { e }
         }
 
-        logger.error { "Noticed invalid fit-upload, skipping!" }
+        log.error { "Noticed invalid fit-upload, skipping!" }
         throw InvalidFitFileException("File is not a valid .fit-File!")
     }
 }

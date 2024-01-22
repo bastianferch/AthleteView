@@ -148,8 +148,8 @@ export class CustomCalendarComponent implements OnInit {
     let startTime = ""
     let endTime = ""
     if (this.viewType === CalendarView.Week) {
-      startTime = format(startOfWeek(this.viewDate), dateFormatString)
-      endTime = format(endOfWeek(this.viewDate), dateFormatString)
+      startTime = format(startOfWeek(this.viewDate, { weekStartsOn: 1 }), dateFormatString)
+      endTime = format(endOfWeek(this.viewDate, { weekStartsOn: 1 }), dateFormatString)
     } else {
       startTime = format(startOfMonth(this.viewDate), dateFormatString)
       endTime = format(endOfMonth(this.viewDate), dateFormatString)

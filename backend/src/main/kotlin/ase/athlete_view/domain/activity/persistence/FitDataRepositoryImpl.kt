@@ -24,6 +24,7 @@ class FitDataRepositoryImpl(
     private val log = KotlinLogging.logger {}
 
     private fun getSha256Digest(data: ByteArray): String {
+        log.trace { "P | getSha256Digest()" }
         val messageDigest = MessageDigest.getInstance("sha256")
         messageDigest.update(data)
         val digest = messageDigest.digest()
@@ -31,6 +32,7 @@ class FitDataRepositoryImpl(
     }
 
     override fun saveFitData(data: InputStream, filename: String): String {
+        log.trace { "P | saveFitData($filename)" }
         val bin = BufferedInputStream(data)
         if (checkIfFileExists(bin)) {
             throw DuplicateFitFileException("File already in-store!")
@@ -46,6 +48,7 @@ class FitDataRepositoryImpl(
     }
 
     override fun getFitData(id: String): FitData {
+        log.trace { "P | getFitData($id)" }
         val file: GridFSFile = gridFsTemplate.findOne(Query(Criteria.where("_id").`is`(id)))
         return FitData(
             id,
@@ -54,6 +57,7 @@ class FitDataRepositoryImpl(
     }
 
     private fun checkIfFileExists(data: BufferedInputStream): Boolean {
+        log.trace { "P | checkIfFileExists()" }
         data.mark(Integer.MAX_VALUE)
         val hashValue = getSha256Digest(data.readAllBytes())
         data.reset()

@@ -47,11 +47,11 @@ class ActivityServiceImpl(
     private val notificationService: NotificationService,
     private val timeDateUtil: TimeDateUtil
 ) : ActivityService {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @Transactional
     override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long, isCsp: Boolean): PlannedActivity {
-        logger.trace { "S | createPlannedActivity \n $plannedActivity" }
+        log.trace { "S | createPlannedActivity($plannedActivity, $userId, $isCsp)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -85,7 +85,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun getPlannedActivity(id: Long, userId: Long): PlannedActivity {
-        logger.trace { "S | getPlannedActivity $id" }
+        log.trace { "S | getPlannedActivity ($id, $userId)" }
 
         // activity is fetched right away, so we don't have to do unnecessary computation for nonexistent activities
         val activity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
@@ -127,7 +127,7 @@ class ActivityServiceImpl(
 
 
     override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
-        logger.trace { "S | getAllPlannedActivities" }
+        log.trace { "S | getAllPlannedActivities($userId, $startDate, $endDate)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -165,13 +165,13 @@ class ActivityServiceImpl(
     }
 
     override fun getAllTemplates(uid: Long): List<PlannedActivity> {
-        logger.trace { "S | getAllTemplates" }
+        log.trace { "S | getAllTemplates($uid)" }
         return plannedActivityRepo.findAllTemplatesForUid(uid)
     }
 
     @Transactional
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        logger.trace { "S | updatePlannedActivity $id $plannedActivity" }
+        log.trace { "S | updatePlannedActivity($id, $plannedActivity, $userId)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -194,7 +194,8 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Activity {
-        logger.trace { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        log.trace { "S | importActivity($userId)" }
+        log.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
@@ -225,7 +226,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun deletePlannedActivities(activities: List<PlannedActivity>){
-        logger.trace { "S | deleteActivities" }
+        log.trace { "S | deleteActivities($activities)" }
         for (elem in activities){
             plannedActivityRepo.delete(elem)
         }
@@ -233,7 +234,7 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun calculateStats(data: FitMessages, user: User, item: MultipartFile): Pair<Activity, String> {
-        logger.trace { "S | calculateStats" }
+        log.trace { "S | calculateStats($user)" }
         var powerSum = 0
         var hrSum = 0
         var calSum = 0
@@ -464,6 +465,7 @@ class ActivityServiceImpl(
     }
 
     private fun compareLapLists(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        log.trace { "S | compareLapLists($stepList, $lapList)" }
         var i = 0
         for (lap in lapList) { // go through all laps
             val stepIntensity = stepList[i].type
@@ -483,7 +485,7 @@ class ActivityServiceImpl(
 
 
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
-        logger.trace { "S | getAllActivities" }
+        log.trace { "S | getAllActivities($uid, $startDate, $endDate)" }
         val userObject = userRepository.findById(uid).getOrNull()
             ?: throw NotFoundException("No such user!")
 
@@ -510,6 +512,7 @@ class ActivityServiceImpl(
     }
 
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        log.trace { "S | compareLapDurations($stepList, $lapList)" }
         var i = 0
         for (step in stepList) { // go through all steps
             when (step.durationType) {
@@ -547,12 +550,14 @@ class ActivityServiceImpl(
     }
 
     private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: ActivityType, startTime: LocalDateTime, endTime: LocalDateTime): List<PlannedActivity> {
+        log.trace { "S | getPlannedActivityByTypeUserIdAndDate($id, $type, $startTime, $endTime)" }
         return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
     }
 
 
     @Transactional
     override fun createInterval(interval: Interval): Interval {
+        log.trace { "S | createInterval($interval)" }
         if (interval.intervals?.isNotEmpty() == true) {
             interval.intervals!!.forEach { createInterval(it) }
         }
@@ -564,12 +569,13 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun createStep(step: Step): Step {
+        log.trace { "S | createStep($step)" }
         return this.stepRepo.save(step)
     }
 
 
     override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
-        logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
+        log.trace { "S | getSingleActivityForUser($userId, $activityId)" }
 
         val user = this.userRepository.findById(userId)
         if (!user.isPresent) {
@@ -591,7 +597,7 @@ class ActivityServiceImpl(
         if (userObj is Athlete) {
             val activitiesForUser = activityRepo.findActivitiesByUserId(userObj.id!!)
             if (activitiesForUser.none { it.id == activityObj.id!! }) {
-                logger.debug { "Tried to fetch activity for user other than self!" }
+                log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
         } else if (userObj is Trainer) {
@@ -604,7 +610,7 @@ class ActivityServiceImpl(
                 }
             }
             if (!isForAthleteOfTrainer) {
-                logger.debug { "Tried to fetch activity for user other than self!" }
+                log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
         }
@@ -612,7 +618,7 @@ class ActivityServiceImpl(
     }
 
     override fun commentActivityWithUser(userId: Long, activityId: Long, comment: CommentDTO): Comment {
-        logger.trace { "S | commentActivityWithUser($userId, $activityId, $comment)" }
+        log.trace { "S | commentActivityWithUser($userId, $activityId, $comment)" }
 
         // check if user exists
         val userObj = userExists(userId)
@@ -648,7 +654,7 @@ class ActivityServiceImpl(
     }
 
     override fun rateActivityWithUser(userId: Long, activityId: Long, rating: Int) {
-        logger.trace { "S | rateActivityWithUser($userId, $activityId, $rating)" }
+        log.trace { "S | rateActivityWithUser($userId, $activityId, $rating)" }
 
         // check if user exists
         val userObj = userExists(userId)
@@ -688,6 +694,7 @@ class ActivityServiceImpl(
         notificationBody: String,
         notificationLink: String,
         notificationType: NotificationType) {
+        log.trace { "S | sendNotificationToOtherParty($userId, $activityObj, $userObj, $notificationHeader, $notificationBody, $notificationLink, $notificationBody)" }
 
         if (userId == activityObj.user?.id && userObj is Athlete) {
             // get the trainer of the user
@@ -741,19 +748,23 @@ class ActivityServiceImpl(
 
 
     fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
+        log.trace { "S | convertMetersPerSecondToSecondsPerKilometer($speedInMetersPerSecond)" }
         return (1000 / speedInMetersPerSecond).toInt()
     }
 
 
     private fun convertMetersPerSecondToKilometerPerHour(enhancedSpeed: Float?): Int {
+        log.trace { "S | convertMetersPerSecondToKilometerPerHour($enhancedSpeed)" }
         return (enhancedSpeed!! * 3.6).toInt()
     }
 
     fun isBetween(value: Int, from: Int, to: Int): Int {
+        log.trace { "S | isBetween($value, $from, $to)" }
         return if (value in from..to) 1 else 0
     }
 
     private fun userExists(userId: Long): User {
+        log.trace { "S | userExists($userId)" }
         val user = this.userRepository.findById(userId)
         if (!user.isPresent) {
             throw NotFoundException("User not found")
@@ -762,18 +773,20 @@ class ActivityServiceImpl(
     }
 
     private fun activityExists(activityId: Long): Activity {
+        log.trace { "S | activityExists($activityId)" }
         val activity = this.activityRepo.findById(activityId)
         if (!activity.isPresent) {
-            logger.debug { "Tried to fetch nonexistent activity" }
+            log.debug { "Tried to fetch nonexistent activity" }
             throw NotFoundException("No such activity")
         }
         return activity.get()
     }
 
     private fun canUserAccessActivity(userId: Long, activityId: Long) {
+        log.trace { "S | canUserAccessActivity($userId, $activityId)" }
         val activities = getAllActivities(userId, null, null)
         if (!activities.map { it.id }.contains(activityId)) {
-            logger.debug { "Tried to fetch activity for user who has no access to it" }
+            log.debug { "Tried to fetch activity for user who has no access to it" }
             throw NotFoundException("No activity with this id found for user")
         }
     }

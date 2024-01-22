@@ -17,20 +17,20 @@ class HealthController (private val healthService: HealthService){
 
     @PostMapping("/mock")
     fun fillMockData() {
-        log.info { "POST fillMockData()" }
+        log.info { "POST | fillMockData()" }
         this.healthService.mock()
     }
 
     // cannot make GET api/health since that would conflict with config kubernetes health endpoint
     @GetMapping("/stats")
     fun getHealth(): HealthDTO {
-        log.info { "GET getHealth()" }
+        log.info { "GET | getHealth()" }
         return this.healthService.getAllByCurrentUser().maxByOrNull { health -> health.date }?.toDTO() ?: HealthDTO(null, LocalDate.MIN,-1,-1,-1)
     }
 
     @GetMapping("/stats/{id}")
     fun getHealthFromAthlete(@PathVariable id: Long): HealthDTO {
-        log.info { "GET getHealthFromAthlete($id)" }
+        log.info { "GET | getHealthFromAthlete($id)" }
         return this.healthService.getAllFromAthlete(id).maxByOrNull { health -> health.date }?.toDTO() ?: HealthDTO(null, LocalDate.MIN,-1,-1,-1)
     }
 }
