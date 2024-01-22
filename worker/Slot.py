@@ -35,12 +35,15 @@ class Slot:
     def setActivity(self, activity: Activity):
         if activity != None:
             self.activity = activity
-            # self.free = False
 
+    # check if slot was planned to be free and has not yet
+    # gotten an activity assigned
     def isFree(self):
         return self.free and self.activity == None
 
-    # TODO: rework naming
+    # since self.free is never set after init
+    # can easily checked if this slot was free in the beginning
+    # (required for score)
     def wasFree(self):
         return self.free
 

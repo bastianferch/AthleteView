@@ -15,7 +15,6 @@ def generatePartialSchedules(schedule: Schedule, activity: Activity, threshold):
             activity.athlete
         ).fuzzyCalcPossibleStarts(activity)
 
-    # TODO: restructure when "last day of previous week" is implemented
     for day, startTimes in possibleStarts:
         if not schedule.getAthleteTable(activity.athlete).getDay(day).isFree():
             continue
@@ -32,7 +31,7 @@ def generatePartialSchedules(schedule: Schedule, activity: Activity, threshold):
         for startTime in startTimes:
             tmp = schedule.myDeepcopy()
             tmp.assignActivity(activity, day, startTime)
-            score = scheduleScoringFunction(tmp)
+            score = scoringFunction(tmp)
             if score >= threshold:
                 ret.append(tmp)
     return ret
@@ -54,6 +53,15 @@ def generateFullSchedules(schedule: Schedule, activities: List[Activity], thresh
         return ret
     return tmp
 
+def tableScoringFunction(timeTable:TimeTable):
+    score = 0
+    for day in timeTable.weekDays:
+        for slot in day.slots:
+            if slot.hasActicity():
+                if not slot.wasFree():
+                    score = score - (MAX_ACTIVITY_DUARION / slot.getActivity().duration)
+    return score
+        
 
 # calculates a score for a given assignment (schedule)
 def scheduleScoringFunction(schedule: Schedule):
@@ -73,6 +81,13 @@ def scheduleScoringFunction(schedule: Schedule):
                     score = score - (MAX_ACTIVITY_DUARION / activity.duration)
     return score
 
+
+def scoringFunction(schedule:Schedule):
+    score = 0
+    score = score + scheduleScoringFunction(schedule)
+    for at_key in schedule.athleteTables.keys():
+        score = score + tableScoringFunction(schedule.athleteTables.get(at_key))
+    return score
 # makes sure the given list of activities can even be schedule given the
 # intensity constraint 
 def checkIntensities(activities: List[Activity]):
@@ -84,7 +99,6 @@ def checkIntensities(activities: List[Activity]):
 
     for a in athletes:
         # check if too many highs
-        # TODO: rework when implementing last day of last week
         high_cnt = 0
         for activity in athletes[a]:
             if activity.intensity == 2:
