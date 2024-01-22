@@ -9,9 +9,10 @@ import org.springframework.stereotype.Component
 class QueueRequestSender(private val amqpTemplate: AmqpTemplate,
                          @Value("\${worker.rabbitmq.request_queue}") private val rmqRequestQueue: String) {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
     fun sendMessage(message: Any) {
-        logger.debug { "Sending request through queue: $message" }
+        log.trace { "Util | sendMessage($message)" }
+        log.debug { "Sending request through queue: $message" }
         amqpTemplate.convertAndSend(rmqRequestQueue, message)
     }
 }

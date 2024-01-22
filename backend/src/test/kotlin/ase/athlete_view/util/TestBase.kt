@@ -38,12 +38,12 @@ class TestBase {
     @Autowired
     private lateinit var nr: NotificationRepository
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @BeforeEach
     fun setupDb() {
-        logger.info { "Configuring transaction for testcase" }
+        log.info { "Configuring transaction for testcase" }
         val def = DefaultTransactionDefinition()
         def.propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
         txStatus = txm.getTransaction(def)

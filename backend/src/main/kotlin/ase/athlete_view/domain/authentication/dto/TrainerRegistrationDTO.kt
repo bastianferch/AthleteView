@@ -11,8 +11,12 @@ data class TrainerRegistrationDTO
     override var zip: String?
 ) :
     RegistrationDTO(email, name, password, country, zip){
-}
 
-fun TrainerRegistrationDTO.toEntity(code: String): Trainer {
-    return Trainer(null, email!!, name!!, password!!, country, zip, code, mutableSetOf(), mutableSetOf())
+    override fun toString(): String {
+        return "TrainerRegistrationDTO(email=$email, name=$name, country=$country, zip=$zip)"
+    }
+
+    fun toEntity(code: String): Trainer {
+        return Trainer(null, email!!, name!!, password!!, country, zip, code, mutableSetOf(), mutableSetOf())
+    }
 }

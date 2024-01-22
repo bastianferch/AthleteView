@@ -12,24 +12,23 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class CspController(private val cspService: CspService) {
 
-    private val logger = KotlinLogging.logger {}
-
+    private val log = KotlinLogging.logger {}
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun postJob(
             @AuthenticationPrincipal user: UserDTO,
             @RequestBody cspDto: CspDto
-    ) {
-        logger.info { "POST CSP Scheduling job" }
+    ){
+        log.info { "POST | postJob($cspDto)" }
 
         if (user.id != null) {
-            cspService.accept(cspDto, user.id!!);
+            cspService.accept(cspDto, user.id!!)
         }
     }
 
     @DeleteMapping
     fun deleteJob(@AuthenticationPrincipal user: UserDTO) {
-        logger.info { "DELETE job for next week for ${user.id}" }
+        log.info { "DELETE | deleteJob()" }
         if (user.id != null) {
             cspService.revertJob(user.id!!)
         }
@@ -37,7 +36,7 @@ class CspController(private val cspService: CspService) {
 
     @GetMapping
     fun checkJobExists(@AuthenticationPrincipal user: UserDTO): Boolean {
-        logger.info { "GET if job for next week for ${user.id} exists" }
+        log.info {"GET | checkJobExists()"}
         if (user.id != null) {
             return cspService.getJob(user.id!!) != null
         }

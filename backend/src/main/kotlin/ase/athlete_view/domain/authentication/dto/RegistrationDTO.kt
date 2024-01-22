@@ -7,3 +7,5 @@ open class RegistrationDTO (
     open var country: String?,
     open var zip: String?,
 )
+
+

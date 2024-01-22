@@ -1,7 +1,5 @@
 package ase.athlete_view.domain.authentication.service.impl
 
-import ase.athlete_view.common.exception.entity.ConflictException
-import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
 import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.RegistrationDTO
@@ -9,21 +7,27 @@ import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
 import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.User
-import ase.athlete_view.domain.user.service.UserService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class AuthValidationServiceImpl: AuthValidationService {
+
+    val log = KotlinLogging.logger {}
+
     override fun validateTrainerDTO(trainerRegistrationDTO: TrainerRegistrationDTO) {
+        log.trace { "S | validateTrainerDTO($trainerRegistrationDTO)" }
         this.validateRegistrationDTO(trainerRegistrationDTO)
     }
 
     override fun validateAthleteDTO(athleteRegistrationDTO: AthleteRegistrationDTO) {
+        log.trace { "S | validateAthleteDTO($athleteRegistrationDTO)" }
         this.validateRegistrationDTO(athleteRegistrationDTO)
     }
 
     override fun validateUser(user: User) {
+        log.trace { "S | validateUser($user)" }
         this.validatePassword(user.password)
         if (user.name.length > 255){
             throw ValidationException("Name length must be below 255 characters.")
@@ -60,6 +64,7 @@ class AuthValidationServiceImpl: AuthValidationService {
     }
 
     override fun validatePassword(pass: String) {
+        log.trace { "S | validatePassword()" }
         if (pass.length < 8) {
             throw ValidationException("Password is too short")
         }
@@ -69,6 +74,7 @@ class AuthValidationServiceImpl: AuthValidationService {
     }
 
     private fun validateRegistrationDTO(user: RegistrationDTO) {
+        log.trace { "S | validateRegistrationDTO($user)" }
         if (user.password == null || user.email == null || user.name == null) {
             throw ValidationException("User must contain an email, password and the name")
         }

@@ -7,7 +7,6 @@ import ase.athlete_view.domain.health.persistence.HealthRepository
 import ase.athlete_view.domain.health.pojo.dto.HealthDTO
 import ase.athlete_view.domain.health.pojo.entity.Health
 import ase.athlete_view.domain.health.service.HealthService
-import ase.athlete_view.domain.health.service.mapper.HealthMapper
 import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.user.service.UserService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -21,7 +20,6 @@ class HealthServiceImpl(
     private val restTemplate: RestTemplate,
     private val userService: UserService,
     private val athleteService: AthleteService,
-    private val healthMapper: HealthMapper
 ) : HealthService {
     val log = KotlinLogging.logger {}
 
@@ -38,7 +36,7 @@ class HealthServiceImpl(
             log.warn { "Could not save a mock health, since there is an existing Health with date ${healthDTO.date}." }
             return
         }
-        val health = this.healthMapper.toEntity(healthDTO, user)
+        val health = healthDTO.toEntity(user)
         this.healthRepository.save(health)
     }
 

@@ -23,7 +23,7 @@ class ZoneServiceImpl(
 
     val log = KotlinLogging.logger {}
     override fun getAll(userId: Long): List<ZoneDto> {
-        log.trace { "ZoneService.getAll($userId)" }
+        log.trace { "S | getAll($userId)" }
 
         val user = athleteService.getById(userId)
         return zoneRepository.findAllByUser(user).sortedBy { it.fromBPM }.map { zone -> zone.toDTO() }
@@ -31,7 +31,7 @@ class ZoneServiceImpl(
 
     @Transactional
     override fun edit(userId: Long, zones: List<ZoneDto>): List<ZoneDto> {
-        log.trace { "ZoneService.edit($userId, $zones)" }
+        log.trace { "S | edit($userId, $zones)" }
 
         val user = athleteService.getById(userId)
         val list: ArrayList<Zone> = arrayListOf()
@@ -47,7 +47,7 @@ class ZoneServiceImpl(
 
     @Transactional
     override fun resetZones(userId: Long, maxHR: Int?): List<ZoneDto> {
-        log.trace { "ZoneService.resetZones($userId, $maxHR)" }
+        log.trace { "S | resetZones($userId, $maxHR)" }
 
         val user = athleteService.getById(userId)
         zoneRepository.deleteByUser(user)
@@ -60,7 +60,7 @@ class ZoneServiceImpl(
     }
 
     override fun calcZones(maxHR: Int): List<Zone> {
-        log.trace { "ZoneService.calcZones($maxHR)" }
+        log.trace { "S | calcZones($maxHR)" }
         // calculated with MHR method
         val amount = 5
         val startingPercent = 50
@@ -80,14 +80,14 @@ class ZoneServiceImpl(
     }
 
     private fun calcMaxHR(user: Athlete): Int {
-        log.trace { "ZoneService.calcMaxHR($user)" }
+        log.trace { "S |  calcMaxHR($user)" }
 
         val age = Period.between(user.dob, LocalDate.now()).years
         return 220 - age
     }
 
     private fun validateZones(zones: List<Zone>) {
-        log.trace { "ZoneService.validateZones($zones)" }
+        log.trace { "S | validateZones($zones)" }
 
         val sorted = zones.sortedBy { it.fromBPM }
         var temp = -1

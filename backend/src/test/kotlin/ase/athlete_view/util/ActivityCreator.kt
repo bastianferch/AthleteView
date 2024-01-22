@@ -44,7 +44,7 @@ class ActivityCreator {
 
             fun getTemplatePlannedActivity(trainer: Trainer): PlannedActivity {
                 return PlannedActivity(null,"default",ActivityType.RUN, getDefaultInterval(),true,true,"Sample template activity",
-                        null,3,Load.LOW,trainer,null,null);
+                        null,3,Load.LOW,trainer,null,null)
             }
 
             fun get7Times1KmPlannedActivity(createdBy: User, createdFor: Athlete?):PlannedActivity{

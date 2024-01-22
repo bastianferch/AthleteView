@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("api/constraints")
 class TimeConstraintController(private val timeConstraintService: TimeConstraintService) {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @PostMapping("/dailies")
     @ResponseStatus(HttpStatus.CREATED)
     fun postDaily(@RequestBody constraint: DailyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
-        logger.info { "POST time constraint by ${userDto.name}" }
+        log.info { "POST | postDaily($constraint)" }
         return (timeConstraintService.save(constraint, userDto))
     }
 
@@ -28,7 +28,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @ResponseStatus(HttpStatus.CREATED)
     fun postWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
-        logger.info { "POST time constraint by ${userDto.name}" }
+        log.info { "POST | postWeekly($constraint)" }
         return (timeConstraintService.save(constraint, userDto))
     }
 
@@ -36,7 +36,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @ResponseStatus(HttpStatus.OK)
     fun putDaily(@RequestBody constraint: DailyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
-        logger.info { "PUT time constraint by ${userDto.name}" }
+        log.info { "PUT | putDaily($constraint, $id)" }
         return (timeConstraintService.edit(constraint, userDto))
     }
 
@@ -44,7 +44,7 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
     @ResponseStatus(HttpStatus.OK)
     fun putWeekly(@RequestBody constraint: WeeklyTimeConstraintDto, @PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
 
-        logger.info { "PUT time constraint by ${userDto.name}" }
+        log.info { "PUT | putWeekly($constraint, $id)" }
         return (timeConstraintService.edit(constraint, userDto))
     }
 
@@ -55,19 +55,19 @@ class TimeConstraintController(private val timeConstraintService: TimeConstraint
                        @RequestParam(defaultValue = "") until: String
                        ): List<TimeConstraintDto> {
 
-        logger.info { "GET Constraints from: $from until $until" }
+        log.info { "GET | getConstraints($type, $from, $until)" }
         return timeConstraintService.getAll(userDto, type, from, until)
     }
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO): TimeConstraintDto {
-        logger.info { "GET constraint with id $id by ${userDto.name}" }
+        log.info { "GET | getById($id)" }
         return timeConstraintService.getById(id, userDto)
     }
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long, @AuthenticationPrincipal userDto: UserDTO) {
-        logger.info { "DELETE time constraint with id $id by ${userDto.name}"}
+        log.info { "DELETE | delete($id)"}
         timeConstraintService.delete(id, userDto)
     }
 

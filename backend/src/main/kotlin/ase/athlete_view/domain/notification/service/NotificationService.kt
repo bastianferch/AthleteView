@@ -15,7 +15,7 @@ interface NotificationService {
      * @param userId of the user for which the emitter should be created
      * @return the created emitter, or null if the user does not exist
      */
-    fun createEmitter(userId: Long): SseEmitter?;
+    fun createEmitter(userId: Long): SseEmitter?
 
     /**
      * Sends notifications to a user, either per push notification or per mail.
@@ -31,7 +31,7 @@ interface NotificationService {
      * @throws ValidationException if lengths of fields are greater than 255 chars.
      * @return the stored notification
      */
-    fun sendNotification(userId: Long, header: String, body: String? = null, link: String? = null, type: NotificationType = NotificationType.DEFAULT): Notification?;
+    fun sendNotification(userId: Long, header: String, body: String? = null, link: String? = null, type: NotificationType = NotificationType.DEFAULT): Notification?
 
     /**
      * Fetches all notifications of a user.
@@ -39,7 +39,7 @@ interface NotificationService {
      * @param userId of the user for whom the notifications should be fetched.
      * @return A List of NotificationDTO objects or an empty list if the user does not exist.
      */
-    fun getAllNotifications(userId: Long): List<NotificationDTO>;
+    fun getAllNotifications(userId: Long): List<NotificationDTO>
 
     /**
      * Deletes a specific notification.
@@ -48,7 +48,7 @@ interface NotificationService {
      * @param notificationId of the notification that should be deleted
      * @throws NotFoundException if the user exists but does not have a notification with the specified id
      */
-    fun deleteNotification(userId: Long, notificationId: Long);
+    fun deleteNotification(userId: Long, notificationId: Long)
 
     /**
      * Deletes all Notifications of a user.
@@ -56,12 +56,12 @@ interface NotificationService {
      *
      * @param userId of the user for whom all Notifications should be deleted.
      */
-    fun deleteAllNotifications(userId: Long);
+    fun deleteAllNotifications(userId: Long)
 
     /**
      * Sets the `read` attribute of all Notifications of a user to true.
      *
      * @param userId of the user for whom all Notifications should be marked as read.
      */
-    fun markAllNotificationsAsRead(userId: Long);
+    fun markAllNotificationsAsRead(userId: Long)
 }
