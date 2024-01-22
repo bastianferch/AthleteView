@@ -107,11 +107,9 @@ class ActivityServiceImpl(
             }
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            // TODO: does this also need to be adapted to use `createdFor`?
             val isOwnTemplate = userObject.activities.any { it.id == id }
             var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
-                // TODO: same here, think this only considers those `createdBy` athlete, none that were created for them by trainer
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
                 }

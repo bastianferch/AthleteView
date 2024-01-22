@@ -164,14 +164,10 @@ export class CreateEditViewActivityComponent implements OnInit {
   }
 
   redirectBack() {
-    // TODO check if we want to navigate somewhere else
-    //  and maybe do some cleanup?
     this.location.back();
   }
 
   redirectToActivity(id: number) {
-    // TODO check if we want to navigate somewhere else
-    //  and maybe do some cleanup?
     this.router.navigateByUrl(`/activity/${id}`).then();
   }
 

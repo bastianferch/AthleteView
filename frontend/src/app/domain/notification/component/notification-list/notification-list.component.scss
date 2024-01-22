@@ -1,5 +1,6 @@
 .notification-wrapper {
   min-width: 355px;
+  max-width: 30vw;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -9,6 +10,7 @@
 @media only screen and (max-width: 768px) {
   .notification-wrapper {
     width: 100vw;
+    max-width: 100%;
   }
 }
 

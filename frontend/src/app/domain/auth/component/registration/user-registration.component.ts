@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { RegisterDto } from "../../dto/register-dto";
 import { LegalInformationComponent } from "../../../user/component/legal-information/legal-information.component";
 import { MatDialog } from "@angular/material/dialog";
+import { SnackbarService } from "../../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-user-registration',
@@ -36,7 +37,8 @@ export class UserRegistrationComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private dialog: MatDialog,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private snackbarService: SnackbarService) {
   }
 
   openLegalDialog(): void {
@@ -66,7 +68,7 @@ export class UserRegistrationComponent implements OnInit {
     const body = this.form.value as RegisterDto;
     this.loginService.register(body, this.userType).subscribe({
       next: () => {
-        // ToDo when notification service will be there, notify the success and that the email will be sent.
+        this.snackbarService.openSnackBar("Registration successful! Please Confirm your Email address!")
         this.router.navigate(['/auth/login'])
       },
       error: (err) => {
