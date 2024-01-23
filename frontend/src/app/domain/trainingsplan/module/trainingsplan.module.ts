@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from "@angular/material/button";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from "@angular/material/form-field";
+import {ModalComponent} from "../component/modal/modal.component";
 
 
 const routes: Routes = [

@@ -5,6 +5,8 @@ import { ActivityType, Load, PlannedActivity } from "../../activity/dto/PlannedA
 import { User } from "../dto/user";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../common/service/snackbar.service";
+import { MatDialog } from '@angular/material/dialog';
+import {ModalComponent} from "./modal/modal.component";
 
 @Component({
   selector: 'app-trainingsplan',
@@ -20,10 +22,12 @@ export class TrainingsplanComponent implements OnInit {
   athletes:User[];
 
   sentForScheduling:boolean
+  jobExisting:boolean
 
   constructor(
     private trainingsplanService: TrainingsplanService,
     private snackbarService:SnackbarService,
+    public dialog: MatDialog
   ) {
   }
 
@@ -36,8 +40,8 @@ export class TrainingsplanComponent implements OnInit {
       this.trainingsplanService.fetchPreviousActivitiesForAllAthletes(),
       this.trainingsplanService.fetchUpcomingActivitiesForAllAthletes(),
       this.trainingsplanService.fetchTemplateActivitiesForTrainer(),
-
-    ]).subscribe(([athletes,previousActivities,upcomingActivities,templates]) => {
+      this.trainingsplanService.fetchJobExists(),
+    ]).subscribe(([athletes,previousActivities,upcomingActivities,templates,jobExisting]) => {
       this.athletes = athletes
       this.trainingsplanService.updateAthletesInSessionStorage(athletes)
       this.currentAthlete = this.trainingsplanService.getCurrentAthlete()
@@ -51,8 +55,28 @@ export class TrainingsplanComponent implements OnInit {
       this.trainingsplanService.updateTemplateActivities(templates)
       this.templates = this.trainingsplanService.getTemplateActivities()
 
-
+      this.jobExisting = jobExisting
+      if(this.jobExisting){
+        this.openModal()
+      }
     })
+  }
+
+  openModal():void{
+    const dialogRef = this.dialog.open(ModalComponent, {
+      width: '400px',
+      data: { title: 'Trainingsplan Exisits', content: 'A trainingsplan for next week has already been created. Do you want to:',option1: "Reset",option2: "Look at the plan" },
+      disableClose: true,
+    })
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result) {
+        this.trainingsplanService.sendJobDeleteRequest();
+      }else{
+        //TODO: sent non interactive here
+        this.sentForScheduling = true;
+      }
+    });
   }
 
 

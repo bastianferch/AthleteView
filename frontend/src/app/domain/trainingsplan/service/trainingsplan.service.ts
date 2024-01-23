@@ -22,7 +22,6 @@ export class TrainingsplanService {
   private previousActivitiesKey = this.keyPrefix + "previous_activities"
   private upcomingActivitiesSuffix = "upcoming_activities"
 
-
   constructor(
     private httpClient:HttpClient,
     private urlService: UrlService,
@@ -273,6 +272,24 @@ export class TrainingsplanService {
       })
     }
     return this.httpClient.post(this.cspScheduleUri,request,{ params: { withCredentials: true } })
+  }
+
+  /**
+   * Fetches the job status from the Backend
+   * (i.e.) if there is already a plan (being) created for next week
+   */
+  fetchJobExists():Observable<boolean>{
+    return this.httpClient.get<boolean>(
+      this.cspScheduleUri,
+      { params: {withCredentials: true } },
+    )
+  }
+
+  /**
+   * Deletes the current trainingplan for the active user(trainer) and all related athletes
+   */
+  sendJobDeleteRequest():Observable<any>{
+    return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } })
   }
 
   /**
