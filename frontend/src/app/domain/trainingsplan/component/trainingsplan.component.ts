@@ -6,7 +6,8 @@ import { User } from "../dto/user";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { MatDialog } from '@angular/material/dialog';
-import {ModalComponent} from "./modal/modal.component";
+import { ModalComponent } from "./modal/modal.component";
+import { ActivityCardComponent} from "./activity-card/activity-card.component";
 
 @Component({
   selector: 'app-trainingsplan',
@@ -24,6 +25,8 @@ export class TrainingsplanComponent implements OnInit {
   sentForScheduling:boolean
   jobExisting:boolean
 
+  interactive:boolean
+
   constructor(
     private trainingsplanService: TrainingsplanService,
     private snackbarService:SnackbarService,
@@ -35,6 +38,7 @@ export class TrainingsplanComponent implements OnInit {
   ngOnInit(): void {
     this.athletes = []
     this.sentForScheduling = false
+    this.interactive = true
     forkJoin([
       this.trainingsplanService.fetchAthletesForTrainer(),
       this.trainingsplanService.fetchPreviousActivitiesForAllAthletes(),
@@ -61,7 +65,6 @@ export class TrainingsplanComponent implements OnInit {
       }
     })
   }
-
   openModal():void{
     const dialogRef = this.dialog.open(ModalComponent, {
       width: '400px',
@@ -71,33 +74,21 @@ export class TrainingsplanComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result) {
-        this.trainingsplanService.sendJobDeleteRequest();
+        this.trainingsplanService.sendJobDeleteRequest().subscribe(
+          () => {
+            this.snackbarService.openSnackBar("Previous Trainingsplan deleted.")
+          },
+          (error) => {
+            this.snackbarService.openSnackBar("Could not delete previous Trainingsplan because: " + error.error.message)
+          }
+        )
       }else{
-        //TODO: sent non interactive here
+        //TODO: set non interactive here
         this.sentForScheduling = true;
+        this.interactive = false
+        console.log(this.interactive)
       }
     });
-  }
-
-
-  getColor(activity:PlannedActivity):string {
-    const colorMapping: { [key in Load]: string } = {
-      [Load.LOW]: '#82e010',
-      [Load.MEDIUM]: '#f0d807',
-      [Load.HARD]: '#de2b0b',
-    };
-    return colorMapping[activity.load]
-  }
-
-  getIconForActivity(activity:PlannedActivity):string {
-    const iconMapping: { [key in ActivityType]: string } = {
-      [ActivityType.SWIM]: 'swim_icon.png',
-      [ActivityType.RUN]: 'run_icon.png',
-      [ActivityType.BIKE]: 'bike_icon.png',
-      [ActivityType.ROW]: 'row_icon.png',
-      [ActivityType.CROSSCOUNTRYSKIING]: 'crosscountryskiing_icon.png',
-    };
-    return 'assets/activityIcons/' + iconMapping[activity.type]
   }
 
 

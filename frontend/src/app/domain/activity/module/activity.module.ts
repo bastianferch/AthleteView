@@ -70,7 +70,7 @@ const routes: Routes = [
     MatPaginatorModule,
     MatCardModule,
   ],
-  exports: [RouterModule],
+    exports: [RouterModule, ActivityComponent],
 })
 export class ActivityModule {
 }

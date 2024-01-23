@@ -28,6 +28,7 @@ import { InviteDialogComponent } from './domain/invite-dialog/invite-dialog.comp
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { ModalComponent } from './domain/trainingsplan/component/modal/modal.component';
+import { ActivityCardComponent } from './domain/trainingsplan/component/activity-card/activity-card.component';
 
 @NgModule({
   declarations: [
