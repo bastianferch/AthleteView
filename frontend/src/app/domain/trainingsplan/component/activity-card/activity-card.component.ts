@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {PlannedActivity} from "../../../activity/dto/PlannedActivity";
-import {StyleMapperService} from "../../../../common/service/style-mapper.service";
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { PlannedActivity } from "../../../activity/dto/PlannedActivity";
+import { StyleMapperService } from "../../../../common/service/style-mapper.service";
 
 @Component({
   selector: 'app-activity-card',
@@ -42,29 +42,30 @@ import {StyleMapperService} from "../../../../common/service/style-mapper.servic
       </mat-card-content>
     </mat-card>
   `,
-  styleUrls: ['./activity-card.component.scss']
+  styleUrls: ['./activity-card.component.scss'],
 })
 
 
 export class ActivityCardComponent {
   @Input() activity: PlannedActivity;
-  @Input() interActive: boolean = false;
+  @Input() interActive = false;
 
   @Output() objectChanged: EventEmitter<PlannedActivity> = new EventEmitter<PlannedActivity>();
 
   constructor(
-    private styleMapperService: StyleMapperService
+    private styleMapperService: StyleMapperService,
   ) {
   }
+
   onCheckboxChange(): void {
     this.objectChanged.emit(this.activity);
   }
 
-  getColorCode(activity:PlannedActivity):string{
+  getColorCode(activity:PlannedActivity):string {
     return this.styleMapperService.getIntensityColor(activity)
   }
 
-  getIconPath(activity:PlannedActivity):string{
+  getIconPath(activity:PlannedActivity):string {
     return this.styleMapperService.getIconPathForActivity(activity)
   }
 }

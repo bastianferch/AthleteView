@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { TrainingsplanService } from "../service/trainingsplan.service";
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from "@angular/cdk/drag-drop";
-import { ActivityType, Load, PlannedActivity } from "../../activity/dto/PlannedActivity";
+import { PlannedActivity } from "../../activity/dto/PlannedActivity";
 import { User } from "../dto/user";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { MatDialog } from '@angular/material/dialog';
 import { ModalComponent } from "./modal/modal.component";
-import { ActivityCardComponent} from "./activity-card/activity-card.component";
 
 @Component({
   selector: 'app-trainingsplan',
@@ -30,7 +29,7 @@ export class TrainingsplanComponent implements OnInit {
   constructor(
     private trainingsplanService: TrainingsplanService,
     private snackbarService:SnackbarService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
   ) {
   }
 
@@ -60,33 +59,33 @@ export class TrainingsplanComponent implements OnInit {
       this.templates = this.trainingsplanService.getTemplateActivities()
 
       this.jobExisting = jobExisting
-      if(this.jobExisting){
+      if (this.jobExisting) {
         this.openModal()
       }
     })
   }
-  openModal():void{
+
+  openModal():void {
     const dialogRef = this.dialog.open(ModalComponent, {
       width: '400px',
       data: { title: 'Trainingsplan Exisits', content: 'A trainingsplan for next week has already been created. Do you want to:',option1: "Reset",option2: "Look at the plan" },
       disableClose: true,
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if(result) {
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
         this.trainingsplanService.sendJobDeleteRequest().subscribe(
           () => {
             this.snackbarService.openSnackBar("Previous Trainingsplan deleted.")
           },
           (error) => {
             this.snackbarService.openSnackBar("Could not delete previous Trainingsplan because: " + error.error.message)
-          }
+          },
         )
-      }else{
-        //TODO: set non interactive here
+      } else {
+        // TODO: set non interactive here
         this.sentForScheduling = true;
         this.interactive = false
-        console.log(this.interactive)
       }
     });
   }

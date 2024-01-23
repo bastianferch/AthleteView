@@ -278,17 +278,17 @@ export class TrainingsplanService {
    * Fetches the job status from the Backend
    * (i.e.) if there is already a plan (being) created for next week
    */
-  fetchJobExists():Observable<boolean>{
+  fetchJobExists():Observable<boolean> {
     return this.httpClient.get<boolean>(
       this.cspScheduleUri,
-      { params: {withCredentials: true } },
+      { params: { withCredentials: true } },
     )
   }
 
   /**
    * Deletes the current trainingplan for the active user(trainer) and all related athletes
    */
-  sendJobDeleteRequest():Observable<any>{
+  sendJobDeleteRequest():Observable<any> {
     return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } })
   }
 

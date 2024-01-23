@@ -1,13 +1,10 @@
 import { Injectable } from '@angular/core';
-import {ActivityType, Load, PlannedActivity} from "../../domain/activity/dto/PlannedActivity";
+import { ActivityType, Load, PlannedActivity } from "../../domain/activity/dto/PlannedActivity";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StyleMapperService {
-
-  constructor() { }
-
 
   getIntensityColor(activity:PlannedActivity):string {
     const colorMapping: { [key in Load]: string } = {
