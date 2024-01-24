@@ -10,7 +10,7 @@ import { StyleMapperService } from "../../../../common/service/style-mapper.serv
         <div class="colored-bar" [style.background-color]="getColorCode(activity)"></div>
         <img class="preview"
              [src]="getIconPath(activity)"
-             alt="seife"
+             alt="placholder"
         />
         <div>
           <div>{{ activity.name }} </div>

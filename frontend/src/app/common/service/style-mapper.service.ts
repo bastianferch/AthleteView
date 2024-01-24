@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { ActivityType, Load, PlannedActivity } from "../../domain/activity/dto/PlannedActivity";
+import {Injectable} from '@angular/core';
+import {ActivityType, Load, PlannedActivity} from "../../domain/activity/dto/PlannedActivity";
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +16,9 @@ export class StyleMapperService {
   }
 
   getIconPathForActivity(activity:PlannedActivity):string {
+    if(!(activity.type in ActivityType)){
+      return 'assets/activityIcons/placeholder.png'
+    }
     const iconMapping: { [key in ActivityType]: string } = {
       [ActivityType.SWIM]: 'swim_icon.png',
       [ActivityType.RUN]: 'run_icon.png',
