@@ -26,7 +26,9 @@ import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 import java.util.stream.Collectors
 
+// these variables are random numbers for the acceptance range, if you want a higher or lower precision change them
 const val ACCEPTANCE_RANGE_IN_SECONDS = 60
+const val ACCEPTANCE_RANGE_IN_BPM = 20
 
 @Component
 @Profile("datagen")
@@ -67,32 +69,32 @@ class ActivityDatagen(
         val randomOrder = DayOfWeek.values().toList().shuffled()
 
         for (i in 0..6) {
-            dates.add(LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
+            dates.add(LocalDateTime.now().with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
         }
         // Load MEDIUM
         createRunInterval6times1kmWith1kmRecovery(
-            if (athlete!=null) 240 - reduceSecondsPerKm else 360,
+            if (athlete != null) 240 - reduceSecondsPerKm else 360,
             trainer,
             athlete,
             if (athlete == null) null else dates[0]
         )
         // Load HIGH
         createRunInterval7times1kmWith2MinRecovery(
-            if (athlete!=null) 240 - reduceSecondsPerKm else 240,
+            if (athlete != null) 240 - reduceSecondsPerKm else 240,
             trainer,
             athlete,
             if (athlete == null) null else dates[1]
         )
         // Load MEDIUM
         createBike21MinTest(
-            if (athlete!=null) 150 - reduceSecondsPerKm else 150,
+            if (athlete != null) 120 - reduceSecondsPerKm else 150,
             trainer,
             athlete,
             if (athlete == null) null else dates[2]
         )
         // Load HIGH
         createBike90km(
-            if (athlete!=null) 120 - reduceSecondsPerKm else 120,
+            if (athlete != null) 120 - reduceSecondsPerKm else 120,
             trainer,
             athlete,
             if (athlete == null) null else dates[3]
@@ -100,26 +102,25 @@ class ActivityDatagen(
 
         // Load MEDIUM
         createSwim2h(
-            if (athlete!=null) 1200 - reduceSecondsPerKm else 1200,
+            if (athlete != null) 140 - reduceSecondsPerKm/3 else 155,
             trainer,
             athlete,
             if (athlete == null) null else dates[4]
         )
-
         // Load LOW
         createRun60Min(
-            if (athlete!=null) 500 - reduceSecondsPerKm else 500,
+            if (athlete != null) 500 - reduceSecondsPerKm else 500,
             trainer,
             athlete,
-            if (athlete == null) null else dates[5]
+            if (athlete == null) null else dates[6]
         )
         if (athlete != null) {
             // Load MEDIUM
             createSwim2h(
-                1200,
+                155 - reduceSecondsPerKm/3,
                 trainer,
                 athlete,
-                dates[6]
+                dates[5]
             )
             return 6
         }
@@ -142,7 +143,7 @@ class ActivityDatagen(
                 if (d == data.recordMesgs[0] || d == data.recordMesgs[data.recordMesgs.size - 1]) {
                     val lastWeek = dates[i]
                     val newDateTime = DateTime(
-                        lastWeek.withHour(dates[i].hour+1).withMinute(dates[i].minute).withSecond(dates[i].second)
+                        lastWeek.withHour(dates[i].hour + 1).withMinute(dates[i].minute).withSecond(dates[i].second)
                             .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / 1000 - 631065600
                     )
                     if (d == data.recordMesgs[data.recordMesgs.size - 1]) {
@@ -391,7 +392,7 @@ class ActivityDatagen(
         plannedActivityRepo.save(plannedActivity)
     }
 
-    private fun createSwim2h(targetPace: Int,createdBy: User, createdFor: Athlete?, date: LocalDateTime?) {
+    private fun createSwim2h(targetHeartRate: Int, createdBy: User, createdFor: Athlete?, date: LocalDateTime?) {
         var withTrainer = true
         if (createdFor == null) {
             withTrainer = false
@@ -410,9 +411,9 @@ class ActivityDatagen(
                                     StepDurationType.TIME,
                                     120,
                                     StepDurationUnit.MIN,
-                                    StepTargetType.PACE,
-                                    if (createdFor != null) targetPace - ACCEPTANCE_RANGE_IN_SECONDS else targetPace,
-                                    if (createdFor != null) targetPace + ACCEPTANCE_RANGE_IN_SECONDS else targetPace + 20,
+                                    StepTargetType.HEARTRATE,
+                                    if (createdFor != null) targetHeartRate - ACCEPTANCE_RANGE_IN_BPM else targetHeartRate,
+                                    if (createdFor != null) targetHeartRate + ACCEPTANCE_RANGE_IN_BPM else targetHeartRate + 20,
                                     ""
                                 )
                             )

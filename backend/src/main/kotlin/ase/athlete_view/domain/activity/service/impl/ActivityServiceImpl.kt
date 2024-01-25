@@ -268,7 +268,7 @@ class ActivityServiceImpl(
                 mapFitIntensityToStepType(lap.intensity)
             )
         )
-        var compare = data.recordMesgs[0].activityType != null
+        var compare = data.sessionMesgs[0].sport != null
         var sameStructure = false
         var sameDurations = false
         var stepList: List<Step>? = null
@@ -469,7 +469,7 @@ class ActivityServiceImpl(
             val stepIntensity = stepList[i].type
             val lapIntensity = mapFitIntensityToStepType(lap.intensity)
             if (lapIntensity != stepIntensity) {
-                if (i == stepList.size) { // all steps are done and more laps
+                if (i == stepList.size - 1) { // all steps are done and more laps
                     return false
                 } else if (lapIntensity != stepList[i + 1].type) { // next step is also not the correct one
                     return false
