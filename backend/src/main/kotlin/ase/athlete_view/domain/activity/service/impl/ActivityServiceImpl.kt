@@ -223,9 +223,9 @@ class ActivityServiceImpl(
     }
 
     @Transactional
-    override fun deletePlannedActivities(activities: List<PlannedActivity>){
+    override fun deletePlannedActivities(activities: List<PlannedActivity>) {
         log.trace { "S | deleteActivities($activities)" }
-        for (elem in activities){
+        for (elem in activities) {
             plannedActivityRepo.delete(elem)
         }
     }
@@ -691,7 +691,8 @@ class ActivityServiceImpl(
         notificationHeader: String,
         notificationBody: String,
         notificationLink: String,
-        notificationType: NotificationType) {
+        notificationType: NotificationType
+    ) {
         log.trace { "S | sendNotificationToOtherParty($userId, $activityObj, $userObj, $notificationHeader, $notificationBody, $notificationLink, $notificationBody)" }
 
         if (userId == activityObj.user?.id && userObj is Athlete) {
@@ -703,7 +704,8 @@ class ActivityServiceImpl(
                     notificationHeader,
                     notificationBody,
                     notificationLink,
-                    notificationType)
+                    notificationType
+                )
             }
         } else if (userObj is Trainer) {
             // if the commenting/rating user is a trainer, send the notification to the athlete who owns the activity
@@ -716,7 +718,8 @@ class ActivityServiceImpl(
                         notificationHeader,
                         notificationBody,
                         notificationLink,
-                        notificationType)
+                        notificationType
+                    )
                 }
             }
         }
@@ -844,16 +847,16 @@ class ActivityServiceImpl(
 
             StepTargetType.PACE -> {
                 if (step.targetFrom!! > baseSpeed * 1.2) {
-                    currentLoad = Load.HIGH
-                } else if (step.targetFrom!! < baseSpeed * 0.8) {
                     currentLoad = Load.LOW
+                } else if (step.targetFrom!! < baseSpeed * 0.8) {
+                    currentLoad = Load.HIGH
                 } else {
                     currentLoad = Load.MEDIUM
                 }
             }
 
             StepTargetType.SPEED -> {
-                if (step.targetFrom!! < baseSpeed * 1.2) {
+                if (step.targetFrom!! > baseSpeed * 1.2) {
                     currentLoad = Load.HIGH
                 } else if (step.targetFrom!! < baseSpeed * 0.8) {
                     currentLoad = Load.LOW
@@ -864,7 +867,7 @@ class ActivityServiceImpl(
 
             null -> {}
         }
-        if(totalLoad > currentLoad) { // we only want the highest load
+        if (totalLoad > currentLoad) { // we only want the highest load
             currentLoad = totalLoad
         }
         return currentLoad
@@ -875,9 +878,9 @@ class ActivityServiceImpl(
         when (step.durationType) {
             StepDurationType.DISTANCE -> {
                 if (step.durationDistanceUnit == StepDurationUnit.KM) {
-                    return (step.durationDistance!! * 1000 / baseSpeed).toInt()
+                    return (step.durationDistance!! * baseSpeed / 60).toInt()
                 } else {
-                    return (step.durationDistance!! / baseSpeed).toInt()
+                    return (step.durationDistance!! / 1000 * baseSpeed / 60).toInt()
                 }
             }
 

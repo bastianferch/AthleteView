@@ -187,10 +187,10 @@ class DatagenProfile(
                     this.userService.saveAll(listOf(trainer, athlete))
                     if (i <= NUM_OF_TRAINER_WITH_ACTIVITIES) {
                         if (j <= withActivities) {
-                            val addSpeedInMS = faker.random.nextFloat() * 4 - 2
+                            val addSpeedInMS = faker.random.nextFloat() * 1 - 0.5F
                             val reducePaceInMinKm = faker.random.nextInt(-30, 30)
                             plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
-                            filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
+                            //filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
                         }
                     }
                 } else {

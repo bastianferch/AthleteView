@@ -22,18 +22,17 @@ class TimeDateUtil {
     }
 
     /**
-     * Returns the basic Speed for each activity type in m/min
+     * Returns the basic Speed for each activity type in s/km
      */
     fun getBaseSpeed(activityType: ActivityType): Double {
-        when (activityType) {
-            ActivityType.SWIM -> return (5 / 6.0) * 60 // 2 min/100m
-            ActivityType.RUN -> return (2 + 7 / 9.0) * 60 // 6 min/km
-            ActivityType.BIKE -> return (8 + 2 / 3.0) * 60  // 30km/h
-            ActivityType.ROW -> return (3.7) * 60 // 2:15 min/500m
-            ActivityType.CROSSCOUNTRYSKIING -> (4 + 4 / 9.0) * 60 // 16km/h
-            ActivityType.OTHER -> return 1.0 // no base speed
+        return when (activityType) {
+            ActivityType.SWIM -> 1200.0  // 2 min/100m
+            ActivityType.RUN -> 360.0 // 6 min/km
+            ActivityType.BIKE -> 144.0  // 25km/h
+            ActivityType.ROW -> 300.0 // 2:30 min/500m
+            ActivityType.CROSSCOUNTRYSKIING -> 300.0 // 12km/h
+            ActivityType.OTHER -> 1.0 // no base speed
         }
-        return 0.0
     }
 
     /**
