@@ -41,7 +41,7 @@ class ActivityDatagen(
 
     var log = KotlinLogging.logger {}
     var faker = Faker()
-    val dates = mutableListOf<LocalDateTime>()
+    var dates = mutableListOf<LocalDateTime>()
 
     @PostConstruct
     fun init() {
@@ -67,7 +67,7 @@ class ActivityDatagen(
 
     fun createPlannedActivities(reduceSecondsPerKm: Int, athlete: Athlete?, trainer: User): Int {
         val randomOrder = DayOfWeek.values().toList().shuffled()
-
+        dates = mutableListOf()
         for (i in 0..6) {
             dates.add(LocalDateTime.now().with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
         }
