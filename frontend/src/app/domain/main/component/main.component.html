@@ -5,11 +5,19 @@
     </mat-drawer>
     <div class="router-container">
       <mat-toolbar color="primary" class=" centered-row-container" style="justify-content: space-between">
-        <div [routerLink]="'/'" class="large-button">
+        <div [routerLink]="'/'" class="large-button ">
           AthleteView
         </div>
 
-        <div>
+        <div class="main-menu-btn-div">
+          <button mat-menu-item matSuffix [matMenuTriggerFor]="mainMenu" type="button" class="main-menu-button">
+            <mat-icon class="expand-icon">expand_more</mat-icon>
+            Navigation
+          </button>
+
+        </div>
+
+        <div class="main-btn-group">
           <button mat-flat-button color="primary" [routerLink]="'/'">
             Home
           </button>
@@ -22,11 +30,11 @@
             Calendar
           </button>
 
-          <button mat-flat-button *ngIf="currentUserType === 'trainer'" color="primary"  [routerLink]="'/trainingsplan'">
+          <button mat-flat-button *ngIf="currentUserType === 'trainer'" color="primary" [routerLink]="'/trainingsplan'">
             Trainingsplan
           </button>
         </div>
-        <div class="btn-group">
+        <div class="side-btn-group">
           <button
             mat-icon-button
             matSuffix
@@ -41,13 +49,35 @@
             </mat-icon>
           </button>
 
-          <button mat-flat-button color="primary" [matMenuTriggerFor]="menu">
-            {{email}}
+          <button mat-icon-button matSuffix [matMenuTriggerFor]="sideMenu" type="button" class="profile-icon-button">
+            <mat-icon>person</mat-icon>
+          </button>
+
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="sideMenu" class="profile-button">
+            {{ email }}
             <mat-icon>person</mat-icon>
           </button>
         </div>
 
-        <mat-menu #menu="matMenu">
+        <mat-menu #mainMenu="matMenu">
+          <button mat-menu-item [routerLink]="'/'">
+            Home
+          </button>
+
+          <button mat-menu-item [routerLink]="'/activity'">
+            Activities
+          </button>
+
+          <button mat-menu-item [routerLink]="'/calendar'">
+            Calendar
+          </button>
+
+          <button mat-menu-item *ngIf="currentUserType === 'trainer'" [routerLink]="'/trainingsplan'">
+            Trainingsplan
+          </button>
+        </mat-menu>
+
+        <mat-menu #sideMenu="matMenu">
           <button mat-menu-item (click)="openImportDialog()">
             <mat-icon>upload_file</mat-icon>
             Fit Import
