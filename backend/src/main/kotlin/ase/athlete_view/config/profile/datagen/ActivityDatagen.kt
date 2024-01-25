@@ -23,7 +23,6 @@ import java.nio.file.Paths
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
 import java.util.stream.Collectors
 
@@ -40,8 +39,7 @@ class ActivityDatagen(
 
     var log = KotlinLogging.logger {}
     var faker = Faker()
-    val days = DayOfWeek.values().toList()
-    var randomOrder: List<DayOfWeek> = listOf()
+    val dates = mutableListOf<LocalDateTime>()
 
     @PostConstruct
     fun init() {
@@ -66,34 +64,38 @@ class ActivityDatagen(
     }
 
     fun createPlannedActivities(reduceSecondsPerKm: Int, athlete: Athlete?, trainer: User): Int {
-        randomOrder = days.shuffled()
+        val randomOrder = DayOfWeek.values().toList().shuffled()
+
+        for (i in 0..6) {
+            dates.add(LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
+        }
         // Load MEDIUM
         createRunInterval6times1kmWith1kmRecovery(
             if (athlete!=null) 240 - reduceSecondsPerKm else 360,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[0])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[0]
         )
         // Load HIGH
         createRunInterval7times1kmWith2MinRecovery(
             if (athlete!=null) 240 - reduceSecondsPerKm else 240,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[1])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[1]
         )
         // Load MEDIUM
         createBike21MinTest(
             if (athlete!=null) 150 - reduceSecondsPerKm else 150,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[2])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[2]
         )
         // Load HIGH
         createBike90km(
             if (athlete!=null) 120 - reduceSecondsPerKm else 120,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[3])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[3]
         )
 
         // Load MEDIUM
@@ -101,7 +103,7 @@ class ActivityDatagen(
             if (athlete!=null) 1200 - reduceSecondsPerKm else 1200,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[4])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[4]
         )
 
         // Load LOW
@@ -109,7 +111,7 @@ class ActivityDatagen(
             if (athlete!=null) 500 - reduceSecondsPerKm else 500,
             trainer,
             athlete,
-            if (athlete == null) null else LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[5])).withHour(faker.random.nextInt(6, 18))
+            if (athlete == null) null else dates[5]
         )
         if (athlete != null) {
             // Load MEDIUM
@@ -117,7 +119,7 @@ class ActivityDatagen(
                 1200,
                 trainer,
                 athlete,
-                LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[6])).withHour(faker.random.nextInt(6, 18))
+                dates[6]
             )
             return 6
         }
@@ -133,17 +135,14 @@ class ActivityDatagen(
      * @param user the user to which the activity belongs
      */
     fun changeFiles(addSpeed: Float, addHeartRate: Int, user: User): Int {
-        val minSize = minOf(files.size, randomOrder.size)
+        val minSize = minOf(files.size, dates.size)
         for (i in 0 until minSize) {
             val data = fitParser.decode(files[i].inputStream)
-            val hour = faker.random.nextInt(6, 18)
-            val minute = faker.random.randomValue(listOf(0, 15, 30, 45))
             for (d in data.recordMesgs) {
                 if (d == data.recordMesgs[0] || d == data.recordMesgs[data.recordMesgs.size - 1]) {
-                    val date = LocalDateTime.ofEpochSecond(d.timestamp.timestamp + 631065600, 0, ZoneOffset.UTC)
-                    val lastWeek = LocalDateTime.now().with(TemporalAdjusters.previousOrSame(randomOrder[i]))
+                    val lastWeek = dates[i]
                     val newDateTime = DateTime(
-                        lastWeek.withHour(hour).withMinute(minute).withSecond(date.second)
+                        lastWeek.withHour(dates[i].hour+1).withMinute(dates[i].minute).withSecond(dates[i].second)
                             .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / 1000 - 631065600
                     )
                     if (d == data.recordMesgs[data.recordMesgs.size - 1]) {
