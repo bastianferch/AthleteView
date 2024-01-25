@@ -1,59 +1,43 @@
-.activity-container {
-  width: 400px;
-  max-width: 100%;
-  margin: 0 25px 25px 0;
-  display: inline-block;
-  vertical-align: top;
-}
-
-.activity-list {
-  border: solid 1px #ccc;
-  min-height: 60px;
-  background: white;
-  border-radius: 4px;
-  overflow: hidden;
-  display: block;
+.activity-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80pt;
+  width: 100%;
 }
 
 
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-}
-
-.cdk-drag-placeholder {
-  opacity: 0;
-}
-
-.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.example-box:last-child {
-  border: none;
-}
-
-.activity-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.activity-card-content{
+.activity-card-content {
+  width:100%;
   max-height: 60pt;
-  display:flex;
-  flex:auto;
-  justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-content: space-between;
 }
-.preview{
+
+.activity-icon {
   height: 64px;
   width: 64px;
-  margin-right: 5pt;
 }
 
-.checkbox{
+.activitycard-column {
+  margin: 10px;
+  min-height: 100%;
+  width: 20%;
+}
+.checkbox {
   display: flex;
+}
+
+
+.activitycard-fat{
+  font-weight: bolder;
+}
+
+.mover{
+  margin-left: auto;
+  padding:10px
 }
 
 .colored-bar {
@@ -64,4 +48,13 @@
   top: 0;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
 }
