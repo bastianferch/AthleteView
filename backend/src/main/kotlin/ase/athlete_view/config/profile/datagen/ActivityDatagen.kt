@@ -94,7 +94,7 @@ class ActivityDatagen(
         )
         // Load HIGH
         createBike90km(
-            if (athlete != null) 120 - reduceSecondsPerKm else 120,
+            if (athlete != null) 120 - reduceSecondsPerKm else 100,
             trainer,
             athlete,
             if (athlete == null) null else dates[3]
