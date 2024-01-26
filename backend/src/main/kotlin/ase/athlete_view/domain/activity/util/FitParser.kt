@@ -7,7 +7,7 @@ import com.garmin.fit.FitMessages
 import com.garmin.fit.FitRuntimeException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
-import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 
@@ -18,20 +18,17 @@ class FitParser {
 
     fun decode(filename: InputStream): FitMessages {
         log.trace { "Util | decode()" }
-        val bufferedInputStream = BufferedInputStream(filename)
-        bufferedInputStream.mark(0)
+        val byteData = filename.readAllBytes()
         val decoder = Decode()
-        val isFitFile = decoder.isFileFit(bufferedInputStream)
-        bufferedInputStream.reset()
+        val isFitFile = decoder.isFileFit(ByteArrayInputStream(byteData))
 
         try {
             if (isFitFile) {
-                return parser.decode(bufferedInputStream)
+                return parser.decode(ByteArrayInputStream(byteData))
             }
         } catch (e: FitRuntimeException) {
             log.error { "Something went wrong processing the file" }
             log.error { e }
-            throw InvalidFitFileException("File $filename is not a valid .fit-File!")
         } catch (e: IOException) {
             log.error { "IOException during processing!" }
             log.error { e }
@@ -41,6 +38,6 @@ class FitParser {
         }
 
         log.error { "Noticed invalid fit-upload, skipping!" }
-        throw InvalidFitFileException("File is not a valid .fit-File!")
+        throw InvalidFitFileException("File $filename is not a valid .fit-File!")
     }
 }
