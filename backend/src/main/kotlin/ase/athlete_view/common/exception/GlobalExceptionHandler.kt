@@ -2,6 +2,7 @@ package ase.athlete_view.common.exception
 
 import ase.athlete_view.common.exception.entity.*
 import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
+import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
@@ -17,13 +18,13 @@ import java.time.format.DateTimeParseException
  */
 @ControllerAdvice
 class GlobalExceptionHandler {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @ExceptionHandler(ValidationException::class)
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     fun handleValidationException(ex: ValidationException): ExceptionResponseDTO {
-        logger.warn { "Validation exception: ${ex.message}" }
+        log.warn { "Validation exception: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY, ex.message)
     }
 
@@ -31,7 +32,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     fun handleNullPointerException(ex: NullPointerException): ExceptionResponseDTO {
-        logger.warn { "NullPointerException exception: ${ex.message}" }
+        log.warn { "NullPointerException exception: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.message)
     }
 
@@ -39,7 +40,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
     fun handleNotFound(ex: NotFoundException): ExceptionResponseDTO {
-        logger.warn { "Not Found exception: ${ex.message}" }
+        log.warn { "Not Found exception: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
     }
 
@@ -47,7 +48,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ResponseBody
     fun handleBadCredentials(ex: BadCredentialsException): ExceptionResponseDTO {
-        logger.warn { "Bad Credentials exception: ${ex.message}" }
+        log.warn { "Bad Credentials exception: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
     }
 
@@ -55,7 +56,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ResponseBody
     fun handleForbidden(ex: ForbiddenException): ExceptionResponseDTO {
-        logger.warn {"Invalid request: ${ex.message}"}
+        log.warn {"Invalid request: ${ex.message}"}
         return ExceptionResponseDTO(HttpStatus.FORBIDDEN, ex.message)
     }
 
@@ -63,7 +64,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     fun handleForbidden(ex: InternalException): ExceptionResponseDTO {
-        logger.warn {"InternalException: ${ex.message}"}
+        log.warn {"InternalException: ${ex.message}"}
         return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.message)
     }
 
@@ -71,7 +72,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ResponseBody
     fun handleBadCredentials(ex: ConflictException): ExceptionResponseDTO {
-        logger.warn { "ConflictException: ${ex.message}" }
+        log.warn { "ConflictException: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.CONFLICT, ex.message)
     }
 
@@ -79,7 +80,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     fun handleDateTimeParse(ex: DateTimeParseException): ExceptionResponseDTO {
-        logger.warn { "DateTimeParseException : ${ex.message}" }
+        log.warn { "DateTimeParseException : ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY, "Could not parse a date")
     }
 
@@ -87,7 +88,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ResponseBody
     fun handleDuplicateFitFile(ex: DuplicateFitFileException): ExceptionResponseDTO {
-        logger.warn { "DuplicateFitFileException : ${ex.message}" }
+        log.warn { "DuplicateFitFileException : ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.CONFLICT, "File already in-store!")
     }
 
@@ -95,8 +96,23 @@ class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ResponseBody
     fun handleAlreadyExists(ex: AlreadyExistsException): ExceptionResponseDTO {
-        logger.warn { "AlreadyExistsException : ${ex.message}" }
+        log.warn { "AlreadyExistsException : ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.CONFLICT, ex.message)
     }
 
+    @ExceptionHandler(NoMapDataException::class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    fun handleNoMapDataException(ex: NoMapDataException): ExceptionResponseDTO {
+        log.warn { "NoMapDataException: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
+    }
+
+    @ExceptionHandler(InvalidFitFileException::class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    fun handleInvalidFitFileException(ex: InvalidFitFileException): ExceptionResponseDTO {
+        log.warn { "InvalidFitFileException: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.BAD_REQUEST, ex.message)
+    }
 }

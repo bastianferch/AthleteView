@@ -3,6 +3,10 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { LoginDto } from "../../dto/login-dto";
 import { Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
+import { firstValueFrom } from "rxjs";
+import { HealthService } from "../../../health/service/health.service";
+import { ActivityService } from "../../../activity/service/activity.service";
+import { SnackbarService } from "../../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-login',
@@ -21,6 +25,9 @@ export class LoginComponent implements OnInit {
 
   constructor(private loginService: AuthService,
     private fb: FormBuilder,
+    private activityService:ActivityService,
+    private snackbarService:SnackbarService,
+    private healthService: HealthService,
     private router: Router,
     private authService: AuthService) {
   }
@@ -46,6 +53,7 @@ export class LoginComponent implements OnInit {
     this.isAccountActivated = true;
     this.loginService.login(this.form.value as LoginDto).subscribe({
       next: () => {
+        this.fetchDataFromFakeApi();
         this.router.navigate(['/'])
       },
       error: (err) => {
@@ -57,6 +65,16 @@ export class LoginComponent implements OnInit {
         }
       },
     })
+  }
+
+  private async fetchDataFromFakeApi(): Promise<void> {
+    try {
+      await firstValueFrom(this.healthService.syncWithApi());
+      await firstValueFrom(this.activityService.syncWithApi());
+    } catch (err) {
+      this.snackbarService.openSnackBar('Could not fetch data from garmin mock api');
+    }
+
   }
 
 }

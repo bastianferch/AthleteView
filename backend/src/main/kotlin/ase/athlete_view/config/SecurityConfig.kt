@@ -19,14 +19,15 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(private val userAuthProvider: UserAuthProvider, private val authService: AuthService) {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @Order(1)
     @Bean
     fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
+        log.trace { "Config | apiFilterChain()" }
         return http
             .csrf { csrf -> csrf.disable() }
-            .addFilterBefore(JwtAuthFilter(userAuthProvider, authService, logger), BasicAuthenticationFilter::class.java)
+            .addFilterBefore(JwtAuthFilter(userAuthProvider, authService, log), BasicAuthenticationFilter::class.java)
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/api/auth/**").permitAll()
@@ -40,6 +41,7 @@ class SecurityConfig(private val userAuthProvider: UserAuthProvider, private val
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
+        log.trace { "Config | passwordEncoder()" }
         return BCryptPasswordEncoder(10)
     }
 }

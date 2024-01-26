@@ -28,6 +28,10 @@ import { CommentsComponent } from '../component/comments/comments.component'
 import { RatingComponent } from '../component/rating/rating.component';
 import { MatCardModule } from "@angular/material/card";
 
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { HighchartsChartModule } from 'highcharts-angular';
+import { ActivityGraphComponent } from '../component/finished-activity/activity-graph/activity-graph.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const routes: Routes = [
   { path: '', component: ActivityComponent },
@@ -44,6 +48,7 @@ const routes: Routes = [
     FinishedActivityComponent,
     CommentsComponent,
     RatingComponent,
+    ActivityGraphComponent,
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -68,6 +73,9 @@ const routes: Routes = [
     MatTabsModule,
     MatDividerModule,
     MatPaginatorModule,
+    LeafletModule,
+    HighchartsChartModule,
+    MatTooltipModule,
     MatCardModule,
   ],
   exports: [RouterModule, ActivityComponent],

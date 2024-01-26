@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException
 @RequestMapping("api/health")
 @RestController
 class HealthEndpoint() {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     private var healthy = true
 
@@ -27,7 +27,7 @@ class HealthEndpoint() {
      */
     @GetMapping("/prepareShutdown")
     fun preShutdown() {
-        logger.info { "preShutdown: (healthy: $healthy)" }
+        log.info { "GET | preShutdown()" }
 
         healthy = false
         try {

@@ -18,7 +18,7 @@ export class DateParsing {
     return this.hyphenDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
   }
 
-  parseNumbersIntoDate(numbers: number[]): Date {
+  parseNumbersIntoDate(numbers: number[], secondsPrecision = true): Date {
     const str: string[] = []
     numbers.forEach((num) => {
       if (num.toString().length === 1) {
@@ -27,6 +27,13 @@ export class DateParsing {
         str.push(num.toString())
       }
     });
+
+    if (secondsPrecision && str.length >= 6) {
+      // Required by: activity.service.fetchGraphDataForActivity
+      // Also needed for finished Activity => else total time etc. wrong (even if minor)
+      return new Date(str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4] + ":" + str[5])
+    }
+
     return new Date(str[0] + "-" + str[1] + "-" + str[2] + "T" + str[3] + ":" + str[4])
   }
 

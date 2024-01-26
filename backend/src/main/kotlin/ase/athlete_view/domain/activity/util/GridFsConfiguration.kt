@@ -1,5 +1,6 @@
 package ase.athlete_view.domain.activity.util
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,9 +14,11 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 abstract class GridFsConfiguration: AbstractMongoClientConfiguration() {
     @Autowired
     private lateinit var mappingMongoConverter: MappingMongoConverter
+    val log = KotlinLogging.logger {}
 
     @Bean
     fun gridFsTemplate(): GridFsTemplate {
+        log.trace { "Util | gridFsTemplate()" }
         return GridFsTemplate(mongoDbFactory(), mappingMongoConverter)
     }
 }

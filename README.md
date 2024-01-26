@@ -3,6 +3,11 @@
 - navigate into the `frontend` folder
 - run `npm install`
 - run `npm run start` (or `ng serve`)
+- 
+## Garmin Mock Api
+- navigate into the `garmin-mock` folder
+- run `npm install`
+- run `node api.js`
 
 ## Backend
 ### Databases

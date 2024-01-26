@@ -1,9 +1,7 @@
 package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.common.exception.entity.NotFoundException
-import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
-import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
-import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
+import ase.athlete_view.domain.activity.pojo.dto.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -20,14 +18,14 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("api/activity")
 class ActivityController(private val activityService: ActivityService) {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @PostMapping("/planned")
     fun createPlannedActivity(
         authentication: Authentication,
         @RequestBody plannedActivityDTO: PlannedActivityDTO
     ): PlannedActivityDTO {
-        logger.info { "POST PLANNED ACTIVITY $plannedActivityDTO ${authentication.principal}" }
+        log.info { "POST | createPlannedActivity($plannedActivityDTO)" }
 
         val userId = (authentication.principal as UserDTO).id
         if (userId != null) {
@@ -42,7 +40,7 @@ class ActivityController(private val activityService: ActivityService) {
         authentication: Authentication,
         @PathVariable id: Long
     ): PlannedActivityDTO {
-        logger.info { "GET PLANNED ACTIVITY $id" }
+        log.info { "GET | getPlannedActivity($id)" }
 
         val userId = (authentication.principal as UserDTO).id
         if (userId != null) {
@@ -57,7 +55,7 @@ class ActivityController(private val activityService: ActivityService) {
         @RequestParam(required=false, name = "startTime") startTime: String?,
         @RequestParam(required=false, name = "endTime") endTime: String?
     ): List<PlannedActivityDTO> {
-        logger.info { "GET ALL PLANNED ACTIVITIES" }
+        log.info { "GET | getAllPlannedActivities($startTime, $endTime)" }
 
         var startDate: LocalDateTime? = null
         var endDate: LocalDateTime? = null
@@ -83,7 +81,7 @@ class ActivityController(private val activityService: ActivityService) {
         @PathVariable id: Long,
         @RequestBody plannedActivityDTO: PlannedActivityDTO
     ): PlannedActivityDTO {
-        logger.info { "PUT PLANNED ACTIVITY $plannedActivityDTO" }
+        log.info { "PUT | updatePlannedActivity($id, $plannedActivityDTO)" }
 
         val userId = (authentication.principal as UserDTO).id
         if (userId != null) {
@@ -99,7 +97,7 @@ class ActivityController(private val activityService: ActivityService) {
         authentication: Authentication,
         @RequestParam("files") files: List<MultipartFile>
     ): Long? {
-        logger.info { "File import detected" }
+        log.info { "POST | handleFileUpload()" }
         if (files.isEmpty()) {
             throw HttpServerErrorException(HttpStatus.BAD_REQUEST)
         }
@@ -121,7 +119,7 @@ class ActivityController(private val activityService: ActivityService) {
         @RequestParam(required = false, name = "startTime") startTime: String?,
         @RequestParam(required = false, name = "endTime") endTime: String?
     ): List<ActivityDTO> {
-        logger.info { "Fetching finished/imported activities for user ${user.id}" }
+        log.info { "GET | fetchActivitiesForUser($startTime, $endTime)" }
 
         var startDate: LocalDateTime? = null
         var endDate: LocalDateTime? = null
@@ -135,12 +133,12 @@ class ActivityController(private val activityService: ActivityService) {
         }
 
 
-        logger.debug { "Start and end were provided: ${startDate.toString()}\t${endDate.toString()}" }
+        log.debug { "Start and end were provided: ${startDate.toString()}\t${endDate.toString()}" }
         // can be sure that logged-in user has an id
         val result = activityService.getAllActivities(user.id!!, startDate, endDate)
-        logger.debug { "Fetched activities: $result" }
+        log.debug { "Fetched activities: $result" }
         val mapped = result.map { it.toDTO() }
-        logger.debug { "After DTO-mapping, activities: $mapped"}
+        log.debug { "After DTO-mapping, activities: $mapped"}
         return mapped
     }
 
@@ -150,12 +148,12 @@ class ActivityController(private val activityService: ActivityService) {
     fun fetchTemplatesForUser(
         @AuthenticationPrincipal user: UserDTO,
     ): List<PlannedActivityDTO> {
-        logger.info { "Fetching template activities for user ${user.id}" }
+        log.info { "GET | fetchTemplatesForUser()" }
         // can be sure that logged-in user has an id
         val result = activityService.getAllTemplates(user.id!!)
-        logger.debug { "Fetched activities: $result" }
+        log.debug { "Fetched activities: $result" }
         val mapped = result.map { it.toDTO() }
-        logger.debug { "After DTO-mapping, activities: $mapped"}
+        log.debug { "After DTO-mapping, activities: $mapped"}
         return mapped
     }
 
@@ -165,7 +163,7 @@ class ActivityController(private val activityService: ActivityService) {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     fun getFinishedActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable activityId: Long): ActivityDTO {
-        logger.info { "C | getFinishedActivity($activityId)" }
+        log.info { "GET | getFinishedActivity($activityId)" }
         if (user.id == null) {
             throw NotFoundException("Invalid credentials")
         }
@@ -181,7 +179,7 @@ class ActivityController(private val activityService: ActivityService) {
         @AuthenticationPrincipal user: UserDTO,
         @PathVariable activityId: Long,
         @RequestBody comment: CommentDTO): CommentDTO {
-        logger.info { "C | commentFinishedActivity($activityId, $comment)" }
+        log.info { "PATCH | commentFinishedActivity($activityId, $comment)" }
         if (user.id == null) {
             throw NotFoundException("Invalid credentials")
         }
@@ -196,7 +194,7 @@ class ActivityController(private val activityService: ActivityService) {
         @AuthenticationPrincipal user: UserDTO,
         @PathVariable activityId: Long,
         @PathVariable rating: Int): Unit {
-        logger.info { "C | rateFinishedActivity($activityId, $rating)" }
+        log.info { "PATCH | rateFinishedActivity($activityId, $rating)" }
         if (user.id == null) {
             throw NotFoundException("Invalid credentials")
         }
@@ -204,9 +202,32 @@ class ActivityController(private val activityService: ActivityService) {
         activityService.rateActivityWithUser(user.id!!, activityId, rating)
     }
 
+    @PostMapping("/sync")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun syncWithMockServer(@AuthenticationPrincipal user: UserDTO) {
+        log.info { "POST | syncWithMockServer()" }
+        this.activityService.syncWithMockServer(user.id!!)
+    }
 
+
+    @GetMapping("/map/{activityId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun getMapDataForActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable activityId: Long): List<MapDataDTO> {
+        log.info { "GET | getMapData(user=${user.id}, activity=$activityId)" }
+        return activityService.prepareMapDataForActivity(user.id!!, activityId)
+    }
+
+    @GetMapping("/statistics/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun getStatisticsForActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable id: Long): List<ActivityStatisticsDTO> {
+        log.info { "GET | getStatisticsForActivity(user=${user.id}, activity=$id)" }
+        return activityService.prepareStatisticsForActivity(user.id!!, id)
+    }
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {
+        log.trace { "C | parseStringIntoLocalDateTime($strInput)" }
         return LocalDateTime.parse(strInput, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
     }
 }

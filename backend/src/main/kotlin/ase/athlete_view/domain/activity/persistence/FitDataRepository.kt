@@ -5,5 +5,5 @@ import java.io.InputStream
 
 interface FitDataRepository {
     fun getFitData(id: String): FitData
-    fun saveFitData(data: InputStream, filename: String): String
+    fun saveFitData(data: InputStream, filename: String, uid: Long): String
 }

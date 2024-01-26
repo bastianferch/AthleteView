@@ -1,6 +1,12 @@
 package ase.athlete_view.domain.activity.service
 
+import ase.athlete_view.common.exception.entity.InternalException
+import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.exception.entity.NoMapDataException
+import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
+import ase.athlete_view.domain.activity.pojo.dto.ActivityStatisticsDTO
 import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
+import ase.athlete_view.domain.activity.pojo.dto.MapDataDTO
 import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.pojo.entity.Comment
@@ -8,6 +14,7 @@ import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.user.pojo.entity.User
 import com.garmin.fit.FitMessages
 import ase.athlete_view.domain.activity.pojo.entity.Step
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
@@ -152,4 +159,39 @@ interface ActivityService {
      * @param activities that should be deleted
      */
     fun deletePlannedActivities(activities: List<PlannedActivity>)
+
+    /**
+     * Calls the authenticated (see {@link GarminMock}) external API
+     * to add a new activity data to the current authenticated user.
+     * If the activity data already exists for the given day, does nothing.
+     *
+     * @param userId id of current authenticated user
+     *
+     * @throws InternalException when external API did not respond / sent the wrong data.
+     * @throws NotFoundException when current authenticated user could not be fetched from db.
+     */
+    fun syncWithMockServer(userId: Long)
+
+    /**
+     * Retrieves map-data (coordinates) for a specified (finished) activity.
+     *
+     * @param uid id of calling user
+     * @param activityId id of (finished) activity to parse
+     *
+     * @return List of MapDataDTO (latitude-longitude pairs)
+     *
+     * @throws NoMapDataException in case that no fit-file was imported for the specified activity
+     */
+    fun prepareMapDataForActivity(uid: Long, activityId: Long): List<MapDataDTO>
+
+
+    /**
+     * Retrieves data from the uploaded activity which is later shown in activity graph(s).
+     * Fields parsed include `speed`, `heartRate`, `altitude`, `power` and `cadence`.
+     *
+     * @param uid the userid of who is requesting this data
+     * @param activityId the activity to parse data from
+     * @return list of ActivityStatisticsDTO, holding all parsed values rows incl. timestamps
+     */
+    fun prepareStatisticsForActivity(uid: Long, activityId: Long): List<ActivityStatisticsDTO>
 }

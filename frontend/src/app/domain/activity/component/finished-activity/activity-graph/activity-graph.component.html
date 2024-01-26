@@ -1,0 +1,5 @@
+<div class="graph" *ngIf="graphLoaded">
+  <highcharts-chart [Highcharts]="Highcharts" [callbackFunction]="chartCallback" [options]="hc_opts" #chart
+    [ngStyle]="{'width':'98%', 'display':'block'}">
+  </highcharts-chart>
+</div>

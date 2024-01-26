@@ -24,4 +24,10 @@ class LoginDTO(
         result = 31 * result + password.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "LoginDTO(email='$email')"
+    }
+
+
 }

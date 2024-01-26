@@ -79,7 +79,7 @@ class AuthServiceIntegrationTests : TestBase() {
 
     @Test
     fun registerAthleteWithTrainer() {
-        val existingTrainer = super.persistDefaultTrainer(100);
+        val existingTrainer = super.persistDefaultTrainer(100)
         val dto = UserCreator.getAthleteRegistrationDTO(existingTrainer.code)
 
         val athlete = this.authService.registerAthlete(dto)

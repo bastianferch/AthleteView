@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter
 
 @Service
 class CspServiceImpl(private val cspRepository: CspRepository, private val mapper: ObjectMapper, private val queueSender: QueueRequestSender, private val constraintService: TimeConstraintService, private val userService: UserService, private val activityService: ActivityService, private val notificationService: NotificationService) : CspService {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     companion object {
         const val SLOT_DURATION = 15 // Duration of each time slot in minutes
@@ -38,8 +38,8 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
     @Transactional
     override fun accept(cspDto: CspDto, userId: Long) {
-        logger.trace { "S | accepting new CSP job" }
-        val validation = validate(cspDto, userId);
+        log.trace { "S | accept($cspDto, $userId)" }
+        val validation = validate(cspDto, userId)
 
         if (getJob(userId) != null) {
             throw AlreadyExistsException("Job already exists for next week")
@@ -58,7 +58,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
     @Transactional
     override fun revertJob(userId: Long) {
-        logger.trace { "S | reverting CSP job" }
+        log.trace { "S | revertJob($userId)" }
         val temp = getJob(userId)
         if (temp == null) {
             throw NotFoundException("There is no Job for next week.")
@@ -76,7 +76,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     override fun getJob(userId: Long): CspJob? {
-        logger.trace { "S | fetching CSP job" }
+        log.trace { "S | getJob($userId)" }
         try {
             val trainer = userService.getById(userId)
             if (trainer.getUserType() != "trainer") {
@@ -107,7 +107,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     fun validate(cspDto: CspDto, userId: Long): MutableList<String> {
-        logger.trace { "S | validating CSP job" }
+        log.trace { "S | validate($cspDto, $userId)" }
 
         val errors: MutableList<String> = ArrayList()
 
@@ -197,14 +197,14 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     fun createJsonAndPersist(cspDto: CspDto, userId: Long): Map<String, Any> {
-        logger.trace { "S | creating json for CSP job" }
+        log.trace { "S | createJsonAndPersist($cspDto, $userId)" }
         val currentTimestamp = Instant.now().toEpochMilli()
         val today = ZonedDateTime.ofInstant(Instant.ofEpochMilli(currentTimestamp), ZoneId.systemDefault())
         val nextMonday = today.with(DayOfWeek.MONDAY).plusWeeks(1).withHour(0).withMinute(0).withSecond(0).withNano(0)
         val followingMonday = nextMonday.plusWeeks(1)
 
         val activities = mutableListOf<Map<String, Any>>()
-        val trainerTable = mutableListOf<List<Boolean>>();
+        val trainerTable = mutableListOf<List<Boolean>>()
         val athleteTables = mutableMapOf<String, List<List<Boolean>>>()
 
         val trainer = userService.getById(userId)
@@ -219,8 +219,8 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
             athleteTables[mapping.userId.toString()] = createConstraintTable(athlete, nextMonday, followingMonday, false)
 
             for (activity in mapping.activities) {
-                val templateActivity = activityService.getPlannedActivity(activity.id, userId);
-                val duplicatedActivity = activityService.createPlannedActivity(templateActivity.copyWithNewCreatedForAndWithTrainer(athlete as Athlete, activity.withTrainer), userId, isCsp = true);
+                val templateActivity = activityService.getPlannedActivity(activity.id, userId)
+                val duplicatedActivity = activityService.createPlannedActivity(templateActivity.copyWithNewCreatedForAndWithTrainer(athlete as Athlete, activity.withTrainer), userId, isCsp = true)
                 activityEntities.add(duplicatedActivity)
                 if (!templateActivity.template) {
                     continue
@@ -264,6 +264,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     fun createConstraintTable(user: User, nextMonday: ZonedDateTime, followingMonday: ZonedDateTime, trainer: Boolean): List<List<Boolean>> {
+        log.trace { "S | createConstraintTable($user, $nextMonday, $followingMonday, $trainer)" }
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx")
 

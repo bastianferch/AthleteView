@@ -12,6 +12,7 @@ import { Activity } from "../../activity/dto/Activity";
 import { TrainingsplanService } from "../../trainingsplan/service/trainingsplan.service";
 import { User } from "../../trainingsplan/dto/user";
 import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
+import { FitnessService } from "../../fitness/service/fitness.service";
 
 @Component({
   selector: 'app-home',
@@ -29,12 +30,14 @@ export class HomeComponent implements OnInit {
   athletes: User[]
   currentAthlete: number
   health: Health = { avgBPM: -1, avgSteps: -1, avgSleepDuration: -1 }
+  fitness: number[];
   isTrainer = false
   uid: number
 
   constructor(
     private activityService: ActivityService,
     private authService: AuthService,
+    private fitnessService: FitnessService,
     private healthService: HealthService,
     private snackbarService: SnackbarService,
     private trainingsPlanService: TrainingsplanService,
@@ -70,12 +73,13 @@ export class HomeComponent implements OnInit {
           this.athletes = athletes
           if (athletes.length > 0) {
             this.currentAthlete = 0
-            this.getHealthForAthlete()
+            this.getHealthAndFitnessForAthlete()
           }
         },
         error: (error) => this.snackbarService.openSnackBar(error.error?.message),
       })
     } else {
+      this.getFitness(this.uid);
       this.healthService.get().subscribe({
         next: (data) => this.health = data,
         error: (error) => this.snackbarService.openSnackBar(error.error?.message),
@@ -110,21 +114,33 @@ export class HomeComponent implements OnInit {
   prevUser() {
     this.currentAthlete += (this.athletes.length - 1)
     this.currentAthlete %= this.athletes.length
-    this.getHealthForAthlete()
+    this.getHealthAndFitnessForAthlete()
     this.calcStats()
   }
 
   nextUser() {
     this.currentAthlete += 1
     this.currentAthlete %= this.athletes.length
-    this.getHealthForAthlete()
+    this.getHealthAndFitnessForAthlete()
     this.calcStats()
   }
 
-  getHealthForAthlete() {
+  getHealthAndFitnessForAthlete() {
     this.healthService.getFromAthlete(this.athletes[this.currentAthlete].id).subscribe({
       next: (data) => this.health = data,
       error: (error) => this.snackbarService.openSnackBar(error.error?.message),
     })
+    this.getFitness(this.athletes[this.currentAthlete].id);
   }
+
+  private getFitness(targetUserId: number): void {
+    this.fitnessService.getFitness(targetUserId)
+      .subscribe({ next: (data) => {
+        data.reverse()
+        this.fitness = data
+      },
+      error: (error) => this.snackbarService.openSnackBar(error.error?.message) },
+      );
+  }
+
 }

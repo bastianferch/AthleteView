@@ -23,7 +23,7 @@ class JwtAuthFilter(
     ) {
         val header = request.getHeader(HttpHeaders.AUTHORIZATION)
         if (header == null) {
-            logger.debug { "Header not found..." }
+            log.debug { "Header not found..." }
             filterChain.doFilter(request, response)
             return
         }

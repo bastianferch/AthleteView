@@ -16,9 +16,9 @@ export class HealthService {
     this.url = this.urlService.getBackendUrl() + 'health/';
   }
 
-  mock(): Observable<void> {
+  syncWithApi(): Observable<void> {
     return this.http.post<void>(
-      this.url + 'mock', null, { withCredentials: true },
+      this.url + 'sync', null, { withCredentials: true },
     );
   }
 

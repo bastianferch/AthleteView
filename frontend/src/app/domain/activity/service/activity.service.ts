@@ -8,6 +8,8 @@ import { IntervalSplit } from "../../../common/interval/dto/Interval";
 import { Activity } from '../dto/Activity'
 import { DateParsing } from 'src/app/common/util/parsing/date-parsing';
 import { CommentDTO } from "../dto/Comment";
+import { MapDataDto } from '../dto/MapDataDto';
+import { ActivityStatsDto } from '../dto/ActivityStatsDto';
 
 @Injectable({
   providedIn: 'root',
@@ -126,6 +128,32 @@ export class ActivityService {
     );
   }
 
+  fetchMapDataForActivity(aid: number): Observable<Array<MapDataDto>> {
+    const url = this.activityBaseUri + `/map/${aid}`
+    return this.httpClient.get<Array<MapDataDto>>(url)
+  }
+
+  fetchGraphDataForActivity(aid: number): Observable<Array<ActivityStatsDto>> {
+    const url = this.activityBaseUri + `/statistics/${aid}`
+    return this.httpClient.get<Array<ActivityStatsDto>>(url)
+      .pipe(tap((items) => {
+        return items.map((item) => {
+          if (item.timestamp !== undefined) {
+            const formatted: Date = this.dateParser.parseNumbersIntoDate(item.timestamp as number[])
+            item.timestamp = formatted
+          }
+          return item
+        })
+      }))
+  }
+
+
+  syncWithApi(): Observable<void> {
+    return this.httpClient.post<void>(
+      this.activityBaseUri + '/sync', null, { withCredentials: true },
+    );
+  }
+
   // do some post-processing on the activity
   // if it is a template, set the date to null
   postProcessActivity(activity: PlannedActivitySplit) {
@@ -155,10 +183,6 @@ export class ActivityService {
       return false;
     }
 
-    // TODO if the logged in user is a trainer, check that only templates are created!
-
-    // TODO if the logged in user is an athlete, check that the activity has withTrainer === false
-
     return true;
   }
 
@@ -180,7 +204,6 @@ export class ActivityService {
         this.snackbarService.openSnackBar(`Notes cannot be longer than ${maxNoteLength} characters`);
         return false
       }
-      // TODO other validations
       return true;
     }
     return false;

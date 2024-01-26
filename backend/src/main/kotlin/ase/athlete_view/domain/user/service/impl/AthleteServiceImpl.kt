@@ -17,7 +17,7 @@ class AthleteServiceImpl(val athleteRepository: AthleteRepository, val trainerRe
     val log = KotlinLogging.logger {}
 
     override fun getByTrainerId(id: Long): List<Athlete> {
-        log.trace { "S | getByTrainerId $id" }
+        log.trace { "S | getByTrainerId($id)" }
         if (trainerRepo.findById(id).isEmpty) {
             throw ForbiddenException("You are not allowed to use this service")
         }
@@ -26,7 +26,7 @@ class AthleteServiceImpl(val athleteRepository: AthleteRepository, val trainerRe
 
 
     override fun getById(id: Long): Athlete {
-        log.trace { "S | getById $id" }
+        log.trace { "S | getById($id)" }
         return this.athleteRepository.findByIdOrNull(id) ?: throw NotFoundException("Could not find user by given id")
     }
 }
