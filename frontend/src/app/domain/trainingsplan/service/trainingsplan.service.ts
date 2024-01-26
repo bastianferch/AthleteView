@@ -239,7 +239,7 @@ export class TrainingsplanService {
    */
   validatePlannedActivities(user:User,activities:PlannedActivity[]) {
     if (activities.length > 7) {
-      throw new Error("too many activities planned for athlete " + user.name)
+      throw new Error("Too many activities planned for athlete " + user.name)
     }
     let highCnt = 0
     let sum = 0
@@ -252,7 +252,7 @@ export class TrainingsplanService {
     if (highCnt > 4) {
       throw new Error("Too many HARD load activities planned for athlete " + user.name)
     }
-    if (sum > 7) {
+    if (sum > 8) {
       throw new Error("Too much load in activities planned for athlete " + user.name)
     }
 
@@ -286,7 +286,7 @@ export class TrainingsplanService {
   }
 
   /**
-   * Deletes the current trainingplan for the active user(trainer) and all related athletes
+   * Deletes the current trainingsplan for the active user(trainer) and all related athletes
    */
   sendJobDeleteRequest():Observable<any> {
     return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } })
