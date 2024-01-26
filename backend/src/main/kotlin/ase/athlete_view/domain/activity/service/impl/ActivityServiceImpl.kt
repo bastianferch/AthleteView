@@ -322,7 +322,7 @@ class ActivityServiceImpl(
                 mapFitIntensityToStepType(lap.intensity)
             )
         )
-        var compare = data.recordMesgs[0].activityType != null
+        var compare = data.sessionMesgs[0].sport != null
         var sameStructure = false
         var sameDurations = false
         var stepList: List<Step>? = null
@@ -1026,16 +1026,16 @@ class ActivityServiceImpl(
 
             StepTargetType.PACE -> {
                 if (step.targetFrom!! > baseSpeed * 1.2) {
-                    currentLoad = Load.HIGH
-                } else if (step.targetFrom!! < baseSpeed * 0.8) {
                     currentLoad = Load.LOW
+                } else if (step.targetFrom!! < baseSpeed * 0.8) {
+                    currentLoad = Load.HIGH
                 } else {
                     currentLoad = Load.MEDIUM
                 }
             }
 
             StepTargetType.SPEED -> {
-                if (step.targetFrom!! < baseSpeed * 1.2) {
+                if (step.targetFrom!! > baseSpeed * 1.2) {
                     currentLoad = Load.HIGH
                 } else if (step.targetFrom!! < baseSpeed * 0.8) {
                     currentLoad = Load.LOW
@@ -1046,7 +1046,7 @@ class ActivityServiceImpl(
 
             null -> {}
         }
-        if(totalLoad > currentLoad) { // we only want the highest load
+        if (totalLoad > currentLoad) { // we only want the highest load
             currentLoad = totalLoad
         }
         return currentLoad
@@ -1057,9 +1057,9 @@ class ActivityServiceImpl(
         when (step.durationType) {
             StepDurationType.DISTANCE -> {
                 if (step.durationDistanceUnit == StepDurationUnit.KM) {
-                    return (step.durationDistance!! * 1000 / baseSpeed).toInt()
+                    return (step.durationDistance!! * baseSpeed / 60).toInt()
                 } else {
-                    return (step.durationDistance!! / baseSpeed).toInt()
+                    return (step.durationDistance!! / 1000 * baseSpeed / 60).toInt()
                 }
             }
 

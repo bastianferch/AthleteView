@@ -54,6 +54,7 @@ class ActivityServiceMongoUnitTests {
     fun uploadingValidIFitFile_shouldSucceed() {
         every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete(null))
         every { activityRepository.save(any<Activity>()) } returns ActivityCreator.getDefaultActivity()
+        every { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) } returns listOf()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"
@@ -98,6 +99,7 @@ class ActivityServiceMongoUnitTests {
     fun uploadingDuplicateFile_shouldThrowDuplicateFitFileException() {
         every { userRepository.findById(any<Long>()) } returns Optional.of(UserCreator.getAthlete(null))
         every { activityRepository.save(any<Activity>()) } returns ActivityCreator.getDefaultActivity()
+        every { plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(any(), any(), any(), any()) } returns listOf()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
         val name = "test.fit"
