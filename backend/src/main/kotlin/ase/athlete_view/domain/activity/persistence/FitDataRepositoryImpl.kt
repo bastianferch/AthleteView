@@ -34,7 +34,7 @@ class FitDataRepositoryImpl(
     override fun saveFitData(data: InputStream, filename: String): String {
         log.trace { "P | saveFitData($filename)" }
         val bin = BufferedInputStream(data)
-        if (checkIfFileExists(bin)) {
+        if (checkIfFileExists(bin, filename)) {
             throw DuplicateFitFileException("File already in-store!")
         }
 
@@ -56,13 +56,16 @@ class FitDataRepositoryImpl(
         )
     }
 
-    private fun checkIfFileExists(data: BufferedInputStream): Boolean {
+    private fun checkIfFileExists(data: BufferedInputStream, filename: String): Boolean {
         log.trace { "P | checkIfFileExists()" }
         data.mark(Integer.MAX_VALUE)
         val hashValue = getSha256Digest(data.readAllBytes())
         data.reset()
         log.debug { "Checking if file with hash $hashValue exists" }
         val file = gridFsTemplate.find(Query(Criteria.where("metadata.hash").`is`(hashValue))).firstOrNull()
-        return file !== null
+        if (file === null){
+            return false
+        }
+        return file.filename == filename
     }
 }

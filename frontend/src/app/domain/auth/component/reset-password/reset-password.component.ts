@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { ActivatedRoute, Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
 import { ResetPassword } from "../../dto/reset-password";
+import { SnackbarService } from "../../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-reset-password',
@@ -30,6 +31,7 @@ export class ResetPasswordComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private snackbarService: SnackbarService,
     private authService: AuthService,
     private router: Router) {
   }
@@ -51,11 +53,11 @@ export class ResetPasswordComponent implements OnInit {
     };
     this.authService.resetPassword(reset).subscribe({
       next: () => {
-        // this.notificationService.success('Successfully set new password.');
+        this.snackbarService.openSnackBar('Successfully set new password.');
         this.router.navigate(['/auth/login']);
       },
       error: () => {
-        // this.notificationService.error('The token to reset your password might be expired! Please try sending a mail again!');
+        this.snackbarService.openSnackBar('The token to reset your password might be expired! Please try sending a mail again!');
       },
     });
   }

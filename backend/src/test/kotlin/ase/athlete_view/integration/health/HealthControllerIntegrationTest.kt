@@ -1,6 +1,7 @@
 package ase.athlete_view.integration.health
 
 import ase.athlete_view.AthleteViewApplication
+import ase.athlete_view.common.exception.entity.InternalException
 import ase.athlete_view.config.SecurityConfig
 import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.controller.AuthenticationController
@@ -62,39 +63,51 @@ class HealthControllerIntegrationTest {
 
     @Test
     @WithCustomMockUser
-    fun mockHealthReturnsOk(){
-        every { healthService.mock() } just runs
+    fun syncHealthReturnsOk(){
+        every { healthService.syncWithMockServer(any()) } just runs
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/health/mock").with(SecurityMockMvcRequestPostProcessors.csrf())
+            MockMvcRequestBuilders.post("/api/health/sync").with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-        verify(exactly = 1) { healthService.mock() }
+        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        verify(exactly = 1) { healthService.syncWithMockServer(any()) }
+    }
+
+    @Test
+    @WithCustomMockUser
+    fun syncHealthThrowsAnException(){
+        every { healthService.syncWithMockServer(any()) } throws InternalException("no api today.")
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/health/sync").with(SecurityMockMvcRequestPostProcessors.csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+        ).andExpect(MockMvcResultMatchers.status().is5xxServerError())
+        verify(exactly = 1) { healthService.syncWithMockServer(any()) }
     }
 
     @Test
     @WithCustomMockUser
     fun getHealth_returnsHealthDTO(){
-        every { healthService.getAllByCurrentUser() } returns listOf()
+        every { healthService.getAllByCurrentUser(any()) } returns listOf()
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/health/stats").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-        verify(exactly = 1) { healthService.getAllByCurrentUser() }
+        verify(exactly = 1) { healthService.getAllByCurrentUser(any()) }
         assertTrue(result.contains("-1"))
     }
 
     @Test
     @WithCustomMockUser
     fun getHealthWithData_returnsHealthDTO(){
-        every { healthService.getAllByCurrentUser() } returns listOf(
+        every { healthService.getAllByCurrentUser(any()) } returns listOf(
             Health(null, UserCreator.getAthlete(1),LocalDate.now(),2,2,2),
             Health(null, UserCreator.getAthlete(1),LocalDate.now().minusDays(1),4,4,4))
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/health/stats").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-        verify(exactly = 1) { healthService.getAllByCurrentUser() }
+        verify(exactly = 1) { healthService.getAllByCurrentUser(any()) }
         assertAll(
             { assertTrue(result.contains(":2,")) },
             { assertTrue(!result.contains(":4,")) }
@@ -105,14 +118,14 @@ class HealthControllerIntegrationTest {
     @Test
     @WithCustomMockUser(-3)
     fun getHealthFromAthlete_returnsHealthDTO(){
-        every { healthService.getAllFromAthlete(-2) } returns listOf(
+        every { healthService.getAllFromAthlete(-2, any()) } returns listOf(
             Health(null, UserCreator.getAthlete(-2),LocalDate.now(),2,2,2),
             Health(null, UserCreator.getAthlete(-2),LocalDate.now().minusDays(1),4,4,4))
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get("/api/health/stats/-2").with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn().response.contentAsString
-        verify(exactly = 1) { healthService.getAllFromAthlete(-2) }
+        verify(exactly = 1) { healthService.getAllFromAthlete(-2, any()) }
         assertAll(
             { assertTrue(result.contains(":2,")) },
             { assertTrue(!result.contains(":4,")) }

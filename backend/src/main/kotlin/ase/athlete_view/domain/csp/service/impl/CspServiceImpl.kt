@@ -38,7 +38,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     @Transactional
     override fun accept(cspDto: CspDto, userId: Long) {
         log.trace { "S | accept($cspDto, $userId)" }
-        val validation = validate(cspDto, userId);
+        val validation = validate(cspDto, userId)
 
         if (getJob(userId) != null) {
             throw AlreadyExistsException("Job already exists for next week")

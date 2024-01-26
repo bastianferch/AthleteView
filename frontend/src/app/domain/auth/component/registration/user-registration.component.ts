@@ -36,10 +36,10 @@ export class UserRegistrationComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
+    private snackbarService: SnackbarService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private snackbarService: SnackbarService) {
-  }
+  ) {}
 
   openLegalDialog(): void {
     this.dialog.open(LegalInformationComponent, {
@@ -68,14 +68,15 @@ export class UserRegistrationComponent implements OnInit {
     const body = this.form.value as RegisterDto;
     this.loginService.register(body, this.userType).subscribe({
       next: () => {
-        this.snackbarService.openSnackBar("Registration successful! Please Confirm your Email address!")
+        this.snackbarService.openSnackBar("Successfully registered. Please check your email to confirm your account.");
         this.router.navigate(['/auth/login'])
       },
       error: (err) => {
         if (err.status === 409) {
+          this.snackbarService.openSnackBar("This email was taken. Please choose another.");
           this.form.controls.email.setErrors({ 'taken': 'oof' })
         } else if (err.status === 422) {
-
+          this.snackbarService.openSnackBar("Some values are not valid. Please change them and try again.");
           if (err.error?.message?.includes('years old')) {
             this.form.controls.dob.setErrors({ 'old': 'oof' })
           } else if (err.error?.message?.includes('Could not parse a date')) {
