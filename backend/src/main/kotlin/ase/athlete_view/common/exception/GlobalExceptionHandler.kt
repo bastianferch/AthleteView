@@ -2,6 +2,7 @@ package ase.athlete_view.common.exception
 
 import ase.athlete_view.common.exception.entity.*
 import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
+import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
@@ -99,4 +100,19 @@ class GlobalExceptionHandler {
         return ExceptionResponseDTO(HttpStatus.CONFLICT, ex.message)
     }
 
+    @ExceptionHandler(NoMapDataException::class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    fun handleNoMapDataException(ex: NoMapDataException): ExceptionResponseDTO {
+        log.warn { "NoMapDataException: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
+    }
+
+    @ExceptionHandler(InvalidFitFileException::class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    fun handleInvalidFitFileException(ex: InvalidFitFileException): ExceptionResponseDTO {
+        log.warn { "InvalidFitFileException: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.BAD_REQUEST, ex.message)
+    }
 }

@@ -31,7 +31,7 @@ class ActivityCreator {
                     LocalDateTime.now().plusMinutes(120),
                     null,
                     listOf(),
-                    null
+                    null,
                 )
             }
 

@@ -3,9 +3,12 @@ package ase.athlete_view.domain.activity.service.impl
 import ase.athlete_view.common.exception.entity.InternalException
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
+import ase.athlete_view.common.exception.entity.NoMapDataException
 import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.activity.persistence.*
+import ase.athlete_view.domain.activity.pojo.dto.ActivityStatisticsDTO
 import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
+import ase.athlete_view.domain.activity.pojo.dto.MapDataDTO
 import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.pojo.entity.Activity
@@ -40,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.pow
 
 @Service
 class ActivityServiceImpl(
@@ -501,7 +505,7 @@ class ActivityServiceImpl(
 
         plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
-        val fitId: String = fitFileRepo.saveFitData(item.inputStream, item.name)
+        val fitId: String = fitFileRepo.saveFitData(item.inputStream, item.name, user.id!!)
 
         val activity = Activity(
             null,
@@ -535,7 +539,7 @@ class ActivityServiceImpl(
             val stepIntensity = stepList[i].type
             val lapIntensity = mapFitIntensityToStepType(lap.intensity)
             if (lapIntensity != stepIntensity) {
-                if (i == stepList.size) { // all steps are done and more laps
+                if (i == stepList.size - 1) { // all steps are done and more laps
                     return false
                 } else if (lapIntensity != stepList[i + 1].type) { // next step is also not the correct one
                     return false
@@ -842,11 +846,97 @@ class ActivityServiceImpl(
         return (1000 / speedInMetersPerSecond).toInt()
     }
 
+    override fun prepareMapDataForActivity(uid: Long, activityId: Long): List<MapDataDTO> {
+        log.trace { "S | prepareMapDataForActivity ($activityId) for user $uid" }
+
+        userExists(uid)
+        val activityObject = activityExists(activityId)
+        canUserAccessActivity(uid, activityId)
+
+        if (activityObject.fitData == null) {
+            throw NoMapDataException("Please import your finished activity first!")
+        }
+
+        val fitData = this.fitFileRepo.getFitData(activityObject.fitData!!)
+        val dataList = mutableListOf<MapDataDTO>()
+        val msgs = this.fitParser.decode(fitData.stream).recordMesgs
+
+        for (d in msgs) {
+            val lat = d.positionLat
+            val lon = d.positionLong
+
+            if (lat != null && lon != null) {
+                dataList.add(MapDataDTO(convertSemicircleToDegrees(lat), convertSemicircleToDegrees(lon)))
+            }
+        }
+
+        return dataList.toList()
+    }
+
+    override fun prepareStatisticsForActivity(uid: Long, activityId: Long): List<ActivityStatisticsDTO> {
+        log.trace { "S | prepareStatisticsForActivity ($activityId) for user $uid" }
+
+        userExists(uid)
+        val activityObj = activityExists(activityId)
+        canUserAccessActivity(uid, activityId)
+
+        if (activityObj.fitData == null) {
+            return emptyList()
+        }
+
+        val fitData = fitFileRepo.getFitData(activityObj.fitData!!)
+        val fitMessages = fitParser.decode(fitData.stream)
+
+        val statisticsList = mutableListOf<ActivityStatisticsDTO>()
+
+
+        for (msg in fitMessages.recordMesgs) {
+            val dt = TimeDateUtil().convertToLocalDateTime(msg!!.timestamp.timestamp)
+            val item = ActivityStatisticsDTO(dt)
+
+            if (msg.heartRate != null) {
+                val hr = msg.heartRate
+                if (hr >= 30.toShort() && hr < 220.toShort()) {
+                    item.bpm = msg.heartRate.toInt()
+                }
+            }
+
+            val speed = if (msg.speed != null) msg.speed else msg.enhancedSpeed
+
+            if (speed != null && speed >= 0.toFloat() && speed <= 15) {
+                item.speed = speed
+            }
+
+            if (msg.cadence != null && msg.cadence > 0) {
+                item.cadence = msg.cadence
+            }
+
+            if (msg.power != null) {
+                item.power = msg.power
+            }
+
+            if (msg.altitude != null) {
+                item.altitude = msg.altitude
+            } else if (msg.enhancedAltitude != null) {
+                item.altitude = msg.enhancedAltitude
+            }
+
+            statisticsList.add(item)
+        }
+
+        return statisticsList.toList()
+    }
 
     private fun convertMetersPerSecondToKilometerPerHour(enhancedSpeed: Float?): Int {
         log.trace { "S | convertMetersPerSecondToKilometerPerHour($enhancedSpeed)" }
         return (enhancedSpeed!! * 3.6).toInt()
     }
+
+    private fun convertSemicircleToDegrees(pos: Int): Double {
+        // https://forums.garmin.com/developer/fit-sdk/f/discussion/325061/what-crs-does-the-python-sdk-decode-to-eg-position_lat-485072248-position_long--882385675/1576901#1576901
+        return pos * (180 / 2.0.pow(31))
+    }
+
 
     fun isBetween(value: Int, from: Int, to: Int): Int {
         log.trace { "S | isBetween($value, $from, $to)" }
