@@ -84,7 +84,7 @@ def run():
     )
     #_publish(_requestQueueName, {"requestId": 1234})
     loaded = ""
-    with open("dings.json", "r") as fp:
+    with open("test/1.json", "r") as fp:
         loaded = json.load(fp)
     _publish(_requestQueueName,loaded)
     print("Setup done")

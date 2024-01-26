@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { TrainingsplanService } from "../service/trainingsplan.service";
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from "@angular/cdk/drag-drop";
-import { ActivityType, Load, PlannedActivity } from "../../activity/dto/PlannedActivity";
+import { PlannedActivity } from "../../activity/dto/PlannedActivity";
 import { User } from "../dto/user";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../common/service/snackbar.service";
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from "../../../common/component/dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-trainingsplan',
@@ -20,10 +22,14 @@ export class TrainingsplanComponent implements OnInit {
   athletes:User[];
 
   sentForScheduling:boolean
+  jobExisting:boolean
+
+  interactive:boolean
 
   constructor(
     private trainingsplanService: TrainingsplanService,
     private snackbarService:SnackbarService,
+    public dialog: MatDialog,
   ) {
   }
 
@@ -31,13 +37,14 @@ export class TrainingsplanComponent implements OnInit {
   ngOnInit(): void {
     this.athletes = []
     this.sentForScheduling = false
+    this.interactive = true
     forkJoin([
       this.trainingsplanService.fetchAthletesForTrainer(),
       this.trainingsplanService.fetchPreviousActivitiesForAllAthletes(),
       this.trainingsplanService.fetchUpcomingActivitiesForAllAthletes(),
       this.trainingsplanService.fetchTemplateActivitiesForTrainer(),
-
-    ]).subscribe(([athletes,previousActivities,upcomingActivities,templates]) => {
+      this.trainingsplanService.fetchJobExists(),
+    ]).subscribe(([athletes,previousActivities,upcomingActivities,templates,jobExisting]) => {
       this.athletes = athletes
       this.trainingsplanService.updateAthletesInSessionStorage(athletes)
       this.currentAthlete = this.trainingsplanService.getCurrentAthlete()
@@ -51,29 +58,38 @@ export class TrainingsplanComponent implements OnInit {
       this.trainingsplanService.updateTemplateActivities(templates)
       this.templates = this.trainingsplanService.getTemplateActivities()
 
-
+      this.jobExisting = jobExisting
+      if (this.jobExisting) {
+        this.openModal()
+      }
     })
   }
 
+  openModal():void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        headline: 'Trainingsplan already exists',
+        content: 'A trainingsplan for next week has already been created. Do you want to reset and plan again?',
+        confirmationText: 'Reset Plan',
+        cancelText: 'View Plan',
+      },
+    });
 
-  getColor(activity:PlannedActivity):string {
-    const colorMapping: { [key in Load]: string } = {
-      [Load.LOW]: '#82e010',
-      [Load.MEDIUM]: '#f0d807',
-      [Load.HARD]: '#de2b0b',
-    };
-    return colorMapping[activity.load]
-  }
-
-  getIconForActivity(activity:PlannedActivity):string {
-    const iconMapping: { [key in ActivityType]: string } = {
-      [ActivityType.SWIM]: 'swim_icon.png',
-      [ActivityType.RUN]: 'run_icon.png',
-      [ActivityType.BIKE]: 'bike_icon.png',
-      [ActivityType.ROW]: 'row_icon.png',
-      [ActivityType.CROSSCOUNTRYSKIING]: 'crosscountryskiing_icon.png',
-    };
-    return 'assets/activityIcons/' + iconMapping[activity.type]
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.trainingsplanService.sendJobDeleteRequest().subscribe(
+          () => {
+            this.snackbarService.openSnackBar("Previous Trainingsplan deleted.")
+          },
+          (error) => {
+            this.snackbarService.openSnackBar("Could not delete previous Trainingsplan because: " + error.error.message)
+          },
+        )
+      } else {
+        this.sentForScheduling = true;
+        this.interactive = false
+      }
+    });
   }
 
 

@@ -8,6 +8,7 @@ import ase.athlete_view.domain.csp.service.CspService
 import ase.athlete_view.domain.csp.service.impl.CspServiceImpl.Companion.SLOT_DURATION
 import ase.athlete_view.domain.csp.service.impl.CspServiceImpl.Companion.TOTAL_SLOTS
 import ase.athlete_view.domain.csp.util.QueueRequestSender
+import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.util.TestBase
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -15,6 +16,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.slot
+import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -34,6 +36,9 @@ class CspServiceUnitTests : TestBase() {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
+
+    @MockkBean
+    lateinit var ns: NotificationService
 
     @Test
     fun testAcceptWorksCorrectly() {
@@ -56,27 +61,27 @@ class CspServiceUnitTests : TestBase() {
         val schedule: Map<String, Any> = resultMap["schedule"] as Map<String, Any>
         val trainerTable: List<List<Boolean>> = schedule["trainerTable"] as List<List<Boolean>>
         val athleteTables: Map<String, List<List<Boolean>>> =
-            schedule["athleteTables"] as Map<String, List<List<Boolean>>>
+                schedule["athleteTables"] as Map<String, List<List<Boolean>>>
         val athleteTable: List<List<Boolean>>? = athleteTables["-2"]
         val countTrueValues: Int = athleteTable?.sumOf { it.count { value -> value } } ?: 0
         assertAll(
-            { assertEquals((resultMap["trainerId"] as Int), -3) }, //trainerId correct
-            {
-                assertTrue(
-                    (resultMap["requestTimestamp"] as Long) > Instant.now().toEpochMilli() - 5 * 60 * 1000
-                )
-            }, //requestTimestamp correct
-            { assertTrue(countWrongId.isEmpty()) }, // check activities were duplicated
-            { assertEquals(activities.size, 2) }, // check exactly 2 activities
-            { assertEquals(countWithTrainerFalse, 1) }, //check duplicate with other withTrainer bool value is correct
-            { assertEquals((schedule["trainerId"] as Int), -3) }, //trainerId correct
-            { assertEquals(trainerTable.size, 7) }, //check correct size
-            { assertEquals(trainerTable[0].size, TOTAL_SLOTS) }, //check correct size
-            { assertEquals(athleteTables["-2"]!!.size, 7) }, //check correct size
-            { assertEquals(athleteTables["-2"]!![0].size, TOTAL_SLOTS) }, //check correct size
-            { assertTrue(listOf(0, 1, 2).contains(activities[0]["intensity"])) }, //check intensity correctly mapped
-            { assertEquals(activities[0]["duration"], (60 / SLOT_DURATION)) }, //check duration correctly calculated
-            { assertEquals(countTrueValues, 44) }, // check constraints correctly substracted
+                { assertEquals((resultMap["trainerId"] as Int), -3) }, //trainerId correct
+                {
+                    assertTrue(
+                            (resultMap["requestTimestamp"] as Long) > Instant.now().toEpochMilli() - 5 * 60 * 1000
+                    )
+                }, //requestTimestamp correct
+                { assertTrue(countWrongId.isEmpty()) }, // check activities were duplicated
+                { assertEquals(activities.size, 2) }, // check exactly 2 activities
+                { assertEquals(countWithTrainerFalse, 1) }, //check duplicate with other withTrainer bool value is correct
+                { assertEquals((schedule["trainerId"] as Int), -3) }, //trainerId correct
+                { assertEquals(trainerTable.size, 7) }, //check correct size
+                { assertEquals(trainerTable[0].size, TOTAL_SLOTS) }, //check correct size
+                { assertEquals(athleteTables["-2"]!!.size, 7) }, //check correct size
+                { assertEquals(athleteTables["-2"]!![0].size, TOTAL_SLOTS) }, //check correct size
+                { assertTrue(listOf(0, 1, 2).contains(activities[0]["intensity"])) }, //check intensity correctly mapped
+                { assertEquals(activities[0]["duration"], (60 / SLOT_DURATION)) }, //check duration correctly calculated
+                { assertEquals(countTrueValues, 44) }, // check constraints correctly substracted
         )
     }
 
@@ -94,17 +99,17 @@ class CspServiceUnitTests : TestBase() {
         val cspActivityDto7 = CspActivityDto(-9, false)
         val cspActivityDto8 = CspActivityDto(-9, false)
         val cspMappingDto = CspMappingDto(
-            -2,
-            listOf(
-                cspActivityDto1,
-                cspActivityDto2,
-                cspActivityDto3,
-                cspActivityDto4,
-                cspActivityDto5,
-                cspActivityDto6,
-                cspActivityDto7,
-                cspActivityDto8
-            )
+                -2,
+                listOf(
+                        cspActivityDto1,
+                        cspActivityDto2,
+                        cspActivityDto3,
+                        cspActivityDto4,
+                        cspActivityDto5,
+                        cspActivityDto6,
+                        cspActivityDto7,
+                        cspActivityDto8
+                )
         )
         val cspDto = CspDto(listOf(cspMappingDto))
         assertThrows<ValidationException> { cspService.accept(cspDto, -3) }
@@ -138,7 +143,7 @@ class CspServiceUnitTests : TestBase() {
 
         val cspActivityDto = CspActivityDto(-8, true)
         val cspMappingDto =
-            CspMappingDto(-1, listOf(cspActivityDto, cspActivityDto, cspActivityDto, cspActivityDto, cspActivityDto))
+                CspMappingDto(-1, listOf(cspActivityDto, cspActivityDto, cspActivityDto, cspActivityDto, cspActivityDto))
         val cspDto = CspDto(listOf(cspMappingDto))
         assertThrows<ValidationException> { cspService.accept(cspDto, -3) }
     }
@@ -162,8 +167,11 @@ class CspServiceUnitTests : TestBase() {
     }
 
     @Test
-    fun testRevertJobRevertsCorrectly() {
+    fun
+            testRevertJobRevertsCorrectly() {
         every { qrs.sendMessage(any()) } returns Unit
+        every { ns.sendNotification(any(), any(), any(), any(), any()) } returns null
+
         val cspActivityDto1 = CspActivityDto(-8, true)
         val cspActivityDto2 = CspActivityDto(-9, false)
         val cspMappingDto = CspMappingDto(-2, listOf(cspActivityDto1, cspActivityDto2))
@@ -174,6 +182,10 @@ class CspServiceUnitTests : TestBase() {
         cspService.revertJob(-3)
         val job2 = cspService.getJob(-3)
         assertNull(job2)
+
+        verify(exactly = 2) {
+            ns.sendNotification(match { it == -2L }, "Current Trainingsplan reverted", any(), any())
+        }
     }
 
 }

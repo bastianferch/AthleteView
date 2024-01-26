@@ -7,13 +7,11 @@ from Scheduler import scheduleThresholdSearch
 
 from Exceptions import *
 
-import worker as rabbitmq_consumer
-
 @pytest.fixture
 def load_data(request):
     def _load_data(id):
         data = ""
-        with open(f"examples/{id}.json", "r") as fp:
+        with open(f"test/{id}.json", "r") as fp:
             data = json.load(fp)
         return data
     return _load_data
@@ -22,7 +20,7 @@ def load_data(request):
 def load_expected(request):
     def _load_expected(id):
         data = ""
-        with open(f"examples/{id}_expected.json", "r") as fp:
+        with open(f"test/{id}_expected.json", "r") as fp:
             data = json.load(fp)
         return data
     return _load_expected
@@ -59,8 +57,9 @@ def test_algorithm_positive_instance(load_data,load_expected,capsys):
     expected = load_expected(id_value)
 
     (activities, schedule) = parser(data)
-    (threshold,resp) = scheduleThresholdSearch(activities, schedule, 1)[0]
-
+    (threshold,resp) = scheduleThresholdSearch(activities, schedule, 1)
+    resp = resp[0]
+    print(resp.toJson())
     assert resp.getActivitiesAsJson() == expected["activities"]
 
 def test_algorithm_negative_instance_intensity_constraint(load_data,load_expected,capsys):

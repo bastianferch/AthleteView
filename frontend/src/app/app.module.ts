@@ -27,7 +27,6 @@ import { ConfirmationDialogComponent } from './common/component/dialog/confirmat
 import { InviteDialogComponent } from './domain/invite-dialog/invite-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-
 @NgModule({
   declarations: [
     AppComponent,

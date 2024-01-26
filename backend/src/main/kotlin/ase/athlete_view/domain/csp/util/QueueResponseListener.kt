@@ -51,7 +51,9 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
             if (!(resultMap["success"] as Boolean)) {
                 log.error { "Received error response from queue: ${resultMap["error"]}" }
                 notificationService.sendNotification(trainerId, "Scheduling Job failed", resultMap["error"] as String, "/trainingsplan")
-                cspService.revertJob(trainerId)
+                if(cspService.getJob(trainerId) != null){
+                    cspService.revertJob(trainerId)
+                }
                 return
             }
 
@@ -124,7 +126,10 @@ class QueueResponseListener(private val objectMapper: ObjectMapper,
             log.error { "Error reading incoming response from queue: ${e.message}" }
             if (trainerId != null) {
                 notificationService.sendNotification(trainerId, "Error during scheduling", "There was an error during scheduling. Please try again", "/trainingsplan")
-                cspService.revertJob(trainerId)
+                if(cspService.getJob(trainerId) != null){
+                    cspService.revertJob(trainerId)
+                }
+
             }
         }
     }
