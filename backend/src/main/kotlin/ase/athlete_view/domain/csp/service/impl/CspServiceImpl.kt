@@ -12,6 +12,7 @@ import ase.athlete_view.domain.csp.pojo.dto.CspDto
 import ase.athlete_view.domain.csp.pojo.entity.CspJob
 import ase.athlete_view.domain.csp.service.CspService
 import ase.athlete_view.domain.csp.util.QueueRequestSender
+import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.service.TimeConstraintService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
@@ -26,7 +27,7 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 
 @Service
-class CspServiceImpl(private val cspRepository: CspRepository, private val mapper: ObjectMapper, private val queueSender: QueueRequestSender, private val constraintService: TimeConstraintService, private val userService: UserService, private val activityService: ActivityService) : CspService {
+class CspServiceImpl(private val cspRepository: CspRepository, private val mapper: ObjectMapper, private val queueSender: QueueRequestSender, private val constraintService: TimeConstraintService, private val userService: UserService, private val activityService: ActivityService, private val notificationService: NotificationService) : CspService {
     private val logger = KotlinLogging.logger {}
 
     companion object {
@@ -62,9 +63,16 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
         if (temp == null) {
             throw NotFoundException("There is no Job for next week.")
         }
-
+        notifyAthletesOfRevert(temp.activities)
         activityService.deletePlannedActivities(temp.activities)
         cspRepository.delete(temp)
+    }
+
+    fun notifyAthletesOfRevert(activities: MutableList<PlannedActivity>) {
+        for (activity in activities) {
+            notificationService.sendNotification(activity.createdFor!!.id!!, "Current Trainingsplan reverted", "Your trainer has reverted the current trainingsplan. A new one will likely be scheduled soon.")
+            activity.createdFor
+        }
     }
 
     override fun getJob(userId: Long): CspJob? {
