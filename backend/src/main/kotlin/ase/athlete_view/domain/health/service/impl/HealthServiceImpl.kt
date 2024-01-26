@@ -5,6 +5,7 @@ import ase.athlete_view.domain.health.persistence.HealthRepository
 import ase.athlete_view.domain.health.pojo.dto.HealthDTO
 import ase.athlete_view.domain.health.pojo.entity.Health
 import ase.athlete_view.domain.health.service.HealthService
+import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.user.service.UserService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import java.time.LocalDate
 
 @Service
 class HealthServiceImpl(
@@ -61,15 +63,21 @@ class HealthServiceImpl(
         return healthRepository.findByUser_Id(userId)
     }
 
+    override fun getAllByUser(userID: Long, start: LocalDate, end: LocalDate): List<Health> {
+        log.trace { "S | getAllByUser $userID, start: $start, end: $end" }
+        return this.healthRepository.findAllByUserIdAndDateIsAfterAndDateIsBefore(userID, start, end)
+    }
+
     override fun getAllFromAthlete(athleteId: Long, userId: Long): List<Health> {
         log.trace { "S | getAllFromAthlete($athleteId, $userId)" }
 
         val athletes = athleteService.getByTrainerId(userId)
-        val athlete = athleteService.getById(athleteId)
-        if (userService.getPreferences(athlete.toUserDTO())?.shareHealthWithTrainer == true and
-            athletes.contains(athlete)
-        ) {
-            return healthRepository.findByUser_Id(athleteId)
+            val athlete = athleteService.getById(athleteId)
+            if (userService.getPreferences(athlete.toUserDTO())?.shareHealthWithTrainer == true and
+                athletes.contains(athlete)
+            ) {
+                return healthRepository.findByUser_Id(athleteId)
+
         }
         return emptyList()
     }
@@ -79,4 +87,19 @@ class HealthServiceImpl(
         return this.healthRepository.save(health)
     }
 
+    override fun createHealthDataForTheLast30Days(athlete: Athlete) {
+        val today = LocalDate.now()
+        val healthList = mutableListOf<Health>()
+        for (i in 1L..30L){
+            healthList.add(Health(
+                id = null,
+                user = athlete,
+                date = today.minusDays(i),
+                avgSteps = 15000,
+                avgBPM = 80,
+                avgSleepDuration = 9 * 60
+            ))
+        }
+        this.healthRepository.saveAll(healthList)
+    }
 }

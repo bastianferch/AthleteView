@@ -4,6 +4,7 @@ import ase.athlete_view.domain.health.persistence.HealthRepository
 import ase.athlete_view.domain.health.pojo.dto.HealthDTO
 import ase.athlete_view.domain.health.pojo.entity.Health
 import ase.athlete_view.domain.health.service.HealthService
+import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.HealthCreator
 import ase.athlete_view.util.TestBase
@@ -16,6 +17,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -127,6 +129,24 @@ class HealthServiceIntegrationTest : TestBase() {
         healthRepository.save(Health(null, UserCreator.getAthlete(-2), LocalDate.now(), 1, 1, 1))
         userService.patchPreferences(UserCreator.getAthleteDTO(), UserCreator.getPreferencesDto())
         assertThat(this.healthService.getAllFromAthlete(-4, USER_ID)).hasSize(0)
+    }
+
+    @Test
+    @WithCustomMockUser(id = USER_ID)
+    fun createHealthDataForTheLast7DaysWorksCorrect() {
+        assertThat(this.healthRepository.findAll().isEmpty()).isTrue()
+        val user = this.userService.getById(-1)
+        this.healthService.createHealthDataForTheLast30Days(user as Athlete)
+        val healthList = this.healthRepository.findAll()
+        assertAll(
+            "after there should be 30 health objects with different dates",
+            { assertThat(healthList.size).isEqualTo(30) },
+            { assertThat(healthList[0].avgSteps).isEqualTo(15000) },
+            { assertThat(healthList[0].avgBPM).isEqualTo(80) },
+            { assertThat(healthList[0].avgSleepDuration).isEqualTo(9 * 60) },
+            { assertThat(healthList[0].date).isNotEqualTo(healthList[1].date) },
+        )
+
     }
 
     companion object {

@@ -7,6 +7,9 @@ import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.health.persistence.HealthRepository
+import ase.athlete_view.domain.health.pojo.entity.Health
+import ase.athlete_view.domain.health.service.HealthService
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
@@ -29,11 +32,14 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.random.Random
 
 @Component
 @Profile("datagen")
 class DatagenProfile(
     private val userService: UserService,
+    private val healthService: HealthService,
+    private val healthRepository: HealthRepository,
     private val tcService: TimeConstraintService,
     private val activityService: ActivityService,
     private val plannedActivityRepo: PlannedActivityRepository,
@@ -87,6 +93,21 @@ class DatagenProfile(
         )
         athlete.isConfirmed = true
         val saved = this.userService.save(athlete)
+        val healthList = ArrayList<Health>()
+        val today = LocalDate.now()
+        var weekIterator = today.minusDays(7)
+        while (!weekIterator.isEqual(today)){
+            healthList.add(Health(
+                null,
+                saved,
+                weekIterator,
+                Random.nextInt(5000, 20000),
+                Random.nextInt(50,110),
+                Random.nextInt(3*60, 10*60)))
+            weekIterator = weekIterator.plusDays(1)
+        }
+        this.healthRepository.saveAll(healthList)
+
         setDefaultAvailability(athlete)
         this.zoneService.resetZones(saved.id!!)
         this.tcService.createDefaultTimeConstraintsForUser(saved)
@@ -191,6 +212,7 @@ class DatagenProfile(
                             val reducePaceInMinKm = faker.random.nextInt(-30, 30)
                             plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
                             filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
+                            healthService.createHealthDataForTheLast30Days(athlete)
                         }
                     }
                 } else {

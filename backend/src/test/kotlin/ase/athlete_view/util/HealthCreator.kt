@@ -21,6 +21,28 @@ class HealthCreator {
         const val DEFAULT_AVG_BPM_2: Int = 80
         const val DEFAULT_AVG_SLEEP_DURATION_2: Int = 500
 
+        fun getDefaultGoodHealth(user: User, date: LocalDate): Health {
+            return Health(
+                id = null,
+                user = user,
+                date = date,
+                avgSteps = 10000,
+                avgBPM = 80,
+                avgSleepDuration = 8 * 60
+            )
+        }
+
+        fun getDefaultMehHealth(user: User, date: LocalDate): Health {
+            return Health(
+                id = null,
+                user = user,
+                date = date,
+                avgSteps = 1500,
+                avgBPM = 60,
+                avgSleepDuration = 2 * 60
+            )
+        }
+
         fun defaultHealthForOneWeek_1(user: User): List<Health> {
             return listOf(
                 Health(
