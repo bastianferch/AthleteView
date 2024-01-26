@@ -6,7 +6,7 @@ import { User } from "../dto/user";
 import { forkJoin } from "rxjs";
 import { SnackbarService } from "../../../common/service/snackbar.service";
 import { MatDialog } from '@angular/material/dialog';
-import { ModalComponent } from "./modal/modal.component";
+import { ConfirmationDialogComponent } from "../../../common/component/dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-trainingsplan',
@@ -66,11 +66,14 @@ export class TrainingsplanComponent implements OnInit {
   }
 
   openModal():void {
-    const dialogRef = this.dialog.open(ModalComponent, {
-      width: '400px',
-      data: { title: 'Trainingsplan Exisits', content: 'A trainingsplan for next week has already been created. Do you want to:',option1: "Reset",option2: "Look at the plan" },
-      disableClose: true,
-    })
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        headline: 'Trainingsplan already exists',
+        content: 'A trainingsplan for next week has already been created. Do you want to reset and plan again?',
+        confirmationText: 'Reset Plan',
+        cancelText: 'View Plan',
+      },
+    });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -83,7 +86,6 @@ export class TrainingsplanComponent implements OnInit {
           },
         )
       } else {
-        // TODO: set non interactive here
         this.sentForScheduling = true;
         this.interactive = false
       }
