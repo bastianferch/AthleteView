@@ -5,8 +5,6 @@ import { StepDurationType, StepTargetType, StepType } from "../dto/Step";
   providedIn: 'root',
 })
 export class IntervalService {
-
-  // TODO these colors are not dependent on the theme colors. But they could be dependent on light/dark mode.
   getColor(type?: StepType) {
     if (type === StepType.ACTIVE) return 'Crimson';
     if (type === StepType.RECOVERY) return 'LightGreen';

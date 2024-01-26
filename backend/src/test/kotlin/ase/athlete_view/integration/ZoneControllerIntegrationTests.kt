@@ -9,7 +9,6 @@ import ase.athlete_view.util.UserCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -33,8 +32,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @ActiveProfiles("test")
 class ZoneControllerIntegrationTests: TestBase() {
 
-    val logger = KotlinLogging.logger {}
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -50,7 +47,7 @@ class ZoneControllerIntegrationTests: TestBase() {
     @WithCustomMockUser(id = TEST_USER_ID)
     fun resetZones_shouldCreateZonesAndReturnOk() {
 
-        val result = mockMvc.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders.delete("/api/zones").with(SecurityMockMvcRequestPostProcessors.csrf())
 
         ).andExpect(MockMvcResultMatchers.status().isOk)
@@ -58,8 +55,6 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray)
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(5))
             .andReturn().response.contentAsString
-
-        logger.info { result }
     }
 
     @Test
@@ -154,7 +149,6 @@ class ZoneControllerIntegrationTests: TestBase() {
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray)
             .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0))
             .andReturn().response.contentAsString
-
     }
 
 }

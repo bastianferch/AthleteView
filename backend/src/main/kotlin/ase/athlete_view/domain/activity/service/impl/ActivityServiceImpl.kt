@@ -1,11 +1,17 @@
 package ase.athlete_view.domain.activity.service.impl
 
-import  ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.exception.entity.InternalException
+import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
+import ase.athlete_view.common.exception.entity.NoMapDataException
 import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.activity.persistence.*
+import ase.athlete_view.domain.activity.pojo.dto.ActivityStatisticsDTO
 import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
+import ase.athlete_view.domain.activity.pojo.dto.MapDataDTO
 import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.*
+import ase.athlete_view.domain.activity.pojo.entity.Activity
 import ase.athlete_view.domain.activity.pojo.util.ActivityType
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.activity.service.validator.ActivityValidator
@@ -17,6 +23,7 @@ import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
+import ase.athlete_view.domain.user.service.UserService
 import com.garmin.fit.FitMessages
 import com.garmin.fit.Intensity
 import com.garmin.fit.LapMesg
@@ -25,12 +32,18 @@ import com.garmin.fit.RecordMesg
 import com.garmin.fit.Sport
 import ase.athlete_view.domain.activity.pojo.util.ActivityType as MyActivityType
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpMethod
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.pow
 
 @Service
 class ActivityServiceImpl(
@@ -39,19 +52,28 @@ class ActivityServiceImpl(
     private val intervalRepo: IntervalRepository,
     private val stepRepo: StepRepository,
     private val userRepository: UserRepository,
+    private val userService: UserService,
     private val validator: ActivityValidator,
     private val fitParser: FitParser,
     private val activityRepo: ActivityRepository,
     private val fitFileRepo: FitDataRepositoryImpl,
     private val sanitizer: Sanitizer,
     private val notificationService: NotificationService,
-    private val timeDateUtil: TimeDateUtil
+    private val timeDateUtil: TimeDateUtil,
+    private val restTemplate: RestTemplate,
 ) : ActivityService {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
+
+    @Value("\${api.mock.url}")
+    val apiHost: String? = null
 
     @Transactional
-    override fun createPlannedActivity(plannedActivity: PlannedActivity, userId: Long, isCsp: Boolean): PlannedActivity {
-        logger.trace { "S | createPlannedActivity \n $plannedActivity" }
+    override fun createPlannedActivity(
+        plannedActivity: PlannedActivity,
+        userId: Long,
+        isCsp: Boolean
+    ): PlannedActivity {
+        log.trace { "S | createPlannedActivity($plannedActivity, $userId, $isCsp)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -85,10 +107,11 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun getPlannedActivity(id: Long, userId: Long): PlannedActivity {
-        logger.trace { "S | getPlannedActivity $id" }
+        log.trace { "S | getPlannedActivity ($id, $userId)" }
 
         // activity is fetched right away, so we don't have to do unnecessary computation for nonexistent activities
-        val activity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
+        val activity =
+            this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -107,11 +130,9 @@ class ActivityServiceImpl(
             }
         } else if (userObject is Trainer) {
             // Trainers see activities of their Athletes and their own templates
-            // TODO: does this also need to be adapted to use `createdFor`?
             val isOwnTemplate = userObject.activities.any { it.id == id }
             var isForAthleteOfTrainer = false
             for (athlete in userObject.athletes) {
-                // TODO: same here, think this only considers those `createdBy` athlete, none that were created for them by trainer
                 if (athlete.activities.any { it.id == id }) {
                     isForAthleteOfTrainer = true
                 }
@@ -126,8 +147,12 @@ class ActivityServiceImpl(
     }
 
 
-    override fun getAllPlannedActivities(userId: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<PlannedActivity> {
-        logger.trace { "S | getAllPlannedActivities" }
+    override fun getAllPlannedActivities(
+        userId: Long,
+        startDate: LocalDateTime?,
+        endDate: LocalDateTime?
+    ): List<PlannedActivity> {
+        log.trace { "S | getAllPlannedActivities($userId, $startDate, $endDate)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -165,13 +190,13 @@ class ActivityServiceImpl(
     }
 
     override fun getAllTemplates(uid: Long): List<PlannedActivity> {
-        logger.trace { "S | getAllTemplates" }
+        log.trace { "S | getAllTemplates($uid)" }
         return plannedActivityRepo.findAllTemplatesForUid(uid)
     }
 
     @Transactional
     override fun updatePlannedActivity(id: Long, plannedActivity: PlannedActivity, userId: Long): PlannedActivity {
-        logger.trace { "S | updatePlannedActivity $id $plannedActivity" }
+        log.trace { "S | updatePlannedActivity($id, $plannedActivity, $userId)" }
 
         // get the logged-in user
         val user = userRepository.findById(userId)
@@ -181,7 +206,8 @@ class ActivityServiceImpl(
         plannedActivity.createdBy = user.get()
 
         // get the original activity
-        val oldPlannedActivity = this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
+        val oldPlannedActivity =
+            this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
 
         // check if the user can edit this activity and if the new one is valid
         validator.validateEditPlannedActivity(plannedActivity, oldPlannedActivity, user.get())
@@ -194,14 +220,15 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun importActivity(files: List<MultipartFile>, userId: Long): Activity {
-        logger.trace { "S | Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
+        log.trace { "S | importActivity($userId)" }
+        log.debug { "Ready to parse ${files.size} (${files[0].name}) files for user w/ ID $userId" }
 
         val user = userRepository.findById(userId)
         if (!user.isPresent) {
             throw BadCredentialsException("User not found")
         }
 
-        var ids = arrayOf<String>().toMutableList()
+        val ids = arrayOf<String>().toMutableList()
         var respData: Activity? = null
         for (item in files) {
             val data = fitParser.decode(item.inputStream)
@@ -224,16 +251,42 @@ class ActivityServiceImpl(
     }
 
     @Transactional
-    override fun deletePlannedActivities(activities: List<PlannedActivity>){
-        logger.trace { "S | deleteActivities" }
-        for (elem in activities){
+    override fun deletePlannedActivities(activities: List<PlannedActivity>) {
+        log.trace { "S | deleteActivities($activities)" }
+        for (elem in activities) {
             plannedActivityRepo.delete(elem)
         }
     }
 
     @Transactional
+    override fun syncWithMockServer(userId: Long) {
+        log.trace { "S | syncWithMockServer()" }
+        val user = this.userService.getById(userId)
+        val responseEntity: ByteArray = restTemplate.execute(
+            apiHost + "activity",
+            HttpMethod.GET,
+            { request -> },
+            { response ->
+                response.body.readBytes()
+            }
+        )?: throw InternalException("Could not parse an entity from syncWithMockServer server.")
+
+        val updatedFile = MockMultipartFile(
+            "syncWithMockServer_${user.id}_${LocalDate.now()}.fit",
+            "syncWithMockServer_${user.id}_${LocalDate.now()}.fit",
+            null,
+            responseEntity
+        )
+        try{
+            user.id?.let { this.importActivity(listOf(updatedFile), it) }
+        } catch (_: DuplicateFitFileException){
+            // already up to date
+        }
+    }
+
+    @Transactional
     override fun calculateStats(data: FitMessages, user: User, item: MultipartFile): Pair<Activity, String> {
-        logger.trace { "S | calculateStats" }
+        log.trace { "S | calculateStats($user)" }
         var powerSum = 0
         var hrSum = 0
         var calSum = 0
@@ -283,7 +336,6 @@ class ActivityServiceImpl(
          * 2. check if the durations of the laps match the durations of the steps
          */
         if (compare) {
-
 
             val startTime = timeDateUtil.convertToLocalDateTime(data.recordMesgs[0].timestamp.timestamp)
                 .withHour(0)
@@ -335,8 +387,17 @@ class ActivityServiceImpl(
 
                 laps.add(
                     Lap(
-                        null, i, lap.totalTimerTime.toInt(), lap.totalDistance?.toInt(), lap.enhancedAvgSpeed, lap.avgPower?.toInt(),
-                        lap.maxPower?.toInt(), lap.avgHeartRate?.toInt(), lap.maxHeartRate?.toInt(), lap.avgCadence?.toInt(), lap.maxCadence?.toInt(),
+                        null,
+                        i,
+                        lap.totalTimerTime.toInt(),
+                        lap.totalDistance?.toInt(),
+                        lap.enhancedAvgSpeed,
+                        lap.avgPower?.toInt(),
+                        lap.maxPower?.toInt(),
+                        lap.avgHeartRate?.toInt(),
+                        lap.maxHeartRate?.toInt(),
+                        lap.avgCadence?.toInt(),
+                        lap.maxCadence?.toInt(),
                         mapFitIntensityToStepType(lap.intensity)
                     )
                 )
@@ -365,13 +426,21 @@ class ActivityServiceImpl(
                     if (d.cadence == null) {
                         intensityValueMissing++
                     } else {
-                        accuracySum += isBetween(d.cadence.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                        accuracySum += isBetween(
+                            d.cadence.toInt(),
+                            stepList[j].targetFrom ?: 0,
+                            stepList[j].targetTo ?: 0
+                        )
                     }
                 } else if (stepList[j].targetType == StepTargetType.HEARTRATE) {
                     if (d.heartRate == null) {
                         intensityValueMissing++
                     } else {
-                        accuracySum += isBetween(d.heartRate.toInt(), stepList[j].targetFrom ?: 0, stepList[j].targetTo ?: 0)
+                        accuracySum += isBetween(
+                            d.heartRate.toInt(),
+                            stepList[j].targetFrom ?: 0,
+                            stepList[j].targetTo ?: 0
+                        )
                     }
                 } else if (stepList[j].targetType == StepTargetType.PACE) {
                     if (d.enhancedSpeed == null) {
@@ -436,7 +505,7 @@ class ActivityServiceImpl(
 
         plannedActivity = if (compare && accuracy < 25) null else plannedActivity
 
-        val fitId: String = fitFileRepo.saveFitData(item.inputStream, item.name)
+        val fitId: String = fitFileRepo.saveFitData(item.inputStream, item.name, user.id!!)
 
         val activity = Activity(
             null,
@@ -464,12 +533,13 @@ class ActivityServiceImpl(
     }
 
     private fun compareLapLists(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        log.trace { "S | compareLapLists($stepList, $lapList)" }
         var i = 0
         for (lap in lapList) { // go through all laps
             val stepIntensity = stepList[i].type
             val lapIntensity = mapFitIntensityToStepType(lap.intensity)
             if (lapIntensity != stepIntensity) {
-                if (i == stepList.size) { // all steps are done and more laps
+                if (i == stepList.size - 1) { // all steps are done and more laps
                     return false
                 } else if (lapIntensity != stepList[i + 1].type) { // next step is also not the correct one
                     return false
@@ -483,7 +553,7 @@ class ActivityServiceImpl(
 
 
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
-        logger.trace { "S | getAllActivities" }
+        log.trace { "S | getAllActivities($uid, $startDate, $endDate)" }
         val userObject = userRepository.findById(uid).getOrNull()
             ?: throw NotFoundException("No such user!")
 
@@ -492,7 +562,8 @@ class ActivityServiceImpl(
         // Athletes can only see their own activities
         if (userObject is Athlete) {
             if (startDate != null && endDate != null) {
-                activities = activityRepo.findActivitiesByUserAndDateRange(userObject.id!!, startDate, endDate).toMutableSet()
+                activities =
+                    activityRepo.findActivitiesByUserAndDateRange(userObject.id!!, startDate, endDate).toMutableSet()
             } else {
                 activities = activityRepo.findActivitiesByUserId(uid).toMutableSet()
             }
@@ -500,7 +571,8 @@ class ActivityServiceImpl(
             // Trainers see activities of their Athletes
             for (athlete in userObject.athletes) {
                 if (startDate != null && endDate != null) {
-                    activities += activityRepo.findActivitiesByUserAndDateRange(athlete.id!!, startDate, endDate).toSet()
+                    activities += activityRepo.findActivitiesByUserAndDateRange(athlete.id!!, startDate, endDate)
+                        .toSet()
                 } else {
                     activities += activityRepo.findActivitiesByUserId(athlete.id!!).toSet()
                 }
@@ -510,6 +582,7 @@ class ActivityServiceImpl(
     }
 
     private fun compareLapDurations(stepList: List<Step>, lapList: List<LapMesg>): Boolean {
+        log.trace { "S | compareLapDurations($stepList, $lapList)" }
         var i = 0
         for (step in stepList) { // go through all steps
             when (step.durationType) {
@@ -546,13 +619,20 @@ class ActivityServiceImpl(
         return true
     }
 
-    private fun getPlannedActivityByTypeUserIdAndDate(id: Long, type: ActivityType, startTime: LocalDateTime, endTime: LocalDateTime): List<PlannedActivity> {
+    private fun getPlannedActivityByTypeUserIdAndDate(
+        id: Long,
+        type: ActivityType,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime
+    ): List<PlannedActivity> {
+        log.trace { "S | getPlannedActivityByTypeUserIdAndDate($id, $type, $startTime, $endTime)" }
         return this.plannedActivityRepo.findActivitiesByUserIdTypeAndDateWithoutActivity(id, type, startTime, endTime)
     }
 
 
     @Transactional
     override fun createInterval(interval: Interval): Interval {
+        log.trace { "S | createInterval($interval)" }
         if (interval.intervals?.isNotEmpty() == true) {
             interval.intervals!!.forEach { createInterval(it) }
         }
@@ -564,12 +644,13 @@ class ActivityServiceImpl(
 
     @Transactional
     override fun createStep(step: Step): Step {
+        log.trace { "S | createStep($step)" }
         return this.stepRepo.save(step)
     }
 
 
     override fun getSingleActivityForUser(userId: Long, activityId: Long): Activity {
-        logger.trace { "S | getSingleActivityForUser($userId, $activityId)" }
+        log.trace { "S | getSingleActivityForUser($userId, $activityId)" }
 
         val user = this.userRepository.findById(userId)
         if (!user.isPresent) {
@@ -591,7 +672,7 @@ class ActivityServiceImpl(
         if (userObj is Athlete) {
             val activitiesForUser = activityRepo.findActivitiesByUserId(userObj.id!!)
             if (activitiesForUser.none { it.id == activityObj.id!! }) {
-                logger.debug { "Tried to fetch activity for user other than self!" }
+                log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
         } else if (userObj is Trainer) {
@@ -604,7 +685,7 @@ class ActivityServiceImpl(
                 }
             }
             if (!isForAthleteOfTrainer) {
-                logger.debug { "Tried to fetch activity for user other than self!" }
+                log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
         }
@@ -612,7 +693,7 @@ class ActivityServiceImpl(
     }
 
     override fun commentActivityWithUser(userId: Long, activityId: Long, comment: CommentDTO): Comment {
-        logger.trace { "S | commentActivityWithUser($userId, $activityId, $comment)" }
+        log.trace { "S | commentActivityWithUser($userId, $activityId, $comment)" }
 
         // check if user exists
         val userObj = userExists(userId)
@@ -642,13 +723,21 @@ class ActivityServiceImpl(
         val notificationLink = "activity/finished/" + activityObj.id
         val notificationType = NotificationType.COMMENT
 
-        sendNotificationToOtherParty(userId, activityObj, userObj, notificationHeader, notificationBody, notificationLink, notificationType)
+        sendNotificationToOtherParty(
+            userId,
+            activityObj,
+            userObj,
+            notificationHeader,
+            notificationBody,
+            notificationLink,
+            notificationType
+        )
 
         return commentObj
     }
 
     override fun rateActivityWithUser(userId: Long, activityId: Long, rating: Int) {
-        logger.trace { "S | rateActivityWithUser($userId, $activityId, $rating)" }
+        log.trace { "S | rateActivityWithUser($userId, $activityId, $rating)" }
 
         // check if user exists
         val userObj = userExists(userId)
@@ -662,9 +751,9 @@ class ActivityServiceImpl(
         validator.validateRating(rating)
 
         if (userObj is Athlete) {
-            activityObj.ratingAthlete = rating.toInt()
+            activityObj.ratingAthlete = rating
         } else if (userObj is Trainer) {
-            activityObj.ratingTrainer = rating.toInt()
+            activityObj.ratingTrainer = rating
         }
 
         activityRepo.saveAndFlush(activityObj)
@@ -675,7 +764,15 @@ class ActivityServiceImpl(
         val notificationLink = "activity/finished/" + activityObj.id
         val notificationType = NotificationType.RATING
 
-        sendNotificationToOtherParty(userId, activityObj, userObj, notificationHeader, notificationBody, notificationLink, notificationType)
+        sendNotificationToOtherParty(
+            userId,
+            activityObj,
+            userObj,
+            notificationHeader,
+            notificationBody,
+            notificationLink,
+            notificationType
+        )
     }
 
     // send notification to other user when commenting/rating an activity
@@ -687,7 +784,9 @@ class ActivityServiceImpl(
         notificationHeader: String,
         notificationBody: String,
         notificationLink: String,
-        notificationType: NotificationType) {
+        notificationType: NotificationType
+    ) {
+        log.trace { "S | sendNotificationToOtherParty($userId, $activityObj, $userObj, $notificationHeader, $notificationBody, $notificationLink, $notificationBody)" }
 
         if (userId == activityObj.user?.id && userObj is Athlete) {
             // get the trainer of the user
@@ -698,7 +797,8 @@ class ActivityServiceImpl(
                     notificationHeader,
                     notificationBody,
                     notificationLink,
-                    notificationType)
+                    notificationType
+                )
             }
         } else if (userObj is Trainer) {
             // if the commenting/rating user is a trainer, send the notification to the athlete who owns the activity
@@ -711,7 +811,8 @@ class ActivityServiceImpl(
                         notificationHeader,
                         notificationBody,
                         notificationLink,
-                        notificationType)
+                        notificationType
+                    )
                 }
             }
         }
@@ -741,19 +842,109 @@ class ActivityServiceImpl(
 
 
     fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
+        log.trace { "S | convertMetersPerSecondToSecondsPerKilometer($speedInMetersPerSecond)" }
         return (1000 / speedInMetersPerSecond).toInt()
     }
 
+    override fun prepareMapDataForActivity(uid: Long, activityId: Long): List<MapDataDTO> {
+        log.trace { "S | prepareMapDataForActivity ($activityId) for user $uid" }
+
+        userExists(uid)
+        val activityObject = activityExists(activityId)
+        canUserAccessActivity(uid, activityId)
+
+        if (activityObject.fitData == null) {
+            throw NoMapDataException("Please import your finished activity first!")
+        }
+
+        val fitData = this.fitFileRepo.getFitData(activityObject.fitData!!)
+        val dataList = mutableListOf<MapDataDTO>()
+        val msgs = this.fitParser.decode(fitData.stream).recordMesgs
+
+        for (d in msgs) {
+            val lat = d.positionLat
+            val lon = d.positionLong
+
+            if (lat != null && lon != null) {
+                dataList.add(MapDataDTO(convertSemicircleToDegrees(lat), convertSemicircleToDegrees(lon)))
+            }
+        }
+
+        return dataList.toList()
+    }
+
+    override fun prepareStatisticsForActivity(uid: Long, activityId: Long): List<ActivityStatisticsDTO> {
+        log.trace { "S | prepareStatisticsForActivity ($activityId) for user $uid" }
+
+        userExists(uid)
+        val activityObj = activityExists(activityId)
+        canUserAccessActivity(uid, activityId)
+
+        if (activityObj.fitData == null) {
+            return emptyList()
+        }
+
+        val fitData = fitFileRepo.getFitData(activityObj.fitData!!)
+        val fitMessages = fitParser.decode(fitData.stream)
+
+        val statisticsList = mutableListOf<ActivityStatisticsDTO>()
+
+
+        for (msg in fitMessages.recordMesgs) {
+            val dt = TimeDateUtil().convertToLocalDateTime(msg!!.timestamp.timestamp)
+            val item = ActivityStatisticsDTO(dt)
+
+            if (msg.heartRate != null) {
+                val hr = msg.heartRate
+                if (hr >= 30.toShort() && hr < 220.toShort()) {
+                    item.bpm = msg.heartRate.toInt()
+                }
+            }
+
+            val speed = if (msg.speed != null) msg.speed else msg.enhancedSpeed
+
+            if (speed != null && speed >= 0.toFloat() && speed <= 15) {
+                item.speed = speed
+            }
+
+            if (msg.cadence != null && msg.cadence > 0) {
+                item.cadence = msg.cadence
+            }
+
+            if (msg.power != null) {
+                item.power = msg.power
+            }
+
+            if (msg.altitude != null) {
+                item.altitude = msg.altitude
+            } else if (msg.enhancedAltitude != null) {
+                item.altitude = msg.enhancedAltitude
+            }
+
+            statisticsList.add(item)
+        }
+
+        return statisticsList.toList()
+    }
 
     private fun convertMetersPerSecondToKilometerPerHour(enhancedSpeed: Float?): Int {
+        log.trace { "S | convertMetersPerSecondToKilometerPerHour($enhancedSpeed)" }
         return (enhancedSpeed!! * 3.6).toInt()
     }
 
+    private fun convertSemicircleToDegrees(pos: Int): Double {
+        // https://forums.garmin.com/developer/fit-sdk/f/discussion/325061/what-crs-does-the-python-sdk-decode-to-eg-position_lat-485072248-position_long--882385675/1576901#1576901
+        return pos * (180 / 2.0.pow(31))
+    }
+
+
     fun isBetween(value: Int, from: Int, to: Int): Int {
+        log.trace { "S | isBetween($value, $from, $to)" }
         return if (value in from..to) 1 else 0
     }
 
     private fun userExists(userId: Long): User {
+        log.trace { "S | userExists($userId)" }
         val user = this.userRepository.findById(userId)
         if (!user.isPresent) {
             throw NotFoundException("User not found")
@@ -762,18 +953,20 @@ class ActivityServiceImpl(
     }
 
     private fun activityExists(activityId: Long): Activity {
+        log.trace { "S | activityExists($activityId)" }
         val activity = this.activityRepo.findById(activityId)
         if (!activity.isPresent) {
-            logger.debug { "Tried to fetch nonexistent activity" }
+            log.debug { "Tried to fetch nonexistent activity" }
             throw NotFoundException("No such activity")
         }
         return activity.get()
     }
 
     private fun canUserAccessActivity(userId: Long, activityId: Long) {
+        log.trace { "S | canUserAccessActivity($userId, $activityId)" }
         val activities = getAllActivities(userId, null, null)
         if (!activities.map { it.id }.contains(activityId)) {
-            logger.debug { "Tried to fetch activity for user who has no access to it" }
+            log.debug { "Tried to fetch activity for user who has no access to it" }
             throw NotFoundException("No activity with this id found for user")
         }
     }

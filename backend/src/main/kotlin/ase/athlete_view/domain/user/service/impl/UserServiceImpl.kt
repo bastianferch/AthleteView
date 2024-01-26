@@ -29,7 +29,7 @@ class UserServiceImpl(
 
     @Transactional
     override fun save(user: User): User {
-        log.trace { "save ${user.email}" }
+        log.trace { "S | save($user)" }
         // store new preferences object if not already present
         if (user.preferences == null) {
             val genericPreferences = Preferences(id = null)
@@ -40,7 +40,7 @@ class UserServiceImpl(
 
     @Transactional
     override fun saveAll(users: List<User>): List<User> {
-        log.trace { "saveAll ${users.map { user: User -> user.email }}" }
+        log.trace { "S | saveAll($users)" }
         users.iterator().forEach { user ->
             if (user.preferences == null) {
                 user.preferences = preferencesRepository.save(Preferences(id = null))
@@ -50,18 +50,18 @@ class UserServiceImpl(
     }
 
     override fun getByEmail(email: String): User {
-        log.trace { "getByEmail $email" }
+        log.trace { "S | getByEmail($email)" }
         return this.userRepository.findByEmail(email) ?: throw NotFoundException("Could not find user by given email")
     }
 
     override fun getById(id: Long): User {
-        log.trace { "getById $id" }
+        log.trace { "S | getById($id)" }
         return this.userRepository.findByIdOrNull(id) ?: throw NotFoundException("Could not find user by given id")
     }
 
     @Transactional
     override fun updateTrainer(trainerDTO: TrainerDTO) {
-        log.trace { "updateTrainer ${trainerDTO.email}" }
+        log.trace { "S | updateTrainer($trainerDTO)" }
         val trainer = this.userRepository.findByEmail(trainerDTO.email)
         if (trainer is Trainer) {
             trainer.updateFromDto(trainerDTO)
@@ -74,7 +74,7 @@ class UserServiceImpl(
 
     @Transactional
     override fun updateAthlete(athleteDTO: AthleteDTO) {
-        log.trace { "updateAthlete ${athleteDTO.email}" }
+        log.trace { "S | updateAthlete($athleteDTO)" }
         val athlete = this.userRepository.findByEmail(athleteDTO.email)
         if (athlete is Athlete) {
             athlete.updateFromDto(athleteDTO)
@@ -86,7 +86,7 @@ class UserServiceImpl(
     }
 
     override fun getPreferences(userDTO: UserDTO): Preferences? {
-        log.trace { "getPreferences ${userDTO.email}" }
+        log.trace { "S | getPreferences($userDTO)" }
         if (userDTO.id != null) {
             val user = this.userRepository.findById(userDTO.id!!)
             if (user.isPresent) {
@@ -97,7 +97,7 @@ class UserServiceImpl(
     }
 
     override fun patchPreferences(userDTO: UserDTO, preferencesDTO: PreferencesDTO): Preferences? {
-        log.trace { "patchPreferences ${userDTO.email}, $preferencesDTO" }
+        log.trace { "S | patchPreferences($userDTO, $preferencesDTO)" }
         if (userDTO.id != null) {
             val user = this.userRepository.findById(userDTO.id!!)
             if (user.isPresent) {

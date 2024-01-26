@@ -6,4 +6,7 @@ data class ResetPasswordDTO(
     val password: String,
     val token: UUID
 ) {
+    override fun toString(): String {
+        return "ResetPasswordDTO(token=$token)"
+    }
 }

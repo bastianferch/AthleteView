@@ -1,3 +1,5 @@
 /.idea/
 .gitconfig
 backend/log/
+garmin-mock/node_modules
+garmin-mock/package-lock.json

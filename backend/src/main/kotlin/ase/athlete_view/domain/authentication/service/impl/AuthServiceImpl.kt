@@ -45,7 +45,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun registerUser(user: User): User {
-        log.trace { "registerUser" }
+        log.trace { "S | registerUser($user)" }
         try {
             userService.getByEmail(user.email)
             throw ConflictException("User with provided email already exists!")
@@ -61,7 +61,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
-        log.trace { "registerAthlete" }
+        log.trace { "S | registerAthlete($dto)" }
 
         this.authValidationService.validateAthleteDTO(dto)
         val athlete = this.registerUser(dto.toEntity()) as Athlete
@@ -78,7 +78,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun registerTrainer(dto: TrainerRegistrationDTO): User {
-        log.trace { "registerTrainer" }
+        log.trace { "S | registerTrainer($dto)" }
 
         this.authValidationService.validateTrainerDTO(dto)
         while (true) {
@@ -93,7 +93,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun confirmRegistration(uuid: UUID) {
-        log.trace { "confirmRegistration" }
+        log.trace { "S | confirmRegistration($uuid)" }
 
         val user = this.tokenService.getUserByToken(uuid)
         user.isConfirmed = true
@@ -102,14 +102,14 @@ class AuthServiceImpl(
     }
 
     override fun createJwtToken(id: Long): String {
-        log.trace { "createJwtToken" }
+        log.trace { "S | createJwtToken($id)" }
 
         val user = this.userService.getById(id).toUserDTO()
         return this.userAuthProvider.createToken(user)
     }
 
     override fun authenticateUser(loginDTO: LoginDTO): UserDTO {
-        log.trace { "authenticateUser" }
+        log.trace { "S | authenticateUser($loginDTO)" }
 
         try {
             val user = this.userService.getByEmail(loginDTO.email)
@@ -135,13 +135,12 @@ class AuthServiceImpl(
         } catch (e: NotFoundException) {
             this.throwBadCredentialsException()
         }
-        // ToDo: how to circumvent writing this exception?
         throw IllegalStateException("By user authentication something went wrong")
     }
 
     @Transactional
     override fun sendNewConfirmationToken(loginDTO: LoginDTO) {
-        log.trace { "sendNewConfirmationToken" }
+        log.trace { "S | sendNewConfirmationToken($loginDTO)" }
 
         try {
             this.authenticateUser(loginDTO)
@@ -152,7 +151,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun forgotPassword(email: String) {
-        log.trace { "forgotPassword" }
+        log.trace { "S | forgotPassword($email)" }
 
         try {
             val user = this.userService.getByEmail(email)
@@ -170,7 +169,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun setNewPassword(dto: ResetPasswordDTO) {
-        log.trace { "setNewPassword" }
+        log.trace { "S | setNewPassword($dto)" }
 
         val user = this.tokenService.getUserByToken(dto.token)
         user.password = BCryptPasswordEncoder().encode(dto.password)
@@ -182,7 +181,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun createConfirmationTokenToUser(user: User) {
-        log.trace { "createConfirmationTokenToUser" }
+        log.trace { "S | createConfirmationTokenToUser($user)" }
 
         user.id?.let { this.tokenService.deleteAllRegistrationTokensByUser(it) }
         val token = this.tokenService.createEmailConfirmationToken(TokenExpirationTime.ONE_HOUR, user).uuid
@@ -195,6 +194,7 @@ class AuthServiceImpl(
     }
 
     private fun throwBadCredentialsException() {
+        log.trace { "S | throwBadCredentialsException()" }
         throw BadCredentialsException("Either email or password is incorrect")
     }
 }

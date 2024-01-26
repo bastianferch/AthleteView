@@ -12,11 +12,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 @RestController
 class NotificationController(private val notificationService: NotificationService) {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     @GetMapping("/subscribe")
     fun subscribeToNotifications(@AuthenticationPrincipal user: UserDTO): SseEmitter? {
-        logger.info { "GET subscribe to notifications by user with id ${user.id}" }
+        log.info { "GET | subscribeToNotifications()" }
         val userId = user.id
         if (userId != null) {
             return notificationService.createEmitter(userId)
@@ -26,14 +26,14 @@ class NotificationController(private val notificationService: NotificationServic
 
     @GetMapping
     fun getAllNotifications(@AuthenticationPrincipal user: UserDTO): List<NotificationDTO> {
-        logger.info { "GET all notifications by user with id ${user.id}" }
+        log.info { "GET | getAllNotifications()" }
         if (user.id == null) return listOf()
         return notificationService.getAllNotifications(user.id!!)
     }
 
     @DeleteMapping("/{id}")
     fun deleteNotification(@AuthenticationPrincipal user: UserDTO, @PathVariable(value="id") id: Long) {
-        logger.info { "DELETE notification $id by user with id ${user.id}" }
+        log.info { "DELETE | deleteNotification($id)" }
         if (user.id != null) {
             notificationService.deleteNotification(user.id!!, id)
         }
@@ -41,7 +41,7 @@ class NotificationController(private val notificationService: NotificationServic
 
     @DeleteMapping
     fun deleteAllNotifications(@AuthenticationPrincipal user: UserDTO) {
-        logger.info { "DELETE all notifications by user with id ${user.id}" }
+        log.info { "DELETE | deleteAllNotifications()" }
         if (user.id != null) {
             notificationService.deleteAllNotifications(user.id!!)
         }
@@ -49,7 +49,7 @@ class NotificationController(private val notificationService: NotificationServic
 
     @PatchMapping
     fun markAllNotificationsAsRead(@AuthenticationPrincipal user: UserDTO) {
-        logger.info { "PATCH mark all notifications as read by user with id ${user.id}" }
+        log.info { "PATCH | markAllNotificationsAsRead()" }
         if (user.id != null) {
             notificationService.markAllNotificationsAsRead(user.id!!)
         }

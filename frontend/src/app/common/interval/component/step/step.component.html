@@ -17,7 +17,7 @@
           <p>
             <b *ngIf="step.durationType === StepDurationType.LAPBUTTON">{{stepDurationMapper.get(step.durationType)}}</b>
             <b *ngIf="step.durationType !== StepDurationType.LAPBUTTON">
-              {{step.duration}} {{stepDurationDistanceUnitMapper.get(step.durationUnit)}}
+              {{step.duration}} {{stepDurationUnitMapper.get(step.durationUnit)}}
             </b>
           </p>
           <p>Duration</p>

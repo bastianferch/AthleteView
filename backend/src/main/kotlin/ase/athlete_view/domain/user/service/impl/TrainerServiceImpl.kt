@@ -21,12 +21,12 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
     val log = KotlinLogging.logger {}
 
     override fun getByCode(code: String): Trainer? {
-        log.trace { "getByCode $code" }
+        log.trace { "S | getByCode($code)" }
         return trainerRepository.getTrainerByCode(code)
     }
 
     override fun acceptAthlete(userDTO: UserDTO, id: Long) {
-        log.trace { "S | acceptAthlete trainer: ${userDTO.email} athlete: $id" }
+        log.trace { "S | acceptAthlete($userDTO, $id)" }
         val trainer = trainerRepository.findByIdOrNull(userDTO.id!!) ?: throw ForbiddenException("You are not allowed to use this service")
         if (trainer.unacceptedAthletes.none { it.id == id }) {
             if (trainer.athletes.any { it.id == id }) {
@@ -43,7 +43,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
     }
 
     override fun resetCode(user: UserDTO) {
-        log.trace { "S | resetCode $user" }
+        log.trace { "S | resetCode($user)" }
         val trainer = trainerRepository.findByIdOrNull(user.id!!) ?: throw ForbiddenException("You are not allowed to use this service")
         while (true) {
             val code = UUID.randomUUID().toString().substring(0, 5).replace('-', Random().nextInt().toChar())
@@ -56,7 +56,7 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
     }
 
     override fun inviteAthletes(id: Long, emailList: List<String>) {
-        log.trace { "S | inviteAthletes $id $emailList" }
+        log.trace { "S | inviteAthletes($id, $emailList)" }
         val trainer = trainerRepository.findByIdOrNull(id) ?: throw ForbiddenException("You are not allowed to use this service")
         val invalidEmail = mutableListOf<String>()
         val alreadyTrainingEmail = mutableListOf<String>()

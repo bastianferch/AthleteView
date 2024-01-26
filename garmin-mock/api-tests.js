@@ -48,8 +48,10 @@ test('random date returns a correct data', () => {
 
 test('getJSONRandomHealthData returns the correct data', () => {
     const json = getJSONRandomHealthData();
-    const keys = Object.keys(JSON.parse(json));
-    const values = Object.values(JSON.parse(json));
+    const arr = JSON.parse(json);
+    strictEqual(arr.length, 7);
+    const keys = Object.keys(arr[0]);
+    const values = Object.values(arr[0]);
     strictEqual(keys.length, 4);
     strictEqual(values.length, 4);
     deepEqual(keys, ['date', 'avgSteps', 'avgBPM', 'avgSleepDuration']);

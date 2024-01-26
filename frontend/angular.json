@@ -30,9 +30,10 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/angular-calendar/css/angular-calendar.css",
+              "src/styles.scss",
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.scss"
+              "./node_modules/angular-calendar/css/angular-calendar.css",
+              "./node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": []
           },

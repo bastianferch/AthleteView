@@ -4,7 +4,7 @@ export interface Step {
   type: StepType;
   durationType: StepDurationType;
   duration?: number;
-  durationUnit?: StepDurationDistanceUnit;
+  durationUnit?: StepDurationUnit;
   targetType?: StepTargetType;
   targetFrom?: number;
   targetTo?: number;
@@ -35,19 +35,22 @@ export enum StepDurationType {
 export const StepDurationMapper = new Map<StepDurationType, string>([
   [StepDurationType.DISTANCE, 'Distance'],
   [StepDurationType.LAPBUTTON, 'Press Lap Button'],
+  [StepDurationType.TIME, 'Time'],
 ]);
 
 
-export enum StepDurationDistanceUnit { // TODO rename to StepDurationUnit and add 2 types
+export enum StepDurationUnit {
   KM = "KM",
   M = "M",
   MIN = "MIN",
   SEC = "SEC"
 }
 
-export const StepDurationDistanceUnitMapper = new Map<StepDurationDistanceUnit, string>([
-  [StepDurationDistanceUnit.KM, 'km'],
-  [StepDurationDistanceUnit.M, 'm'],
+export const StepDurationUnitMapper = new Map<StepDurationUnit, string>([
+  [StepDurationUnit.KM, 'km'],
+  [StepDurationUnit.M, 'm'],
+  [StepDurationUnit.MIN, 'min'],
+  [StepDurationUnit.SEC, 'sec'],
 ]);
 
 export enum StepTargetType {

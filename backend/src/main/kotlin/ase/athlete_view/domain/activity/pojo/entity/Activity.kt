@@ -28,7 +28,7 @@ open class Activity(
     open var endTime: LocalDateTime?,
     @OneToOne(fetch = FetchType.LAZY)
     open var plannedActivity: PlannedActivity?,
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     open var laps: List<Lap>,
     open var activityType: ActivityType?,
     @OneToMany(cascade = [CascadeType.ALL])

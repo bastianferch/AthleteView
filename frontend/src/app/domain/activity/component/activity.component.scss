@@ -1,22 +1,28 @@
 .page-wrapper {
-    margin: .5% 1% 0 1%;
+  margin: .5% 1% 0 1%;
 }
 
 .activity-wrapper {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1em;
-    flex: 3;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1em;
+  flex: 3;
 }
 
 .btn-group {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-wrapper {
+  width: 100vw;
+  display: flex;
+  align-items: stretch;
 }
 
 .hover-class {
-    cursor: pointer;
+  cursor: pointer;
 }

@@ -157,13 +157,13 @@ class ActivityDatagen(
 
 
         val originalBytes = originalFile.bytes
-        val combinedBytes = originalBytes + byteArray
+        val combinedBytes = originalBytes //+ byteArray
 
         return MockMultipartFile(
-            originalFile.name,
-            originalFile.originalFilename,
-            originalFile.contentType,
-            combinedBytes
+                originalFile.name,
+                originalFile.originalFilename,
+                originalFile.contentType,
+                combinedBytes
         )
     }
 

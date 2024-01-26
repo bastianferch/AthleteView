@@ -1,7 +1,8 @@
 <div class="page-wrapper">
   <div class="activity-wrapper">
     <div class="btn-group">
-      <mat-button-toggle-group #group="matButtonToggleGroup" (change)="handleViewChange(group.value)" [value]="toggleState">
+      <mat-button-toggle-group #group="matButtonToggleGroup" (change)="handleViewChange(group.value)"
+        [value]="toggleState">
         <mat-button-toggle [value]="TOGGLESTATE_ENUM.DRAFT">Draft</mat-button-toggle>
         <mat-button-toggle [value]="TOGGLESTATE_ENUM.DONE">Done</mat-button-toggle>
       </mat-button-toggle-group>
@@ -71,7 +72,8 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-        <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay" class="hover-class" [routerLink]="getRouterLink(myRowData)"></tr>
+        <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay" class="hover-class"
+          [routerLink]="getRouterLink(myRowData)"></tr>
       </table>
     </div>
   </div>

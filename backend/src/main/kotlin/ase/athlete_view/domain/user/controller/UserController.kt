@@ -23,9 +23,9 @@ class UserController (private val trainerService: TrainerService,
     val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping()
+    @GetMapping
     fun get(@AuthenticationPrincipal userDTO: UserDTO): UserDTO {
-        log.info { "GET USER ${userDTO.email} BY SESSION " }
+        log.info { "GET | get()" }
         val user = userDTO.id?.let { this.userService.getById(it) } ?: throw ForbiddenException("You cannot get your profile")
         return when (user) {
             is Athlete -> {
@@ -45,8 +45,7 @@ class UserController (private val trainerService: TrainerService,
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/athlete")
     fun getAthletes(@AuthenticationPrincipal userDTO: UserDTO): List<AthleteDTO> {
-        log.info { "GET ATHLETES FOR ${userDTO.email} BY SESSION " }
-
+        log.info { "GET | getAthletes()" }
 
         val athleteDtos = mutableListOf<AthleteDTO>()
         val athletes = userDTO.id?.let { this.athleteService.getByTrainerId(it) }
@@ -61,14 +60,14 @@ class UserController (private val trainerService: TrainerService,
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/trainer/athlete")
     fun acceptAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody id: Long) {
-        log.info { "POST ATHLETE ${userDTO.email}" }
+        log.info { "POST | acceptAthlete($id)" }
         this.trainerService.acceptAthlete(userDTO, id)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/athlete")
     fun updateAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody athleteDTO: AthleteDTO) {
-        log.info { "PUT ATHLETE ${userDTO.email}" }
+        log.info { "PUT | updateAthlete($athleteDTO)" }
         athleteDTO.email = userDTO.email
         this.userService.updateAthlete(athleteDTO)
     }
@@ -76,7 +75,7 @@ class UserController (private val trainerService: TrainerService,
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/trainer")
     fun updateTrainer(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody trainerDTO: TrainerDTO) {
-        log.info { "PUT TRAINER ${userDTO.email}" }
+        log.info { "PUT | updateTrainer($trainerDTO)" }
         trainerDTO.email = userDTO.email
         this.userService.updateTrainer(trainerDTO)
     }
@@ -84,26 +83,26 @@ class UserController (private val trainerService: TrainerService,
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/trainer/invitation")
     fun inviteAthlete(@AuthenticationPrincipal userDTO: UserDTO, @RequestBody emailList: List<String>) {
-        log.info { "POST TRAINER INVITATION ${userDTO.email}" }
+        log.info { "POST | inviteAthlete($emailList)" }
         this.trainerService.inviteAthletes(userDTO.id!!, emailList)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/trainer/code")
     fun resetCode(@AuthenticationPrincipal userDTO: UserDTO) {
-        log.info { "POST TRAINER CODE ${userDTO.email}" }
+        log.info { "POST | resetCode()" }
         this.trainerService.resetCode(userDTO)
     }
 
     @GetMapping("/preferences")
     fun getPreferences(@AuthenticationPrincipal user: UserDTO): PreferencesDTO? {
-        log.info { "GET PREFERENCES ${user.id}" }
+        log.info { "GET | getPreferences()" }
         return this.userService.getPreferences(user)?.toDTO()
     }
 
     @PatchMapping("/preferences")
     fun patchPreferences(@AuthenticationPrincipal user: UserDTO, @RequestBody preferencesDTO: PreferencesDTO): PreferencesDTO? {
-        log.info { "PATCH PREFERENCES ${user.id} $preferencesDTO" }
+        log.info { "PATCH | patchPreferences($preferencesDTO)" }
         return this.userService.patchPreferences(user, preferencesDTO)?.toDTO()
     }
 }

@@ -31,10 +31,10 @@ class TimeConstraintServiceImpl(
     private val userService: UserService
 ): TimeConstraintService {
 
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     override fun save(timeConstraint: TimeConstraintDto, userDto: UserDTO): TimeConstraintDto {
-        logger.trace { "TimeConstraintService.save($timeConstraint, $userDto)" }
+        log.trace { "S | save($timeConstraint, $userDto)" }
         val constraint = timeConstraint.toEntity()
         constraint.user = userService.getById(userDto.id!!)
         validate(constraint)
@@ -42,7 +42,7 @@ class TimeConstraintServiceImpl(
     }
 
     override fun edit(timeConstraint: TimeConstraintDto, userDto: UserDTO): TimeConstraintDto {
-        logger.trace { "TimeConstraintService.edit($timeConstraint, $userDto)" }
+        log.trace { "S | edit($timeConstraint, $userDto)" }
         val constraint = timeConstraintRepository.findByIdOrNull(timeConstraint.id) ?: throw NotFoundException("Could not find constraint by given id")
         if (constraint.user?.id != userDto.id)
             throw ValidationException("Cannot edit time constraint from different user")
@@ -53,7 +53,7 @@ class TimeConstraintServiceImpl(
     }
 
     override fun delete(timeConstraintId: Long, userDto: UserDTO) {
-        logger.trace { "TimeConstraintService.delete($timeConstraintId, $userDto)" }
+        log.trace { "S | delete($timeConstraintId, $userDto)" }
         val constraint = timeConstraintRepository.findByIdOrNull(timeConstraintId) ?: throw NotFoundException("Could not find constraint by given id")
         if (constraint.user?.id != userDto.id)
             throw ValidationException("Cannot delete time constraint from different user")
@@ -61,7 +61,7 @@ class TimeConstraintServiceImpl(
     }
 
     override fun getById(timeConstraintId: Long, userDto: UserDTO): TimeConstraintDto {
-        logger.trace { "TimeConstraintService.getById($timeConstraintId, $userDto)" }
+        log.trace { "S | getById($timeConstraintId, $userDto)" }
         var constraint: TimeConstraint? = dailyTimeConstraintRepository.findByIdOrNull(timeConstraintId)
         if (constraint == null) constraint = weeklyTimeConstraintRepository.findByIdOrNull(timeConstraintId)?: throw NotFoundException("Could not find constraint by given id")
         if (constraint.user?.id != userDto.id)
@@ -70,7 +70,7 @@ class TimeConstraintServiceImpl(
     }
 
     override fun getAll(userDto: UserDTO, type: String, from: String, until: String): List<TimeConstraintDto> {
-        logger.trace { "TimeConstraintService.getAll($userDto, $type, $from, $until)" }
+        log.trace { "S | getAll($userDto, $type, $from, $until)" }
         val user = userService.getById(userDto.id!!)
         var weeklies: List<TimeConstraint>
         var dailies: List<TimeConstraint>
@@ -112,7 +112,7 @@ class TimeConstraintServiceImpl(
     }
 
     override fun createDefaultTimeConstraintsForUser(user: User) {
-        logger.trace { "TimeConstraintService.createDefaultTimeConstraintsForUser($user)" }
+        log.trace { "S | createDefaultTimeConstraintsForUser($user)" }
         val defaultStartTime = LocalTime.of(7,0)
         val defaultEndTime = LocalTime.of(22,0)
         val titleForDefaultConstraint = "normal training hours"
@@ -123,7 +123,7 @@ class TimeConstraintServiceImpl(
     }
 
     private fun validate(constraint: TimeConstraint) {
-        logger.trace { "TimeConstraintService.validate($constraint) " }
+        log.trace { "S | validate($constraint) " }
         when (constraint){
             is WeeklyTimeConstraint -> {
                 if (!constraint.constraint.endTime.isAfter(constraint.constraint.startTime)) throw ValidationException("End time must be after start time")

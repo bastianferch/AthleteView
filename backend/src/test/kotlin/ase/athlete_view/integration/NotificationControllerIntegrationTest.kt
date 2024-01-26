@@ -9,7 +9,6 @@ import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.mockk.every
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -35,8 +34,6 @@ const val TEST_USER_ID = -1L
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class NotificationControllerIntegrationTest : TestBase() {
-
-    val logger = KotlinLogging.logger {}
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -117,8 +114,6 @@ class NotificationControllerIntegrationTest : TestBase() {
         notificationService.sendNotification(TEST_USER_ID, "header", "body", "link")
 
         val notifications = notificationService.getAllNotifications(TEST_USER_ID)
-
-        logger.info { notifications }
 
         assertEquals(notifications.size, 1)
 

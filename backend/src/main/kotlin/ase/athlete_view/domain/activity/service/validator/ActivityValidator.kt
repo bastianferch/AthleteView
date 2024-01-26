@@ -22,7 +22,7 @@ class ActivityValidator {
     val commentTextLength = 1000 // characters
 
     fun validateNewPlannedActivity(plannedActivity: PlannedActivity, user: User, isCsp: Boolean = false) {
-        log.trace { "S | Validating new planned activity $plannedActivity" }
+        log.trace { "S | validateNewPlannedActivity($plannedActivity, $user, $isCsp)" }
         val validationErrors: MutableList<String> = ArrayList()
 
         if (plannedActivity.name.isBlank()) {
@@ -99,7 +99,7 @@ class ActivityValidator {
     }
 
     fun validateEditPlannedActivity(plannedActivity: PlannedActivity, oldPlannedActivity: PlannedActivity, user: User) {
-        log.trace { "S | Validating planned activity for edit $plannedActivity" }
+        log.trace { "S | validateEditPlannedActivity($plannedActivity, $oldPlannedActivity, $user)" }
         // check if the user is allowed to update this activity
         if (user is Athlete) {
             // if the logged-in user is an Athlete, they can only edit their own activities
@@ -129,12 +129,14 @@ class ActivityValidator {
     }
 
     fun validateComment(comment: Comment) {
+        log.trace { "S | validateComment($comment)" }
         if (comment.text.length > commentTextLength) {
             throw ValidationException("Comments must have length <= 1000 characters")
         }
     }
 
     fun validateRating(rating: Int) {
+        log.trace { "S | validateRating($rating)" }
         val r = rating.toInt()
         if (r > 5 || r < 0) {
             throw ValidationException("Rating must be between 0 and 5")
@@ -142,6 +144,7 @@ class ActivityValidator {
     }
 
     private fun validateInterval(interval: Interval, validationErrors: MutableList<String>) {
+        log.trace { "S | validateInterval($interval, $validationErrors)" }
         if (interval.intervals != null) {
             if (interval.step != null && interval.intervals!!.isNotEmpty()) {
                 validationErrors.add("Step and intervals cannot be set at the same time")
@@ -154,6 +157,7 @@ class ActivityValidator {
     }
 
     private fun validateStep(step: Step, validationErrors: MutableList<String>) {
+        log.trace { "S | validateStep($step, $validationErrors)" }
         if (step.durationDistance != null) {
             if (step.durationDistanceUnit == null) {
                 validationErrors.add("Duration distance unit must be set if duration distance is set for ${step.type}")
@@ -220,6 +224,7 @@ class ActivityValidator {
     }
 
     private fun getDepth(intervals: List<Interval>, i: Int) {
+        log.trace { "S | getDepth($intervals, $i)" }
         if (i > 2) {
             throw ValidationException("Depth of at least one of the intervals is too high")
         }

@@ -7,39 +7,37 @@ import com.garmin.fit.FitMessages
 import com.garmin.fit.FitRuntimeException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
-import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 
 @Component
 class FitParser {
-    private val logger = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
     private var parser: FitDecoder = FitDecoder()
 
     fun decode(filename: InputStream): FitMessages {
-        val bufferedInputStream = BufferedInputStream(filename)
-        bufferedInputStream.mark(0)
+        log.trace { "Util | decode()" }
+        val byteData = filename.readAllBytes()
         val decoder = Decode()
-        val isFitFile = decoder.isFileFit(bufferedInputStream)
-        bufferedInputStream.reset()
+        val isFitFile = decoder.isFileFit(ByteArrayInputStream(byteData))
 
         try {
             if (isFitFile) {
-                return parser.decode(bufferedInputStream)
+                return parser.decode(ByteArrayInputStream(byteData))
             }
         } catch (e: FitRuntimeException) {
-            logger.error { "Something went wrong processing the file" }
-            logger.error { e }
-            throw InvalidFitFileException("File $filename is not a valid .fit-File!")
+            log.error { "Something went wrong processing the file" }
+            log.error { e }
         } catch (e: IOException) {
-            logger.error { "IOException during processing!" }
-            logger.error { e }
+            log.error { "IOException during processing!" }
+            log.error { e }
         } catch (e: Exception) {
-            logger.error { "Exception during processing!" }
-            logger.error { e }
+            log.error { "Exception during processing!" }
+            log.error { e }
         }
 
-        logger.error { "Noticed invalid fit-upload, skipping!" }
-        throw InvalidFitFileException("File is not a valid .fit-File!")
+        log.error { "Noticed invalid fit-upload, skipping!" }
+        throw InvalidFitFileException("File $filename is not a valid .fit-File!")
     }
 }
