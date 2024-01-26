@@ -10,24 +10,31 @@ interface HealthService {
      * to add a new health data to the current authenticated user.
      * If the health data already exists for the given day, does nothing.
      *
+     * @param userId id of current authenticated user
+     *
      * @throws InternalException when external API did not respond / sent the wrong data.
      * @throws NotFoundException when current authenticated user could not be fetched from db.
      */
-    fun mock()
+    fun syncWithMockServer(userId: Long)
 
     /**
      * Provides all Health data from the current authenticated user.
      *
+     * @param userId id of current authenticated user
+     *
      * @throws NotFoundException when current authenticated user could not be fetched from db.
      */
-    fun getAllByCurrentUser(): List<Health>
+    fun getAllByCurrentUser(userId: Long): List<Health>
 
     /**
      * Provides all Health data from athlete if athlete allows data to be shared.
      *
+     * @param athleteId id of athlete
+     * @param userId id of current authenticated user
+     *
      * @throws NotFoundException when current authenticated user could not be fetched from db.
      */
-    fun getAllFromAthlete(athleteId: Long): List<Health>
+    fun getAllFromAthlete(athleteId: Long, userId: Long): List<Health>
 
     /**
      * Simple crud save.

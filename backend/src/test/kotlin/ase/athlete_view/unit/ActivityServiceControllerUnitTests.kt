@@ -7,6 +7,8 @@ import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.just
+import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +39,7 @@ class ActivityServiceControllerUnitTests {
     @Test
     @WithCustomMockUser
     fun verifyUploadingValidFitFile_Returns201Created() {
-        // mock service
+        // syncWithMockServer service
         every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } returns ActivityCreator.getDefaultActivity()
 
         val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
@@ -57,8 +59,22 @@ class ActivityServiceControllerUnitTests {
 
     @Test
     @WithCustomMockUser
+    fun mockActivity_Returns201Created() {
+        every { activityService.syncWithMockServer(any()) } just runs
+
+        mockMvc.perform(
+            multipart(HttpMethod.POST, "/api/activity/sync")
+                .with(csrf())
+        )
+            .andExpect(status().isCreated)
+
+        verify(exactly = 1) { activityService.syncWithMockServer(any()) }
+    }
+
+    @Test
+    @WithCustomMockUser
     fun verifyUploadingInvalidFitFile_Returns400BadRequest() {
-        // mock service
+        // syncWithMockServer service
         every { activityService.importActivity(any<List<MultipartFile>>(), any<Long>()) } throws InvalidFitFileException("invalid")
 
         val filePath = Paths.get("src/test/resources/fit-files/empty_file.fit").absolute()

@@ -135,7 +135,6 @@ class AuthServiceImpl(
         } catch (e: NotFoundException) {
             this.throwBadCredentialsException()
         }
-        // ToDo: how to circumvent writing this exception?
         throw IllegalStateException("By user authentication something went wrong")
     }
 

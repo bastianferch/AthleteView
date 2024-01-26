@@ -7,12 +7,9 @@ import { MatDialog } from "@angular/material/dialog";
 import { FitImportDialogComponent } from 'src/app/fit-import-dialog/fit-import-dialog.component';
 import { ActivityService } from '../../activity/service/activity.service';
 import { SnackbarService } from "../../../common/service/snackbar.service";
-import { HealthService } from "../../health/service/health.service";
-import { firstValueFrom } from "rxjs";
 import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zone-groups-dialog.component";
 import { InviteDialogComponent } from '../../invite-dialog/invite-dialog.component';
 import { PreferencesDialogComponent } from "../../preferences-dialog/preferences-dialog.component";
-import { UserService } from "../../user/service/UserService";
 
 @Component({
   selector: 'app-main',
@@ -27,10 +24,9 @@ export class MainComponent {
     private notificationService: NotificationService,
     private router: Router,
     private dialog: MatDialog,
-    private userService:UserService ,
     private activityService: ActivityService,
     private snackbarService: SnackbarService,
-    private healthService: HealthService) {
+  ) {
   }
 
   markAllNotificationsAsRead() {
@@ -50,10 +46,6 @@ export class MainComponent {
   logout(): void {
     this.authService.logout()
     this.router.navigate(['/auth/login'])
-  }
-
-  async mockHealthData(): Promise<void> {
-    await firstValueFrom(this.healthService.mock());
   }
 
   openImportDialog(): void {

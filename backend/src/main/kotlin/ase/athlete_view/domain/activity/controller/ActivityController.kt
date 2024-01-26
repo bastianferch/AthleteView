@@ -204,6 +204,12 @@ class ActivityController(private val activityService: ActivityService) {
         activityService.rateActivityWithUser(user.id!!, activityId, rating)
     }
 
+    @PostMapping("/sync")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun syncWithMockServer(@AuthenticationPrincipal user: UserDTO) {
+        log.info { "POST | syncWithMockServer()" }
+        this.activityService.syncWithMockServer(user.id!!)
+    }
 
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {

@@ -126,6 +126,12 @@ export class ActivityService {
     );
   }
 
+  syncWithApi(): Observable<void> {
+    return this.httpClient.post<void>(
+      this.activityBaseUri + '/sync', null, { withCredentials: true },
+    );
+  }
+
   // do some post-processing on the activity
   // if it is a template, set the date to null
   postProcessActivity(activity: PlannedActivitySplit) {

@@ -62,7 +62,7 @@ class AuthServiceUnitTests : TestBase() {
     @MockkBean
     private lateinit var zoneService: ZoneService
 
-    private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder() // could not mock it.
+    private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder() // could not syncWithMockServer it.
 
     @BeforeEach
     fun setupUser() {

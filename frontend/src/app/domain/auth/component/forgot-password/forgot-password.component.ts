@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { AuthService } from "../../service/auth.service";
 import { Router } from "@angular/router";
+import { SnackbarService } from "../../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-forgot-password',
@@ -17,13 +18,14 @@ export class ForgotPasswordComponent {
 
   constructor(private formBuilder: FormBuilder,
     private authService: AuthService,
+    private snackbarService: SnackbarService,
     private router: Router) {
   }
 
   onFormSubmit(): void {
     this.authService.forgotPassword(this.forgotForm.value.email).subscribe({
       complete: () => {
-        // this.notificationService.success('In case such user exists in the system, the email was sent.');
+        this.snackbarService.openSnackBar('In case such user exists in the system, the email was sent.');
         this.router.navigate(['/']);
       },
     });
