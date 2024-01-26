@@ -27,7 +27,6 @@ import { ConfirmationDialogComponent } from './common/component/dialog/confirmat
 import { InviteDialogComponent } from './domain/invite-dialog/invite-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { ModalComponent } from './domain/trainingsplan/component/modal/modal.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,7 +38,6 @@ import { ModalComponent } from './domain/trainingsplan/component/modal/modal.com
     FitImportDialogComponent,
     ConfirmationDialogComponent,
     InviteDialogComponent,
-    ModalComponent,
   ],
   imports: [
     BrowserModule,
