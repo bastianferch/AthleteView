@@ -7,8 +7,6 @@ from Scheduler import scheduleThresholdSearch
 
 from Exceptions import *
 
-import worker as rabbitmq_consumer
-
 @pytest.fixture
 def load_data(request):
     def _load_data(id):

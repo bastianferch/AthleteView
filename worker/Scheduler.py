@@ -88,15 +88,15 @@ def checkIntensities(activities: List[Activity]):
             if activity.intensity == 2:
                 high_cnt += 1
         if high_cnt > 4:
-            raise IntensityConstraintException("Too many intensity 2", athletes[a])
+            raise IntensityConstraintException("Too many ativities with intensity HARD", a)
 
         #
         sum = 0
         for activity in athletes[a]:
             sum += activity.intensity
-        if sum > 7:
+        if sum > 8:
             raise IntensityConstraintException(
-                "Too much intensity over the week", athletes[a]
+                "Too much overall intensity over the week", a
             )
 
 # helper function for the checkTrainerTable
