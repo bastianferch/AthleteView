@@ -111,14 +111,15 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
         try {
             val trainer = userService.getById(userId)
             if (trainer.getUserType() != "trainer") {
-                errors.add("User $userId is not a trainer.")
+                errors.add("Current user is not a trainer.")
             }
 
             val trainerTableSum = createConstraintTable(trainer, nextMonday, followingMonday, true).flatten().count { it } * SLOT_DURATION
             var trainerDurationSum = 0
             for (mapping in cspDto.mappings) {
                 if (mapping.activities.size > 7) {
-                    errors.add("Athlete " + mapping.userId + " can not have more than 1 activitiy assigned per day (7 a week).")
+                    val tempAthlete = userService.getById(mapping.userId)
+                    errors.add("Athlete ${tempAthlete.name} can not have more than 1 activitiy assigned per day (7 a week).")
                 }
 
                 try {
@@ -150,7 +151,8 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                                 }
 
                                 if (!(trainer as Trainer).athletes.contains(athlete)) {
-                                    errors.add("Athlete ${athlete.id} is not assigned to Trainer $userId.")
+                                    val tempAthlete = userService.getById(athlete.id!!)
+                                    errors.add("Athlete ${tempAthlete.name} is not assigned to Trainer $userId.")
                                 }
 
                             }
@@ -161,15 +163,18 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
 
 
                     if (intensitySum > 4) {
-                        errors.add("Athlete ${athlete.id} has too much intensity.")
+                        val tempAthlete = userService.getById(athlete.id!!)
+                        errors.add("Athlete ${tempAthlete.name} has too much intensity.")
                     }
 
                     if (durationSum > tableSum) {
-                        errors.add("Athlete ${athlete.id} does not have enough timeslots.")
+                        val tempAthlete = userService.getById(athlete.id!!)
+                        errors.add("Athlete ${tempAthlete.name} does not have enough timeslots.")
                     }
 
                 } catch (e: NotFoundException) {
-                    errors.add("Athlete " + mapping.userId + " could not be found.")
+                    val tempAthlete = userService.getById(mapping.userId)
+                    errors.add("Athlete ${tempAthlete.name} could not be found.")
                 }
             }
 
@@ -177,7 +182,7 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
                 errors.add("Trainer does not have enough timeslots.")
             }
         } catch (e: NotFoundException) {
-            errors.add("User $userId could not be found.")
+            errors.add("Current user could not be found.")
         }
 
         return errors
