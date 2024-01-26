@@ -17,7 +17,7 @@ export class StyleMapperService {
 
   getIconPathForActivity(activity:PlannedActivity):string {
     if (!(activity.type in ActivityType)) {
-      return 'assets/activityIcons/placeholder.png'
+      return 'assets/placeholder.png'
     }
     const iconMapping: { [key in ActivityType]: string } = {
       [ActivityType.SWIM]: 'swim_icon.png',
