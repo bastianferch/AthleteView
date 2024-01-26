@@ -3,6 +3,8 @@ package ase.athlete_view.domain.health.service
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.InternalException
 import ase.athlete_view.domain.health.pojo.entity.Health
+import ase.athlete_view.domain.user.pojo.entity.Athlete
+import java.time.LocalDate
 
 interface HealthService {
     /**
@@ -27,6 +29,17 @@ interface HealthService {
     fun getAllByCurrentUser(userId: Long): List<Health>
 
     /**
+     * Provides all Health data for a provided user between the provided time frames.
+     *
+     * @param userID is an id of the user.
+     * @param start of a time interval.
+     * @param end of a time interval.
+     *
+     * @apiNote This method is not authorized (should be done before).
+     */
+    fun getAllByUser(userID: Long, start: LocalDate, end: LocalDate): List<Health>
+
+    /**
      * Provides all Health data from athlete if athlete allows data to be shared.
      *
      * @param athleteId id of athlete
@@ -40,5 +53,14 @@ interface HealthService {
      * Simple crud save.
      */
     fun save(health: Health): Health
+
+    /**
+     * Creates a random health data for the athlete for the last 7 days.
+     * Athlete should not have the health data before.
+     * This function should be used for DataGenerator only.
+     *
+     * @param athlete for which the health is created.
+     */
+    fun createHealthDataForTheLast30Days(athlete: Athlete)
 
 }

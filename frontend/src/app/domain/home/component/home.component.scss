@@ -66,3 +66,83 @@
 .fill {
   width: 100%;
 }
+
+/**
+   source: https://codepen.io/jh3y/pen/aQomdd &&
+           https://codeburst.io/how-to-pure-css-pie-charts-w-css-variables-38287aea161e
+   example on how to use it:
+      <div class="pie">
+         <div class="pie__segment" style="--offset: 0; --value: 25; --bg: #db0a5b"></div>
+         <div class="pie__segment" style="--offset: 25; --value: 10; --bg: #22a7f0"></div>
+         <div class="pie__segment" style="--offset: 35; --value: 60; --bg: #2ecc71; --over50: 1"></div>
+         <div class="pie__segment" style="--offset: 95; --value: 5; --bg: #4d05e8"></div>
+         <div class="pie__center"></div>
+      </div>
+ */
+.pie {
+  border-radius: 100%;
+  height: 10rem;
+  overflow: hidden;
+  position: relative;
+  width: 10rem;
+}
+
+.pie__segment {
+  --a: calc(var(--over50, 0) * -100%);
+  --b: calc((1 + var(--over50, 0)) * 100%);
+  --degrees: calc((var(--offset, 0) / 100) * 360);
+  -webkit-clip-path: polygon(var(--a) var(--a), var(--b) var(--a), var(--b) var(--b), var(--a) var(--b));
+  clip-path: polygon(var(--a) var(--a), var(--b) var(--a), var(--b) var(--b), var(--a) var(--b));
+  height: 100%;
+  position: absolute;
+  transform: translate(0, -50%) rotate(90deg) rotate(calc(var(--degrees) * 1deg));
+  transform-origin: 50% 100%;
+  width: 100%;
+  //z-index: calc(1 + var(--over50)); //with out it, chart displayed ok in safari
+}
+
+.pie__segment:after,
+.pie__segment:before {
+  background: var(--bg, #e74c3c);
+  content: '';
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+
+.pie__segment:before {
+  --degrees: calc((var(--value, 45) / 100) * 360);
+  transform: translate(0, 100%) rotate(calc(var(--degrees) * 1deg));
+  transform-origin: 50% 0;
+}
+
+.pie__segment:after {
+  opacity: var(--over50, 0);
+}
+
+.pie__center{
+  position: absolute;
+  background: white;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 11rem;
+  z-index: 2;
+  top: calc(100% - 8.25rem);
+  left: calc(100% - 8.25rem);
+}
+
+.dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #1532bc;
+}
+
+.empty-state{
+  background: #69f0ae;
+  width: 100%;
+  text-align: center;
+  border-radius: 0.375rem;
+  height: 6rem;
+  justify-content: center;
+}

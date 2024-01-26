@@ -8,6 +8,8 @@ import { adapterFactory } from "angular-calendar/date-adapters/date-fns";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
+import { HealthGraphicComponent } from "../health-graphic/health-graphic.component";
+import { HighchartsChartModule } from "highcharts-angular";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +18,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     HomeComponent,
+    HealthGraphicComponent,
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -26,6 +29,7 @@ const routes: Routes = [
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    HighchartsChartModule,
   ],
   exports: [RouterModule],
 })

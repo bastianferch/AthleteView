@@ -9,7 +9,6 @@ import java.util.*
 @Repository
 interface HealthRepository : JpaRepository<Health, Long> {
     fun findByDateBeforeAndDateAfter(before: LocalDate, after: LocalDate): List<Health>
-
-
     fun findByUser_Id(id: Long): List<Health>
+    fun findAllByUserIdAndDateIsAfterAndDateIsBefore(userID: Long, start: LocalDate, end: LocalDate): List<Health>
 }
