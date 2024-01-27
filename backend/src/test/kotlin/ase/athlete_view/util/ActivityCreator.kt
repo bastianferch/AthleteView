@@ -8,6 +8,7 @@ import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.pojo.entity.User
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class ActivityCreator {
@@ -30,8 +31,30 @@ class ActivityCreator {
                     LocalDateTime.now().plusMinutes(120),
                     null,
                     listOf(),
-                    null
+                    null,
                 )
+            }
+
+            fun getHealthyForDefaultAthleteActivity(user: User, date: LocalDate): Activity{
+                val activity = this.getDefaultActivity()
+                activity.id = null
+                activity.user = user
+                activity.startTime = date.atTime(15, 0, 0)
+                activity.endTime = date.atTime(16, 0, 0)
+                activity.averageBpm = 130
+                activity.maxBpm = 180
+                return activity
+            }
+
+            fun getMehForDefaultAthleteActivity(user: User, date: LocalDate): Activity{
+                val activity = this.getDefaultActivity()
+                activity.id = null
+                activity.user = user
+                activity.startTime = date.atTime(16, 0, 0)
+                activity.endTime = date.atTime(17, 0, 0)
+                activity.averageBpm = 40
+                activity.maxBpm = 40
+                return activity
             }
 
             fun getDefaultPlannedActivity(trainer: Trainer, date: LocalDateTime?, athlete: Athlete?): PlannedActivity {

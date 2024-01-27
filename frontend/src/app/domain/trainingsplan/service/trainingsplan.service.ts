@@ -22,7 +22,6 @@ export class TrainingsplanService {
   private previousActivitiesKey = this.keyPrefix + "previous_activities"
   private upcomingActivitiesSuffix = "upcoming_activities"
 
-
   constructor(
     private httpClient:HttpClient,
     private urlService: UrlService,
@@ -240,7 +239,7 @@ export class TrainingsplanService {
    */
   validatePlannedActivities(user:User,activities:PlannedActivity[]) {
     if (activities.length > 7) {
-      throw new Error("too many activities planned for athlete " + user.name)
+      throw new Error("Too many activities planned for athlete " + user.name)
     }
     let highCnt = 0
     let sum = 0
@@ -253,7 +252,7 @@ export class TrainingsplanService {
     if (highCnt > 4) {
       throw new Error("Too many HARD load activities planned for athlete " + user.name)
     }
-    if (sum > 7) {
+    if (sum > 8) {
       throw new Error("Too much load in activities planned for athlete " + user.name)
     }
 
@@ -273,6 +272,24 @@ export class TrainingsplanService {
       })
     }
     return this.httpClient.post(this.cspScheduleUri,request,{ params: { withCredentials: true } })
+  }
+
+  /**
+   * Fetches the job status from the Backend
+   * (i.e.) if there is already a plan (being) created for next week
+   */
+  fetchJobExists():Observable<boolean> {
+    return this.httpClient.get<boolean>(
+      this.cspScheduleUri,
+      { params: { withCredentials: true } },
+    )
+  }
+
+  /**
+   * Deletes the current trainingsplan for the active user(trainer) and all related athletes
+   */
+  sendJobDeleteRequest():Observable<any> {
+    return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } })
   }
 
   /**

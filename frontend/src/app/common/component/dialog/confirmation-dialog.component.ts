@@ -10,14 +10,15 @@ export class ConfirmationDialogComponent {
 
   headline: string;
   content: string;
-  action: string;
-
+  confirmationText: string;
+  cancelText:string;
 
   constructor(@Inject(MAT_DIALOG_DATA) public injectedData:
   any, private dialogRef: MatDialogRef<ConfirmationDialogComponent>) {
     this.headline = this.injectedData.headline;
     this.content = this.injectedData.content;
-    this.action = this.injectedData.action;
+    this.confirmationText = this.injectedData.confirmationText;
+    this.cancelText = this.injectedData.cancelText;
   }
 
   cancelDialog() {

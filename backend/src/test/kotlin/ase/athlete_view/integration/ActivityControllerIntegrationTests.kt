@@ -10,7 +10,6 @@ import ase.athlete_view.domain.activity.pojo.entity.Interval
 import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
-import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.TestBase
@@ -53,17 +52,9 @@ import kotlin.io.path.absolute
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-//@EnableFlapdoodle
-//@TestPropertySource(properties = ["app.mongodb.enabled=true"])
 class ActivityControllerIntegrationTests : TestBase() {
 
     val log = KotlinLogging.logger {}
-
-    @Autowired
-    private lateinit var plActRep: PlannedActivityRepository
-
-    @Autowired
-    private lateinit var userRepo: UserRepository
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -173,24 +164,6 @@ class ActivityControllerIntegrationTests : TestBase() {
     @Transactional
     @WithCustomMockUser(id = -3)
     fun fetchAllPlannedActivities_WithoutDates_shouldReturnAllPlannedActivities() {
-        // setup
-//        val plannedActivity = ActivityCreator.getDefaultPlannedActivity(defaultTrainer, null, defaultAthlete)
-
-//        mockMvc.perform(
-//            post("/api/activity/planned").with(csrf())
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .characterEncoding("utf-8")
-//                    .content(objectMapper.writeValueAsString(plannedActivity))
-//        )
-//                .andExpect(status().isOk)
-//                .andDo(MockMvcResultHandlers.print())
-
-//        val results = plActRep.findAll()
-//        val users = userRepo.findAll()
-//        KotlinLogging.logger {}.info { "Stored activities: $results" }
-//        KotlinLogging.logger {}.info { "Stored users: $users" }
-
-        // retrieve
         mockMvc.perform(
             get("/api/activity/planned").with(csrf())
         )
@@ -205,7 +178,6 @@ class ActivityControllerIntegrationTests : TestBase() {
     fun getAllPlannedActivities_WithTimeRange_shouldReturnOnlyActivitiesInRange() {
         val starTime = OffsetDateTime.of(2023, 8, 1, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
         val endTime = OffsetDateTime.of(2023, 8, 31, 0, 0, 0, 0, ZoneOffset.of("+02:00"))
-
 
         mockMvc.perform(
             get("/api/activity/planned").with(csrf())
@@ -311,5 +283,5 @@ class ActivityControllerIntegrationTests : TestBase() {
             .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].template").value(true))
             .andExpect(jsonPath("$[0].date").value(null))
-    }
+	}
 }

@@ -7,11 +7,13 @@ import ase.athlete_view.domain.activity.pojo.entity.*
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.notification.service.NotificationService
+import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.TestBase
 import ase.athlete_view.util.UserCreator
+import ase.athlete_view.util.WithCustomMockUser
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -20,9 +22,22 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
-
+import org.springframework.test.web.client.ExpectedCount
+import org.springframework.test.web.client.MockRestServiceServer
+import org.springframework.test.web.client.match.MockRestRequestMatchers.method
+import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
+import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
+import org.springframework.web.client.RestTemplate
+import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.LocalDateTime
+import kotlin.io.path.absolute
 
 //@SpringBootTest
 @ActiveProfiles("test")
@@ -34,6 +49,14 @@ class ActivityServiceUnitTests: TestBase() {
     @MockkBean
     private lateinit var notificationService: NotificationService
 
+    @Autowired
+    private lateinit var userRepository: UserRepository
+
+    @Autowired
+    private lateinit var restTemplate: RestTemplate
+
+    @Value("\${api.mock.url}")
+    val apiHost: String? = null
 
     // Create a test object for Step class
     private val step = Step(null, StepType.ACTIVE, StepDurationType.DISTANCE, 30, StepDurationUnit.KM,
@@ -73,6 +96,25 @@ class ActivityServiceUnitTests: TestBase() {
             { assertEquals(newPlannedActivity.createdBy, plannedActivity.createdBy) },
             { assertEquals(newPlannedActivity.createdFor, plannedActivity.createdFor) }
         )
+    }
+
+    @Test
+    @WithCustomMockUser(id = -1)
+    fun mockActivity_ShouldCreateAnActivity() {
+        val filePath = Paths.get("src/test/resources/fit-files/valid_file.fit").absolute()
+        val byteContent = Files.readAllBytes(filePath)
+        val mockServer = MockRestServiceServer.createServer(restTemplate)
+
+        mockServer.expect(
+            ExpectedCount.once(),
+            requestTo(URI(apiHost + "activity")))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withStatus(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(byteContent)
+            )
+
+        assertDoesNotThrow { this.activityService.syncWithMockServer(-1) }
     }
 
     @Test

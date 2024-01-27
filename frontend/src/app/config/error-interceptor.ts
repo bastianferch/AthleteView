@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SpinnerService } from "../domain/main/service/spinner.service";
-import { Router } from "@angular/router";
+import { SnackbarService } from "../common/service/snackbar.service";
 
 export const IGNORE_ERROR_HANDLING = new HttpContextToken<boolean>(() => false);
 
@@ -12,7 +12,7 @@ export const IGNORE_ERROR_HANDLING = new HttpContextToken<boolean>(() => false);
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
     private spinner: SpinnerService,
-    private router: Router,
+    private notificationService: SnackbarService,
   ) {
   }
 
@@ -24,14 +24,13 @@ export class ErrorInterceptor implements HttpInterceptor {
 
   handleError(error:any) {
     this.spinner.resetActiveRequests();
-    if (error.status === 403) {
-      this.router.navigate(['/auth/login'])
-    }
     return throwError(error);
   }
 
   handleErrorWithNotification(error:any) {
-    // notification service should notify the error.
+    if (error && error.error && error.error.message) {
+      this.notificationService.openSnackBar(error.error.message)
+    }
     return this.handleError(error);
   }
 }

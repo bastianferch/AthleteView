@@ -7,6 +7,9 @@ import ase.athlete_view.domain.activity.pojo.entity.PlannedActivity
 import ase.athlete_view.domain.activity.pojo.entity.Step
 import ase.athlete_view.domain.activity.pojo.util.*
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.health.persistence.HealthRepository
+import ase.athlete_view.domain.health.pojo.entity.Health
+import ase.athlete_view.domain.health.service.HealthService
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.time_constraint.pojo.dto.WeeklyTimeConstraintDto
 import ase.athlete_view.domain.time_constraint.pojo.entity.TimeFrame
@@ -20,6 +23,7 @@ import ase.athlete_view.domain.zone.service.ZoneService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.serpro69.kfaker.Faker
 import jakarta.annotation.PostConstruct
+import org.apache.commons.lang3.StringUtils.lowerCase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -29,11 +33,19 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.random.Random
+
+const val NUM_OF_TRAINER = 25 // change this number for acceptance Tests
+const val NUM_OF_ATHLETE_PER_TRAINER = 5
+const val NUM_OF_ATHLETE_PER_TRAINER_WITH_ACTIVITIES = 3
+const val NUM_OF_TRAINER_WITH_ACTIVITIES = 1
 
 @Component
 @Profile("datagen")
 class DatagenProfile(
     private val userService: UserService,
+    private val healthService: HealthService,
+    private val healthRepository: HealthRepository,
     private val tcService: TimeConstraintService,
     private val activityService: ActivityService,
     private val plannedActivityRepo: PlannedActivityRepository,
@@ -43,14 +55,10 @@ class DatagenProfile(
     private val zoneService: ZoneService,
 ) {
 
-    val NUM_OF_TRAINER = 2
-    val NUM_OF_ATHLETE_PER_TRAINER = 5
-    val NUM_OF_ATHLETE_PER_TRAINER_WITH_ACTIVITIES = 3
-    val NUM_OF_TRAINER_WITH_ACTIVITIES = 1
-
 
     var log = KotlinLogging.logger {}
     var faker = Faker()
+    val nameList = listOf("Boris Rauber", "Holger Weiler", "Elfriede Scheiter", "Moritz Schwanitz", "Julie Hoffmeister", "Patricia Frei")
 
     @PostConstruct
     fun init() {
@@ -87,6 +95,21 @@ class DatagenProfile(
         )
         athlete.isConfirmed = true
         val saved = this.userService.save(athlete)
+        val healthList = ArrayList<Health>()
+        val today = LocalDate.now()
+        var weekIterator = today.minusDays(7)
+        while (!weekIterator.isEqual(today)){
+            healthList.add(Health(
+                null,
+                saved,
+                weekIterator,
+                Random.nextInt(5000, 20000),
+                Random.nextInt(50,110),
+                Random.nextInt(3*60, 10*60)))
+            weekIterator = weekIterator.plusDays(1)
+        }
+        this.healthRepository.saveAll(healthList)
+
         setDefaultAvailability(athlete)
         this.zoneService.resetZones(saved.id!!)
         this.tcService.createDefaultTimeConstraintsForUser(saved)
@@ -94,7 +117,6 @@ class DatagenProfile(
         trainer.isConfirmed = true
         athlete.trainer = trainer
         datagenActivity.createPlannedActivities(0, null, trainer)
-
 
 
         val plannedActivity = PlannedActivity(
@@ -151,8 +173,8 @@ class DatagenProfile(
 
             val trainer = Trainer(
                 id++,
-                "t${tId++}@t",
-                faker.name.name(),
+                if (i == 1) "${lowerCase(nameList[0].split(" ")[0])}@${lowerCase(nameList[0].split(" ")[1])}.com" else "t${tId++}@t",
+                if (i == 1) nameList[0] else faker.name.name(),
                 BCryptPasswordEncoder().encode("tttttttt"),
                 faker.address.country(),
                 faker.address.postcode(),
@@ -167,8 +189,8 @@ class DatagenProfile(
             for (j in 1..ratio) {
                 val athlete = Athlete(
                     id++,
-                    "a${aId++}@a",
-                    faker.name.name(),
+                    if (i == 1) "${lowerCase(nameList[j].split(" ")[0])}@${lowerCase(nameList[j].split(" ")[1])}.com" else "a${aId++}@a",
+                    if (i == 1) nameList[j] else faker.name.name(),
                     BCryptPasswordEncoder().encode("aaaaaaaa"),
                     faker.address.country(),
                     faker.address.postcode(),
@@ -185,12 +207,16 @@ class DatagenProfile(
                     trainer.athletes.add(athlete)
                     setDefaultAvailability(athlete)
                     this.userService.saveAll(listOf(trainer, athlete))
+                    if (i <= NUM_OF_TRAINER / 2) {
+                        val reducePaceInMinKm = faker.random.nextInt(-30, 30)
+                        plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
+                    }
+
                     if (i <= NUM_OF_TRAINER_WITH_ACTIVITIES) {
                         if (j <= withActivities) {
-                            val addSpeedInMS = faker.random.nextFloat() * 4 - 2
-                            val reducePaceInMinKm = faker.random.nextInt(-30, 30)
-                            plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
+                            val addSpeedInMS = faker.random.nextFloat() * 1 - 0.5F
                             filesCreated += datagenActivity.changeFiles(addSpeedInMS, faker.random.nextInt(-10, 10), athlete)
+                            healthService.createHealthDataForTheLast30Days(athlete)
                         }
                     }
                 } else {
@@ -274,6 +300,11 @@ class DatagenProfile(
     }
 
     fun addUnacceptedAthleteNotification(trainer: Trainer, athlete: Athlete) {
-        this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "action/acceptAthlete/${athlete.id}")
+        this.notificationService.sendNotification(
+            trainer.id!!,
+            "Athlete request",
+            "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}",
+            "action/acceptAthlete/${athlete.id}"
+        )
     }
 }

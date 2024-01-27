@@ -1,9 +1,7 @@
 package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.common.exception.entity.NotFoundException
-import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
-import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
-import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
+import ase.athlete_view.domain.activity.pojo.dto.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -204,7 +202,29 @@ class ActivityController(private val activityService: ActivityService) {
         activityService.rateActivityWithUser(user.id!!, activityId, rating)
     }
 
+    @PostMapping("/sync")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun syncWithMockServer(@AuthenticationPrincipal user: UserDTO) {
+        log.info { "POST | syncWithMockServer()" }
+        this.activityService.syncWithMockServer(user.id!!)
+    }
 
+
+    @GetMapping("/map/{activityId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun getMapDataForActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable activityId: Long): List<MapDataDTO> {
+        log.info { "GET | getMapData(user=${user.id}, activity=$activityId)" }
+        return activityService.prepareMapDataForActivity(user.id!!, activityId)
+    }
+
+    @GetMapping("/statistics/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    fun getStatisticsForActivity(@AuthenticationPrincipal user: UserDTO, @PathVariable id: Long): List<ActivityStatisticsDTO> {
+        log.info { "GET | getStatisticsForActivity(user=${user.id}, activity=$id)" }
+        return activityService.prepareStatisticsForActivity(user.id!!, id)
+    }
 
     private fun parseStringIntoLocalDateTime(strInput: String): LocalDateTime {
         log.trace { "C | parseStringIntoLocalDateTime($strInput)" }

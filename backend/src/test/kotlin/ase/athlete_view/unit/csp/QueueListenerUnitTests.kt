@@ -7,12 +7,14 @@ import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.csp.pojo.dto.CspActivityDto
 import ase.athlete_view.domain.csp.pojo.dto.CspDto
 import ase.athlete_view.domain.csp.pojo.dto.CspMappingDto
+import ase.athlete_view.domain.csp.pojo.entity.CspJob
 import ase.athlete_view.domain.csp.service.CspService
 import ase.athlete_view.domain.csp.service.impl.CspServiceImpl
 import ase.athlete_view.domain.csp.util.QueueResponseListener
 import ase.athlete_view.domain.notification.pojo.entity.Notification
 import ase.athlete_view.domain.notification.service.NotificationService
 import ase.athlete_view.domain.user.pojo.entity.Athlete
+import ase.athlete_view.domain.user.pojo.entity.Trainer
 import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.TestBase
@@ -55,6 +57,7 @@ class QueueListenerUnitTests : TestBase() {
     fun testError() {
         every { ns.sendNotification(any(), any(), any(), any(), any()) } returns null
         every { cspService.accept(any(), any()) } returns Unit
+        every { cspService.getJob(any())} returns CspJob(0, mutableListOf<PlannedActivity>(), Trainer(null,"","","","","","",mutableSetOf<Athlete>(), mutableSetOf<Athlete>()),"")
         every { cspService.revertJob(any()) } returns Unit
         val json = "{\"success\":false,\"activities\":[],\"error\":\"test error\",\"requestTimestamp\":${Instant.now().toEpochMilli()},\"trainerId\":-3}".toByteArray()
 

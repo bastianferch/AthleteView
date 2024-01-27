@@ -1,17 +1,22 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core'; // , ViewChild
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core'; // , ViewChild
 import { Activity } from '../../dto/Activity';
 import { ActivityService } from '../../service/activity.service';
 import { ActivatedRoute } from '@angular/router';
-// import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Lap } from 'src/app/common/interval/dto/Lap';
 import { format, formatDuration, intervalToDuration } from 'date-fns';
 import { ActivityType } from '../../dto/PlannedActivity';
+import { MapDataDto } from '../../dto/MapDataDto';
+
+import * as L from 'leaflet';
+import { MatPaginator } from '@angular/material/paginator';
+
 
 @Component({
   selector: 'app-finished-activity',
   templateUrl: './finished-activity.component.html',
   styleUrls: ['./finished-activity.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class FinishedActivityComponent implements OnInit {
   columnsToDisplay = [
@@ -29,26 +34,48 @@ export class FinishedActivityComponent implements OnInit {
   ]
 
   isLoading = true
+  coordinatesReady = false
   ds = new MatTableDataSource<Lap>()
+  options: L.MapOptions = { zoom: 13 }
+
+  idEmitter: number
+  activityType: ActivityType
+  activityDate: Date
 
   // used for paginator
-  // @ViewChild(MatPaginator, { static: false })
-  // set paginator(v: MatPaginator) {
-  //   this.ds.paginator = v
-  // }
+  @ViewChild(MatPaginator, { static: false })
+  set paginator(v: MatPaginator) {
+    this.ds.paginator = v
+  }
 
   protected activity: Activity
+  private polylineRoute: L.Polyline
 
   constructor(
     private activityService: ActivityService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.isLoading = true
+      let loadCnt = 0
       const aid = params["id"]
+      this.idEmitter = aid
+
+      this.activityService.fetchMapDataForActivity(aid).subscribe((data: Array<MapDataDto>) => {
+        this.options = {
+          layers: this.getLayers(data),
+        }
+        loadCnt += 1
+
+        if (loadCnt >= 2) {
+          this.isLoading = false
+          this.cdr.detectChanges()
+        }
+      })
+
       this.activityService.fetchActivityForUser(aid).subscribe((data) => {
         data.laps = data.laps.sort((x: Lap, y: Lap) => {
           let order = 0
@@ -65,11 +92,31 @@ export class FinishedActivityComponent implements OnInit {
           cumulativeTime += item.time
           return { ...item, cumulativeTime }
         })
+
         this.ds.data = data.laps
-        this.isLoading = false
+        loadCnt += 1
+        if (loadCnt >= 2) {
+          this.isLoading = false
+          this.cdr.detectChanges()
+        }
+        this.activityType = data.activityType
+        this.activityDate = data.startTime as Date
         this.activity = data
       })
     })
+  }
+
+  onMapReady(map: L.Map) {
+    map.fitBounds(this.polylineRoute.getBounds(), {
+      padding: L.point(24, 24),
+      maxZoom: 13,
+      animate: true,
+    })
+
+    // necessary or else map-tiles don't load properly
+    setTimeout(() => {
+      map.invalidateSize()
+    }, 0)
   }
 
   formatTime(time: number): string {
@@ -143,7 +190,7 @@ export class FinishedActivityComponent implements OnInit {
         return "pool"
       default:
         // shouldn't occur
-        return "sync-problem"
+        return ""
     }
   }
 
@@ -214,6 +261,18 @@ export class FinishedActivityComponent implements OnInit {
     return String(this.activity.minBpm)
   }
 
+  kcalNotNull(): boolean {
+    return this.activity.spentKcal !== 0
+  }
+
+  getTooltipText(): string {
+    return `
+    Series in the graph can be hidden.
+    Do so by clicking on the colors/names below the graph.
+    Cadence units: spm (strides/strokes per min), rpm (rotations per min).
+    `
+  }
+
   // https://stackoverflow.com/a/65711327
   private formatDuration(duration: Duration): string {
     const zeroPad = (it: number) => String(it).padStart(2, '0')
@@ -234,5 +293,28 @@ export class FinishedActivityComponent implements OnInit {
       formatted = fsplit.join(":")
     }
     return formatted
+  }
+
+  private getLayers(routeData: Array<MapDataDto>): L.Layer[] {
+    if (routeData.length > 0) {
+      this.coordinatesReady = true
+    }
+
+    this.polylineRoute = this.getRoute(routeData)
+    return [
+      new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      } as L.TileLayerOptions),
+      this.polylineRoute,
+    ] as L.Layer[];
+  }
+
+  private getRoute(routeData: Array<MapDataDto>): L.Polyline {
+    return L.polyline(
+      routeData.map((it: MapDataDto): L.LatLng => new L.LatLng(it.latitude, it.longitude)) as L.LatLng[],
+      {
+        color: "#9e30ff",
+      } as L.PolylineOptions,
+    )
   }
 }

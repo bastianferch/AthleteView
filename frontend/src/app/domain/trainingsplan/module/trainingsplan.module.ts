@@ -9,13 +9,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from "@angular/material/button";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { ActivityCardComponent } from "../component/activity-card/activity-card.component";
 
 
 const routes: Routes = [
   { path: '', component: TrainingsplanComponent },
 ]
 @NgModule({
-  declarations: [TrainingsplanComponent],
+  declarations: [TrainingsplanComponent, ActivityCardComponent],
   imports: [RouterModule.forChild(routes), NgForOf, CdkDrag, CdkDropList, FormsModule, MatFormFieldModule, MatCardModule, MatIconModule, MatCheckboxModule, MatButtonModule, ReactiveFormsModule, NgIf, AsyncPipe],
   exports: [RouterModule],
 })

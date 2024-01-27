@@ -8,6 +8,8 @@ import { IntervalSplit } from "../../../common/interval/dto/Interval";
 import { Activity } from '../dto/Activity'
 import { DateParsing } from 'src/app/common/util/parsing/date-parsing';
 import { CommentDTO } from "../dto/Comment";
+import { MapDataDto } from '../dto/MapDataDto';
+import { ActivityStatsDto } from '../dto/ActivityStatsDto';
 
 @Injectable({
   providedIn: 'root',
@@ -123,6 +125,32 @@ export class ActivityService {
       this.activityBaseUri + `/finished/rate/${aid}/${rating}`,
       null,
       { withCredentials: true },
+    );
+  }
+
+  fetchMapDataForActivity(aid: number): Observable<Array<MapDataDto>> {
+    const url = this.activityBaseUri + `/map/${aid}`
+    return this.httpClient.get<Array<MapDataDto>>(url)
+  }
+
+  fetchGraphDataForActivity(aid: number): Observable<Array<ActivityStatsDto>> {
+    const url = this.activityBaseUri + `/statistics/${aid}`
+    return this.httpClient.get<Array<ActivityStatsDto>>(url)
+      .pipe(tap((items) => {
+        return items.map((item) => {
+          if (item.timestamp !== undefined) {
+            const formatted: Date = this.dateParser.parseNumbersIntoDate(item.timestamp as number[])
+            item.timestamp = formatted
+          }
+          return item
+        })
+      }))
+  }
+
+
+  syncWithApi(): Observable<void> {
+    return this.httpClient.post<void>(
+      this.activityBaseUri + '/sync', null, { withCredentials: true },
     );
   }
 

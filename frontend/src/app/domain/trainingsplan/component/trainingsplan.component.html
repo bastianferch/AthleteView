@@ -1,118 +1,68 @@
-<div *ngIf="athletes.length !== 0">
-
-  <div *ngIf="currentAthlete">
-    <h1>{{ currentAthlete.name}}'s Trainingsplan</h1>
-    <div *ngIf="athletes.length >1">
-      <button mat-flat-button color="primary" class="mg-0p275" (click)="prevUser()">Previous</button>
-      <button mat-flat-button color="primary" class="mg-0p275" (click)="nextUser()">Next</button>
-    </div>
-  </div>
-
-  <div class="activity-container">
-    <h2>Last Week</h2>
-    <div  *ngFor="let item of previous" cdkDrag [cdkDragDisabled]="!item.template">
-      <mat-card class="activity-card">
-        <mat-card-content class="activity-card-content">
-          <div class="colored-bar" [style.background-color]="getColor(item)"></div>
-          <img class="preview"
-               [src]="getIconForActivity(item)"
-               alt="placeholder"
-          />
-          <div>
-            <div>{{ item.type }} {{item.estimatedDuration}}</div>
-            <div>{{ item.name}}</div>
-          </div>
-          <div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-    </div>
-  </div>
-
-  <div class="activity-container">
-    <h2>Upcoming Week</h2>
-    <div
-      cdkDropList
-      #upcomingList="cdkDropList"
-      [cdkDropListData]="upcoming"
-      [cdkDropListConnectedTo]="[templateList]"
-      class="activity-list"
-      (cdkDropListDropped)="drop($event)">
-      <div  *ngFor="let item of upcoming" cdkDrag [cdkDragDisabled]="!item.template">
-        <mat-card class="activity-card">
-          <mat-card-content class="activity-card-content">
-            <div class="colored-bar" [style.background-color]="getColor(item)"></div>
-            <img class="preview"
-                 [src]="getIconForActivity(item)"
-                 alt="placeholder"
-            />
-            <div>
-              <div>{{ item.type }} {{item.estimatedDuration}}</div>
-              <div>{{ item.name}}</div>
-            </div>
-            <div>
-              <div *ngIf="item.template">
-                <div>
-                  <a>With Trainer?
-                    <mat-checkbox class="checkbox" [(ngModel)]="item.withTrainer" checked="{{item.withTrainer}}"></mat-checkbox>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div *ngIf="item.template">
-                <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
-                  <path d="M0 0h24v24H0z" fill="none"></path>
-                </svg>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
+<div class="main-content">
+  <div *ngIf="athletes.length !== 0">
+    <div *ngIf="currentAthlete">
+      <h1>{{ currentAthlete.name}}'s Trainingsplan</h1>
+      <div *ngIf="athletes.length >1">
+        <button mat-flat-button color="primary" class="mg-0p275" (click)="prevUser()">Previous</button>
+        <button mat-flat-button color="primary" class="mg-0p275" (click)="nextUser()">Next</button>
       </div>
     </div>
-  </div>
 
-  <div class="activity-container">
-    <h2>Your Templates</h2>
-    <div
-      cdkDropList
-      #templateList="cdkDropList"
-      [cdkDropListData]="templates"
-      [cdkDropListConnectedTo]="[upcomingList]"
-      class="activity-list"
-      (cdkDropListDropped)="drop($event)">
-      <div  *ngFor="let item of templates" cdkDrag [cdkDragDisabled]="!item.template">
-        <mat-card class="activity-card">
-          <mat-card-content class="activity-card-content">
-            <div class="colored-bar" [style.background-color]="getColor(item)"></div>
-            <img class="preview"
-                 [src]="getIconForActivity(item)"
-                 alt="placeholder"
-            />
-            <div>
-              <div>{{ item.type }} {{item.estimatedDuration}}</div>
-              <div>{{ item.note}}</div>
-            </div>
-            <div *ngIf="item.template">
-              <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
-                <path d="M0 0h24v24H0z" fill="none"></path>
-              </svg>
-            </div>
-          </mat-card-content>
-        </mat-card>
+
+    <div class="activity-container">
+      <h2>Last Week</h2>
+      <div class="activity-list">
+        <div *ngFor="let item of previous" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card [activity]="item"></app-activity-card>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div>
-    <button mat-flat-button color="primary" class="mg-0p275" [disabled]="sentForScheduling" (click)="sendCSPRequest()">Create Trainingsplans</button>
+    <div class="activity-container">
+      <h2>Upcoming Week</h2>
+      <div
+        cdkDropList
+        #upcomingList="cdkDropList"
+        [cdkDropListData]="upcoming"
+        [cdkDropListConnectedTo]="[templateList]"
+        class="activity-list"
+        (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let item of upcoming" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card
+            [activity]="item"
+            [interActive]="interactive">
+          </app-activity-card>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-container">
+      <h2>Your Templates</h2>
+      <div
+        cdkDropList
+        #templateList="cdkDropList"
+        [cdkDropListData]="templates"
+        [cdkDropListConnectedTo]="[upcomingList]"
+        class="activity-list"
+        (cdkDropListDropped)="drop($event)">
+        <div class="activity-droplist"*ngFor="let item of templates" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card
+            [activity]="item"
+            [interActive]="interactive">
+          </app-activity-card>
+        </div>
+      </div>
+    </div>
+
+
+    <div>
+      <button mat-flat-button color="primary" class="mg-0p275" [disabled]="sentForScheduling"
+              (click)="sendCSPRequest()">
+        Create Trainingsplans
+      </button>
+    </div>
   </div>
 </div>
-
 <div *ngIf="athletes.length === 0">
   <h1> You do not have any athletes to manage at the moment </h1>
   <p> Feel free to invite some using our "Invite athletes" functionality</p>

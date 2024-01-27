@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { interval, Subscription } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
+import { SnackbarService } from "../../../../common/service/snackbar.service";
 
 @Component({
   selector: 'app-confirm-registration',
@@ -20,6 +21,7 @@ export class ConfirmRegistrationComponent implements OnDestroy, OnInit {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
+    private snackbarService: SnackbarService,
     private router: Router) {
   }
 
@@ -43,6 +45,7 @@ export class ConfirmRegistrationComponent implements OnDestroy, OnInit {
       this.authService.confirmAccount(this.uuid).subscribe({
         next: () => {
           this.success = true;
+          this.snackbarService.openSnackBar('Account was confirmed.');
         },
         error: () => this.isError = true,
       });

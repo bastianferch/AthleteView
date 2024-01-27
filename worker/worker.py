@@ -76,6 +76,10 @@ def _parseData(data):
 
 @timeout(_maxTimeOut, timeout_exception=TimerInterruptException)
 def _solve(data):
+    response = {"trainerId":data["trainerId"],
+                  "requestTimestamp":data["requestTimestamp"],
+                  "activities":data["activities"],
+                  "success": False}
     try:
         (activities, schedule) = _parseData(data)
         
@@ -84,19 +88,32 @@ def _solve(data):
         resp = resp[0]
         end_time = time.time()
         elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"success": True, "duration": int(elapsed_time),"threshold":treshold, "activities": resp.getActivitiesAsJson()})
-    
+
+        response["success"] = True
+        response["activities"] = resp.getActivitiesAsJson()
+        response["threshold"] = treshold
+        response["duration"] = int(elapsed_time)
+
+        _publish(_responseQueueName, response)
     except TrainerConstraintExcpetion as e:
-        _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"activities":data["activities"],"success": False, "error": "ConstraintException"})
+        logger.info("Caught TrainerConstraintExcpetion")
+        response["error"] = e.message
+        _publish(_responseQueueName, response)
     except IntensityConstraintException as e:
-        _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"activities":data["activities"],"success": False, "error": "IntensityConstraintException"})
-    except DataMalformedExcpetion:
-        _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"activities":data["activities"],"success": False, "error": "Data malformed"})
+        logger.info("Caught IntensityConstraintException")
+        response["error"] = e.message
+        response["errorAthleteId"] = e.athlete
+        _publish(_responseQueueName, response)
+    except DataMalformedExcpetion as e:
+        logger.info("Caught DataMalformedExcpetion")
+        response["error"] = e.message
+        _publish(_responseQueueName, response)
     except TimerInterruptException:
-        logger.info("Cought TimerInterruptException")
-        _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"activities":data["activities"],"success": False, "error": "Timeout"})
+        logger.info("Caught TimerInterruptException")
+        response["error"] = "Timeout occured (1 min)"
+        _publish(_responseQueueName, response)
     except Exception as e:
-        #traceback.print_exc(e)
+        logger.info("Caught unhandeled exception in solve")
         _publish(_responseQueueName, {"trainerId":data["trainerId"],"requestTimestamp":data["requestTimestamp"],"activities":data["activities"],"success": False, "error": "unhandled"})
 
 
@@ -108,7 +125,8 @@ def callback(ch, method, prop, body):
     try:
         _solve(data)
     except Exception as e:
-        logger.warning("Cought unhandeled exception")
+        traceback.print_exc() 
+        logger.warning("Cought unhandeled exception in callback")
 
 def _readCredentials():
     global _rmqHost

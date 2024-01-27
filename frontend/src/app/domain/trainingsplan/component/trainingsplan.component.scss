@@ -1,7 +1,15 @@
+.main-content{
+  margin: auto;
+  width: 100%; /* You can adjust the width as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .activity-container {
-  width: 400px;
   max-width: 100%;
-  margin: 0 25px 25px 0;
+  min-width: 20%;
+  margin: 30px 20px 0 20px;
   display: inline-block;
   vertical-align: top;
 }
@@ -9,12 +17,12 @@
 .activity-list {
   border: solid 1px #ccc;
   min-height: 60px;
+  min-width: 320px;
   background: white;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   display: block;
 }
-
 
 .cdk-drag-preview {
   box-sizing: border-box;
@@ -32,36 +40,6 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.example-box:last-child {
-  border: none;
-}
-
-.activity-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+.activity-list.cdk-drop-list-dragging {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.activity-card-content{
-  max-height: 60pt;
-  display:flex;
-  flex:auto;
-  justify-content: space-between;
-}
-.preview{
-  height: 64px;
-  width: 64px;
-  margin-right: 5pt;
-}
-
-.checkbox{
-  display: flex;
-}
-
-.colored-bar {
-  height: 100%;
-  width: 8px; /* Adjust the width of the colored bar */
-  position: absolute;
-  left: 0;
-  top: 0;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
 }

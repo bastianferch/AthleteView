@@ -30,7 +30,7 @@ class WeekDay:
             if length >= activity.duration:
                 for i in range(
                     start, start + length - activity.duration + 1
-                ):  # TODO: this needs special attention when switching to 15min intervals
+                ): 
                     starts.append(i)
         return starts
 

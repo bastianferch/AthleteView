@@ -15,7 +15,6 @@ def generatePartialSchedules(schedule: Schedule, activity: Activity, threshold):
             activity.athlete
         ).fuzzyCalcPossibleStarts(activity)
 
-    # TODO: restructure when "last day of previous week" is implemented
     for day, startTimes in possibleStarts:
         if not schedule.getAthleteTable(activity.athlete).getDay(day).isFree():
             continue
@@ -32,7 +31,7 @@ def generatePartialSchedules(schedule: Schedule, activity: Activity, threshold):
         for startTime in startTimes:
             tmp = schedule.myDeepcopy()
             tmp.assignActivity(activity, day, startTime)
-            score = scheduleScoringFunction(tmp)
+            score = scoringFunction(tmp)
             if score >= threshold:
                 ret.append(tmp)
     return ret
@@ -55,23 +54,23 @@ def generateFullSchedules(schedule: Schedule, activities: List[Activity], thresh
     return tmp
 
 
-# calculates a score for a given assignment (schedule)
-def scheduleScoringFunction(schedule: Schedule):
+# calculates a score for a given TimeTable for all activities
+def tableScoringFunction(timeTable:TimeTable):
     score = 0
-    dayIter = zip(
-        range(0, len(schedule.trainerTable.weekDays)), schedule.trainerTable.weekDays
-    )
-    for dayNumber, day in dayIter:
-        slotIter = zip(range(0, len(day.slots)), day.slots)
-        for slotNumber, slot in slotIter:
-            activity = slot.getActivity()
-            if activity:
-                athlete = activity.getAthlete()
-                athleteTable = schedule.getAthleteTable(athlete)
-                athleteSlot = athleteTable.getDay(dayNumber).getSlot(slotNumber)
-                if not athleteSlot.free:
-                    score = score - (MAX_ACTIVITY_DUARION / activity.duration)
+    for day in timeTable.weekDays:
+        for slot in day.slots:
+            if slot.hasActicity():
+                if not slot.wasFree():
+                    score = score - (MAX_ACTIVITY_DUARION / slot.getActivity().duration)
+    return score    
+
+# calculates a score for a given assignment (schedule)
+def scoringFunction(schedule:Schedule):
+    score = 0
+    for at_key in schedule.athleteTables.keys():
+        score = score + tableScoringFunction(schedule.athleteTables.get(at_key))
     return score
+
 
 # makes sure the given list of activities can even be schedule given the
 # intensity constraint 
@@ -84,21 +83,20 @@ def checkIntensities(activities: List[Activity]):
 
     for a in athletes:
         # check if too many highs
-        # TODO: rework when implementing last day of last week
         high_cnt = 0
         for activity in athletes[a]:
             if activity.intensity == 2:
                 high_cnt += 1
         if high_cnt > 4:
-            raise IntensityConstraintException("Too many intensity 2", athletes[a])
+            raise IntensityConstraintException("Too many ativities with intensity HARD", a)
 
         #
         sum = 0
         for activity in athletes[a]:
             sum += activity.intensity
-        if sum > 7:
+        if sum > 8:
             raise IntensityConstraintException(
-                "Too much intensity over the week", athletes[a]
+                "Too much overall intensity over the week", a
             )
 
 # helper function for the checkTrainerTable

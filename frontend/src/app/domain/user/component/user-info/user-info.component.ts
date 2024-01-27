@@ -69,7 +69,8 @@ export class UserInfoComponent implements OnInit {
       data: {
         headline: 'Reset Invite Code',
         content: 'Are you sure you want to reset your invite code? All your current invitations will be lost.',
-        action: 'Reset Code',
+        confirmationText: 'Reset Code',
+        cancelText: 'Cancel',
       },
     });
 
