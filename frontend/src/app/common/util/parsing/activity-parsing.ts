@@ -42,4 +42,22 @@ export class ActivityParsing {
     }
   }
 
+  getShortNameForActivity(activityType: string): string {
+    switch (activityType) {
+      case ActivityType.BIKE:
+        return "cycling"
+      case ActivityType.CROSSCOUNTRYSKIING:
+        return "cc skiing"
+      case ActivityType.ROW:
+        return "rowing activity"
+      case ActivityType.RUN:
+        return "run"
+      case ActivityType.SWIM:
+        return "swim"
+      default:
+        // shouldn't occur
+        return "activity"
+    }
+  }
+
 }

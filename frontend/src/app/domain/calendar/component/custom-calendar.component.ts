@@ -28,6 +28,7 @@ import { PlannedActivityEvent } from '../../activity/dto/PlannedActivity';
 import { MatButtonModule } from "@angular/material/button";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { NgIf } from "@angular/common";
+import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
 
 @Component({
   selector: 'app-custom-calendar',
@@ -50,6 +51,7 @@ export class CustomCalendarComponent implements OnInit {
 
   constructor(
     private activityService: ActivityService,
+    private activityParsing: ActivityParsing,
     private constraintService: TimeConstraintService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -160,9 +162,11 @@ export class CustomCalendarComponent implements OnInit {
         const calData = data.map((x) => {
           const xEvent: ActivityEvent = { ...x, objectType: "finished" }
 
+          let title = "Finished " + this.activityParsing.getShortNameForActivity(x.activityType)
+          if (x.plannedActivity?.createdFor?.id !== uid) title += " - " + x.plannedActivity.createdFor.name
           if (x.accuracy >= 75) {
             return {
-              title: "Finished activity",
+              title: title,
               start: x.startTime as Date,
               end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
@@ -173,7 +177,7 @@ export class CustomCalendarComponent implements OnInit {
           }
           if (x.accuracy >= 50) {
             return {
-              title: "Finished activity",
+              title: title,
               start: x.startTime as Date,
               end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
@@ -184,7 +188,7 @@ export class CustomCalendarComponent implements OnInit {
           }
           if (x.accuracy >= 25) {
             return {
-              title: "Finished activity",
+              title: title,
               start: x.startTime as Date,
               end: x.endTime as Date,
               resizable: { beforeStart: false, afterEnd: false },
@@ -194,7 +198,7 @@ export class CustomCalendarComponent implements OnInit {
             }
           }
           return {
-            title: "Finished activity",
+            title: title,
             start: x.startTime as Date,
             end: x.endTime as Date,
             resizable: { beforeStart: false, afterEnd: false },
@@ -226,7 +230,7 @@ export class CustomCalendarComponent implements OnInit {
           const activityEnd = add(x.date as Date, { minutes: est })
           if (new Date().getTime() >= activityStart.getTime()) {
             return {
-              title: x.name,
+              title: x.name + ((x.createdFor?.id !== uid) ? (" - " + x.createdFor.name) : ""),
               start: activityStart,
               end: activityEnd,
               resizable: { beforeStart: false, afterEnd: false },
@@ -236,7 +240,7 @@ export class CustomCalendarComponent implements OnInit {
             }
           }
           return {
-            title: x.name,
+            title: x.name + ((x.createdFor?.id !== uid) ? (" - " + x.createdFor.name) : ""),
             start: activityStart,
             end: activityEnd,
             resizable: { beforeStart: false, afterEnd: false },
@@ -247,6 +251,7 @@ export class CustomCalendarComponent implements OnInit {
 
         }, this)
         this.events = [...this.events, ...calData]
+        this.filterPlannedEvents()
       },
       error: (e) => {
         this.notifService.openSnackBarWithAction("Error loading planned activities", "Close")
@@ -277,7 +282,23 @@ export class CustomCalendarComponent implements OnInit {
       start: start,
       end: end,
       title: constraint.title,
-      color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"],
+      color: constraint.isBlacklist ? Calendarcolors["dark_gray"] : Calendarcolors["yellow"],
     }
+  }
+
+  private filterPlannedEvents() {
+    const planned: number[] = this.events.filter((a) => a.meta?.objectType === "finished" &&
+      (a.meta.plannedActivity !== undefined)).map((a) => {
+      if (a.meta?.plannedActivity?.name) a.title += " - " + a.meta?.plannedActivity?.name;
+      return a.meta?.plannedActivity?.id
+    });
+    this.events = [...this.events.filter((event) => {
+      for (const i of planned) {
+        if (i === event.meta?.id) {
+          return false;
+        }
+      }
+      return true;
+    })];
   }
 }

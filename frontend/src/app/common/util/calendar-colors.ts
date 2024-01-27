@@ -20,4 +20,8 @@ export const Calendarcolors: Record<string, EventColor> = {
     primary: '#808080',
     secondary: '#D3D3D3',
   },
+  dark_gray: {
+    primary: '#5e5e5e',
+    secondary: '#ababab',
+  },
 }

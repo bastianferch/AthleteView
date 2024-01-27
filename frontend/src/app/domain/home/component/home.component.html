@@ -69,7 +69,7 @@
           </div>
           <div *ngIf="health.avgSteps<0">
             <mat-card-subtitle>No health stats to show</mat-card-subtitle>
-            <mat-card-subtitle *ngIf="isTrainer">This athlete might not want to share personal health stats with his trainer.</mat-card-subtitle>
+            <mat-card-subtitle *ngIf="isTrainer">This athlete might not want to share personal health stats.</mat-card-subtitle>
           </div>
           <div class="card-list" *ngIf="past.length > 0">
             <mat-card *ngFor="let type of past">
