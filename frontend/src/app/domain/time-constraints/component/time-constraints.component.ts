@@ -7,7 +7,7 @@ import { CalendarEvent, CalendarEventAction, CalendarEventTimesChangedEvent } fr
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Calendarcolors } from "../../../common/util/calendar-colors";
-import { dateFormatString } from "../../../common/util/parsing/date-parsing"
+import { dateFormatString, DateParsing } from "../../../common/util/parsing/date-parsing"
 import { endOfDay, subDays, format } from "date-fns";
 import { enUS } from "date-fns/locale";
 
@@ -27,6 +27,7 @@ export class TimeConstraintsComponent implements OnInit {
   show: boolean[] = [false, true]
   startOfWeek: Date
   refresh = new Subject<void>();
+  timeClicked = new Subject<Date>()
 
   actions: CalendarEventAction[] = [
     {
@@ -39,7 +40,11 @@ export class TimeConstraintsComponent implements OnInit {
     },
   ];
 
-  constructor(public dialog: MatDialog, private constraintService: TimeConstraintService, public msgService: SnackbarService) {}
+  constructor(public dialog: MatDialog,
+    private constraintService: TimeConstraintService,
+    public msgService: SnackbarService,
+    private dateParsing: DateParsing,
+  ) {}
 
   ngOnInit(): void {
     this.setStartOfWeek()
@@ -90,15 +95,9 @@ export class TimeConstraintsComponent implements OnInit {
     if (this.show[1]) this.events = [...this.events, ...this.blacklist]
   }
 
-  // for some reason the date is returned as a number[] from the backend, and typescript just cannot deal with this
-  parseDate(time: any): Date {
-    const dateString = `${time[0]}-${time[1]}-${time[2]} ${time[3].toString().padStart(2, '0')}:${time[4].toString().padStart(2, '0')}`
-    return new Date(dateString)
-  }
-
   constraintToEvent(constraint: TimeConstraint): CalendarEvent {
-    const start = this.parseDate(constraint.startTime)
-    const end = this.parseDate(constraint.endTime)
+    const start = this.dateParsing.parseNumbersIntoDate(constraint.startTime as number[])
+    const end = this.dateParsing.parseNumbersIntoDate(constraint.endTime as number[])
     return {
       start: start,
       end: end,
@@ -139,6 +138,10 @@ export class TimeConstraintsComponent implements OnInit {
       }
     })
 
+  }
+
+  hourClicked({ date }: any) {
+    this.timeClicked.next(date)
   }
 
   handleDateToday() {
