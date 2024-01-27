@@ -103,7 +103,7 @@ export class TimeConstraintsComponent implements OnInit {
       start: start,
       end: end,
       title: constraint.title,
-      color: constraint.isBlacklist ? Calendarcolors["green"] : Calendarcolors["yellow"],
+      color: constraint.isBlacklist ? Calendarcolors["dark_gray"] : Calendarcolors["yellow"],
       actions: this.actions,
       resizable: {
         beforeStart: true,
