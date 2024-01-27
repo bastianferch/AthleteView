@@ -1,7 +1,7 @@
 <div class="finished-activity-wrapper" *ngIf="!isLoading">
   <div class="header-wrapper">
     <div class="title">
-      <mat-icon>{{ getIconForActivity() }}</mat-icon>
+      <img class="activity-icon-header" [src]="getIconPath()" alt="icon" />
       <div class="title-text">
         <span class="name">{{ getReadableNameForActivity() }}</span>
         <span>{{ getFormattedDateForActivity() }}</span>
@@ -133,6 +133,11 @@
             </mat-paginator>
           </div>
         </mat-tab>
+        <mat-tab label="Planned Activity" *ngIf="hasPlannedActivityAssigned">
+          <app-interval-container [activityType]="activityType"
+            [inputInterval]="getMappedInterval()"></app-interval-container>
+        </mat-tab>
+
       </mat-tab-group>
     </div>
     <mat-divider [vertical]="true" class="no-mobile"></mat-divider>

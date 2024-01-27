@@ -67,11 +67,11 @@ export class ActivityCardComponent {
     this.objectChanged.emit(this.activity);
   }
 
-  getColorCode(activity:PlannedActivity):string {
+  getColorCode(activity: PlannedActivity): string {
     return this.styleMapperService.getIntensityColor(activity)
   }
 
-  getIconPath(activity:PlannedActivity):string {
-    return this.styleMapperService.getIconPathForActivity(activity)
+  getIconPath(activity: PlannedActivity): string {
+    return this.styleMapperService.getIconPathForPlannedActivity(activity)
   }
 }

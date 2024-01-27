@@ -1,16 +1,18 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core'; // , ViewChild
+import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild, ViewEncapsulation } from '@angular/core'; // , ViewChild
 import { Activity } from '../../dto/Activity';
 import { ActivityService } from '../../service/activity.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { Lap } from 'src/app/common/interval/dto/Lap';
 import { format, formatDuration, intervalToDuration } from 'date-fns';
-import { ActivityType } from '../../dto/PlannedActivity';
+import { ActivityType, PlannedActivitySplit } from '../../dto/PlannedActivity';
 import { MapDataDto } from '../../dto/MapDataDto';
 
 import * as L from 'leaflet';
 import { MatPaginator } from '@angular/material/paginator';
-
+import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
+import { StyleMapperService } from 'src/app/common/service/style-mapper.service';
+import { Interval, convertToInterval } from 'src/app/common/interval/dto/Interval'
 
 @Component({
   selector: 'app-finished-activity',
@@ -41,6 +43,7 @@ export class FinishedActivityComponent implements OnInit {
   idEmitter: number
   activityType: ActivityType
   activityDate: Date
+  hasPlannedActivityAssigned = false
 
   // used for paginator
   @ViewChild(MatPaginator, { static: false })
@@ -55,6 +58,8 @@ export class FinishedActivityComponent implements OnInit {
     private activityService: ActivityService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
+    private mobileCheck: MobileCheckService,
+    private styleMapper: StyleMapperService,
   ) { }
 
   ngOnInit(): void {
@@ -92,6 +97,10 @@ export class FinishedActivityComponent implements OnInit {
           cumulativeTime += item.time
           return { ...item, cumulativeTime }
         })
+
+        if (data.plannedActivity !== undefined && data.plannedActivity !== null) {
+          this.hasPlannedActivityAssigned = true
+        }
 
         this.ds.data = data.laps
         loadCnt += 1
@@ -176,24 +185,6 @@ export class FinishedActivityComponent implements OnInit {
     return str
   }
 
-  getIconForActivity(): string {
-    switch (this.activity.activityType) {
-      case ActivityType.BIKE:
-        return "directions_bike"
-      case ActivityType.CROSSCOUNTRYSKIING:
-        return "downhill_skiing"
-      case ActivityType.ROW:
-        return "rowing"
-      case ActivityType.RUN:
-        return "directions_run"
-      case ActivityType.SWIM:
-        return "pool"
-      default:
-        // shouldn't occur
-        return ""
-    }
-  }
-
   getReadableNameForActivity(): string {
     switch (this.activity.activityType) {
       case ActivityType.BIKE:
@@ -273,6 +264,14 @@ export class FinishedActivityComponent implements OnInit {
     `
   }
 
+  getIconPath(): string {
+    return this.styleMapper.getIconPathForActivity(this.activity)
+  }
+
+  getMappedInterval(): Interval {
+    return convertToInterval((this.activity.plannedActivity as any as PlannedActivitySplit).interval)
+  }
+
   // https://stackoverflow.com/a/65711327
   private formatDuration(duration: Duration): string {
     const zeroPad = (it: number) => String(it).padStart(2, '0')
@@ -316,5 +315,44 @@ export class FinishedActivityComponent implements OnInit {
         color: "#9e30ff",
       } as L.PolylineOptions,
     )
+  }
+
+  @HostListener("window:resize")
+  private handleResize() {
+    if (this.mobileCheck.isMobile(900)) {
+      if (this.mobileCheck.isMobile(600)) {
+        this.columnsToDisplay = [
+          "cumulativeTime",
+          "distanceColumn",
+          "avgSpeed",
+          "avgBpm",
+        ]
+      } else {
+        this.columnsToDisplay = [
+          "cumulativeTime",
+          "distanceColumn",
+          "avgSpeed",
+          "avgPower",
+          "avgBpm",
+          "avgCadence",
+        ]
+      }
+    } else {
+      this.columnsToDisplay = [
+        "lapCount",
+        "distanceColumn",
+        "timeColumn",
+        "cumulativeTime",
+        "avgSpeed",
+        "avgPower",
+        "maxPower",
+        "avgBpm",
+        "maxBpm",
+        "avgCadence",
+        "maxCadence",
+      ]
+    }
+
+    this.cdr.detectChanges()
   }
 }
