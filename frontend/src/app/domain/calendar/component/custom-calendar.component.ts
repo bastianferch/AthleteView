@@ -12,7 +12,7 @@ import {
   addWeeks,
   endOfMonth,
   endOfWeek,
-  format,
+  format, isAfter,
   isSameDay,
   isSameMonth,
   startOfMonth,
@@ -85,9 +85,9 @@ export class CustomCalendarComponent implements OnInit {
   }
 
   handleEventClicked(ev: any) {
-    if (ev.meta.objectType === "planned") {
+    if (ev.meta?.objectType === "planned") {
       this.router.navigateByUrl(`/activity/${ev.meta.id}`)
-    } else {
+    } else if (ev.meta?.objectType === "finished") {
       this.router.navigateByUrl(`/activity/finished/${ev.meta.id}`)
     }
   }
@@ -163,7 +163,8 @@ export class CustomCalendarComponent implements OnInit {
           const xEvent: ActivityEvent = { ...x, objectType: "finished" }
 
           let title = "Finished " + this.activityParsing.getShortNameForActivity(x.activityType)
-          if (x.plannedActivity?.createdFor?.id !== uid) title += " - " + x.plannedActivity.createdFor.name
+          if (x.plannedActivity?.createdFor?.id !== uid &&
+          x.plannedActivity?.createdFor?.id) title += " - " + x.plannedActivity.createdFor.name
           if (x.accuracy >= 75) {
             return {
               title: title,
@@ -261,13 +262,9 @@ export class CustomCalendarComponent implements OnInit {
 
     this.constraintService.getConstraints("daily", startTime, endTime).subscribe({
       next: (next) => {
-        for (const constraint of next) {
-          const event = this.constraintToEvent(constraint)
-          if (constraint.isBlacklist) {
-            this.events.push(event)
-          }
-        }
-        this.events = [...this.events]
+        const smoothed = this.mergeConstraints(next.filter((a) => a.isBlacklist)
+          .map((a) => this.constraintToEvent(a)))
+        this.events = [...this.events, ...smoothed]
       },
       error: (error) => {
         this.notifService.openSnackBar(error.error?.message)
@@ -275,9 +272,23 @@ export class CustomCalendarComponent implements OnInit {
     })
   }
 
+  private mergeConstraints(constraints: CalendarEvent[]): CalendarEvent[] {
+    constraints.sort((a, b) => a.start.getTime() - b.start.getTime())
+    for (let i = 0; i < constraints.length - 1; i++) {
+      if (constraints[i].end.getTime() > constraints[i + 1].start.getTime()) {
+        if (isAfter(constraints[i + 1].end, constraints[i].end)) constraints[i].end = constraints[i + 1].end
+        if (constraints[i].title === "") constraints[i].title = constraints[i + 1].title
+        else if (constraints[i + 1].title !== "") constraints[i].title += ', ' + constraints[i + 1].title
+        constraints.splice(i + 1,1)
+        i--;
+      }
+    }
+    return constraints
+  }
+
   private constraintToEvent(constraint: TimeConstraint): CalendarEvent {
-    const start = new Date(this.dateParser.parseNumbersIntoDate(constraint.startTime as number[]))
-    const end = new Date(this.dateParser.parseNumbersIntoDate(constraint.endTime as number[]))
+    const start = this.dateParser.parseNumbersIntoDate(constraint.startTime as number[])
+    const end = this.dateParser.parseNumbersIntoDate(constraint.endTime as number[])
     return {
       start: start,
       end: end,
@@ -294,7 +305,7 @@ export class CustomCalendarComponent implements OnInit {
     });
     this.events = [...this.events.filter((event) => {
       for (const i of planned) {
-        if (i === event.meta?.id) {
+        if (i === event.meta?.id && event.meta?.objectType === "planned") {
           return false;
         }
       }

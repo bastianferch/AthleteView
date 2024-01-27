@@ -2,6 +2,8 @@ import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { TimeConstraint } from '../../../../common/dto/TimeConstraint';
 import { TimeConstraintService } from '../../service/time-constraints.service';
 import { SnackbarService } from '../../../../common/service/snackbar.service';
+import { Subject } from "rxjs";
+import { addHours, format } from "date-fns";
 
 
 @Component({
@@ -12,6 +14,7 @@ import { SnackbarService } from '../../../../common/service/snackbar.service';
 export class CreateTimeConstraintsComponent implements OnInit {
 
   @Input() constraint: TimeConstraint = { title: "", isBlacklist: true }
+  @Input() timeClicked: Subject<Date>
   startTime: string
   endTime: string
   date: Date
@@ -24,6 +27,13 @@ export class CreateTimeConstraintsComponent implements OnInit {
 
   ngOnInit(): void {
     this.setUpInputs()
+    this.timeClicked.subscribe((next) => {
+      this.date = next
+      this.startTime = format(next, "HH:mm")
+      this.endTime = format(addHours(next, 1), "HH:mm")
+      this.weekdays.push(next.getDay())
+    },
+    )
   }
 
   setUpInputs(): void {
