@@ -1,18 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivityService } from '../service/activity.service';
 import { AuthService } from '../../auth/service/auth.service';
 import { Activity } from '../dto/Activity';
 import { PlannedActivity } from '../dto/PlannedActivity';
-import { MatTable } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { SpinnerService } from '../../main/service/spinner.service';
 import { IntervalSplit } from 'src/app/common/interval/dto/Interval';
 import { StepDurationType } from 'src/app/common/interval/dto/Step';
 import { format } from 'date-fns';
 import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
+import { MatPaginator } from '@angular/material/paginator';
+import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
+import { StyleMapperService } from 'src/app/common/service/style-mapper.service';
 
 export enum TOGGLESTATE {
   DRAFT = "draft",
-  DONE = "done"
+  DONE = "done",
+  TEMPLATE = "template"
 }
 
 @Component({
@@ -22,19 +26,28 @@ export enum TOGGLESTATE {
 })
 export class ActivityComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
+  @ViewChild(MatPaginator, { static: false })
+  set paginator(v: MatPaginator) {
+    this.viewDataSet.paginator = v
+  }
 
   // default view columns
-  private doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
-  private draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate'];
+  private doneColumns: Array<string>
+  private draftColumns: Array<string>
+  private templateColumns: Array<string>
 
-  columnsToDisplay = this.draftColumns
-  viewDataSet: object[] = []
+  columnsToDisplay: Array<string>
+  viewDataSet = new MatTableDataSource<object>()
 
   finishedActivities: Activity[] = []
   plannedActivities: PlannedActivity[] = []
+  templateActivities: PlannedActivity[] = []
+
   toggleState: string = TOGGLESTATE.DRAFT
   TOGGLESTATE_ENUM = TOGGLESTATE // used in html
   dataLoaded = false
+  defaultPageSize = 10
+  sortColumn = "activityDate"
 
   private partialLoad = false
   private uid: number
@@ -44,14 +57,19 @@ export class ActivityComponent implements OnInit {
     private authService: AuthService,
     private spinner: SpinnerService,
     public activityParsing: ActivityParsing,
-  ) {}
+    private mobileCheck: MobileCheckService,
+    protected styleMapper: StyleMapperService,
+  ) {
+    this.adjustViewWidth.bind(this)
+    this.adjustViewWidth()
+  }
 
   ngOnInit(): void {
     // load init data
     this.spinner.addActiveRequest()
     this.uid = this.authService.currentUser.id
     this.activityService.fetchAllActivitiesForUser(this.uid, null, null).subscribe((data) => {
-      this.finishedActivities = data
+      this.finishedActivities = data.sort((a, b) => this.compare(a.startTime as Date, b.startTime as Date, false))
       if (this.partialLoad) {
         this.spinner.removeActiveRequest()
         this.dataLoaded = true
@@ -59,8 +77,10 @@ export class ActivityComponent implements OnInit {
       this.partialLoad = true
     })
     this.activityService.fetchAllPlannedActivitiesForUser(this.uid, null, null).subscribe((data) => {
-      this.plannedActivities = data
-      this.viewDataSet = data
+      this.plannedActivities = data.filter((item: PlannedActivity) => item.template === false).sort((a, b) => this.compare(a.date as Date, b.date as Date, false))
+      this.templateActivities = data.filter((item: PlannedActivity) => item.template === true).sort((a, b) => this.compare(a.id, b.id, false))
+
+      this.viewDataSet.data = this.plannedActivities
       if (this.partialLoad) {
         this.spinner.removeActiveRequest()
         this.dataLoaded = true
@@ -89,7 +109,6 @@ export class ActivityComponent implements OnInit {
     if (interval.step !== null) {
       const step = interval.step
       switch (step.durationType) {
-        // TODO: add warmup/recovery/...?
         case StepDurationType.DISTANCE:
           summaryString += `${step.duration} ${step.durationUnit.toLowerCase()} `
           break
@@ -119,7 +138,7 @@ export class ActivityComponent implements OnInit {
 
   getRouterLink(activity: any): string {
     let routingPath = ""
-    if (this.toggleState === TOGGLESTATE.DRAFT) {
+    if (this.toggleState === TOGGLESTATE.DRAFT || this.toggleState === TOGGLESTATE.TEMPLATE) {
       routingPath = String(activity.id)
     } else {
       routingPath = `finished/${activity.id}`
@@ -132,11 +151,15 @@ export class ActivityComponent implements OnInit {
     switch (groupValue) {
       case TOGGLESTATE.DONE:
         this.columnsToDisplay = this.doneColumns
-        this.viewDataSet = this.finishedActivities
+        this.viewDataSet.data = this.finishedActivities
         break
       case TOGGLESTATE.DRAFT:
         this.columnsToDisplay = this.draftColumns
-        this.viewDataSet = this.plannedActivities
+        this.viewDataSet.data = this.plannedActivities
+        break
+      case this.TOGGLESTATE_ENUM.TEMPLATE:
+        this.columnsToDisplay = this.templateColumns
+        this.viewDataSet.data = this.templateActivities
         break
       default:
         // should not occur
@@ -166,5 +189,83 @@ export class ActivityComponent implements OnInit {
     }
 
     return dateStr
+  }
+
+  isTrainer(): boolean {
+    return this.authService.currentUser.isAthlete() === false
+  }
+
+  getColumnLen(): number {
+    return this.columnsToDisplay.length
+  }
+
+  sortData(data: any) {
+    const isAsc = data.direction === "asc"
+
+    const sortFun = (a: object, b: object): number => {
+      let aAct: Activity | PlannedActivity
+      let bAct: Activity | PlannedActivity
+      if (this.toggleState === TOGGLESTATE.DRAFT || this.toggleState === TOGGLESTATE.TEMPLATE) {
+        aAct = a as PlannedActivity
+        bAct = b as PlannedActivity
+
+        switch (data.active) {
+          case "readableName":
+            return this.compare(this.activityParsing.getReadableNameForActivity(aAct.type), this.activityParsing.getReadableNameForActivity(bAct.type), isAsc)
+          case "activityName":
+            return this.compare(aAct.name, bAct.name, isAsc)
+          case "activityDate":
+            return this.compare(aAct.date as Date, bAct.date as Date, isAsc)
+          case "":
+            return this.compare(aAct.date as Date, bAct.date as Date, false)
+        }
+      } else if (this.toggleState === TOGGLESTATE.DONE) {
+        aAct = a as Activity
+        bAct = b as Activity
+
+        switch (data.active) {
+          case "finishedActivityReadableName":
+            return this.compare(this.activityParsing.getReadableNameForActivity(aAct.activityType), this.activityParsing.getReadableNameForActivity(bAct.activityType), isAsc)
+          case "finishedActivityDates":
+            return this.compare(aAct.startTime as Date, bAct.startTime as Date, isAsc)
+          case "":
+            return this.compare(aAct.startTime as Date, bAct.startTime as Date, false)
+        }
+      }
+
+      return 0
+    }
+
+    sortFun.bind(this) // make "this" available in fun
+    this.viewDataSet.data = this.viewDataSet.data.sort(sortFun)
+  }
+
+  getActivityIconPath(activity: Activity): string {
+    return this.styleMapper.getIconPathForActivity(activity)
+  }
+
+  getPlannedActivityIconPath(activity: PlannedActivity): string {
+    return this.styleMapper.getIconPathForPlannedActivity(activity)
+  }
+
+  private compare(a: any, b: any, isAsc: boolean) {
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1)
+  }
+
+  @HostListener("window:resize")
+  private adjustViewWidth() {
+    if (this.mobileCheck.isMobile()) {
+      this.doneColumns = ['finishedActivityIcon', 'finishedActivityDistance', 'finishedActivityDates']
+      this.draftColumns = ['activityIcon', 'activityName', 'activitySummary', 'activityDate'];
+      this.templateColumns = ['activityIcon', 'activityName', 'activitySummary', 'activityEstDuration']
+      this.defaultPageSize = 5
+    } else {
+      this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
+      this.draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate']
+      this.templateColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityIntensity', 'activityEstDuration']
+      this.defaultPageSize = 10
+    }
+
+    this.handleViewChange(this.toggleState)
   }
 }

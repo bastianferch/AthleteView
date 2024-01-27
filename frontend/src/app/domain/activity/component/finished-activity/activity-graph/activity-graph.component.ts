@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChange } from '@angular/core';
 import * as hc from 'highcharts';
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 import { ActivityService } from '../../../service/activity.service';
@@ -6,6 +6,7 @@ import { ActivityStatsDto } from '../../../dto/ActivityStatsDto';
 import { SpeedMapper } from 'src/app/common/util/parsing/speed-mapper';
 import { ActivityType } from '../../../dto/PlannedActivity';
 import { formatDuration, intervalToDuration } from 'date-fns';
+import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
 
 
 const BPM_GRAPH_COLOR = `rgba(255, 64, 79, 1)`
@@ -29,6 +30,7 @@ export class ActivityGraphComponent implements OnChanges {
   private bpmOpts: hc.Options
   private spdOpts: hc.Options
   private isMobile = false
+  private statsData: Array<ActivityStatsDto> = []
 
 
   Highcharts: typeof hc = hc
@@ -43,10 +45,9 @@ export class ActivityGraphComponent implements OnChanges {
   constructor(
     private activityService: ActivityService,
     private speedMapper: SpeedMapper,
+    private mobileCheck: MobileCheckService,
   ) {
     NoDataToDisplay(hc)
-    const mobileRegex = new RegExp(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/, 'i')
-    this.isMobile = mobileRegex.test(navigator.userAgent) || window.innerWidth < 600
   }
 
   chartCallback: Highcharts.ChartCallbackFunction = (chart) => {
@@ -63,6 +64,7 @@ export class ActivityGraphComponent implements OnChanges {
 
   private loadData(aid: number) {
     this.activityService.fetchGraphDataForActivity(aid).subscribe((data: Array<ActivityStatsDto>) => {
+      this.statsData = data
       this.configureGraph(data)
       this.graphLoaded = true
       if (this.chart !== undefined) {
@@ -232,7 +234,6 @@ export class ActivityGraphComponent implements OnChanges {
     return [series, axis]
   }
 
-
   private getBpmAxisConf(): hc.YAxisOptions {
     return {
       labels: {
@@ -243,9 +244,7 @@ export class ActivityGraphComponent implements OnChanges {
       },
       title: {
         text: this.isMobile ? "" : "Heartfrequency [BPM]",
-        // text: "",
         style: {
-          // opacity: 0,
           color: BPM_GRAPH_COLOR,
         },
       },
@@ -352,7 +351,15 @@ export class ActivityGraphComponent implements OnChanges {
       case ActivityType.SWIM:
         return "spm"
       default:
-        return ""
+        return "spm"
+    }
+  }
+
+  @HostListener("window:resize")
+  private handleResize() {
+    this.isMobile = this.mobileCheck.isMobile()
+    if (this.chart !== undefined) {
+      this.configureGraph(this.statsData)
     }
   }
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ActivityType, Load, PlannedActivity } from "../../domain/activity/dto/PlannedActivity";
+import { Activity } from 'src/app/domain/activity/dto/Activity';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StyleMapperService {
 
-  getIntensityColor(activity:PlannedActivity):string {
+  getIntensityColor(activity: PlannedActivity): string {
     const colorMapping: { [key in Load]: string } = {
       [Load.LOW]: '#82e010',
       [Load.MEDIUM]: '#f0d807',
@@ -15,8 +16,16 @@ export class StyleMapperService {
     return colorMapping[activity.load]
   }
 
-  getIconPathForActivity(activity:PlannedActivity):string {
-    if (!(activity.type in ActivityType)) {
+  getIconPathForActivity(activity: Activity): string {
+    return this.getIconPathForActivityType(activity.activityType)
+  }
+
+  getIconPathForPlannedActivity(activity: PlannedActivity): string {
+    return this.getIconPathForActivityType(activity.type)
+  }
+
+  private getIconPathForActivityType(type: ActivityType): string {
+    if (!(type in ActivityType)) {
       return 'assets/placeholder.png'
     }
     const iconMapping: { [key in ActivityType]: string } = {
@@ -26,6 +35,6 @@ export class StyleMapperService {
       [ActivityType.ROW]: 'row_icon.png',
       [ActivityType.CROSSCOUNTRYSKIING]: 'crosscountryskiing_icon.png',
     };
-    return 'assets/activityIcons/' + iconMapping[activity.type]
+    return 'assets/activityIcons/' + iconMapping[type]
   }
 }

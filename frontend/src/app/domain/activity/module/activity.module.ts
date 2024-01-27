@@ -32,6 +32,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { ActivityGraphComponent } from '../component/finished-activity/activity-graph/activity-graph.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSortModule } from '@angular/material/sort';
 
 const routes: Routes = [
   { path: '', component: ActivityComponent },
@@ -77,6 +78,7 @@ const routes: Routes = [
     HighchartsChartModule,
     MatTooltipModule,
     MatCardModule,
+    MatSortModule,
   ],
   exports: [RouterModule],
 })
