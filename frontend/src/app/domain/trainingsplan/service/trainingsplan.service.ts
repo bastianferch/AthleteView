@@ -18,9 +18,9 @@ export class TrainingsplanService {
   private readonly cspScheduleUri: string;
   private currentIndex = 0;
   private keyPrefix = 'trainingsPlan ';
-  private athletesKey:string = this.keyPrefix + "athletes"
-  private previousActivitiesKey = this.keyPrefix + "previous_activities"
-  private upcomingActivitiesSuffix = "upcoming_activities"
+  private athletesKey:string = this.keyPrefix + "athletes";
+  private previousActivitiesKey = this.keyPrefix + "previous_activities";
+  private upcomingActivitiesSuffix = "upcoming_activities";
 
   constructor(
     private httpClient:HttpClient,
@@ -30,16 +30,16 @@ export class TrainingsplanService {
     this.userBaseUrl = backendUrl + 'user';
     this.userAthleteBaseUri = this.userBaseUrl + '/athlete';
     this.activityBaseUrl = backendUrl + "activity"
-    this.allPreviousActivityBaseUri = this.activityBaseUrl + "/planned"
-    this.templateActivitiesBaseUri = this.activityBaseUrl + "/templates"
-    this.cspScheduleUri = backendUrl + "csp"
+    this.allPreviousActivityBaseUri = this.activityBaseUrl + "/planned";
+    this.templateActivitiesBaseUri = this.activityBaseUrl + "/templates";
+    this.cspScheduleUri = backendUrl + "csp";
   }
 
   /**
    * Fetches all athletes linked to the logged in trainer as User DTOs
    */
   fetchAthletesForTrainer():Observable<User[]> {
-    return this.httpClient.get<User[]>(this.userAthleteBaseUri,{ params: {},withCredentials: true })
+    return this.httpClient.get<User[]>(this.userAthleteBaseUri,{ params: {},withCredentials: true });
   }
 
   /**
@@ -48,8 +48,8 @@ export class TrainingsplanService {
    * @param athletes
    */
   updateAthletesInSessionStorage(athletes:User[]):void {
-    const serializedStorageItem = JSON.stringify(athletes)
-    sessionStorage.setItem(this.athletesKey,serializedStorageItem)
+    const serializedStorageItem = JSON.stringify(athletes);
+    sessionStorage.setItem(this.athletesKey,serializedStorageItem);
   }
 
   /**
@@ -57,16 +57,16 @@ export class TrainingsplanService {
    * as a list of PlannedActivity DTOs
    */
   fetchPreviousActivitiesForAllAthletes():Observable<PlannedActivity[]> {
-    const viewDate: Date = new Date()
-    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx" // ISO format
-    const startTime = format(startOfWeek(viewDate), dateFormatString)
-    const endTime = format(endOfWeek(viewDate), dateFormatString)
+    const viewDate: Date = new Date();
+    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx"; // ISO format
+    const startTime = format(startOfWeek(viewDate), dateFormatString);
+    const endTime = format(endOfWeek(viewDate), dateFormatString);
 
     return this.httpClient.get<PlannedActivity[]>(this.allPreviousActivityBaseUri,
       { params: { 'startTime': startTime,
         'endTime': endTime,
         withCredentials: true } },
-    )
+    );
   }
 
   /**
@@ -75,8 +75,8 @@ export class TrainingsplanService {
    * @param activities
    */
   updatePreviousActivitiesInSessionStorage(activities:PlannedActivity[]):void {
-    const serializedStorageItem = JSON.stringify(activities)
-    sessionStorage.setItem(this.previousActivitiesKey,serializedStorageItem)
+    const serializedStorageItem = JSON.stringify(activities);
+    sessionStorage.setItem(this.previousActivitiesKey,serializedStorageItem);
   }
 
   /**
@@ -85,18 +85,18 @@ export class TrainingsplanService {
    * else returns null
    */
   getPreviousActivitiesForCurrentAthlete():PlannedActivity[] {
-    const currentAthlete = this.getCurrentAthlete().id
+    const currentAthlete = this.getCurrentAthlete().id;
     if (sessionStorage.getItem(this.previousActivitiesKey)) {
-      const activities = JSON.parse(sessionStorage.getItem(this.previousActivitiesKey))
-      const ret:PlannedActivity[] = []
+      const activities = JSON.parse(sessionStorage.getItem(this.previousActivitiesKey));
+      const ret:PlannedActivity[] = [];
       activities.forEach((a:PlannedActivity) => {
         if (a.createdFor?.id === currentAthlete) {
-          ret.push(a)
+          ret.push(a);
         } else if (a.createdBy.id === currentAthlete) {
-          ret.push(a)
+          ret.push(a);
         }
       })
-      return ret
+      return ret;
     }
     return null
   }
@@ -106,8 +106,8 @@ export class TrainingsplanService {
    * as a list of PlannedActivity DTOs
    */
   fetchUpcomingActivitiesForAllAthletes():Observable<PlannedActivity[]> {
-    const viewDate: Date = new Date()
-    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx" // ISO format
+    const viewDate: Date = new Date();
+    const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx"; // ISO format
     const startTime = format(addWeeks(startOfWeek(viewDate), 1), dateFormatString);
     const endTime = format(addWeeks(endOfWeek(viewDate), 1), dateFormatString);
 
@@ -123,15 +123,15 @@ export class TrainingsplanService {
    * @param upcomingActivities a list of PlannedActivity to be written to ss
    */
   updateUpcomingActivities(upcomingActivities:PlannedActivity[]) {
-    let athletes
+    let athletes;
     if (sessionStorage.getItem(this.athletesKey)) {
-      athletes = JSON.parse(sessionStorage.getItem(this.athletesKey))
+      athletes = JSON.parse(sessionStorage.getItem(this.athletesKey));
     } else {
-      athletes = []
+      athletes = [];
     }
-    const activities:any = {}
+    const activities:any = {};
     for (const athlete of athletes) {
-      activities[athlete.id] = []
+      activities[athlete.id] = [];
       for (const activity of upcomingActivities) {
         if (activity.createdFor.id === athlete.id || activity.createdBy.id === athlete.id) {
           activities[athlete.id].push(activity)
@@ -139,10 +139,10 @@ export class TrainingsplanService {
       }
     }
     for (const athlete of athletes) {
-      const tmp = activities[athlete.id]
-      const serializedStorageItem = JSON.stringify(tmp)
+      const tmp = activities[athlete.id];
+      const serializedStorageItem = JSON.stringify(tmp);
       if (!sessionStorage.getItem(this.keyPrefix + athlete.id + this.upcomingActivitiesSuffix)) {
-        sessionStorage.setItem(this.keyPrefix + athlete.id + this.upcomingActivitiesSuffix,serializedStorageItem)
+        sessionStorage.setItem(this.keyPrefix + athlete.id + this.upcomingActivitiesSuffix,serializedStorageItem);
       }
     }
   }
@@ -152,9 +152,9 @@ export class TrainingsplanService {
    * @param upcomingActivities a list of PlannedActivity to be written to ss
    */
   updateUpcomingActivitiesForAthlete(upcomingActivities:PlannedActivity[]) {
-    const currentAthlete = this.getCurrentAthlete().id
-    const serializedStorageItem = JSON.stringify(upcomingActivities)
-    sessionStorage.setItem(this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix,serializedStorageItem)
+    const currentAthlete = this.getCurrentAthlete().id;
+    const serializedStorageItem = JSON.stringify(upcomingActivities);
+    sessionStorage.setItem(this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix,serializedStorageItem);
   }
 
   /**
@@ -163,13 +163,13 @@ export class TrainingsplanService {
    * else returns null
    */
   getUpcomingActivitiesForCurrentAthlete():PlannedActivity[] {
-    const currentAthlete = this.getCurrentAthlete().id
-    const key = this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix
+    const currentAthlete = this.getCurrentAthlete().id;
+    const key = this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix;
 
     if (sessionStorage.getItem(key)) {
-      return JSON.parse(sessionStorage.getItem(this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix))
+      return JSON.parse(sessionStorage.getItem(this.keyPrefix + currentAthlete + this.upcomingActivitiesSuffix));
     }
-    return null
+    return null;
   }
 
   /**
@@ -178,7 +178,7 @@ export class TrainingsplanService {
   fetchTemplateActivitiesForTrainer():Observable<PlannedActivity[]> {
     return this.httpClient.get<PlannedActivity[]>(this.templateActivitiesBaseUri,
       { params: { withCredentials: true } },
-    )
+    );
   }
 
   /**
@@ -187,8 +187,8 @@ export class TrainingsplanService {
    * @param templateActivities a list of PlannedActivity to be written to ss
    */
   updateTemplateActivities(templateActivities:PlannedActivity[]) {
-    const serializedStorageItem = JSON.stringify(templateActivities)
-    sessionStorage.setItem(this.keyPrefix + "template_activities",serializedStorageItem)
+    const serializedStorageItem = JSON.stringify(templateActivities);
+    sessionStorage.setItem(this.keyPrefix + "template_activities",serializedStorageItem);
   }
 
   /**
@@ -198,9 +198,9 @@ export class TrainingsplanService {
    */
   getTemplateActivities():PlannedActivity[] {
     if (sessionStorage.getItem(this.keyPrefix + "template_activities")) {
-      return JSON.parse(sessionStorage.getItem(this.keyPrefix + "template_activities"))
+      return JSON.parse(sessionStorage.getItem(this.keyPrefix + "template_activities"));
     }
-    return null
+    return null;
   }
 
   /**
@@ -209,9 +209,9 @@ export class TrainingsplanService {
    */
   getUpcomingActivityIdsForAthlete(id:number):PlannedActivity[] {
     if (sessionStorage.getItem(this.keyPrefix + id + this.upcomingActivitiesSuffix)) {
-      return JSON.parse(sessionStorage.getItem(this.keyPrefix + id + this.upcomingActivitiesSuffix))
+      return JSON.parse(sessionStorage.getItem(this.keyPrefix + id + this.upcomingActivitiesSuffix));
     }
-    return null
+    return null;
   }
 
   /**
@@ -219,17 +219,17 @@ export class TrainingsplanService {
    * @param id id of the athlete
    */
   getUpcomingActivityIdsForAthleteInRequestFormat(id:number):any[] {
-    const allUpcomingActivities: PlannedActivity[] = JSON.parse(sessionStorage.getItem(this.keyPrefix + id + this.upcomingActivitiesSuffix))
-    const ret = []
+    const allUpcomingActivities: PlannedActivity[] = JSON.parse(sessionStorage.getItem(this.keyPrefix + id + this.upcomingActivitiesSuffix));
+    const ret = [];
     for (const activity of allUpcomingActivities) {
       if (activity.template) {
         ret.push({
           "id": activity.id,
           "withTrainer": activity.withTrainer,
-        })
+        });
       }
     }
-    return ret
+    return ret;
   }
 
   /**
@@ -239,21 +239,21 @@ export class TrainingsplanService {
    */
   validatePlannedActivities(user:User,activities:PlannedActivity[]) {
     if (activities.length > 7) {
-      throw new Error("Too many activities planned for athlete " + user.name)
+      throw new Error("Too many activities planned for athlete " + user.name);
     }
-    let highCnt = 0
-    let sum = 0
+    let highCnt = 0;
+    let sum = 0;
     for (const a of activities) {
       if (a.load === Load.HARD) {
-        highCnt++
+        highCnt++;
       }
-      sum += convertLoadToInt(a.load)
+      sum += convertLoadToInt(a.load);
     }
     if (highCnt > 4) {
-      throw new Error("Too many HARD load activities planned for athlete " + user.name)
+      throw new Error("Too many HARD load activities planned for athlete " + user.name);
     }
     if (sum > 8) {
-      throw new Error("Too much load in activities planned for athlete " + user.name)
+      throw new Error("Too much load in activities planned for athlete " + user.name);
     }
 
   }
@@ -262,16 +262,16 @@ export class TrainingsplanService {
    * Issues the scheduling request
    */
   sendCSPRequest():Observable<any> {
-    const request:any = { "mappings": [] }
+    const request:any = { "mappings": [] };
     for (const athlete of JSON.parse(sessionStorage.getItem(this.athletesKey))) {
-      const tmp = this.getUpcomingActivityIdsForAthleteInRequestFormat(athlete.id)
-      this.validatePlannedActivities(athlete,this.getUpcomingActivityIdsForAthlete(athlete.id))
+      const tmp = this.getUpcomingActivityIdsForAthleteInRequestFormat(athlete.id);
+      this.validatePlannedActivities(athlete,this.getUpcomingActivityIdsForAthlete(athlete.id));
       request["mappings"].push({
         "userId": athlete.id,
         "activities": tmp,
-      })
+      });
     }
-    return this.httpClient.post(this.cspScheduleUri,request,{ params: { withCredentials: true } })
+    return this.httpClient.post(this.cspScheduleUri,request,{ params: { withCredentials: true } });
   }
 
   /**
@@ -282,14 +282,14 @@ export class TrainingsplanService {
     return this.httpClient.get<boolean>(
       this.cspScheduleUri,
       { params: { withCredentials: true } },
-    )
+    );
   }
 
   /**
    * Deletes the current trainingsplan for the active user(trainer) and all related athletes
    */
   sendJobDeleteRequest():Observable<any> {
-    return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } })
+    return this.httpClient.delete(this.cspScheduleUri,{ params: { withCredentials: true } });
   }
 
   /**
@@ -299,7 +299,7 @@ export class TrainingsplanService {
    */
   getCurrentAthlete(): User {
     if (sessionStorage.getItem(this.athletesKey)) {
-      return JSON.parse(sessionStorage.getItem(this.athletesKey))[this.currentIndex]
+      return JSON.parse(sessionStorage.getItem(this.athletesKey))[this.currentIndex];
     }
     return null
   }
@@ -320,5 +320,3 @@ export class TrainingsplanService {
     this.currentIndex = (this.currentIndex - 1 + JSON.parse(sessionStorage.getItem(this.athletesKey)).length) % JSON.parse(sessionStorage.getItem(this.athletesKey)).length;
   }
 }
-
-
