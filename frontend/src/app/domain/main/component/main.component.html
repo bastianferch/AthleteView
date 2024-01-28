@@ -77,8 +77,8 @@
           </button>
         </mat-menu>
 
-        <mat-menu #sideMenu="matMenu">
-          <button mat-menu-item (click)="openImportDialog()">
+        <mat-menu #sideMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="openImportDialog()" *ngIf="currentUserType === 'athlete'">
             <mat-icon>upload_file</mat-icon>
             Fit Import
           </button>

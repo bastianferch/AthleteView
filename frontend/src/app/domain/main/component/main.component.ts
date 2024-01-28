@@ -10,6 +10,7 @@ import { SnackbarService } from "../../../common/service/snackbar.service";
 import { ZoneGroupsDialogComponent } from "../../zone-groups-dialog/component/zone-groups-dialog.component";
 import { InviteDialogComponent } from '../../invite-dialog/invite-dialog.component';
 import { PreferencesDialogComponent } from "../../preferences-dialog/preferences-dialog.component";
+import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
 
 @Component({
   selector: 'app-main',
@@ -26,6 +27,7 @@ export class MainComponent {
     private dialog: MatDialog,
     private activityService: ActivityService,
     private snackbarService: SnackbarService,
+    private mobileChecker: MobileCheckService,
   ) {
   }
 
@@ -50,7 +52,7 @@ export class MainComponent {
 
   openImportDialog(): void {
     const dialogRef = this.dialog.open(FitImportDialogComponent, {
-      width: "30%",
+      width: this.mobileChecker.isMobile() ? "90%" : "30%",
       data: {},
     });
 
@@ -70,19 +72,26 @@ export class MainComponent {
 
   openInviteDialog(): void {
     this.dialog.open(InviteDialogComponent, {
-      width: "60%",
+      width: this.mobileChecker.isMobile() ? "90%" : "60%",
     })
   }
 
   openZoneDialog(): void {
-    this.dialog.open(ZoneGroupsDialogComponent, {
-      width: "60%",
-    });
+    if (this.mobileChecker.isMobile()) {
+      this.dialog.open(ZoneGroupsDialogComponent, {
+        width: "100%",
+        maxWidth: "100%",
+      });
+    } else {
+      this.dialog.open(ZoneGroupsDialogComponent, {
+        width: "60%",
+      });
+    }
   }
 
   openPreferencesDialog(): void {
     this.dialog.open(PreferencesDialogComponent, {
-      width: "30%",
+      width: this.mobileChecker.isMobile() ? "90%" : "30%",
     });
   }
 }

@@ -1,6 +1,13 @@
 .time-constraints-container {
   display: grid;
   grid-template-columns: 2fr 1fr;
+  
+  @media screen and (max-width: 950px) {
+    // change flow on small devices
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+  }
 }
 
 .calendar-container {
@@ -16,4 +23,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media screen and (max-width: 950px) {
+    flex-direction: column;
+    row-gap: .5rem;
+    margin-bottom: .5rem;
+  }
+}
+
+.mobile-only {
+  @media screen and (min-width: 950px) {
+    display: none;
+  }
 }

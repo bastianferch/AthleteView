@@ -52,6 +52,7 @@ export class ActivityGraphComponent implements OnChanges {
 
   chartCallback: Highcharts.ChartCallbackFunction = (chart) => {
     this.chart = chart;
+    this.handleResize()
     this.chart.reflow()
   }
 

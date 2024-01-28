@@ -23,6 +23,11 @@ export class HealthGraphicComponent implements OnChanges, AfterViewInit {
         title: {
           text: 'Weeks ago',
         },
+        labels: {
+          formatter: (value) => {
+            return String(Math.abs(value.value as number))
+          },
+        },
       },
       yAxis: {
         title: {

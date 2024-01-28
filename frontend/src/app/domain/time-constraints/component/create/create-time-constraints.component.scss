@@ -1,6 +1,8 @@
 .create-time-constraints-container {
-  margin-right: 40px;
-  margin-top: 20px;
+  @media screen and (min-width: 950px) {
+    margin-right: 40px;
+    margin-top: 20px;
+  }
 }
 
 .create-time-constraints-container > * {

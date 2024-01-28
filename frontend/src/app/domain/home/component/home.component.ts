@@ -137,7 +137,7 @@ export class HomeComponent implements OnInit {
     this.fitnessService.getFitness(targetUserId)
       .subscribe({ next: (data) => {
         data.reverse()
-        this.fitness = data
+        this.fitness = data.map((x: number) => (x < 0 ? 0 : x))
       },
       error: (error) => this.snackbarService.openSnackBar(error.error?.message) },
       );
