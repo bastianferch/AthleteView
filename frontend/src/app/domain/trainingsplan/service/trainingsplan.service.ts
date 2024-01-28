@@ -59,9 +59,8 @@ export class TrainingsplanService {
   fetchPreviousActivitiesForAllAthletes():Observable<PlannedActivity[]> {
     const viewDate: Date = new Date();
     const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx"; // ISO format
-    const startTime = format(startOfWeek(viewDate), dateFormatString);
-    const endTime = format(endOfWeek(viewDate), dateFormatString);
-
+    const startTime = format(startOfWeek(viewDate, { weekStartsOn: 1 }), dateFormatString);
+    const endTime = format(endOfWeek(viewDate,{ weekStartsOn: 1 }), dateFormatString);
     return this.httpClient.get<PlannedActivity[]>(this.allPreviousActivityBaseUri,
       { params: { 'startTime': startTime,
         'endTime': endTime,
@@ -108,9 +107,8 @@ export class TrainingsplanService {
   fetchUpcomingActivitiesForAllAthletes():Observable<PlannedActivity[]> {
     const viewDate: Date = new Date();
     const dateFormatString = "yyyy-MM-dd'T'HH:mm:ssxxx"; // ISO format
-    const startTime = format(addWeeks(startOfWeek(viewDate), 1), dateFormatString);
-    const endTime = format(addWeeks(endOfWeek(viewDate), 1), dateFormatString);
-
+    const startTime = format(addWeeks(startOfWeek(viewDate,{ weekStartsOn: 1 }), 1), dateFormatString);
+    const endTime = format(addWeeks(endOfWeek(viewDate,{ weekStartsOn: 1 }), 1), dateFormatString);
     return this.httpClient.get<PlannedActivity[]>(this.allPreviousActivityBaseUri,
       { params: { 'startTime': startTime,
         'endTime': endTime,
