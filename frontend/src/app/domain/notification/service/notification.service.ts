@@ -16,6 +16,7 @@ export class NotificationService {
   public readonly url: string;
   public notifications: NotificationDto[] = [];
   public notificationDrawer: MatDrawer = null;
+  private eventSource: EventSourcePolyfill;
 
   constructor(
     private http: HttpClient,
@@ -27,10 +28,16 @@ export class NotificationService {
   }
 
   createEventSource() {
+
+    // if there is already an event source, close the old one
+    if (this.eventSource !== null && this.eventSource !== undefined) {
+      this.eventSource.close()
+    }
+
     // standard EventSource cannot set headers. Use custom EventSourcePolyfill instead
     // Note: These requests do *not* pass through the http interceptors.
     //       Therefore, authentication headers have to be set here
-    const eventSource = new EventSourcePolyfill(this.url + "/subscribe", {
+    this.eventSource = new EventSourcePolyfill(this.url + "/subscribe", {
       withCredentials: true,
       heartbeatTimeout: 18000000, // since the connection is kept open anyway, no heartbeat is required. set the timeout to 5h
       headers: {
@@ -38,14 +45,14 @@ export class NotificationService {
       },
     });
 
-    eventSource.onmessage = (event) => {
+    this.eventSource.onmessage = (event) => {
       const notification : NotificationDto = JSON.parse(event.data);
       this.notifications.push(notification);
       this.sortNotifications();
     };
-    eventSource.onerror = () => {
+    this.eventSource.onerror = () => {
       // upon encountering an error (when the backend closes the connection), close the connection client-side as well.
-      eventSource.close();
+      this.eventSource.close();
     }
   }
 
@@ -54,7 +61,7 @@ export class NotificationService {
       this.url,
       { withCredentials: true },
     ).subscribe((data) => {
-      this.notifications = this.notifications.concat(data)
+      this.notifications = data
       this.sortNotifications();
     })
   }
@@ -87,6 +94,10 @@ export class NotificationService {
       null,
       { withCredentials: true },
     ).subscribe();
+  }
+
+  clearNotifications() {
+    this.notifications = [];
   }
 
   navigateTo(route: string) {

@@ -1,6 +1,10 @@
 package ase.athlete_view.domain.activity.controller
 
 import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
+import ase.athlete_view.domain.activity.pojo.dto.ActivityDTO
+import ase.athlete_view.domain.activity.pojo.dto.CommentDTO
+import ase.athlete_view.domain.activity.pojo.dto.PlannedActivityDTO
 import ase.athlete_view.domain.activity.pojo.dto.*
 import ase.athlete_view.domain.activity.service.ActivityService
 import ase.athlete_view.domain.user.pojo.dto.UserDTO
@@ -31,7 +35,7 @@ class ActivityController(private val activityService: ActivityService) {
         if (userId != null) {
             return this.activityService.createPlannedActivity(plannedActivityDTO.toEntity(), userId).toDTO()
         }
-        throw BadCredentialsException("")
+        throw BadCredentialsException("Not logged in!")
     }
 
 
@@ -99,7 +103,7 @@ class ActivityController(private val activityService: ActivityService) {
     ): Long? {
         log.info { "POST | handleFileUpload()" }
         if (files.isEmpty()) {
-            throw HttpServerErrorException(HttpStatus.BAD_REQUEST)
+            throw InvalidFitFileException("Files cannot be empty")
         }
 
         val uid = (authentication.principal as UserDTO).id

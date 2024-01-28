@@ -10,7 +10,7 @@ services:
       - pgvol:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=iamadminiamadminiamadmin
+      - POSTGRES_PASSWORD=A65r7eDBPiDoXdPf
       - POSTGRES_DB=athlete_view
   mongo:
     image: 'mongo:7.0'
@@ -22,7 +22,7 @@ services:
       - $PWD/db_init/mongo/:/docker-entrypoint-initdb.d/
     environment:
       - MONGO_INITDB_ROOT_USERNAME=mongousr
-      - MONGO_INITDB_ROOT_PASSWORD=1mongo3mongo3mongo7
+      - MONGO_INITDB_ROOT_PASSWORD=fSA4STHqGmsqbqr9
       - MONGO_INITDB_DATABASE=athlete_view
   rabbitmq:
     image: 'rabbitmq:management-alpine'

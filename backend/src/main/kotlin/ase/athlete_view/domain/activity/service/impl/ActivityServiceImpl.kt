@@ -102,7 +102,7 @@ class ActivityServiceImpl(
         }
 
         createInterval(plannedActivity.interval)
-        return this.plannedActivityRepo.save(plannedActivity)
+        return this.plannedActivityRepo.save(sanitizer.sanitizePlannedActivity(plannedActivity))
     }
 
     @Transactional
@@ -203,19 +203,22 @@ class ActivityServiceImpl(
         if (!user.isPresent) {
             throw BadCredentialsException("User not found!")
         }
-        plannedActivity.createdBy = user.get()
+
+        val sanitizedPlannedActivity = sanitizer.sanitizePlannedActivity(plannedActivity)
+
+        sanitizedPlannedActivity.createdBy = user.get()
 
         // get the original activity
         val oldPlannedActivity =
             this.plannedActivityRepo.findById(id).orElseThrow { NotFoundException("Planned Activity not found") }
 
         // check if the user can edit this activity and if the new one is valid
-        validator.validateEditPlannedActivity(plannedActivity, oldPlannedActivity, user.get())
-        val result = calculateTimeAndLoad(plannedActivity)
-        plannedActivity.load = result.load
-        plannedActivity.estimatedDuration = result.estimatedDuration
-        plannedActivity.interval = createInterval(plannedActivity.interval)
-        return this.plannedActivityRepo.save(plannedActivity)
+        validator.validateEditPlannedActivity(sanitizedPlannedActivity, oldPlannedActivity, user.get())
+        val result = calculateTimeAndLoad(sanitizedPlannedActivity)
+        sanitizedPlannedActivity.load = result.load
+        sanitizedPlannedActivity.estimatedDuration = result.estimatedDuration
+        sanitizedPlannedActivity.interval = createInterval(sanitizedPlannedActivity.interval)
+        return this.plannedActivityRepo.save(sanitizedPlannedActivity)
     }
 
     @Transactional
@@ -645,7 +648,7 @@ class ActivityServiceImpl(
     @Transactional
     override fun createStep(step: Step): Step {
         log.trace { "S | createStep($step)" }
-        return this.stepRepo.save(step)
+        return this.stepRepo.save(sanitizer.sanitizeStep(step))
     }
 
 

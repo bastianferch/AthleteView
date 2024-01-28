@@ -53,8 +53,9 @@ export class NotificationListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.notificationService.createEventSource();
+    this.notificationService.clearNotifications();
     this.notificationService.getAllNotifications();
+    this.notificationService.createEventSource();
   }
 
 

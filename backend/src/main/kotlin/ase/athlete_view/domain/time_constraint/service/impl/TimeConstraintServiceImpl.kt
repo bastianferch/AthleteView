@@ -2,6 +2,7 @@ package ase.athlete_view.domain.time_constraint.service.impl
 
 import ase.athlete_view.common.exception.entity.NotFoundException
 import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.time_constraint.persistence.DailyTimeConstraintRepository
 import ase.athlete_view.domain.time_constraint.persistence.TimeConstraintRepository
 import ase.athlete_view.domain.time_constraint.persistence.WeeklyTimeConstraintRepository
@@ -28,14 +29,15 @@ class TimeConstraintServiceImpl(
     private val timeConstraintRepository: TimeConstraintRepository,
     private val weeklyTimeConstraintRepository: WeeklyTimeConstraintRepository,
     private val dailyTimeConstraintRepository: DailyTimeConstraintRepository,
-    private val userService: UserService
+    private val userService: UserService,
+    private val sanitizer: Sanitizer,
 ): TimeConstraintService {
 
     private val log = KotlinLogging.logger {}
 
     override fun save(timeConstraint: TimeConstraintDto, userDto: UserDTO): TimeConstraintDto {
         log.trace { "S | save($timeConstraint, $userDto)" }
-        val constraint = timeConstraint.toEntity()
+        val constraint = sanitizer.sanitizeTimeConstraintDto(timeConstraint).toEntity()
         constraint.user = userService.getById(userDto.id!!)
         validate(constraint)
         return (timeConstraintRepository.save(constraint)).toDto()
@@ -46,7 +48,7 @@ class TimeConstraintServiceImpl(
         val constraint = timeConstraintRepository.findByIdOrNull(timeConstraint.id) ?: throw NotFoundException("Could not find constraint by given id")
         if (constraint.user?.id != userDto.id)
             throw ValidationException("Cannot edit time constraint from different user")
-        val newConstraint = timeConstraint.toEntity()
+        val newConstraint = sanitizer.sanitizeTimeConstraintDto(timeConstraint).toEntity()
         newConstraint.user = userService.getById(userDto.id!!)
         validate(newConstraint)
         return (timeConstraintRepository.save(newConstraint)).toDto()

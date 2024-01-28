@@ -1,6 +1,7 @@
 package ase.athlete_view.domain.zone.service.impl
 
 import ase.athlete_view.common.exception.entity.ValidationException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.service.AthleteService
 import ase.athlete_view.domain.zone.persistence.ZoneRepository
@@ -18,7 +19,8 @@ import java.time.Period
 @Service
 class ZoneServiceImpl(
     private val zoneRepository: ZoneRepository,
-    private val athleteService: AthleteService
+    private val athleteService: AthleteService,
+    private val sanitizer: Sanitizer,
 ): ZoneService  {
 
     val log = KotlinLogging.logger {}
@@ -36,7 +38,7 @@ class ZoneServiceImpl(
         val user = athleteService.getById(userId)
         val list: ArrayList<Zone> = arrayListOf()
         for (zone in zones){
-            val entity = zone.toEntity()
+            val entity = sanitizer.sanitizeZoneDTO(zone).toEntity()
             entity.user = user
             list.add(entity)
         }

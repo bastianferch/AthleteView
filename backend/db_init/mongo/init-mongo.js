@@ -1,6 +1,6 @@
 db.createUser({
     user: 'mongousr',
-    pwd: '1mongo3mongo3mongo7',
+    pwd: 'fSA4STHqGmsqbqr9',
     roles: [
         {
             role: 'readWrite',

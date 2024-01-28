@@ -2,6 +2,7 @@ package ase.athlete_view.domain.authentication.service.impl
 
 import ase.athlete_view.common.exception.entity.ConflictException
 import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.config.jwt.UserAuthProvider
 import ase.athlete_view.domain.authentication.dto.*
 import ase.athlete_view.domain.authentication.service.AuthValidationService
@@ -38,7 +39,8 @@ class AuthServiceImpl(
     private val trainerService: TrainerService,
     private val timeConstraintService: TimeConstraintService,
     private val zoneService: ZoneService,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val sanitizer: Sanitizer
 ) : AuthService {
     private val encoder: BCryptPasswordEncoder = BCryptPasswordEncoder()
     val log = KotlinLogging.logger {}
@@ -63,13 +65,14 @@ class AuthServiceImpl(
     override fun registerAthlete(dto: AthleteRegistrationDTO): User {
         log.trace { "S | registerAthlete($dto)" }
 
-        this.authValidationService.validateAthleteDTO(dto)
-        val athlete = this.registerUser(dto.toEntity()) as Athlete
+        val sanitizedDto = sanitizer.sanitizeAthleteRegistrationDTO(dto)
+        this.authValidationService.validateAthleteDTO(sanitizedDto)
+        val athlete = this.registerUser(sanitizedDto.toEntity()) as Athlete
         this.zoneService.resetZones(athlete.id!!)
-        if (dto.code == null) {
+        if (sanitizedDto.code == null) {
             return athlete
         }
-        val trainer = this.trainerService.getByCode(dto.code!!) ?: return athlete
+        val trainer = this.trainerService.getByCode(sanitizedDto.code!!) ?: return athlete
         trainer.unacceptedAthletes += athlete
         this.notificationService.sendNotification(trainer.id!!, "Athlete request", "Would you like to accept the athlete ${if (athlete.name.length > 40) athlete.name.substring(40) else athlete.name}", "action/acceptAthlete/${athlete.id}")
         this.userService.saveAll(listOf(trainer, athlete))
@@ -80,13 +83,14 @@ class AuthServiceImpl(
     override fun registerTrainer(dto: TrainerRegistrationDTO): User {
         log.trace { "S | registerTrainer($dto)" }
 
-        this.authValidationService.validateTrainerDTO(dto)
+        val sanitizedDto = sanitizer.sanitizeTrainerRegistrationDTO(dto)
+        this.authValidationService.validateTrainerDTO(sanitizedDto)
         while (true) {
             val code = UUID.randomUUID().toString().substring(0, 5).replace('-', Random().nextInt().toChar())
             if (this.trainerService.getByCode(code) != null) {
                 continue
             }
-            return this.registerUser(dto.toEntity(code))
+            return this.registerUser(sanitizedDto.toEntity(code))
         }
 
     }
