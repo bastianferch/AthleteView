@@ -47,6 +47,8 @@
         </mat-form-field>
       </div>
 
+      <ng-container *ngIf="isAthlete">
+
       <h1>Health data</h1>
 
       <div class="settings-line">
@@ -56,6 +58,7 @@
           <textarea matInput hidden></textarea>
         </div>
       </div>
+      </ng-container>
 
     </form>
 

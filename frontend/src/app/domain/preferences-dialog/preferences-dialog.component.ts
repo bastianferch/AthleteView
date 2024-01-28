@@ -9,6 +9,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { NgForOf, NgIf } from "@angular/common";
 import { MatButtonModule } from "@angular/material/button";
+import { AuthService } from "../auth/service/auth.service";
 
 @Component({
   selector: 'app-preferences-dialog',
@@ -35,14 +36,17 @@ export class PreferencesDialogComponent implements OnInit {
   protected readonly StepType = StepType;
 
   form: FormGroup = null;
+  isAthlete = false;
 
   constructor(
     public dialogRef: MatDialogRef<PreferencesDialogComponent>,
     private userService: UserService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
     this.getPreferences()
+    this.isAthlete = (this.authService.currentUser?.userType === "athlete")
   }
 
 
