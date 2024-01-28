@@ -37,6 +37,10 @@
         <mat-error *ngIf="form.controls['password'].errors?.['maxlength']">Maximum 255 characters</mat-error>
       </mat-form-field>
 
+      <div class="strength-meter">
+        <password-strength-meter [password]="form.controls.password.value" [minPasswordLength]="8" [enableFeedback]="true"></password-strength-meter>
+      </div>
+
       <mat-form-field>
         <mat-label>Name</mat-label>
         <input matInput type="text" placeholder="John" required formControlName="name">

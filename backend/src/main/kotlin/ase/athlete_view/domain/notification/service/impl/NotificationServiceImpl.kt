@@ -68,8 +68,8 @@ class NotificationServiceImpl(
         val userObj = user.get()
         val preferences = user.get().preferences
 
-        var notification = sanitizeNotification(Notification(null, userObj, false, Timestamp(System.currentTimeMillis()), header, body, link))
-        validateNotification(notification)
+        var notification = sanitizer.sanitizeNotification(Notification(null, userObj, false, Timestamp(System.currentTimeMillis()), header, body, link));
+        validateNotification(notification);
 
         // if user does not want this push notification or per mail, return
         if (!canSendEmail(preferences, type) && !canSendPush(preferences, type)) {
@@ -141,24 +141,6 @@ class NotificationServiceImpl(
         if (notification.link != null && notification.link!!.length > 255) {
             throw ValidationException("Notification Link must be <= 255 characters")
         }
-    }
-
-    //remove html tags except for styling such as <b> or <i>.
-    private fun sanitizeNotification(notification: Notification): Notification {
-        log.trace { "NotificationServiceImpl.sanitizeNotification($notification)" }
-        var newBody: String? = null
-        if (notification.body != null) {
-            newBody = sanitizer.sanitizeText(notification.body!!)
-        }
-
-        return Notification(
-            notification.id,
-            notification.recipient,
-            notification.read,
-            notification.timestamp,
-            sanitizer.sanitizeText(notification.header),
-            newBody,
-            notification.link)
     }
 
     private fun sendNotificationEmail(user: User, notification: Notification) {

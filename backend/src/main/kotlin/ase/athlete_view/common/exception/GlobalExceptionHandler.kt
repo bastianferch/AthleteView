@@ -2,14 +2,20 @@ package ase.athlete_view.common.exception
 
 import ase.athlete_view.common.exception.entity.*
 import ase.athlete_view.common.exception.fitimport.DuplicateFitFileException
+import ase.athlete_view.config.rate_limit.FailedLoginInterceptor
 import ase.athlete_view.common.exception.fitimport.InvalidFitFileException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import java.time.format.DateTimeParseException
 
 /**
@@ -20,20 +26,15 @@ import java.time.format.DateTimeParseException
 class GlobalExceptionHandler {
     private val log = KotlinLogging.logger {}
 
+    @Autowired
+    private lateinit var failedLoginInterceptor: FailedLoginInterceptor
+
     @ExceptionHandler(ValidationException::class)
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     fun handleValidationException(ex: ValidationException): ExceptionResponseDTO {
         log.warn { "Validation exception: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.UNPROCESSABLE_ENTITY, ex.message)
-    }
-
-    @ExceptionHandler(NullPointerException::class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    fun handleNullPointerException(ex: NullPointerException): ExceptionResponseDTO {
-        log.warn { "NullPointerException exception: ${ex.message}" }
-        return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, ex.message)
     }
 
     @ExceptionHandler(NotFoundException::class)
@@ -47,8 +48,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException::class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ResponseBody
-    fun handleBadCredentials(ex: BadCredentialsException): ExceptionResponseDTO {
+    fun handleBadCredentials(ex: BadCredentialsException, webRequest: HttpServletRequest): ExceptionResponseDTO {
         log.warn { "Bad Credentials exception: ${ex.message}" }
+        failedLoginInterceptor.onFailedLogin(webRequest)
         return ExceptionResponseDTO(HttpStatus.NOT_FOUND, ex.message)
     }
 
@@ -100,6 +102,22 @@ class GlobalExceptionHandler {
         return ExceptionResponseDTO(HttpStatus.CONFLICT, ex.message)
     }
 
+    @ExceptionHandler(RateLimitExceededException::class)
+    @ResponseStatus(value = HttpStatus.TOO_MANY_REQUESTS)
+    @ResponseBody
+    fun handleRateLimitExceeded(ex: RateLimitExceededException): ExceptionResponseDTO {
+        log.warn { "RateLimitExceededException : ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.TOO_MANY_REQUESTS, ex.message)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class, MissingServletRequestParameterException::class, MethodArgumentTypeMismatchException::class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    fun handleSpringWebExceptions(ex: Exception): ExceptionResponseDTO {
+        log.warn { "Spring Web Exception: ${ex.javaClass}: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(NoMapDataException::class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
@@ -115,4 +133,13 @@ class GlobalExceptionHandler {
         log.warn { "InvalidFitFileException: ${ex.message}" }
         return ExceptionResponseDTO(HttpStatus.BAD_REQUEST, ex.message)
     }
+
+    @ExceptionHandler(Exception::class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    fun handleRemainingExceptions(ex: Exception): ExceptionResponseDTO {
+        log.warn { "Unexpected Exception : ${ex.javaClass}: ${ex.message}" }
+        return ExceptionResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
+    }
+
 }

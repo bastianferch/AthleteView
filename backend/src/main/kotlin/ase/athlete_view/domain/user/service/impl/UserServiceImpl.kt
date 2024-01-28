@@ -2,6 +2,7 @@ package ase.athlete_view.domain.user.service.impl
 
 import ase.athlete_view.common.exception.entity.ConflictException
 import ase.athlete_view.common.exception.entity.NotFoundException
+import ase.athlete_view.common.sanitization.Sanitizer
 import ase.athlete_view.domain.authentication.service.AuthValidationService
 import ase.athlete_view.domain.user.persistence.PreferencesRepository
 import ase.athlete_view.domain.user.persistence.UserRepository
@@ -23,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional
 class UserServiceImpl(
     private val userRepository: UserRepository,
     private val validationService: AuthValidationService,
-    private val preferencesRepository: PreferencesRepository
+    private val preferencesRepository: PreferencesRepository,
+    private val sanitizer: Sanitizer,
 ) : UserService {
     val log = KotlinLogging.logger {}
 
@@ -64,7 +66,7 @@ class UserServiceImpl(
         log.trace { "S | updateTrainer($trainerDTO)" }
         val trainer = this.userRepository.findByEmail(trainerDTO.email)
         if (trainer is Trainer) {
-            trainer.updateFromDto(trainerDTO)
+            trainer.updateFromDto(sanitizer.sanitizeTrainerDTO(trainerDTO))
             this.validationService.validateUser(trainer)
             this.save(trainer)
         } else {
@@ -77,7 +79,7 @@ class UserServiceImpl(
         log.trace { "S | updateAthlete($athleteDTO)" }
         val athlete = this.userRepository.findByEmail(athleteDTO.email)
         if (athlete is Athlete) {
-            athlete.updateFromDto(athleteDTO)
+            athlete.updateFromDto(sanitizer.sanitizeAthleteDto(athleteDTO))
             this.validationService.validateUser(athlete)
             this.save(athlete)
         } else {

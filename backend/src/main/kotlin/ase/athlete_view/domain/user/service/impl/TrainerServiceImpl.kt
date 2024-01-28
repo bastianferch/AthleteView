@@ -63,7 +63,6 @@ class TrainerServiceImpl(private val trainerRepository: TrainerRepository, priva
         val emailRegex = Regex("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
         var exceptionMessage = ""
         for (email in emailList) {
-            // TODO discuss with security engineer to prevent abuse
             if (trainer.athletes.any { it.email == email } || trainer.unacceptedAthletes.any { it.email == email }) {
                 alreadyTrainingEmail.add(email)
                 continue

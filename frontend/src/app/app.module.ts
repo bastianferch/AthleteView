@@ -27,6 +27,8 @@ import { ConfirmationDialogComponent } from './common/component/dialog/confirmat
 import { InviteDialogComponent } from './domain/invite-dialog/invite-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { PasswordStrengthMeterModule } from "angular-password-strength-meter";
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -53,6 +55,7 @@ import { MatChipsModule } from '@angular/material/chips';
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
+    PasswordStrengthMeterModule,
   ],
   exports: [
     SpinnerComponent,

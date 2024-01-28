@@ -8,6 +8,8 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatRadioModule } from "@angular/material/radio";
 import { FormsModule } from "@angular/forms";
+import { PasswordStrengthMeterModule } from "angular-password-strength-meter";
+import { DEFAULT_PSM_OPTIONS } from 'angular-password-strength-meter/zxcvbn';
 
 
 @NgModule({
@@ -23,6 +25,7 @@ import { FormsModule } from "@angular/forms";
     MatNativeDateModule,
     MatRadioModule,
     FormsModule,
+    PasswordStrengthMeterModule.forRoot(DEFAULT_PSM_OPTIONS),
   ],
 })
 export class AuthModule { }

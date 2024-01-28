@@ -10,12 +10,12 @@ spring:
         database: athlete_view
         port: 27017
         username: mongousr
-        password: 1mongo3mongo3mongo7
+        password: fSA4STHqGmsqbqr9
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/athlete_view
     username: postgres
-    password: iamadminiamadminiamadmin
+    password: A65r7eDBPiDoXdPf
   jpa:
     hibernate:
       ddl-auto: create
