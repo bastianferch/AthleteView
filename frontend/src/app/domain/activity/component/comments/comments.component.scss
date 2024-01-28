@@ -57,3 +57,11 @@
   font-size: smaller;
   color: gray;
 }
+
+@media screen and (max-width: 600px) {
+
+  .comments-list {
+    min-height:200px
+  }
+
+}

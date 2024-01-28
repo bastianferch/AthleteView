@@ -12,6 +12,11 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+
+  @media screen and (max-width: 950px) {
+    flex-direction: column;
+    row-gap: .25rem;
+  }
 }
 
 .wrapper > div {
