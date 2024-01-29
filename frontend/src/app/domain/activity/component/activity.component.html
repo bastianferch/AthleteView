@@ -41,7 +41,7 @@
         </ng-container>
 
         <ng-container matColumnDef="activityCreatedFor">
-          <th mat-header-cell *matHeaderCellDef>Athlete</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Athlete</th>
           <td mat-cell *matCellDef="let act">{{ act.createdFor?.name ? act.createdFor?.name : (act.plannedActivity?.createdFor?.name ? act.plannedActivity?.createdFor?.name : "") }}</td>
         </ng-container>
 
@@ -69,8 +69,8 @@
         </ng-container>
 
         <ng-container matColumnDef="finishedActivityCreatedFor">
-          <th mat-header-cell *matHeaderCellDef>Athlete</th>
-          <td mat-cell *matCellDef="let act">{{ act.plannedActivity.createdFor?.name }}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Athlete</th>
+          <td mat-cell *matCellDef="let act" >{{ act.plannedActivity?.createdFor?.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="finishedActivityDates">
