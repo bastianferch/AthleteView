@@ -58,10 +58,7 @@
   color: gray;
 }
 
-@media screen and (max-width: 600px) {
-
-  .comments-list {
-    min-height:200px
-  }
-
+.comments-list {
+  min-height:200px
 }
+
