@@ -31,7 +31,6 @@ export class CreateTimeConstraintsComponent implements OnInit {
       this.date = next
       this.startTime = format(next, "HH:mm")
       this.endTime = format(addHours(next, 1), "HH:mm")
-      this.weekdays.push(next.getDay())
     },
     )
   }

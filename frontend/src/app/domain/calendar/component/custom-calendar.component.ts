@@ -48,6 +48,7 @@ export class CustomCalendarComponent implements OnInit {
   cropEndHour = 22
   events: CalendarEvent[] = []
   activeDayIsOpen = false
+  loaded = false
 
   constructor(
     private activityService: ActivityService,
@@ -143,6 +144,7 @@ export class CustomCalendarComponent implements OnInit {
 
   private loadData() {
     this.events = []
+    this.loaded = false
 
     // load initial calendar-events
     const uid = this.authService.currentUser.id
@@ -210,6 +212,8 @@ export class CustomCalendarComponent implements OnInit {
 
         }, this)
         this.events = [...this.events, ...calData]
+        if (this.loaded) this.filterPlannedEvents()
+        this.loaded = true
       },
       error: (e) => {
         this.notifService.openSnackBarWithAction("Error trying to fetch completed activities", "Close")
@@ -252,7 +256,8 @@ export class CustomCalendarComponent implements OnInit {
 
         }, this)
         this.events = [...this.events, ...calData]
-        this.filterPlannedEvents()
+        if (this.loaded) this.filterPlannedEvents()
+        this.loaded = true
       },
       error: (e) => {
         this.notifService.openSnackBarWithAction("Error loading planned activities", "Close")
