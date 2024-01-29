@@ -4,7 +4,7 @@
       <img class="activity-icon-header" [src]="getIconPath()" alt="icon" />
       <div class="title-text">
         <span class="name">{{ getReadableNameForActivity() }}
-          <ng-container *ngIf="isTrainer">{{activity.plannedActivity?.createdFor?.name ? ' - ' + activity.plannedActivity?.createdFor?.name : ''}}</ng-container></span>
+          <ng-container *ngIf="isTrainer">{{ " - " + getAthleteName(activity.athleteId) }}</ng-container></span>
         <span>{{ getFormattedDateForActivity() }}</span>
       </div>
     </div>
