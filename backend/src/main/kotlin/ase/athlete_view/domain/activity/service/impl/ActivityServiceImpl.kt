@@ -140,6 +140,8 @@ class ActivityServiceImpl(
             if (!isOwnTemplate && !isForAthleteOfTrainer) {
                 throw NotFoundException("Planned Activity not found")
             }
+        } else {
+            throw NotFoundException("Planned Activity not found")
         }
 
         // if all checks pass, return the activity
@@ -691,6 +693,8 @@ class ActivityServiceImpl(
                 log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
+        } else {
+            throw NotFoundException("No activity with this id found for user")
         }
         return activityObj
     }
