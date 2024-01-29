@@ -39,7 +39,7 @@ spring:
     host: localhost
     port: 5672
     username: guest
-    password: guest
+    password: hlLLLOi745vL
 security:
   jwt:
     token:
@@ -61,7 +61,7 @@ worker:
     host: rabbitmq
     port: 5672
     user: guest
-    password: guest
+    password: hlLLLOi745vL
     request_queue: athlete_view_request
     response_queue: athlete_view_response
   max_timeout: 60
