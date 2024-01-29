@@ -10,9 +10,11 @@ import ase.athlete_view.domain.user.service.UserService
 import ase.athlete_view.util.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.ninjasquad.springmockk.MockkBean
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.mockk.Runs
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -47,7 +49,7 @@ class UserControllerIntegrationTests: TestBase(){
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @MockK
+    @MockkBean
     private lateinit var mailService: MailService
 
     val objectMapper = ObjectMapper().registerModules(JavaTimeModule())
@@ -111,7 +113,7 @@ class UserControllerIntegrationTests: TestBase(){
     @Test
     @WithCustomMockUser(TRAINER_ID)
     fun sendInvitationWithTrainer_shouldReturnOk() {
-        every { mailService.sendSimpleMail(any()) } returns Unit
+        every { mailService.sendSimpleMail(any()) } just Runs
         val mailList = listOf("test@gmail.com", "test1@gmail.com")
         mockMvc.perform(
             post("/api/user/trainer/invitation").with(csrf())
