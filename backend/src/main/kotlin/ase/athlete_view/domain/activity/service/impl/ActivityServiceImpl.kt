@@ -851,7 +851,6 @@ class ActivityServiceImpl(
 
 
     fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
-        log.trace { "S | convertMetersPerSecondToSecondsPerKilometer($speedInMetersPerSecond)" }
         return (1000 / speedInMetersPerSecond).toInt()
     }
 
