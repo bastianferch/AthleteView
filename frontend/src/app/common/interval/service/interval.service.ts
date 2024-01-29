@@ -27,6 +27,7 @@ export class IntervalService {
   }
 
   convertToMinSec(seconds: number): string {
+    if (seconds === undefined) seconds = 0;
     const min = Math.floor(seconds / 60);
     const sec = seconds % 60;
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
