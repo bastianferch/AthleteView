@@ -1,0 +1,46 @@
+.outer-card {
+  padding: 3px;
+  background-color: green;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    margin-left: 30px;
+
+    .title {
+      padding-left: 8px;
+      font-size: medium;
+    }
+
+    .icon-button {
+      margin: 0 10px;
+      width: 24px !important;
+      height: 24px !important;
+      padding: 0px !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+
+      & > *[role=img] {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .mat-mdc-button-touch-target {
+        width: 24px !important;
+        height: 24px !important;
+      }
+    }
+  }
+
+  .inner-card {
+    padding: 5px;
+  }
+}

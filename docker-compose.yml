@@ -1,0 +1,72 @@
+version: '3.1'
+services:
+  postgres:
+    image: 'postgres:latest'
+    hostname: 'postgres'
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgvol:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=A65r7eDBPiDoXdPf
+      - POSTGRES_DB=athlete_view
+  mongo:
+    image: 'mongo:7.0'
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongovol:/data/
+      - $PWD/backend/db_init/mongo/:/docker-entrypoint-initdb.d/
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongousr
+      - MONGO_INITDB_ROOT_PASSWORD=fSA4STHqGmsqbqr9
+      - MONGO_INITDB_DATABASE=athlete_view
+  rabbitmq:
+    image: 'rabbitmq:management-alpine'
+    hostname: 'rabbit'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - "RABBITMQ_DEFAULT_USER=guest"
+      - "RABBITMQ_DEFAULT_PASS=hlLLLOi745vL"
+  mock:
+    build:
+      context: ./garmin-mock
+      dockerfile: Dockerfile
+    ports:
+      - "8089:8089"
+
+  fe:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      - "RMQ_HOST=rabbitmq"
+      - "RMQ_PORT=5672"
+      - "RMQ_USER=guest"
+      - "RMQ_PASSWORD=hlLLLOi745vL"
+      - "RMQ_REQUESTQUEUE=athlete_view_request"
+      - "RMQ_RESPONSEQUEUE=athlete_view_response"
+      - "MAX_TIMEOUT=60"
+
+
+volumes:
+  pgvol:
+  mongovol:
+networks:
+  default:
+    name: athlete_view

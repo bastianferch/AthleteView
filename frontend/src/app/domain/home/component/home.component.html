@@ -1,1 +1,87 @@
-<p>home works!</p>
+<div class="home-wrapper">
+  <app-custom-calendar [home]="true" [viewType]="CalendarView.Week"></app-custom-calendar>
+  <div class="home-content-left">
+
+    <mat-card class="card-container">
+      <mat-card-header><mat-card-title>Upcoming activities</mat-card-title></mat-card-header>
+      <mat-card-content *ngIf="upcoming.length > 0" class="card-list">
+        <mat-card *ngFor="let act of upcoming">
+          <mat-card-header routerLink="activity/{{act.id}}" class="planned-header">
+            <mat-icon>{{ actParser.getIconNameForActivity(act.type) }}</mat-icon>
+            <mat-card-title>{{act.name}} <ng-container *ngIf="isTrainer">- {{act.createdFor.name}}</ng-container></mat-card-title>
+            <mat-card-subtitle>{{getTimeForActivity(act.date)}}</mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </mat-card-content>
+      <mat-card-content *ngIf="upcoming.length === 0">
+        <br>
+        <mat-card-subtitle>Nothing planned</mat-card-subtitle>
+        <br>
+        <br>
+        <br>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="card-container">
+      <mat-card-header>
+        <div *ngIf="isTrainer && currentAthlete !== undefined" class="athlete-view">
+          <button mat-flat-button color="primary" (click)="prevUser()">Previous</button>
+          <p>{{athletes[currentAthlete].name}}</p>
+          <button mat-flat-button color="primary" (click)="nextUser()">Next</button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <app-health-graphic
+          *ngIf="fitness; else emptyState"
+          [data]="fitness">
+        </app-health-graphic>
+        <ng-template #emptyState>
+          <div class="centered-column-container empty-state">
+            <span style="font-weight: 500; font-size: 1rem">No Fitness data</span>
+            <span *ngIf="!isTrainer">Please update your health and activity data for the last 7 days.</span>
+          </div>
+        </ng-template>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="card-container">
+      <mat-card-header>
+        <div class="split fill">
+          <mat-card-title>Recent Stats</mat-card-title>
+          <mat-card-title>Activities last week</mat-card-title>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="split">
+          <div class="card-list" *ngIf="health.avgSteps >= 0">
+            <mat-card>
+              <mat-card-header></mat-card-header>
+              <mat-card-content class="stats"><div class="flex-end-row-container"><mat-icon>directions_walk</mat-icon><mat-card-title>Avg. Steps</mat-card-title></div><mat-card-title>{{health.avgSteps}}</mat-card-title></mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-header></mat-card-header>
+              <mat-card-content class="stats"><div class="flex-end-row-container"><mat-icon>favorite</mat-icon><mat-card-title>Avg. Heart rate</mat-card-title></div><mat-card-title>{{health.avgBPM}}bpm</mat-card-title></mat-card-content>
+            </mat-card>
+            <mat-card>
+            <mat-card-header></mat-card-header>
+            <mat-card-content class="stats"><div class="flex-end-row-container"><mat-icon>bedtime</mat-icon><mat-card-title>Avg. Sleep time</mat-card-title></div><mat-card-title>{{(health.avgSleepDuration / 60).toFixed(1)}}h</mat-card-title></mat-card-content>
+          </mat-card>
+          </div>
+          <div *ngIf="health.avgSteps<0">
+            <mat-card-subtitle>No health stats to show</mat-card-subtitle>
+            <mat-card-subtitle *ngIf="isTrainer">This athlete might not want to share personal health stats.</mat-card-subtitle>
+          </div>
+          <div class="card-list" *ngIf="past.length > 0">
+            <mat-card *ngFor="let type of past">
+              <mat-card-header></mat-card-header>
+              <mat-card-content class="stats"><div class="flex-end-row-container"><mat-icon>{{actParser.getIconNameForActivity(type)}}</mat-icon><mat-card-title>{{actParser.getReadableNameForActivity(type)}}</mat-card-title></div><mat-card-title>{{(activityStats.get(type) / 1000).toFixed(1)}} km</mat-card-title></mat-card-content>
+            </mat-card>
+          </div>
+          <div *ngIf="past.length === 0">
+          <mat-card-subtitle>No finished activities last week</mat-card-subtitle>
+        </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

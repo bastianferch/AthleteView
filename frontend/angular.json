@@ -30,8 +30,10 @@
               "src/assets"
             ],
             "styles": [
+              "src/styles.scss",
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.scss"
+              "./node_modules/angular-calendar/css/angular-calendar.css",
+              "./node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": []
           },
@@ -40,13 +42,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "3mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "5kb",
+                  "maximumError": "15kb"
                 }
               ],
               "outputHashing": "all"
@@ -94,6 +96,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/angular-calendar/css/angular-calendar.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss"
             ],

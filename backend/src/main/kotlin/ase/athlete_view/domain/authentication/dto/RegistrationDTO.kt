@@ -1,7 +1,11 @@
 package ase.athlete_view.domain.authentication.dto
 
-class RegistrationDTO (
-    val email: String,
-    val password: String,
-    val name: String,
+open class RegistrationDTO (
+    open var email: String?,
+    open var name: String?,
+    open var password: String?,
+    open var country: String?,
+    open var zip: String?,
 )
+
+

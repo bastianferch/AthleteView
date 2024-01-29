@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>{{this.headline}}</h1>
+<div mat-dialog-content>
+  {{this.content}}
+</div>
+<div mat-dialog-actions  class="mat-dialog-buttons">
+  <button (click)="this.confirmDialog()" color="warn" mat-raised-button>{{this.confirmationText}}</button>
+  <button (click)="this.cancelDialog()" mat-raised-button>{{this.cancelText}}</button>
+</div>

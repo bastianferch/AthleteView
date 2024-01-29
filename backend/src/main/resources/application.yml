@@ -1,14 +1,68 @@
+logging:
+  level:
+    root: INFO
+    ase:  DEBUG
+
 spring:
+  data:
+    mongodb:
+        host: 127.0.0.1
+        database: athlete_view
+        port: 27017
+        username: mongousr
+        password: fSA4STHqGmsqbqr9
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/athlete_view
     username: postgres
-    password: iamadminiamadminiamadmin
+    password: A65r7eDBPiDoXdPf
   jpa:
     hibernate:
       ddl-auto: create
-
+  mail:
+    host: mail.gmx.net
+    username: athlete.view@gmx.at
+    password: ijfuaofadsqfasdjoikasjfsalkafsasfcsfda
+    port: 587
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            protocols: TLSv1.2
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: hlLLLOi745vL
 security:
   jwt:
     token:
       secret-key: very-very-secret-key-oh-yes-you-can-trust-me-i-know-hehe
+
+app:
+  scheduling:
+    enable: true
+
+api:
+  mock:
+    url: http://localhost:8089/?importType=
+    auth: 9579e55c-5522-4033-ae15-2c0aa4b2067e
+
+worker:
+  image_name: athlete-view-worker
+  network_name: athlete_view
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    user: guest
+    password: hlLLLOi745vL
+    request_queue: athlete_view_request
+    response_queue: athlete_view_response
+  max_timeout: 60
+  count: 1

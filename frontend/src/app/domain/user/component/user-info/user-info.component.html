@@ -1,1 +1,89 @@
-Hi!
+<section class="centered-column-container">
+  <div class="main-container centered-row-container">
+    <span>My profile</span>
+    <form [formGroup]="form" (ngSubmit)="performUpdate()" class="centered-column-container">
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+        <mat-icon matSuffix>email</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput type="text" placeholder="John" required formControlName="name">
+        <mat-error *ngIf="form.controls.name.errors?.['maxlength']">Maximum 255 characters</mat-error>
+      </mat-form-field>
+
+      <div class="centered-row-container column-gap-1 width-20">
+        <mat-form-field>
+          <mat-label>Country</mat-label>
+          <input matInput type="text" placeholder="Austria" formControlName="country">
+          <mat-error *ngIf="form.controls.country.errors?.['maxlength']">Maximum 255 characters</mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-10">
+          <mat-label>Zip</mat-label>
+          <input matInput type="text" placeholder="Austria" formControlName="zip">
+          <mat-error *ngIf="form.controls.zip.errors?.['maxlength']">Maximum 255 characters</mat-error>
+        </mat-form-field>
+      </div>
+      <ng-container *ngIf="user.userType === 'athlete'">
+        <mat-form-field>
+          <input required matInput [matDatepicker]="picker" [placeholder]="'Date of birth*'" formControlName="dob">
+          <mat-hint>DD/MM/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="form.controls.dob.errors?.['old']">User has to be at least 16 years old.</mat-error>
+          <mat-error *ngIf="form.controls.dob.errors?.['invalid_dob']">Date not valid.</mat-error>
+        </mat-form-field>
+
+        <div class="centered-row-container column-gap-1">
+          <mat-form-field class="width-9">
+            <mat-label>Height (m)</mat-label>
+            <input matInput type="number" formControlName="height" [step]="0.1">
+            <mat-error *ngIf="form.controls.height.errors?.['positive']">Height > 0</mat-error>
+            <mat-error *ngIf="form.controls.height.errors?.['max']">Height is too high</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="width-9">
+            <mat-label>Weight (kg)</mat-label>
+            <input matInput type="number" formControlName="weight">
+            <mat-error *ngIf="form.controls.weight.errors?.['positive']">Weight > 0</mat-error>
+            <mat-error *ngIf="form.controls.height.errors?.['max']">Weight is too high</mat-error>
+          </mat-form-field>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="user.userType === 'trainer'">
+        <div style="width:100%">
+          <mat-form-field>
+            <mat-label>Invite Code</mat-label>
+            <input matInput formControlName="code" >
+            <button mat-icon-button matSuffix type="button" (click)="openDialog()">
+              <mat-icon>autorenew</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+      </ng-container>
+    </form>
+
+    <form [formGroup]="form" (ngSubmit)="performUpdate()" class="centered-column-container">
+      <div class="centered-column-container row-gap-1">
+        <button
+          [disabled]="!form.valid "
+          class="stroked"
+          mat-stroked-button
+          color="primary"
+          type="submit">
+          Update
+        </button>
+        <button
+          (click)="resetPassword()"
+          class="stroked"
+          mat-stroked-button color="accent"
+          type="button">
+          Reset password
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

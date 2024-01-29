@@ -1,0 +1,42 @@
+.notification-wrapper {
+  min-width: 355px;
+  max-width: 30vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// make notifications panel full-width on phones
+@media only screen and (max-width: 768px) {
+  .notification-wrapper {
+    width: 100vw;
+    max-width: 100%;
+  }
+}
+
+.notification-list-header {
+  margin-left: 10px;
+  margin-right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.notification-list {
+  margin-left: 10px;
+  margin-right: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  button {
+    top: 0;
+    margin-top: auto;
+    margin-bottom: 10px;
+  }
+}

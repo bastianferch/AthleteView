@@ -1,9 +1,45 @@
 package ase.athlete_view.domain.csp.controller
 
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import ase.athlete_view.domain.csp.pojo.dto.CspDto
+import ase.athlete_view.domain.csp.service.CspService
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("api/csp")
 @RestController
-class CspController {
+class CspController(private val cspService: CspService) {
+
+    private val log = KotlinLogging.logger {}
+    @PostMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    fun postJob(
+            @AuthenticationPrincipal user: UserDTO,
+            @RequestBody cspDto: CspDto
+    ){
+        log.info { "POST | postJob($cspDto)" }
+
+        if (user.id != null) {
+            cspService.accept(cspDto, user.id!!)
+        }
+    }
+
+    @DeleteMapping
+    fun deleteJob(@AuthenticationPrincipal user: UserDTO) {
+        log.info { "DELETE | deleteJob()" }
+        if (user.id != null) {
+            cspService.revertJob(user.id!!)
+        }
+    }
+
+    @GetMapping
+    fun checkJobExists(@AuthenticationPrincipal user: UserDTO): Boolean {
+        log.info {"GET | checkJobExists()"}
+        if (user.id != null) {
+            return cspService.getJob(user.id!!) != null
+        }
+        return false
+    }
 }

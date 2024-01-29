@@ -1,0 +1,28 @@
+<mat-card [class]="'wrapper-card' + (notification.read ? '' : ' not-read')">
+  <mat-card class="notification-card">
+    <div>
+      <mat-card-header>
+        <div class="title-container">
+          <mat-card-title>{{notification.header}}</mat-card-title>
+          <mat-card-subtitle>{{getTimestampString()}}</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content *ngIf="notification.body">
+        <p>{{notification.body}}</p>
+      </mat-card-content>
+      <mat-card-actions *ngIf="notification.link">
+        <button mat-button (click)="navigateLink()">
+          <a *ngIf="!notification.link.startsWith('action/') else actionLink">show me</a>
+          <ng-template #actionLink>
+            <a>{{actionName}}</a>
+          </ng-template>
+        </button>
+      </mat-card-actions>
+    </div>
+
+    <button mat-icon-button matSuffix (click)="delete()" type="button">
+      <mat-icon>delete</mat-icon>
+    </button>
+
+  </mat-card>
+</mat-card>

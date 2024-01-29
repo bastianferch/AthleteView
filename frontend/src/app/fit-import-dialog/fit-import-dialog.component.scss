@@ -1,0 +1,15 @@
+.dialog-footer {
+  float: right;
+  margin: 5px;
+}
+
+.dialog-content {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.dialog-content > button {
+  justify-self: stretch;
+}

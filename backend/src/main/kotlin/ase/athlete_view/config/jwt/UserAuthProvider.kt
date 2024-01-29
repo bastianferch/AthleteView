@@ -1,6 +1,6 @@
 package ase.athlete_view.config.jwt
 
-import ase.athlete_view.domain.user.pojo.dto.UserDto
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import jakarta.annotation.PostConstruct
@@ -20,7 +20,7 @@ class UserAuthProvider(
         this.secretKey = Base64.getEncoder().encodeToString(secretKey.toByteArray())
     }
 
-    fun createToken(dto: UserDto): String {
+    fun createToken(dto: UserDTO): String {
         val now = Date()
         val validity = Date(now.time + 3600000)
         return JWT.create()
@@ -29,14 +29,22 @@ class UserAuthProvider(
             .withIssuedAt(now)
             .withExpiresAt(validity)
             .withClaim("name", dto.name)
+            .withClaim("userType", dto.userType)
             .sign(Algorithm.HMAC256(secretKey))
     }
 
     fun validateToken(token: String): Authentication {
-        var algorithm = Algorithm.HMAC256(secretKey);
-        var verifier = JWT.require(algorithm).build()
-        var decoded = verifier.verify(token)
-        var user = UserDto(decoded.getClaim("id").asLong(), decoded.subject, decoded.getClaim("name").asString(), null, token)
+        val algorithm = Algorithm.HMAC256(secretKey)
+        val verifier = JWT.require(algorithm).build()
+        val decoded = verifier.verify(token)
+        val user = UserDTO(
+            decoded.getClaim("id").asLong(),
+            decoded.getClaim("name").asString(),
+            decoded.subject,
+            null,
+            token,
+            decoded.getClaim("userType").asString()
+        )
         return UsernamePasswordAuthenticationToken(user, null, ArrayList())
     }
 }

@@ -1,39 +1,75 @@
 package ase.athlete_view.domain.authentication.controller
 
-import ase.athlete_view.config.jwt.UserAuthProvider
+import ase.athlete_view.domain.authentication.dto.AthleteRegistrationDTO
 import ase.athlete_view.domain.authentication.dto.LoginDTO
-import ase.athlete_view.domain.authentication.dto.RegistrationDTO
-import ase.athlete_view.domain.authentication.service.AuthenticationService
-import ase.athlete_view.domain.user.pojo.dto.UserDto
-import ase.athlete_view.domain.user.service.mapper.UserMapper
+import ase.athlete_view.domain.authentication.dto.ResetPasswordDTO
+import ase.athlete_view.domain.authentication.dto.TrainerRegistrationDTO
+import ase.athlete_view.domain.authentication.service.AuthService
+import ase.athlete_view.domain.user.pojo.dto.UserDTO
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.validation.Valid
 import lombok.AllArgsConstructor
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("api/auth")
 class AuthenticationController(
-    private val authenticationService: AuthenticationService,
-    private val userMapper: UserMapper) {
-    private val logger = KotlinLogging.logger {}
+    private val authService: AuthService
+) {
+    private val log = KotlinLogging.logger {}
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/registration")
-    fun registration(@RequestBody registrationDto: RegistrationDTO): UserDto {
-        logger.info { "POST USER REGISTRATION $registrationDto" }
-        throw NotImplementedError("not yet implemented")
-//        val savedUser = this.authenticationService.registerUser(this.userMapper.toEntity(registrationDto))
-//        return userMapper.toDTO(savedUser)
+    @PostMapping("/registration/athlete")
+    fun registerAthlete(@Valid @RequestBody registrationDto: AthleteRegistrationDTO): UserDTO {
+        log.info { "POST | registerAthlete($registrationDto)" }
+        val savedUser = this.authService.registerAthlete(registrationDto)
+        return savedUser.toUserDTO()
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/registration/trainer")
+    fun registerTrainer(@Valid @RequestBody registrationDto: TrainerRegistrationDTO): UserDTO {
+        log.info { "POST | registerTrainer($registrationDto)" }
+        val savedUser = this.authService.registerTrainer(registrationDto)
+        return savedUser.toUserDTO()
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    fun login(@RequestBody dto: LoginDTO): UserDto {
-        logger.info { "POST LOGIN FOR USER ${dto.email}" }
+    fun login(@RequestBody dto: LoginDTO): UserDTO {
+        log.info { "POST | login($dto)" }
+        return this.authService.authenticateUser(dto)
+    }
 
-        return this.authenticationService.authenticateUser(dto)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/confirmation")
+    fun confirmRegistration(@RequestParam token: UUID) {
+        log.info { "POST | confirmRegistration($token)" }
+        this.authService.confirmRegistration(token)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/confirmation/new")
+    fun sendNewConfirmationLink(@RequestBody dto: LoginDTO) {
+        log.info { "POST | sendNewConfirmationLink($dto)" }
+        this.authService.sendNewConfirmationToken(dto)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/forgot-password")
+    fun forgotPassword(@RequestBody email: String) {
+        log.info { "POST | forgotPassword($email)" }
+        this.authService.forgotPassword(email)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/password")
+    fun updateNewPassword(@RequestBody dto: ResetPasswordDTO) {
+        log.info { "POST | updateNewPassword($dto)" }
+        this.authService.setNewPassword(dto)
     }
 
 }

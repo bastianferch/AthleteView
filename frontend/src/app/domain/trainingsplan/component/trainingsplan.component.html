@@ -1,0 +1,69 @@
+<div class="main-content">
+  <div *ngIf="athletes.length !== 0">
+    <div *ngIf="currentAthlete">
+      <h1>{{ currentAthlete.name}}'s Trainingsplan</h1>
+      <div *ngIf="athletes.length >1">
+        <button mat-flat-button color="primary" class="mg-0p275" (click)="prevUser()">Previous</button>
+        <button mat-flat-button color="primary" class="mg-0p275" (click)="nextUser()">Next</button>
+      </div>
+    </div>
+
+
+    <div class="activity-container">
+      <h2>Last Week</h2>
+      <div class="activity-list">
+        <div *ngFor="let item of previous" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card [activity]="item"></app-activity-card>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-container">
+      <h2>Upcoming Week</h2>
+      <div
+        cdkDropList
+        #upcomingList="cdkDropList"
+        [cdkDropListData]="upcoming"
+        [cdkDropListConnectedTo]="[templateList]"
+        class="activity-list"
+        (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let item of upcoming" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card
+            [activity]="item"
+            [interActive]="interactive">
+          </app-activity-card>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-container">
+      <h2>Your Templates</h2>
+      <div
+        cdkDropList
+        #templateList="cdkDropList"
+        [cdkDropListData]="templates"
+        [cdkDropListConnectedTo]="[upcomingList]"
+        class="activity-list"
+        (cdkDropListDropped)="drop($event)">
+        <div class="activity-droplist"*ngFor="let item of templates" cdkDrag [cdkDragDisabled]="!item.template || !interactive">
+          <app-activity-card
+            [activity]="item"
+            [interActive]="interactive">
+          </app-activity-card>
+        </div>
+      </div>
+    </div>
+
+
+    <div>
+      <button mat-flat-button color="primary" class="mg-0p275" [disabled]="sentForScheduling"
+              (click)="sendCSPRequest()">
+        Create Trainingsplans
+      </button>
+    </div>
+  </div>
+</div>
+<div *ngIf="athletes.length === 0">
+  <h1> You do not have any athletes to manage at the moment </h1>
+  <p> Feel free to invite some using our "Invite athletes" functionality</p>
+</div>

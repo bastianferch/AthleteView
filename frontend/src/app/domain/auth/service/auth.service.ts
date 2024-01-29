@@ -1,54 +1,99 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
-import { Observable, tap } from "rxjs";
-import { Router } from "@angular/router";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { BehaviorSubject, firstValueFrom, Observable, tap } from "rxjs";
 import { UrlService } from "../../../config/service/UrlService";
-import { LoginDTO } from "../dto/LoginDTO";
-import { RegisterDTO } from "../dto/RegisterDTO";
-import { User } from "../../user/dto/User";
+import { LoginDto } from "../dto/login-dto";
+import { User } from "../../user/dto/user";
+import { UserType } from "../component/registration/user-registration.component";
+import { DateParsing } from "../../../common/util/parsing/date-parsing";
+import { UserService } from "../../user/service/UserService";
+import { RegisterDto } from "../dto/register-dto";
+import { ResetPassword } from "../dto/reset-password";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly url;
+  private currentUser$ = new BehaviorSubject<User>(undefined);
+
+  currentUser: User;
+  getCurrentUser$ = this.currentUser$.asObservable();
 
   constructor(private http: HttpClient,
     private urlService: UrlService,
-    private router: Router) {
+    private userService: UserService) {
     this.url = this.urlService.getBackendUrl() + 'auth/';
   }
 
-  getAuthToken(): string {
-    return localStorage.getItem(JWT_TOKEN_NAME);
-  }
-
-  // ToDo: make a BehaviorSubject from it.
-  isLoggedIn(): boolean {
-    const token = this.getAuthToken();
-    return token && token !== 'null';
+  setCurrentUser(user: User): void {
+    this.currentUser = user;
+    this.currentUser$.next(user);
   }
 
   logout(): void {
     this.setAuthToken(null);
-  }
-
-  login(body: LoginDTO): Observable<User> {
-    return this.http.post<User>(this.url + 'login', body, { withCredentials: true }).pipe(
-      tap((user) => {
-        this.setAuthToken(user.token)
-      }),
-    );
-  }
-
-  register(body: RegisterDTO): Observable<User> {
-    return this.http.post<User>(this.url + 'registration', body, { withCredentials: true });
+    this.setCurrentUser(null);
   }
 
   setAuthToken(token: string) {
     localStorage.setItem(JWT_TOKEN_NAME, token);
   }
 
+  getAuthToken(): string {
+    return localStorage.getItem(JWT_TOKEN_NAME);
+  }
+
+  // ---- router methods ----
+
+  login(body: LoginDto): Observable<User> {
+    return this.http.post<User>(this.url + 'login', body, { withCredentials: true }).pipe(
+      User.serializeResponseMap(),
+      tap((user) => {
+        this.setCurrentUser(user)
+        this.setAuthToken(user.token)
+      }),
+    );
+  }
+
+  confirmAccount(uuid: string): Observable<void> {
+    const params = new HttpParams().set('token', uuid);
+    return this.http.post<void>(this.url + 'confirmation', null, {
+      params,
+    });
+  }
+
+  sendConfirmLink(body: LoginDto): Observable<void> {
+    return this.http.post<void>(this.url + 'confirmation/new', body);
+  }
+
+  register(body: RegisterDto, type: UserType): Observable<User> {
+    if (body.dob) {
+      body.dob = new DateParsing().toHyphenDate(new Date(body.dob));
+    }
+    body.height = Math.ceil(body.height * 1000); // convert from meter to mm
+    body.weight = Math.ceil(body.weight * 1000); // convert from kg to g
+    return this.http.post<User>(this.url + 'registration/' + type, body, { withCredentials: true });
+  }
+
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(this.url + 'forgot-password', email);
+  }
+
+  resetPassword(wrapper: ResetPassword): Observable<void> {
+    return this.http.post<void>(this.url + 'password', wrapper);
+  }
+
+  async checkCurrentUser(): Promise<void> {
+    if (this.currentUser) {
+      return;
+    }
+    const token = this.getAuthToken();
+    if (token && token !== 'null') {
+      const user = await firstValueFrom(this.userService.get());
+      this.setCurrentUser(user);
+    }
+  }
 }
 
 export const JWT_TOKEN_NAME = 'auth_token'

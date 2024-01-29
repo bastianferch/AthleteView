@@ -1,0 +1,35 @@
+<div class="time-constraints-container">
+  <div class="calendar-container">
+
+    <div class="cal-utils">
+      <mat-chip-listbox #days aria-label="Show Constraints" multiple (change)="setChoice(days.value)">
+        <mat-chip-option value="white">Show training times</mat-chip-option>
+        <mat-chip-option value="black" selected>Show conflicts</mat-chip-option>
+      </mat-chip-listbox>
+
+      <h2>{{ getViewTitle() }}</h2>
+      <div class="date-nav-btn">
+        <button mat-stroked-button (click)="setView(-7)">Previous Week</button>
+        <button mat-stroked-button (click)="handleDateToday()">Today</button>
+        <button mat-stroked-button (click)="setView(7)">Next Week</button>
+      </div>
+    </div>
+    <mwl-calendar-week-view
+      [viewDate]="viewDate"
+      [events]="events"
+      [hourSegments]="1"
+      [hourDuration]="60"
+      [refresh]="refresh"
+      [weekStartsOn]=1
+      (eventTimesChanged)="eventTimesChanged($event)"
+      (hourSegmentClicked)="hourClicked($event)"
+    >
+    </mwl-calendar-week-view>
+  </div>
+  <span class="mobile-only">
+    <br/>
+    <mat-divider></mat-divider>
+    <br/>
+  </span>
+  <app-create-time-constraints (newConstraint)="getEvents()" [timeClicked]="timeClicked"></app-create-time-constraints>
+</div>
