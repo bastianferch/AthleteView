@@ -14,7 +14,6 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -140,9 +139,7 @@ class ActivityController(private val activityService: ActivityService) {
         log.debug { "Start and end were provided: ${startDate.toString()}\t${endDate.toString()}" }
         // can be sure that logged-in user has an id
         val result = activityService.getAllActivities(user.id!!, startDate, endDate)
-        log.debug { "Fetched activities: $result" }
         val mapped = result.map { it.toDTO() }
-        log.debug { "After DTO-mapping, activities: $mapped"}
         return mapped
     }
 
@@ -155,9 +152,7 @@ class ActivityController(private val activityService: ActivityService) {
         log.info { "GET | fetchTemplatesForUser()" }
         // can be sure that logged-in user has an id
         val result = activityService.getAllTemplates(user.id!!)
-        log.debug { "Fetched activities: $result" }
         val mapped = result.map { it.toDTO() }
-        log.debug { "After DTO-mapping, activities: $mapped"}
         return mapped
     }
 

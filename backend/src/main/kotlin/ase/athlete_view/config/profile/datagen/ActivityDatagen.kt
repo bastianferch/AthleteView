@@ -69,7 +69,7 @@ class ActivityDatagen(
         val randomOrder = DayOfWeek.values().toList().shuffled()
         dates = mutableListOf()
         for (i in 0..6) {
-            dates.add(LocalDateTime.now().with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
+            dates.add(LocalDateTime.now().plusDays(4).with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
         }
         // Load MEDIUM
         createRunInterval6times1kmWith1kmRecovery(
