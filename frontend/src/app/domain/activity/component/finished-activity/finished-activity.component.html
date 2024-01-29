@@ -54,7 +54,7 @@
             <div class="map" leaflet [leafletOptions]="options" (leafletMapReady)="onMapReady($event)"
               *ngIf="coordinatesReady; else noMapData"></div>
             <ng-template #noMapData>
-              <div class="map">Could not load map.</div>
+              <div>Could not load map.</div>
             </ng-template>
             <div class="graph-container">
               <div class="help">

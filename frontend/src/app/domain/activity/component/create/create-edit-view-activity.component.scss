@@ -3,6 +3,11 @@
   height: 21px !important;
 }
 
+.header-dropdown {
+  display: flex;
+  max-width: 95vw;
+}
+
 .checkbox-container {
   display: flex;
   justify-content: space-between;
