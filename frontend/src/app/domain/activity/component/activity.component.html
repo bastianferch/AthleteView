@@ -75,7 +75,7 @@
 
         <ng-container matColumnDef="finishedActivityCreatedFor">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Athlete</th>
-          <td mat-cell *matCellDef="let act" >{{ act.plannedActivity?.createdFor?.name }}</td>
+          <td mat-cell *matCellDef="let act" >{{ getAthleteName(act.athleteId) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="finishedActivityDates">

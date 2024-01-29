@@ -12,6 +12,8 @@ import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
 import { MatPaginator } from '@angular/material/paginator';
 import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
 import { StyleMapperService } from 'src/app/common/service/style-mapper.service';
+import { User } from "../../user/dto/user";
+import { UserService } from "../../user/service/UserService";
 
 export enum TOGGLESTATE {
   DRAFT = "draft",
@@ -42,6 +44,7 @@ export class ActivityComponent implements OnInit {
   finishedActivities: Activity[] = []
   plannedActivities: PlannedActivity[] = []
   templateActivities: PlannedActivity[] = []
+  athletes: User[] = []
 
   toggleState: string = TOGGLESTATE.DRAFT
   TOGGLESTATE_ENUM = TOGGLESTATE // used in html
@@ -55,6 +58,7 @@ export class ActivityComponent implements OnInit {
   constructor(
     private activityService: ActivityService,
     private authService: AuthService,
+    private userService: UserService,
     private spinner: SpinnerService,
     public activityParsing: ActivityParsing,
     private mobileCheck: MobileCheckService,
@@ -87,10 +91,22 @@ export class ActivityComponent implements OnInit {
       }
       this.partialLoad = true
     })
+    if (this.isTrainer()) {
+      this.userService.fetchAthletesForTrainer().subscribe({
+        next: (data) => this.athletes = data,
+      })
+    }
   }
 
   getDate(activity: PlannedActivity): Date {
     return activity.date as Date
+  }
+
+  getAthleteName(id: number) {
+    for (const a of this.athletes) {
+      if (a.id === id) return a.name
+    }
+    return ""
   }
 
   generateIntervalSummary(interval: IntervalSplit): string {
