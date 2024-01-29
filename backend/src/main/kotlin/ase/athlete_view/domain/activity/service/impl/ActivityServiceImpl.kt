@@ -954,8 +954,8 @@ class ActivityServiceImpl(
 
     private fun userExists(userId: Long): User {
         log.trace { "S | userExists($userId)" }
-        val user = this.userRepository.findById(userId)
-        return if (user.get().getUserType() == "athlete") athleteRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = this.userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        return if (user.getUserType() == "athlete") athleteRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
         else trainerRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
     }
 
