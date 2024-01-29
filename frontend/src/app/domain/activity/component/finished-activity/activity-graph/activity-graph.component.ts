@@ -153,7 +153,7 @@ export class ActivityGraphComponent implements OnChanges {
     const axis: Array<hc.YAxisOptions> = []
 
     const bpmData = data.map((elem) => [(elem.timestamp as Date).getTime(), elem.bpm])
-    const spdData = data.map((elem) => [(elem.timestamp as Date).getTime(), elem.speed])
+    const spdData = data.map((elem) => [(elem.timestamp as Date).getTime(), Number(this.speedMapper.formatSpeedByType(elem.speed, this.activityType))])
     const powData = data.map((elem) => [(elem.timestamp as Date).getTime(), elem.power])
     const cadData = data.map((elem) => [(elem.timestamp as Date).getTime(), elem.cadence])
     const altData = data.map((elem) => [(elem.timestamp as Date).getTime(), elem.altitude])

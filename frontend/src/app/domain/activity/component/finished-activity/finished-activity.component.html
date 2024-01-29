@@ -3,7 +3,8 @@
     <div class="title">
       <img class="activity-icon-header" [src]="getIconPath()" alt="icon" />
       <div class="title-text">
-        <span class="name">{{ getReadableNameForActivity() }}</span>
+        <span class="name">{{ getReadableNameForActivity() }}
+          <ng-container *ngIf="isTrainer">{{ " - " + getAthleteName(activity.athleteId) }}</ng-container></span>
         <span>{{ getFormattedDateForActivity() }}</span>
       </div>
     </div>
@@ -53,7 +54,7 @@
             <div class="map" leaflet [leafletOptions]="options" (leafletMapReady)="onMapReady($event)"
               *ngIf="coordinatesReady; else noMapData"></div>
             <ng-template #noMapData>
-              <div class="map">Could not load map.</div>
+              <div>Could not load map.</div>
             </ng-template>
             <div class="graph-container">
               <div class="help">

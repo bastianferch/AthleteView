@@ -13,6 +13,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
 import { StyleMapperService } from 'src/app/common/service/style-mapper.service';
 import { Interval, convertToInterval } from 'src/app/common/interval/dto/Interval'
+import { AuthService } from "../../../auth/service/auth.service";
+import { UserService } from "../../../user/service/UserService";
+import { User } from "../../../user/dto/user";
 
 @Component({
   selector: 'app-finished-activity',
@@ -44,6 +47,8 @@ export class FinishedActivityComponent implements OnInit {
   activityType: ActivityType
   activityDate: Date
   hasPlannedActivityAssigned = false
+  isTrainer = false
+  athletes: User[] = []
 
   // used for paginator
   @ViewChild(MatPaginator, { static: false })
@@ -56,6 +61,8 @@ export class FinishedActivityComponent implements OnInit {
 
   constructor(
     private activityService: ActivityService,
+    private authService: AuthService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private mobileCheck: MobileCheckService,
@@ -113,6 +120,19 @@ export class FinishedActivityComponent implements OnInit {
         this.activity = data
       })
     })
+    this.isTrainer = !this.authService.currentUser.isAthlete()
+    if (this.isTrainer) {
+      this.userService.fetchAthletesForTrainer().subscribe({
+        next: (data) => this.athletes = data,
+      })
+    }
+  }
+
+  getAthleteName(id: number) {
+    for (const a of this.athletes) {
+      if (a.id === id) return a.name
+    }
+    return ""
   }
 
   onMapReady(map: L.Map) {

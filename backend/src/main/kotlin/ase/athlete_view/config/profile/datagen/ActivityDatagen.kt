@@ -65,11 +65,11 @@ class ActivityDatagen(
             .collect(Collectors.toList())
     }
 
-    fun createPlannedActivities(reduceSecondsPerKm: Int, athlete: Athlete?, trainer: User): Int {
+    fun createPlannedActivities(reduceSecondsPerKm: Int, athlete: Athlete?, trainer: User, isFirstAthlete: Boolean = false): Int {
         val randomOrder = DayOfWeek.values().toList().shuffled()
         dates = mutableListOf()
         for (i in 0..6) {
-            dates.add(LocalDateTime.now().with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
+            dates.add(LocalDateTime.now().plusDays(3).with(TemporalAdjusters.previous(randomOrder[i])).withHour(faker.random.nextInt(6, 18)))
         }
         // Load MEDIUM
         createRunInterval6times1kmWith1kmRecovery(
@@ -102,7 +102,7 @@ class ActivityDatagen(
 
         // Load MEDIUM
         createSwim2h(
-            if (athlete != null) 140 - reduceSecondsPerKm/3 else 155,
+            if (athlete != null) 140 - reduceSecondsPerKm / 3 else 155,
             trainer,
             athlete,
             if (athlete == null) null else dates[4]
@@ -117,13 +117,19 @@ class ActivityDatagen(
         if (athlete != null) {
             // Load MEDIUM
             createSwim2h(
-                155 - reduceSecondsPerKm/3,
+                155 - reduceSecondsPerKm / 3,
                 trainer,
                 athlete,
                 dates[5]
             )
-            return 6
+            if(isFirstAthlete) {
+                createRun70Min(400 - reduceSecondsPerKm, trainer, athlete)
+
+                createBike45km(150 - reduceSecondsPerKm, trainer, athlete)
+            }
+            return 8
         }
+
         return 5
 
     }
@@ -172,10 +178,10 @@ class ActivityDatagen(
         val combinedBytes = originalBytes //+ byteArray
 
         return MockMultipartFile(
-                originalFile.name,
-                originalFile.originalFilename,
-                originalFile.contentType,
-                combinedBytes
+            originalFile.name,
+            originalFile.originalFilename,
+            originalFile.contentType,
+            combinedBytes
         )
     }
 
@@ -185,7 +191,7 @@ class ActivityDatagen(
             withTrainer = false
         }
         val plannedActivity = PlannedActivity(
-            null, " 7x(1km P:1')", ActivityType.RUN,
+            null, " 7x(1km P:1min)", ActivityType.RUN,
             Interval(
                 null, 1, listOf(
                     Interval(
@@ -282,7 +288,7 @@ class ActivityDatagen(
             withTrainer = false
         }
         val plannedActivity = PlannedActivity(
-            null, "60' ", ActivityType.RUN,
+            null, "60min ", ActivityType.RUN,
             Interval(
                 null, 1, listOf(
                     Interval(
@@ -318,7 +324,7 @@ class ActivityDatagen(
             withTrainer = false
         }
         val plannedActivity = PlannedActivity(
-            null, " 1x21'", ActivityType.BIKE,
+            null, " 1x21min", ActivityType.BIKE,
             Interval(
                 null, 1, listOf(
                     Interval(
@@ -423,6 +429,78 @@ class ActivityDatagen(
                 ), null
             ),
             withTrainer, !withTrainer, "", date, 120, Load.MEDIUM, createdBy, createdFor, null
+        )
+        plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
+        plannedActivityRepo.save(plannedActivity)
+    }
+
+    private fun createBike45km(targetPace: Int, createdBy: User, createdFor: Athlete?) {
+        var withTrainer = true
+        if (createdFor == null) {
+            withTrainer = false
+        }
+        val plannedActivity = PlannedActivity(
+            null, " 45km", ActivityType.BIKE,
+            Interval(
+                null, 1, listOf(
+                    Interval(
+                        null, 1, listOf(
+                            Interval(
+                                null, 1, null,
+                                Step(
+                                    null,
+                                    StepType.ACTIVE,
+                                    StepDurationType.DISTANCE,
+                                    45,
+                                    StepDurationUnit.KM,
+                                    StepTargetType.PACE,
+                                    if (createdFor != null) targetPace - ACCEPTANCE_RANGE_IN_SECONDS else targetPace,
+                                    if (createdFor != null) targetPace + ACCEPTANCE_RANGE_IN_SECONDS else targetPace + 20,
+                                    ""
+                                )
+                            )
+                        ),
+                        null
+                    ),
+                ), null
+            ),
+            withTrainer, !withTrainer, "", LocalDateTime.of(2024, 1, 28, 10, 0), 120, Load.HIGH, createdBy, createdFor, null
+        )
+        plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
+        plannedActivityRepo.save(plannedActivity)
+    }
+
+    private fun createRun70Min(targetPace: Int, createdBy: User, createdFor: Athlete?) {
+        var withTrainer = true
+        if (createdFor == null) {
+            withTrainer = false
+        }
+        val plannedActivity = PlannedActivity(
+            null, "70min ", ActivityType.RUN,
+            Interval(
+                null, 1, listOf(
+                    Interval(
+                        null, 1, listOf(
+                            Interval(
+                                null, 1, null,
+                                Step(
+                                    null,
+                                    StepType.ACTIVE,
+                                    StepDurationType.TIME,
+                                    70,
+                                    StepDurationUnit.MIN,
+                                    StepTargetType.PACE,
+                                    if (createdFor != null) targetPace - ACCEPTANCE_RANGE_IN_SECONDS else targetPace,
+                                    if (createdFor != null) targetPace + ACCEPTANCE_RANGE_IN_SECONDS else targetPace + 20,
+                                    ""
+                                )
+                            )
+                        ),
+                        null
+                    ),
+                ), null
+            ),
+            withTrainer, !withTrainer, "", LocalDateTime.of(2024, 1, 28, 12, 0), 75, Load.LOW, createdBy, createdFor, null
         )
         plannedActivity.interval = activityService.createInterval(plannedActivity.interval)
         plannedActivityRepo.save(plannedActivity)

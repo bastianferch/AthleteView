@@ -69,9 +69,12 @@ class CspServiceImpl(private val cspRepository: CspRepository, private val mappe
     }
 
     fun notifyAthletesOfRevert(activities: MutableList<PlannedActivity>) {
+        val athletes: MutableSet<Long> = mutableSetOf()
         for (activity in activities) {
-            notificationService.sendNotification(activity.createdFor!!.id!!, "Current Trainingsplan reverted", "Your trainer has reverted the current trainingsplan. A new one will likely be scheduled soon.")
-            activity.createdFor
+            athletes.add(activity.createdFor!!.id!!)
+        }
+        for(id in athletes){
+            notificationService.sendNotification(id, "Current Trainingsplan reverted", "Your trainer has reverted the current trainingsplan. A new one will likely be scheduled soon.")
         }
     }
 

@@ -183,7 +183,7 @@ class CspServiceUnitTests : TestBase() {
         val job2 = cspService.getJob(-3)
         assertNull(job2)
 
-        verify(exactly = 2) {
+        verify(exactly = 1) {
             ns.sendNotification(match { it == -2L }, "Current Trainingsplan reverted", any(), any())
         }
     }

@@ -19,7 +19,6 @@ export class User extends SerializableMap {
 export class Trainer extends User {
   override userType: 'trainer';
   code: string;
-  athletes: Athlete[];
 }
 
 export class Athlete extends User {

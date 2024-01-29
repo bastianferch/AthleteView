@@ -8,6 +8,8 @@ import ase.athlete_view.domain.activity.persistence.FitDataRepositoryImpl
 import ase.athlete_view.domain.activity.persistence.PlannedActivityRepository
 import ase.athlete_view.domain.activity.pojo.dto.FitData
 import ase.athlete_view.domain.activity.service.ActivityService
+import ase.athlete_view.domain.user.persistence.AthleteRepository
+import ase.athlete_view.domain.user.persistence.TrainerRepository
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.util.ActivityCreator
 import ase.athlete_view.util.UserCreator
@@ -43,6 +45,12 @@ class ActivityServiceMapAndStatisticsUnitTests {
     private lateinit var activityRepository: ActivityRepository
 
     @MockkBean
+    private lateinit var athleteRepository: AthleteRepository
+
+    @MockkBean
+    private lateinit var trainerRepository: TrainerRepository
+
+    @MockkBean
     private lateinit var fitRepository: FitDataRepositoryImpl // for... reasons, cannot specify interface here
 
 
@@ -57,6 +65,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = "totallyfitdata"
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
         every { fitRepository.getFitData(any<String>()) } returns FitData("totallyfitdata", ByteArrayInputStream(fileBytes))
@@ -77,6 +86,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = null
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
 
@@ -92,6 +102,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = null
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
 
@@ -108,6 +119,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         val fileBytes = this::class.java.classLoader.getResource(("fit-files/no-coords.fit"))?.readBytes()
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
         every { fitRepository.getFitData(any<String>()) } returns FitData("asdf123", ByteArrayInputStream(fileBytes))
@@ -131,6 +143,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         mockTrainer.athletes.add(mockUserObj)
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockTrainer)
+        every { trainerRepository.findById(any()) } returns Optional.of(mockTrainer)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
         every { fitRepository.getFitData(any<String>()) } returns FitData("asdf123", ByteArrayInputStream(fileBytes))
@@ -151,6 +164,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = "totallyfitdata"
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
         every { fitRepository.getFitData(any<String>()) } returns FitData("totallyfitdata", ByteArrayInputStream(fileBytes))
@@ -175,6 +189,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = null
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
 
@@ -194,6 +209,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = "test213"
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(ActivityCreator.getDefaultActivity())
 
@@ -210,6 +226,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = "test213"
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(mockUserObj)
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
         every { activityRepository.findById(any<Long>()) } returns Optional.empty()
 
         assertThrows<NotFoundException> { activityService.prepareStatisticsForActivity(-2, 1) }
@@ -225,6 +242,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         act.fitData = "test213"
 
         every { userRepository.findById(any<Long>()) } returns Optional.empty()
+        every { athleteRepository.findById(any()) } returns Optional.of(mockUserObj)
 
         assertThrows<NotFoundException> { activityService.prepareStatisticsForActivity(-2, 1) }
     }
@@ -242,6 +260,7 @@ class ActivityServiceMapAndStatisticsUnitTests {
         trainer.athletes = mutableSetOf(mockUserObj)
 
         every { userRepository.findById(any<Long>()) } returns Optional.of(trainer)
+        every { trainerRepository.findById(any()) } returns Optional.of(trainer)
         every { activityRepository.findById(any<Long>()) } returns Optional.of(act)
         every { activityRepository.findActivitiesByUserId(any<Long>()) } returns listOf(act)
 

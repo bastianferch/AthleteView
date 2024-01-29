@@ -24,9 +24,6 @@ class UserMappingUnitTests : TestBase() {
         assertAll(
             "Trainer check",
             { assertThat(trainerDto?.email).isEqualTo(UserCreator.getTrainer().email) },
-            { assertThat(trainerDto?.athletes).hasSize(1) },
-            { assertThat(trainerDto?.athletes?.get(0)?.email).isEqualTo(athlete.email) },
-            { assertThat(trainerDto?.athletes?.get(0)?.trainer).isNull() }
         )
 
         val athleteDTO = athlete.toAthleteDto()

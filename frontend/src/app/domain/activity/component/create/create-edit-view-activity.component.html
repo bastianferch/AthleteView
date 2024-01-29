@@ -3,7 +3,7 @@
     <div>
       <p class="mat-headline-3 margin-bot"> {{heading}}</p>
       <div class="width-100">
-        <form class="row-space-between">
+        <form class="row-space-between header-dropdown">
           <mat-form-field class="dense-2 pd-0p275" style="width: 300px"  *ngIf="mode!==ActivityCreateEditViewMode.details" appearance="outline">
             <mat-label>Workout name</mat-label>
             <input matInput [(ngModel)]="plannedActivity.name" required name="name">

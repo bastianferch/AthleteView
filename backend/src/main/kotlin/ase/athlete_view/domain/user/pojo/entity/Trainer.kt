@@ -40,8 +40,8 @@ class Trainer(
             listOf(),
             listOf()
         )
-        val athletes = athletes.map { it.toAthleteDto(false) }
-        trainer.athletes = athletes
+        /*val athletes = athletes.map { it.toAthleteDto(false) }
+        trainer.athletes = athletes*/
         return trainer
     }
 

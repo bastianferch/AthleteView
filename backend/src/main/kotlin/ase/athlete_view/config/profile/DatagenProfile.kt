@@ -98,14 +98,17 @@ class DatagenProfile(
         val healthList = ArrayList<Health>()
         val today = LocalDate.now()
         var weekIterator = today.minusDays(7)
-        while (!weekIterator.isEqual(today)){
-            healthList.add(Health(
-                null,
-                saved,
-                weekIterator,
-                Random.nextInt(5000, 20000),
-                Random.nextInt(50,110),
-                Random.nextInt(3*60, 10*60)))
+        while (!weekIterator.isEqual(today)) {
+            healthList.add(
+                Health(
+                    null,
+                    saved,
+                    weekIterator,
+                    Random.nextInt(5000, 20000),
+                    Random.nextInt(50, 110),
+                    Random.nextInt(3 * 60, 10 * 60)
+                )
+            )
             weekIterator = weekIterator.plusDays(1)
         }
         this.healthRepository.saveAll(healthList)
@@ -120,7 +123,7 @@ class DatagenProfile(
 
 
         val plannedActivity = PlannedActivity(
-            null, " 7x(1km P:1')", ActivityType.RUN,
+            null, " 7x(1km P:1min)", ActivityType.RUN,
             Interval(
                 null, 1, listOf(
                     Interval(
@@ -209,7 +212,7 @@ class DatagenProfile(
                     this.userService.saveAll(listOf(trainer, athlete))
                     if (i <= NUM_OF_TRAINER / 2) {
                         val reducePaceInMinKm = faker.random.nextInt(-30, 30)
-                        plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer)
+                        plannedActivitiesCreated += datagenActivity.createPlannedActivities(reducePaceInMinKm, athlete, trainer, j == 1)
                     }
 
                     if (i <= NUM_OF_TRAINER_WITH_ACTIVITIES) {

@@ -12,6 +12,8 @@ import { ActivityParsing } from "../../../common/util/parsing/activity-parsing";
 import { MatPaginator } from '@angular/material/paginator';
 import { MobileCheckService } from 'src/app/common/service/mobile-checker.service';
 import { StyleMapperService } from 'src/app/common/service/style-mapper.service';
+import { User } from "../../user/dto/user";
+import { UserService } from "../../user/service/UserService";
 
 export enum TOGGLESTATE {
   DRAFT = "draft",
@@ -42,6 +44,7 @@ export class ActivityComponent implements OnInit {
   finishedActivities: Activity[] = []
   plannedActivities: PlannedActivity[] = []
   templateActivities: PlannedActivity[] = []
+  athletes: User[] = []
 
   toggleState: string = TOGGLESTATE.DRAFT
   TOGGLESTATE_ENUM = TOGGLESTATE // used in html
@@ -55,6 +58,7 @@ export class ActivityComponent implements OnInit {
   constructor(
     private activityService: ActivityService,
     private authService: AuthService,
+    private userService: UserService,
     private spinner: SpinnerService,
     public activityParsing: ActivityParsing,
     private mobileCheck: MobileCheckService,
@@ -87,10 +91,22 @@ export class ActivityComponent implements OnInit {
       }
       this.partialLoad = true
     })
+    if (this.isTrainer()) {
+      this.userService.fetchAthletesForTrainer().subscribe({
+        next: (data) => this.athletes = data,
+      })
+    }
   }
 
   getDate(activity: PlannedActivity): Date {
     return activity.date as Date
+  }
+
+  getAthleteName(id: number) {
+    for (const a of this.athletes) {
+      if (a.id === id) return a.name
+    }
+    return ""
   }
 
   generateIntervalSummary(interval: IntervalSplit): string {
@@ -216,6 +232,8 @@ export class ActivityComponent implements OnInit {
             return this.compare(aAct.name, bAct.name, isAsc)
           case "activityDate":
             return this.compare(aAct.date as Date, bAct.date as Date, isAsc)
+          case "activityCreatedFor":
+            return this.compare(aAct.createdFor?.name ?? " ", bAct.createdFor?.name ?? " ", isAsc)
           case "":
             return this.compare(aAct.date as Date, bAct.date as Date, false)
         }
@@ -228,6 +246,8 @@ export class ActivityComponent implements OnInit {
             return this.compare(this.activityParsing.getReadableNameForActivity(aAct.activityType), this.activityParsing.getReadableNameForActivity(bAct.activityType), isAsc)
           case "finishedActivityDates":
             return this.compare(aAct.startTime as Date, bAct.startTime as Date, isAsc)
+          case "finishedActivityCreatedFor":
+            return this.compare(aAct.plannedActivity?.createdFor?.name ?? " ", bAct.plannedActivity?.createdFor?.name ?? " ", isAsc)
           case "":
             return this.compare(aAct.startTime as Date, bAct.startTime as Date, false)
         }
@@ -260,9 +280,15 @@ export class ActivityComponent implements OnInit {
       this.templateColumns = ['activityIcon', 'activityName', 'activitySummary', 'activityEstDuration']
       this.defaultPageSize = 5
     } else {
-      this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
-      this.draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate']
-      this.templateColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityIntensity', 'activityEstDuration']
+      if (this.isTrainer()) {
+        this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityCreatedFor', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
+        this.draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate']
+        this.templateColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityIntensity', 'activityEstDuration']
+      } else {
+        this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
+        this.draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityDate']
+        this.templateColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityIntensity', 'activityEstDuration']
+      }
       this.defaultPageSize = 10
     }
 

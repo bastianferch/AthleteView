@@ -19,6 +19,8 @@ import ase.athlete_view.domain.activity.util.FitParser
 import ase.athlete_view.domain.activity.util.TimeDateUtil
 import ase.athlete_view.domain.notification.pojo.entity.NotificationType
 import ase.athlete_view.domain.notification.service.NotificationService
+import ase.athlete_view.domain.user.persistence.AthleteRepository
+import ase.athlete_view.domain.user.persistence.TrainerRepository
 import ase.athlete_view.domain.user.persistence.UserRepository
 import ase.athlete_view.domain.user.pojo.entity.Athlete
 import ase.athlete_view.domain.user.pojo.entity.Trainer
@@ -42,7 +44,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.pow
 
 @Service
@@ -52,6 +53,8 @@ class ActivityServiceImpl(
     private val intervalRepo: IntervalRepository,
     private val stepRepo: StepRepository,
     private val userRepository: UserRepository,
+    private val athleteRepository: AthleteRepository,
+    private val trainerRepository: TrainerRepository,
     private val userService: UserService,
     private val validator: ActivityValidator,
     private val fitParser: FitParser,
@@ -119,7 +122,7 @@ class ActivityServiceImpl(
             throw BadCredentialsException("User not found")
         }
 
-        val userObject = user.get()
+        val userObject = userExists(user.get().id!!)
 
         // Athletes can only see their own activities
         if (userObject is Athlete) {
@@ -140,6 +143,8 @@ class ActivityServiceImpl(
             if (!isOwnTemplate && !isForAthleteOfTrainer) {
                 throw NotFoundException("Planned Activity not found")
             }
+        } else {
+            throw NotFoundException("Planned Activity not found")
         }
 
         // if all checks pass, return the activity
@@ -160,7 +165,7 @@ class ActivityServiceImpl(
             throw BadCredentialsException("User not found!")
         }
 
-        val userObject = user.get()
+        val userObject = userExists(user.get().id!!)
         var activities: Set<PlannedActivity> = userObject.activities.toMutableSet()
 
         // Athletes can only see their own activities
@@ -557,8 +562,7 @@ class ActivityServiceImpl(
 
     override fun getAllActivities(uid: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): List<Activity> {
         log.trace { "S | getAllActivities($uid, $startDate, $endDate)" }
-        val userObject = userRepository.findById(uid).getOrNull()
-            ?: throw NotFoundException("No such user!")
+        val userObject = userExists(uid)
 
         var activities: MutableSet<Activity> = mutableSetOf()
 
@@ -691,6 +695,8 @@ class ActivityServiceImpl(
                 log.debug { "Tried to fetch activity for user other than self!" }
                 throw NotFoundException("No activity with this id found for user")
             }
+        } else {
+            throw NotFoundException("No activity with this id found for user")
         }
         return activityObj
     }
@@ -845,7 +851,6 @@ class ActivityServiceImpl(
 
 
     fun convertMetersPerSecondToSecondsPerKilometer(speedInMetersPerSecond: Float): Int {
-        log.trace { "S | convertMetersPerSecondToSecondsPerKilometer($speedInMetersPerSecond)" }
         return (1000 / speedInMetersPerSecond).toInt()
     }
 
@@ -948,11 +953,9 @@ class ActivityServiceImpl(
 
     private fun userExists(userId: Long): User {
         log.trace { "S | userExists($userId)" }
-        val user = this.userRepository.findById(userId)
-        if (!user.isPresent) {
-            throw NotFoundException("User not found")
-        }
-        return user.get()
+        val user = this.userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        return if (user.getUserType() == "athlete") athleteRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        else trainerRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
     }
 
     private fun activityExists(activityId: Long): Activity {
