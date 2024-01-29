@@ -260,7 +260,7 @@ export class ActivityComponent implements OnInit {
       this.templateColumns = ['activityIcon', 'activityName', 'activitySummary', 'activityEstDuration']
       this.defaultPageSize = 5
     } else {
-      this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
+      this.doneColumns = ['finishedActivityIcon', 'finishedActivityReadableName', 'activityCreatedFor', 'finishedActivityAccuracy', 'finishedActivityDistance', 'finishedActivityDates']
       this.draftColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityCreatedFor', 'activityDate']
       this.templateColumns = ['activityIcon', 'activityName', 'readableName', 'activitySummary', 'activityIntensity', 'activityEstDuration']
       this.defaultPageSize = 10
