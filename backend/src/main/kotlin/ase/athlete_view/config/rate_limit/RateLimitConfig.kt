@@ -35,9 +35,15 @@ class RateLimitConfig: WebMvcConfigurer {
             .addPathPatterns("/api/auth/confirmation/new")
         registry.addInterceptor(RateLimitInterceptor(1, Duration.ofMinutes(1)))
             .addPathPatterns("/api/auth/forgot-password")
-        registry.addInterceptor(RateLimitInterceptor(1, Duration.ofMinutes(1)))
+        registry.addInterceptor(RateLimitInterceptor(5, Duration.ofMinutes(1)))
             .addPathPatterns("/api/user/trainer/invitation")
         registry.addInterceptor(RateLimitInterceptor(1, Duration.ofMinutes(1)))
             .addPathPatterns("/api/auth/registration/**")
+
+        // for syncing with the garmin API:
+        registry.addInterceptor(RateLimitInterceptor(1, Duration.ofSeconds(5)))
+            .addPathPatterns("/api/activity/sync")
+        registry.addInterceptor(RateLimitInterceptor(1, Duration.ofSeconds(5)))
+            .addPathPatterns("/api/health/sync")
     }
 }
