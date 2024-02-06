@@ -52,7 +52,7 @@ For this make sure to create a run configuration which specifies `AthleteViewApp
 If needed, add `VM option` to set a spring profile and set it to `datagen` (or the desired profile).
 
 ### Email Service
-You have to provide an email service and include to the corresponding. The current keys are not valid!
+You have to provide an email service and include the information in the corresponding file. The current keys in the file are not valid!
 
 
 # Known issues
