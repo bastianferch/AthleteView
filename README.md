@@ -51,6 +51,9 @@ Alternatively, all the above mentioned steps can be executed in IntelliJ.
 For this make sure to create a run configuration which specifies `AthleteViewApplication.kt` as its main class.
 If needed, add `VM option` to set a spring profile and set it to `datagen` (or the desired profile).
 
+### Email Service
+You have to provide an email service and include to the corresponding. The current keys are not valid!
+
 
 # Known issues
 ## docker-compose on windows
