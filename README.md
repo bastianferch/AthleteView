@@ -1,9 +1,24 @@
+# Introduction
+This is a software project for the course "Advanced Software Engineering" at the TU Wien. 
+The goal of this project is to develop a web application for athletes to track their training progress and to schedule their activities with the constraints of the trainer and athlete. 
+The application is developed in a team of 7 students. More information about the project and its development is stored in the [wiki](https://github.com/bastianferch/AthleteView/wiki).
+
+# Contributors
+- Drucker Florian
+- Ferch Bastian
+- Dmytro Kondrashov
+- [Stöger Stephan](https://github.com/stoger)
+- [Strasser Michael](https://github.com/Megalokom)
+- [Watzinger Sebastian](https://github.com/Nyzabes)
+- Winkler Michael
+
 # Athlete View Application startup
+
 ## Frontend
 - navigate into the `frontend` folder
 - run `npm install`
 - run `npm run start` (or `ng serve`)
-- 
+
 ## Garmin Mock Api
 - navigate into the `garmin-mock` folder
 - run `npm install`
