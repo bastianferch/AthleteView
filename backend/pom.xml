@@ -8,11 +8,17 @@
 		<version>3.1.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>ase</groupId>
+	<groupId>tuwien.inso.ase</groupId>
 	<artifactId>athlete_view</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>athlete_view</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Trainings platform application for scheduling the trainings</description>
+	<organization>
+		<name>
+			TU Wien INSO ASE GROUP 5 WS2023
+		</name>
+	</organization>
+	<inceptionYear>2023</inceptionYear>
 	<properties>
 		<java.version>17</java.version>
 		<kotlin.version>1.8.22</kotlin.version>
@@ -286,6 +292,22 @@
 							<jvmFlag>-Xmx128m</jvmFlag>
 						</jvmFlags>
 					</container>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>2.4.0</version>
+				<executions>
+					<execution>
+						<id>download-licenses</id>
+						<goals>
+							<goal>download-licenses</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<licenseName>mit</licenseName>
 				</configuration>
 			</plugin>
 		</plugins>
